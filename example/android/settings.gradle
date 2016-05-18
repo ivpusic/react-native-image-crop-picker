@@ -1,0 +1,6 @@
+rootProject.name = 'example'
+
+include ':app'
+
+include ':react-native-image-crop-picker'
+project(':react-native-image-crop-picker').projectDir = new File(settingsDir, '../../android')

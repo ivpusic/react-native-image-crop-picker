@@ -1,0 +1,32 @@
+{
+  "name": "react-native-image-crop-picker",
+  "version": "0.2.3",
+  "description": "Select single or multiple images, with croping option",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivpusic/react-native-image-crop-picker.git"
+  },
+  "keywords": [
+    "react",
+    "native",
+    "react-native",
+    "image",
+    "picker",
+    "crop",
+    "cropping",
+    "multiple"
+  ],
+  "author": "Ivan Pusic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ivpusic/react-native-image-crop-picker/issues"
+  },
+  "homepage": "https://github.com/ivpusic/react-native-image-crop-picker#readme",
+  "dependencies": {
+    "react-native": "^0.25.1"
+  }
+}
