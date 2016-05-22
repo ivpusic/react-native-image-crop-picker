@@ -1,7 +1,7 @@
 # react-native-image-crop-picker
 iOS/Android image picker with support for multiple images and cropping
 
-**NOTE:** This library is result of one-night hacking, so please use it with caution. Don't assume there are not bugs. It is tested just on simple cases.
+**NOTE:** This library is result of one-night hacking, so please use it with caution. Don't assume there are no bugs. It is tested just on simple cases.
 
 ## Result
 
