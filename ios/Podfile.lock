@@ -1,8 +1,8 @@
 PODS:
   - QBImagePickerController (3.4.0)
-  - React (0.25.1):
-    - React/Core (= 0.25.1)
-  - React/Core (0.25.1)
+  - React (0.26.0):
+    - React/Core (= 0.26.0)
+  - React/Core (0.26.0)
   - RSKImageCropper (1.5.1)
   - UIImage-Resize (1.0.1)
 
@@ -18,7 +18,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
-  React: b35b2b2e07273da1f7266ab2975e0d1033bd913d
+  React: 77cf2f128076f6e41b33dd7217a725874cd5e931
   RSKImageCropper: edd65fedb3734332818deb139906d6b7f54b8a44
   UIImage-Resize: fa776860f10e6900bbaf53a73e494bdceaaccc77
 

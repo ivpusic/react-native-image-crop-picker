@@ -1,30 +1,30 @@
 {
-  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "E22760A5F9571E7C2A61889FF42B398765F62583",
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "5800466D1D613FC9757AEC0D4A1E3067BA273F6D",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
 
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
-    "E22760A5F9571E7C2A61889FF42B398765F62583" : 0,
-    "70F8ECE2EBC921B30FAAC42DFF3269CDD79B3E93" : 0
+    "70F8ECE2EBC921B30FAAC42DFF3269CDD79B3E93" : 0,
+    "5800466D1D613FC9757AEC0D4A1E3067BA273F6D" : 0
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "433638DA-09E5-4A9C-BAAF-D81A52EB4BEE",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "E22760A5F9571E7C2A61889FF42B398765F62583" : "react-native-image-crop-picker\/",
-    "70F8ECE2EBC921B30FAAC42DFF3269CDD79B3E93" : "..\/..\/..\/.."
+    "70F8ECE2EBC921B30FAAC42DFF3269CDD79B3E93" : "..\/..\/..\/..",
+    "5800466D1D613FC9757AEC0D4A1E3067BA273F6D" : "react-native-image-crop-picker\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "ios",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
   "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ios\/ios.xcworkspace",
   "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
     {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ivpusic\/react-native-image-crop-picker.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "5800466D1D613FC9757AEC0D4A1E3067BA273F6D"
+    },
+    {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ivpusic\/wissprs.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "70F8ECE2EBC921B30FAAC42DFF3269CDD79B3E93"
-    },
-    {
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:ivpusic\/react-native-image-crop-picker.git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E22760A5F9571E7C2A61889FF42B398765F62583"
     }
   ]
 }
