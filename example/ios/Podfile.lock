@@ -2,9 +2,9 @@ PODS:
   - QBImagePickerController (3.4.0)
   - React (0.26.1):
     - React/Core (= 0.26.1)
-  - react-native-image-crop-picker (0.2.4):
+  - react-native-image-crop-picker (0.2.6):
     - QBImagePickerController (= 3.4.0)
-    - React (= 0.26.1)
+    - React (>= 0.26.1)
     - RSKImageCropper (= 1.5.1)
     - UIImage-Resize (~> 1.0)
   - React/Core (0.26.1)
@@ -37,7 +37,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
   React: 9a7eb5f6e7146734fb50ab17f515087d302d5cca
-  react-native-image-crop-picker: 394714000c1f3eb7992977091855987562e669b7
+  react-native-image-crop-picker: 74b2f62969408d309d510bb5b5ea1c86b894a678
   RSKImageCropper: edd65fedb3734332818deb139906d6b7f54b8a44
   UIImage-Resize: fa776860f10e6900bbaf53a73e494bdceaaccc77
 
