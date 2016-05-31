@@ -5,8 +5,8 @@
 //  Copyright © 2016 Facebook. All rights reserved.
 //
 
-#ifndef RN_GoogleSigning_h
-#define RN_GoogleSigning_h
+#ifndef RN_IMAGE_CROP_PICKER_h
+#define RN_IMAGE_CROP_PICKER_h
 
 #import <Foundation/Foundation.h>
 #import "RCTBridgeModule.h"
