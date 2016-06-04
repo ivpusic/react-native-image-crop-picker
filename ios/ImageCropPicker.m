@@ -7,6 +7,8 @@
 
 #import "ImageCropPicker.h"
 
+#define ERROR_CANNOT_SAVE_IMAGE_KEY @"cannot_save_image"
+#define ERROR_CANNOT_SAVE_IMAGE_MSG @"Cannot save image. Unable to write to tmp location."
 
 @implementation ImageCropPicker
 
@@ -48,6 +50,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
             imagePickerController.maximumNumberOfSelection = [[self.options objectForKey:@"maxFiles"] intValue];
             imagePickerController.showsNumberOfSelectedAssets = YES;
+            imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             
             UIViewController *root = [[[[UIApplication sharedApplication] delegate]
                                        window] rootViewController];
@@ -74,9 +77,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
              requestImageDataForAsset:asset
              options:options
              resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                 NSURL *imageURL = [info valueForKey:@"PHImageFileURLKey"];
+                 NSString *filePath = [self persistFile:imageData];
+                 if (filePath == nil) {
+                     self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                     return;
+                 }
+                 
                  [images addObject:@{
-                                     @"path": [imageURL absoluteString],
+                                     @"path": filePath,
                                      @"width": @(asset.pixelWidth),
                                      @"height": @(asset.pixelHeight)
                                      }];
@@ -107,9 +115,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                  [imagePickerController dismissViewControllerAnimated:YES completion:nil];
                  [root presentViewController:imageCropVC animated:YES completion:nil];
              } else {
-                 NSURL *imageURL = [info valueForKey:@"PHImageFileURLKey"];
+                 NSString *filePath = [self persistFile:imageData];
+                 if (filePath == nil) {
+                     self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                     return;
+                 }
+                 
                  self.resolve(@{
-                                @"path": [imageURL absoluteString],
+                                @"path": filePath,
                                 @"width": @(asset.pixelWidth),
                                 @"height": @(asset.pixelHeight)
                                 });
@@ -195,20 +208,15 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
     
-    // create temp file
-    NSString *filePath = [NSTemporaryDirectory() stringByAppendingString:[[NSUUID UUID] UUIDString]];
-    filePath = [filePath stringByAppendingString:@".png"];
-    
     // we have correct rect, but not correct dimensions
     // so resize image
     CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     NSData *data = UIImageJPEGRepresentation(resizedImage, 1);
     
-    // save cropped file
-    BOOL status = [data writeToFile:filePath atomically:YES];
-    if (!status) {
-        self.reject(@"cannot_save_image", @"Cannot save image", nil);
+    NSString *filePath = [self persistFile:data];
+    if (filePath == nil) {
+        self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
         return;
     }
     
@@ -220,6 +228,22 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     
     self.resolve(image);
     [controller dismissViewControllerAnimated:YES completion:nil];
+}
+
+// at the moment it is not possible to upload image by reading PHAsset
+// we are saving image and saving it to the tmp location where we are allowed to access image later
+- (NSString*) persistFile:(NSData*)data {
+    // create temp file
+    NSString *filePath = [NSTemporaryDirectory() stringByAppendingString:[[NSUUID UUID] UUIDString]];
+    filePath = [filePath stringByAppendingString:@".jpg"];
+    
+    // save cropped file
+    BOOL status = [data writeToFile:filePath atomically:YES];
+    if (!status) {
+        return nil;
+    }
+    
+    return filePath;
 }
 
 // The original image has been cropped. Additionally provides a rotation angle
