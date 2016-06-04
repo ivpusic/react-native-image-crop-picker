@@ -7,6 +7,9 @@
 
 #import "ImageCropPicker.h"
 
+#define ERROR_PICKER_CANCEL_KEY @"picker_cancel"
+#define ERROR_PICKER_CANCEL_MSG @"User cancelled image selection"
+
 #define ERROR_CANNOT_SAVE_IMAGE_KEY @"cannot_save_image"
 #define ERROR_CANNOT_SAVE_IMAGE_MSG @"Cannot save image. Unable to write to tmp location."
 
@@ -133,6 +136,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 }
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController {
+    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
     [imagePickerController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -200,6 +204,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 // Crop image has been canceled.
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
+    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
