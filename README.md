@@ -42,6 +42,16 @@ ImagePicker.openPicker({
 });
 ```
 
+#### Response Object
+
+| Property        | Type           | Description  |
+| ------------- |:-------------:| :-----|
+| path          | string | Selected image location |
+| width      | number      | Selected image width |
+| height | number      | Selected image height |
+| mime | string | Selected image MIME type (image/jpeg, image/png) |
+| size | number | Selected image size in bytes |
+
 ## Install
 
 `npm install react-native-image-crop-picker --save`
