@@ -36,6 +36,7 @@ export default class App extends Component {
       height: 300,
       cropping: cropit
     }).then(image => {
+      console.log('received image', image);
       this.setState({
         image: {uri: image.path, width: image.width, height: image.height},
         images: null
@@ -50,6 +51,7 @@ export default class App extends Component {
       this.setState({
         image: null,
         images: images.map(i => {
+          console.log('received image', i);
           return {uri: i.path, width: i.width, height: i.height};
         })
       });
