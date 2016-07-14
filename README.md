@@ -60,6 +60,8 @@ ImagePicker.openPicker({
 pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
 ```
 
+[- Step By Step tutorial](https://github.com/ivpusic/react-native-image-crop-picker#ios-step-by-step-installation)
+
 #### Android
 ```gradle
 // file: android/settings.gradle
