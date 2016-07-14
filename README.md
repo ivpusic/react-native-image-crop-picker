@@ -1,8 +1,6 @@
 # react-native-image-crop-picker
 iOS/Android image picker with support for multiple images and cropping
 
-**NOTE:** This library is result of one-night hacking, so please use it with caution. Don't assume there are no bugs. It is tested just on simple cases.
-
 ## Result
 
 #### iOS
@@ -114,6 +112,37 @@ It is basically wrapper around few libraries
 #### iOS
 - QBImagePickerController
 - RSKImageCropper
+
+# iOS Step by Step installation
+
+- Create new react native project with Pods support
+```
+react-native init picker
+cd picker
+npm i react-native-image-crop-picker --save
+cd ios
+pod init
+```
+
+- Inside `ios` directory change `Podfile` to following
+```
+platform :ios, '8.0'
+
+target 'picker' do
+    source 'https://github.com/CocoaPods/Specs.git'
+    pod 'React', :subspecs => ['Core', 'RCTImage', 'RCTNetwork', 'RCTText', 'RCTWebSocket'], :path => '../node_modules/react-native'
+    pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
+end
+```
+
+- Run
+```
+pod install
+```
+
+- Add `$(inherited)` to other linker flags under Build Settings (XCode -> open project_name.xcworkspace)
+
+Done!
 
 ## License
 *MIT*
