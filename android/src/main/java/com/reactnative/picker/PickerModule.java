@@ -91,16 +91,6 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
     }
 
-    public static int byteSizeOf(Bitmap bitmap) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return bitmap.getAllocationByteCount();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-            return bitmap.getByteCount();
-        } else {
-            return bitmap.getRowBytes() * bitmap.getHeight();
-        }
-    }
-
     private WritableMap getImage(Uri uri, boolean resolvePath) {
         WritableMap image = new WritableNativeMap();
         String path = uri.getPath();
@@ -111,6 +101,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
         BitmapFactory.Options options = new BitmapFactory.Options();
 
+        long fileLen = 0;
+        if (path != null) {
+            fileLen = new File(path).length();
+        }
 
         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         image.putString("path", "file://" + path);
@@ -119,7 +113,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         image.putString("mime", options.outMimeType);
 
         if (bitmap != null) {
-            image.putInt("size", byteSizeOf(bitmap));
+            image.putInt("size", (int)fileLen);
             bitmap.recycle();
         } else {
             image.putInt("size", 0);
