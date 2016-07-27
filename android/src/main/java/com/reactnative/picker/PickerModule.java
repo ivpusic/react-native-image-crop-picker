@@ -178,4 +178,8 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             mPickerPromise = null;
         }
     }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+    }
 }

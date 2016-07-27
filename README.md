@@ -4,13 +4,13 @@ iOS/Android image picker with support for multiple images and cropping
 ## Result
 
 #### iOS
-<img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png"> 
-<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_crop.png"> 
+<img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png">
+<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_crop.png">
 <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick.png">
 
 #### Android
-<img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_single_pick.png"> 
-<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_crop.png"> 
+<img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_single_pick.png">
+<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_crop.png">
 <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_multiple.png">
 
 ## Usage
@@ -81,13 +81,13 @@ dependencies {
 ```
 
 ```java
-// file: MainActivity.java
+// file: MainApplication.java
 ...
 
 import com.reactnative.picker.PickerPackage; // import package
 
-public class MainActivity extends ReactActivity {
-
+public class MainApplication extends ReactApplication {
+...
    /**
    * A list of packages used by the app. If the app uses additional views
    * or modules besides the default ones, add more packages here.
