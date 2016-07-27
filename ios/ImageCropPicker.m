@@ -185,19 +185,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
     
-    if (rect.size.width > viewWidth) {
-        float scaleFactor = viewWidth / rect.size.width;
-        rect.size.width *= scaleFactor;
-        rect.size.height *= scaleFactor;
-        rect.origin.x = 0;
-        rect.origin.y = viewHeight / 2 * 0.5f;
-    } else if (rect.size.height > viewHeight) {
-        float scaleFactor = viewHeight / rect.size.height;
-        rect.size.width *= scaleFactor;
-        rect.size.height *= scaleFactor;
-        rect.origin.x = viewWidth / 2 * 0.5f;
-        rect.origin.y = 0;
-    }
+    double scaleFactor = fmin(viewWidth / rect.size.width, viewHeight / rect.size.height);
+    rect.size.width *= scaleFactor;
+    rect.size.height *= scaleFactor;
+    rect.origin.x = (viewWidth - rect.size.width) / 2;
+    rect.origin.y = (viewHeight - rect.size.height) / 2;
     
     return rect;
 }

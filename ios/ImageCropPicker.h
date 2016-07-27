@@ -14,6 +14,7 @@
 #import <QBImagePickerController/QBImagePickerController.h>
 #import <RSKImageCropper/RSKImageCropper.h>
 #import "UIImage+Resize.h"
+#import <math.h>
 
 @interface ImageCropPicker : NSObject<
   RCTBridgeModule,
