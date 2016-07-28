@@ -3,7 +3,7 @@ platform :ios, '8.0'
 # Uncomment this line if you're using Swift
 # use_frameworks!
 
-target 'ios' do
+target 'imageCropPicker' do
     pod 'React', :path => '../node_modules/react-native'
     pod 'QBImagePickerController', '3.4.0'
     pod 'RSKImageCropper', '1.5.1'

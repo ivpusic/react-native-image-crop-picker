@@ -10,6 +10,7 @@
 		05ED982300309570595E6415 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BD68D2BA210764F2B45A9E8 /* libPods.a */; };
 		3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */; };
 		7C2FA32BD238084092BADC62 /* libPods-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D0F40878CF442B0366B8BD /* libPods-ios.a */; };
+		9B46DDDC9479669CD34E163A /* libPods-imageCropPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EEAACF4A99BFA29DE7F70DA /* libPods-imageCropPicker.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,12 +27,13 @@
 
 /* Begin PBXFileReference section */
 		1BD68D2BA210764F2B45A9E8 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2463CBAB1C77CC256B77EF66 /* Pods-imageCropPicker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-imageCropPicker.release.xcconfig"; path = "Pods/Target Support Files/Pods-imageCropPicker/Pods-imageCropPicker.release.xcconfig"; sourceTree = "<group>"; };
 		28D0F40878CF442B0366B8BD /* libPods-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3400A8081CEB54A6008A0BC7 /* libios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libios.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3400A8081CEB54A6008A0BC7 /* libimageCropPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimageCropPicker.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCropPicker.h; sourceTree = "<group>"; };
 		3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCropPicker.m; sourceTree = "<group>"; };
-		5334DE9EC8523E00C03E7B1F /* Pods-ios.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ios/Pods-ios.debug.xcconfig"; sourceTree = "<group>"; };
-		7AD9B365910E1EAA1889FC3C /* Pods-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios.release.xcconfig"; path = "Pods/Target Support Files/Pods-ios/Pods-ios.release.xcconfig"; sourceTree = "<group>"; };
+		7EEAACF4A99BFA29DE7F70DA /* libPods-imageCropPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-imageCropPicker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF0383191562417F69CE13C0 /* Pods-imageCropPicker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-imageCropPicker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-imageCropPicker/Pods-imageCropPicker.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +43,7 @@
 			files = (
 				7C2FA32BD238084092BADC62 /* libPods-ios.a in Frameworks */,
 				05ED982300309570595E6415 /* libPods.a in Frameworks */,
+				9B46DDDC9479669CD34E163A /* libPods-imageCropPicker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +64,7 @@
 		3400A8091CEB54A6008A0BC7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3400A8081CEB54A6008A0BC7 /* libios.a */,
+				3400A8081CEB54A6008A0BC7 /* libimageCropPicker.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,6 +74,7 @@
 			children = (
 				28D0F40878CF442B0366B8BD /* libPods-ios.a */,
 				1BD68D2BA210764F2B45A9E8 /* libPods.a */,
+				7EEAACF4A99BFA29DE7F70DA /* libPods-imageCropPicker.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -78,8 +82,8 @@
 		DE9F36C10D014D61FADE41D2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5334DE9EC8523E00C03E7B1F /* Pods-ios.debug.xcconfig */,
-				7AD9B365910E1EAA1889FC3C /* Pods-ios.release.xcconfig */,
+				DF0383191562417F69CE13C0 /* Pods-imageCropPicker.debug.xcconfig */,
+				2463CBAB1C77CC256B77EF66 /* Pods-imageCropPicker.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -87,9 +91,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3400A8071CEB54A6008A0BC7 /* ios */ = {
+		3400A8071CEB54A6008A0BC7 /* imageCropPicker */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3400A8111CEB54A6008A0BC7 /* Build configuration list for PBXNativeTarget "ios" */;
+			buildConfigurationList = 3400A8111CEB54A6008A0BC7 /* Build configuration list for PBXNativeTarget "imageCropPicker" */;
 			buildPhases = (
 				1F2C7A7F1CD107249FB80C39 /* Check Pods Manifest.lock */,
 				3400A8041CEB54A6008A0BC7 /* Sources */,
@@ -101,9 +105,9 @@
 			);
 			dependencies = (
 			);
-			name = ios;
+			name = imageCropPicker;
 			productName = picker;
-			productReference = 3400A8081CEB54A6008A0BC7 /* libios.a */;
+			productReference = 3400A8081CEB54A6008A0BC7 /* libimageCropPicker.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -120,7 +124,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 3400A8031CEB54A6008A0BC7 /* Build configuration list for PBXProject "ios" */;
+			buildConfigurationList = 3400A8031CEB54A6008A0BC7 /* Build configuration list for PBXProject "imageCropPicker" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -132,7 +136,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3400A8071CEB54A6008A0BC7 /* ios */,
+				3400A8071CEB54A6008A0BC7 /* imageCropPicker */,
 			);
 		};
 /* End PBXProject section */
@@ -165,7 +169,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ios/Pods-ios-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-imageCropPicker/Pods-imageCropPicker-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -266,26 +270,26 @@
 		};
 		3400A8121CEB54A6008A0BC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5334DE9EC8523E00C03E7B1F /* Pods-ios.debug.xcconfig */;
+			baseConfigurationReference = DF0383191562417F69CE13C0 /* Pods-imageCropPicker.debug.xcconfig */;
 			buildSettings = {
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
 				);
-				PRODUCT_NAME = ios;
+				PRODUCT_NAME = imageCropPicker;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
 		3400A8131CEB54A6008A0BC7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AD9B365910E1EAA1889FC3C /* Pods-ios.release.xcconfig */;
+			baseConfigurationReference = 2463CBAB1C77CC256B77EF66 /* Pods-imageCropPicker.release.xcconfig */;
 			buildSettings = {
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
 				);
-				PRODUCT_NAME = ios;
+				PRODUCT_NAME = imageCropPicker;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -293,7 +297,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3400A8031CEB54A6008A0BC7 /* Build configuration list for PBXProject "ios" */ = {
+		3400A8031CEB54A6008A0BC7 /* Build configuration list for PBXProject "imageCropPicker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3400A80F1CEB54A6008A0BC7 /* Debug */,
@@ -302,7 +306,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3400A8111CEB54A6008A0BC7 /* Build configuration list for PBXNativeTarget "ios" */ = {
+		3400A8111CEB54A6008A0BC7 /* Build configuration list for PBXNativeTarget "imageCropPicker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3400A8121CEB54A6008A0BC7 /* Debug */,
