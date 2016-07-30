@@ -100,24 +100,19 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
 
         BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
 
         long fileLen = 0;
         if (path != null) {
             fileLen = new File(path).length();
         }
 
-        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+        BitmapFactory.decodeFile(path, options);
         image.putString("path", "file://" + path);
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
-
-        if (bitmap != null) {
-            image.putInt("size", (int)fileLen);
-            bitmap.recycle();
-        } else {
-            image.putInt("size", 0);
-        }
+        image.putInt("size", (int)fileLen);
 
         return image;
     }
