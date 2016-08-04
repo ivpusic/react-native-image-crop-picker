@@ -142,7 +142,8 @@ end
 pod install
 ```
 
-- Add `$(inherited)` to other linker flags under Build Settings (XCode -> open project_name.xcworkspace)
+- open **project_name.xcworkspace**
+- Add `$(inherited)` to other linker flags under Build Settings
 
 Done!
 
