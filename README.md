@@ -40,6 +40,17 @@ ImagePicker.openPicker({
 });
 ```
 
+#### Request Object
+
+| Property        | Type           | Description  |
+| ------------- |:-------------:| :-----|
+| cropping | bool (default false)      | Enable or disable cropping |
+| width          | number | Width of result image when used with `cropping` option |
+| height      | number      | Height of result image when used with `cropping` option |
+| multiple | bool (default false) | Enable or disable multiple image selection |
+| includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
+| maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
+
 #### Response Object
 
 | Property        | Type           | Description  |
