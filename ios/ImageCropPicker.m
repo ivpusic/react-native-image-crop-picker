@@ -85,6 +85,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
              resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                  UIImage *image = [UIImage imageWithData:imageData];
                  NSData *data = UIImageJPEGRepresentation(image, 1);
+                 NSString *dataString = [data base64EncodedStringWithOptions:0];
                  
                  NSString *filePath = [self persistFile:data];
                  if (filePath == nil) {
@@ -94,6 +95,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                  
                  [images addObject:@{
                                      @"path": filePath,
+                                     @"data": dataString,
                                      @"width": @(asset.pixelWidth),
                                      @"height": @(asset.pixelHeight),
                                      @"mime": @"image/jpeg",
@@ -135,6 +137,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
              } else {
                  UIImage *image = [UIImage imageWithData:imageData];
                  NSData *data = UIImageJPEGRepresentation(image, 1);
+                 NSString *dataString = [data base64EncodedStringWithOptions:0];
                  NSString *filePath = [self persistFile:data];
                  if (filePath == nil) {
                      self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
@@ -143,6 +146,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                  
                  self.resolve(@{
                                 @"path": filePath,
+                                @"data": dataString,
                                 @"width": @(asset.pixelWidth),
                                 @"height": @(asset.pixelHeight),
                                 @"mime": @"image/jpeg",
@@ -229,6 +233,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     NSData *data = UIImageJPEGRepresentation(resizedImage, 1);
+    NSString *dataString = [data base64EncodedStringWithOptions:0];
     
     NSString *filePath = [self persistFile:data];
     if (filePath == nil) {
@@ -238,6 +243,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     
     NSDictionary *image = @{
                             @"path": filePath,
+                            @"data": dataString,
                             @"width": @(resizedImage.size.width),
                             @"height": @(resizedImage.size.height),
                             @"mime": @"image/jpeg",
