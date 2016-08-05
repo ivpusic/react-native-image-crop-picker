@@ -17,13 +17,13 @@
 
 RCT_EXPORT_MODULE();
 
-
 - (instancetype)init
 {
     if (self = [super init]) {
         self.defaultOptions = @{
                                 @"multiple": @NO,
                                 @"cropping": @NO,
+                                @"includeBase64": @NO,
                                 @"maxFiles": @5,
                                 @"width": @200,
                                 @"height": @200
@@ -97,7 +97,8 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                      @"width": @(asset.pixelWidth),
                                      @"height": @(asset.pixelHeight),
                                      @"mime": @"image/jpeg",
-                                     @"size": [NSNumber numberWithUnsignedInteger:data.length]
+                                     @"size": [NSNumber numberWithUnsignedInteger:data.length],
+                                     @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
                                      }];
              }];
         }
@@ -146,7 +147,8 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                 @"width": @(asset.pixelWidth),
                                 @"height": @(asset.pixelHeight),
                                 @"mime": @"image/jpeg",
-                                @"size": [NSNumber numberWithUnsignedInteger:data.length]
+                                @"size": [NSNumber numberWithUnsignedInteger:data.length],
+                                @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
                                 });
                  [imagePickerController dismissViewControllerAnimated:YES completion:nil];
              }
@@ -236,15 +238,15 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         return;
     }
     
-    NSDictionary *image = @{
-                            @"path": filePath,
-                            @"width": @(resizedImage.size.width),
-                            @"height": @(resizedImage.size.height),
-                            @"mime": @"image/jpeg",
-                            @"size": [NSNumber numberWithUnsignedInteger:data.length]
-                            };
+    self.resolve(@{
+                   @"path": filePath,
+                   @"width": @(resizedImage.size.width),
+                   @"height": @(resizedImage.size.height),
+                   @"mime": @"image/jpeg",
+                   @"size": [NSNumber numberWithUnsignedInteger:data.length],
+                   @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
+                   });
     
-    self.resolve(image);
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 

@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Base64;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
@@ -26,6 +27,12 @@ import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.util.UUID;
+import java.io.InputStream;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * Created by ipusic on 5/16/16.
@@ -46,6 +53,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     private boolean cropping = false;
     private boolean multiple = false;
+    private boolean includeBase64 = false;
     private int width = 100;
     private int height = 100;
 
@@ -69,6 +77,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
 
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
@@ -91,12 +100,39 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
     }
 
+    private String getBase64StringFromFile(String absoluteFilePath) {
+        InputStream inputStream;
+
+        try {
+            inputStream = new FileInputStream(new File(absoluteFilePath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        byte[] bytes;
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        try {
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        bytes = output.toByteArray();
+        return Base64.encodeToString(bytes, Base64.NO_WRAP);
+    }
+
     private WritableMap getImage(Uri uri, boolean resolvePath) {
         WritableMap image = new WritableNativeMap();
         String path = uri.getPath();
 
         if (resolvePath) {
-            path =  RealPathUtil.getRealPathFromURI(activity, uri);
+            path = RealPathUtil.getRealPathFromURI(activity, uri);
         }
 
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -112,7 +148,11 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
-        image.putInt("size", (int)fileLen);
+        image.putInt("size", (int) fileLen);
+
+        if (includeBase64) {
+            image.putString("data", getBase64StringFromFile(path));
+        }
 
         return image;
     }
