@@ -101,26 +101,30 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     }
 
     private String getBase64StringFromFile(String absoluteFilePath) {
-      InputStream inputStream = null;
-      try {
-        inputStream = new FileInputStream(new File(absoluteFilePath));
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      }
+        InputStream inputStream;
 
-      byte[] bytes;
-      byte[] buffer = new byte[8192];
-      int bytesRead;
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      try {
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-          output.write(buffer, 0, bytesRead);
+        try {
+            inputStream = new FileInputStream(new File(absoluteFilePath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
         }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      bytes = output.toByteArray();
-      return Base64.encodeToString(bytes, Base64.NO_WRAP);
+
+        byte[] bytes;
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        try {
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        bytes = output.toByteArray();
+        return Base64.encodeToString(bytes, Base64.NO_WRAP);
     }
 
     private WritableMap getImage(Uri uri, boolean resolvePath) {
@@ -128,7 +132,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         String path = uri.getPath();
 
         if (resolvePath) {
-            path =  RealPathUtil.getRealPathFromURI(activity, uri);
+            path = RealPathUtil.getRealPathFromURI(activity, uri);
         }
 
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -144,12 +148,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
-        image.putInt("size", (int)fileLen);
+        image.putInt("size", (int) fileLen);
 
         if (includeBase64) {
-          String data = getBase64StringFromFile(path);
-
-          image.putString("data", data);
+            image.putString("data", getBase64StringFromFile(path));
         }
 
         return image;

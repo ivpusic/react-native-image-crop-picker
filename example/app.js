@@ -30,6 +30,21 @@ export default class App extends Component {
     };
   }
 
+  pickSingleBase64(cropit) {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: cropit,
+      includeBase64: true
+    }).then(image => {
+      console.log('received image', image);
+      this.setState({
+        image: {uri: 'data:image/png;base64,'+ image.data, width: image.width, height: image.height},
+        images: null
+      });
+    }).catch(e => {});
+  }
+
   pickSingle(cropit) {
     ImagePicker.openPicker({
       width: 300,
@@ -71,6 +86,9 @@ export default class App extends Component {
 
       <TouchableOpacity onPress={() => this.pickSingle(false)} style={styles.button}>
         <Text style={styles.text}>Select Single</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => this.pickSingleBase64(false)} style={styles.button}>
+        <Text style={styles.text}>Select Single Returning Base64</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.pickSingle(true)} style={styles.button}>
         <Text style={styles.text}>Select Single With Cropping</Text>

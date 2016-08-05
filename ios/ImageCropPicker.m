@@ -17,7 +17,6 @@
 
 RCT_EXPORT_MODULE();
 
-
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -93,22 +92,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                      return;
                  }
                  
-                 NSMutableDictionary *object = [NSMutableDictionary
-                                               dictionaryWithDictionary:@{
-                                                                          @"path": filePath,
-                                                                          @"width": @(asset.pixelWidth),
-                                                                          @"height": @(asset.pixelHeight),
-                                                                          @"mime": @"image/jpeg",
-                                                                          @"size": [NSNumber numberWithUnsignedInteger:data.length]}];
-  
-                 
-                 if ([[[self options] objectForKey:@"includeBase64"] boolValue]) {
-                     NSString *dataString = [data base64EncodedStringWithOptions:0];
-
-                     object[@"data"] = dataString;
-                 }
-                 
-                 [images addObject:[object copy]];
+                 [images addObject:@{
+                                     @"path": filePath,
+                                     @"width": @(asset.pixelWidth),
+                                     @"height": @(asset.pixelHeight),
+                                     @"mime": @"image/jpeg",
+                                     @"size": [NSNumber numberWithUnsignedInteger:data.length],
+                                     @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
+                                     }];
              }];
         }
         
@@ -151,22 +142,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                      return;
                  }
                  
-                 NSMutableDictionary *object = [NSMutableDictionary
-                                                dictionaryWithDictionary:@{
-                                                                           @"path": filePath,
-                                                                           @"width": @(asset.pixelWidth),
-                                                                           @"height": @(asset.pixelHeight),
-                                                                           @"mime": @"image/jpeg",
-                                                                           @"size": [NSNumber numberWithUnsignedInteger:data.length]}];
-                 
-                 
-                 if ([[[self options] objectForKey:@"includeBase64"] boolValue]) {
-                     NSString *dataString = [data base64EncodedStringWithOptions:0];
-                     
-                     object[@"data"] = dataString;
-                 }
-                 
-                 self.resolve([object copy]);
+                 self.resolve(@{
+                                @"path": filePath,
+                                @"width": @(asset.pixelWidth),
+                                @"height": @(asset.pixelHeight),
+                                @"mime": @"image/jpeg",
+                                @"size": [NSNumber numberWithUnsignedInteger:data.length],
+                                @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
+                                });
                  [imagePickerController dismissViewControllerAnimated:YES completion:nil];
              }
          }];
@@ -255,22 +238,15 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         return;
     }
     
-    NSMutableDictionary *image = [NSMutableDictionary
-                                   dictionaryWithDictionary:@{
-                                                              @"path": filePath,
-                                                              @"width": @(resizedImage.size.width),
-                                                              @"height": @(resizedImage.size.height),
-                                                              @"mime": @"image/jpeg",
-                                                              @"size": [NSNumber numberWithUnsignedInteger:data.length]}];
+    self.resolve(@{
+                   @"path": filePath,
+                   @"width": @(resizedImage.size.width),
+                   @"height": @(resizedImage.size.height),
+                   @"mime": @"image/jpeg",
+                   @"size": [NSNumber numberWithUnsignedInteger:data.length],
+                   @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
+                   });
     
-    
-    if ([[[self options] objectForKey:@"includeBase64"] boolValue]) {
-        NSString *dataString = [data base64EncodedStringWithOptions:0];
-        
-        image[@"data"] = dataString;
-    }
-    
-    self.resolve([image copy]);
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
