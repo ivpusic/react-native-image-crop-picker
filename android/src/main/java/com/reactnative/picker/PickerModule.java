@@ -53,6 +53,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     private boolean cropping = false;
     private boolean multiple = false;
+    private boolean includeBase64 = false;
     private int width = 100;
     private int height = 100;
 
@@ -76,6 +77,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
 
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
@@ -124,7 +126,6 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private WritableMap getImage(Uri uri, boolean resolvePath) {
         WritableMap image = new WritableNativeMap();
         String path = uri.getPath();
-        String data = getBase64StringFromFile(path);
 
         if (resolvePath) {
             path =  RealPathUtil.getRealPathFromURI(activity, uri);
@@ -140,11 +141,16 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
         BitmapFactory.decodeFile(path, options);
         image.putString("path", "file://" + path);
-        image.putString("data", data);
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
         image.putInt("size", (int)fileLen);
+
+        if (includeBase64) {
+          String data = getBase64StringFromFile(path);
+
+          image.putString("data", data);
+        }
 
         return image;
     }
