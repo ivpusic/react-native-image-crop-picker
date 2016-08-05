@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Base64;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
@@ -26,6 +27,12 @@ import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.util.UUID;
+import java.io.InputStream;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * Created by ipusic on 5/16/16.
@@ -91,9 +98,33 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
     }
 
+    private String getBase64StringFromFile(String absoluteFilePath) {
+      InputStream inputStream = null;
+      try {
+        inputStream = new FileInputStream(new File(absoluteFilePath));
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
+
+      byte[] bytes;
+      byte[] buffer = new byte[8192];
+      int bytesRead;
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      try {
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+          output.write(buffer, 0, bytesRead);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      bytes = output.toByteArray();
+      return Base64.encodeToString(bytes, Base64.NO_WRAP);
+    }
+
     private WritableMap getImage(Uri uri, boolean resolvePath) {
         WritableMap image = new WritableNativeMap();
         String path = uri.getPath();
+        String data = getBase64StringFromFile(path);
 
         if (resolvePath) {
             path =  RealPathUtil.getRealPathFromURI(activity, uri);
@@ -109,6 +140,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
         BitmapFactory.decodeFile(path, options);
         image.putString("path", "file://" + path);
+        image.putString("data", data);
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
