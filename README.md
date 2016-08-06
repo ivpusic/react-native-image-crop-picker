@@ -143,7 +143,7 @@ platform :ios, '8.0'
 
 target 'picker' do
     source 'https://github.com/CocoaPods/Specs.git'
-    pod 'React', :subspecs => ['Core', 'RCTImage', 'RCTNetwork', 'RCTText', 'RCTWebSocket'], :path => '../node_modules/react-native'
+    pod 'React', :path => '../node_modules/react-native'
     pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
 end
 ```
@@ -155,7 +155,6 @@ pod install
 
 - open **project_name.xcworkspace**
 - Add `$(inherited)` to other linker flags under Build Settings
-- Remove all RCT* and React under Libraries (because you defined them via Podfile), or keep them inside Libraries but remove them from Podfile, otherwise you will get "duplicated symbols..." compile error
 
 Done!
 
