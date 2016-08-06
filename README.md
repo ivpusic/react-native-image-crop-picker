@@ -155,6 +155,7 @@ pod install
 
 - open **project_name.xcworkspace**
 - Add `$(inherited)` to other linker flags under Build Settings
+- Remove all RCT* and React under Libraries (because you defined them via Podfile), or keep them inside Libraries but remove them from Podfile, otherwise you will get "duplicated symbols..." compile error
 
 Done!
 
