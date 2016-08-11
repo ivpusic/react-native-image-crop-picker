@@ -20,6 +20,8 @@ Import library
 import ImagePicker from 'react-native-image-crop-picker';
 ```
 
+#### Select from gallery
+
 Call single image picker with cropping
 ```javascript
 ImagePicker.openPicker({
@@ -37,6 +39,17 @@ ImagePicker.openPicker({
   multiple: true
 }).then(images => {
   console.log(images);
+});
+```
+
+#### Select from camera
+```javascript
+ImagePicker.openCamera({
+  width: 300,
+  height: 400,
+  cropping: true
+}).then(image => {
+  console.log(image);
 });
 ```
 
