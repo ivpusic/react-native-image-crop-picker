@@ -400,7 +400,7 @@
 					"$(inherited)",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.imagecroppikcer.example;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.imagecropikcer.example;
 				PRODUCT_NAME = example;
 				PROVISIONING_PROFILE = "";
 			};
@@ -426,7 +426,7 @@
 					"$(inherited)",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.imagecroppikcer.example;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.imagecropikcer.example;
 				PRODUCT_NAME = example;
 				PROVISIONING_PROFILE = "";
 			};

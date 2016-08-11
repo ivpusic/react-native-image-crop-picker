@@ -30,6 +30,20 @@ export default class App extends Component {
     };
   }
 
+  pickSingleWithCamera(cropping) {
+    ImagePicker.openCamera({
+      cropping,
+      width: 500,
+      height: 500
+    }).then(image => {
+      console.log('received image', image);
+      this.setState({
+        image: {uri: image.path, width: image.width, height: image.height},
+        images: null
+      });
+    }).catch(e => alert(e));
+  }
+
   pickSingleBase64(cropit) {
     ImagePicker.openPicker({
       width: 300,
@@ -84,6 +98,12 @@ export default class App extends Component {
         {this.state.images ? this.state.images.map(i => <Image key={i.uri} style={{width: 300, height: this.scaledHeight(i.width, i.height, 300)}} source={i} />) : null}
       </ScrollView>
 
+      <TouchableOpacity onPress={() => this.pickSingleWithCamera(false)} style={styles.button}>
+        <Text style={styles.text}>Select Single With Camera</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => this.pickSingleWithCamera(true)} style={styles.button}>
+        <Text style={styles.text}>Select Single With Camera With Cropping</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => this.pickSingle(false)} style={styles.button}>
         <Text style={styles.text}>Select Single</Text>
       </TouchableOpacity>
