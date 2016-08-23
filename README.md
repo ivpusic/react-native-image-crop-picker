@@ -85,6 +85,8 @@ ImagePicker.openCamera({
 pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
 ```
 
+- **DO NOT link it with rnpm** => will be doubled linked, and you will be screaming 
+
 [- Step By Step tutorial](https://github.com/ivpusic/react-native-image-crop-picker#ios-step-by-step-installation)
 
 #### Android
