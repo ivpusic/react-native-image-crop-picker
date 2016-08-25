@@ -1,17 +1,11 @@
 # react-native-image-crop-picker
-iOS/Android image picker with support for multiple images and cropping
+iOS/Android image picker with support for camera, multiple images and cropping
 
 ## Result
 
-#### iOS
 <img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png">
 <img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_crop.png">
 <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick.png">
-
-#### Android
-<img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_single_pick.png">
-<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_crop.png">
-<img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/android_multiple.png">
 
 ## Usage
 
@@ -78,7 +72,7 @@ ImagePicker.openCamera({
 ## Install
 
 ```
-npm install react-native-image-crop-picker --save
+npm i react-native-image-crop-picker --save
 react-native link react-native-image-crop-picker
 ```
 
