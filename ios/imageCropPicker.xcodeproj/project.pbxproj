@@ -7,33 +7,60 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		05ED982300309570595E6415 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BD68D2BA210764F2B45A9E8 /* libPods.a */; };
 		3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */; };
-		7C2FA32BD238084092BADC62 /* libPods-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D0F40878CF442B0366B8BD /* libPods-ios.a */; };
-		9B46DDDC9479669CD34E163A /* libPods-imageCropPicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EEAACF4A99BFA29DE7F70DA /* libPods-imageCropPicker.a */; };
+		34434E401D6F5F9E00BF5063 /* QBImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */; };
+		34434E411D6F5F9E00BF5063 /* RSKImageCropper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */; };
+		347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */; };
+		347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */ = {isa = PBXBuildFile; fileRef = 34963A931D6B919800F9CA2F /* UIImage+Resize.h */; };
+		34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 34963A941D6B919800F9CA2F /* UIImage+Resize.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		3400A8061CEB54A6008A0BC7 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
+/* Begin PBXContainerItemProxy section */
+		34434E2D1D6F5EA300BF5063 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE031ACDA079002A9710;
+			remoteInfo = QBImagePicker;
 		};
-/* End PBXCopyFilesBuildPhase section */
+		34434E2F1D6F5EA300BF5063 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE0E1ACDA079002A9710;
+			remoteInfo = QBImagePickerTests;
+		};
+		34434E311D6F5EA300BF5063 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE271ACDA0CE002A9710;
+			remoteInfo = QBImagePickerDemo;
+		};
+		34434E331D6F5EA300BF5063 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE3F1ACDA0CE002A9710;
+			remoteInfo = QBImagePickerDemoTests;
+		};
+		34434E391D6F5EBB00BF5063 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A5BE393D1B32B49D00ECDF88;
+			remoteInfo = RSKImageCropper;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1BD68D2BA210764F2B45A9E8 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		2463CBAB1C77CC256B77EF66 /* Pods-imageCropPicker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-imageCropPicker.release.xcconfig"; path = "Pods/Target Support Files/Pods-imageCropPicker/Pods-imageCropPicker.release.xcconfig"; sourceTree = "<group>"; };
-		28D0F40878CF442B0366B8BD /* libPods-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3400A8081CEB54A6008A0BC7 /* libimageCropPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimageCropPicker.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCropPicker.h; sourceTree = "<group>"; };
 		3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCropPicker.m; sourceTree = "<group>"; };
-		7EEAACF4A99BFA29DE7F70DA /* libPods-imageCropPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-imageCropPicker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF0383191562417F69CE13C0 /* Pods-imageCropPicker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-imageCropPicker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-imageCropPicker/Pods-imageCropPicker.debug.xcconfig"; sourceTree = "<group>"; };
+		34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QBImagePicker.xcodeproj; path = QBImagePicker/QBImagePicker.xcodeproj; sourceTree = "<group>"; };
+		34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RSKImageCropper.xcodeproj; path = RSKImageCropper/RSKImageCropper.xcodeproj; sourceTree = "<group>"; };
+		34963A931D6B919800F9CA2F /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Resize.h"; path = "UIImage-Resize/UIImage+Resize.h"; sourceTree = "<group>"; };
+		34963A941D6B919800F9CA2F /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Resize.m"; path = "UIImage-Resize/UIImage+Resize.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,9 +68,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7C2FA32BD238084092BADC62 /* libPods-ios.a in Frameworks */,
-				05ED982300309570595E6415 /* libPods.a in Frameworks */,
-				9B46DDDC9479669CD34E163A /* libPods-imageCropPicker.a in Frameworks */,
+				34434E401D6F5F9E00BF5063 /* QBImagePicker.framework in Frameworks */,
+				34434E411D6F5F9E00BF5063 /* RSKImageCropper.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,11 +79,12 @@
 		3400A7FF1CEB54A6008A0BC7 = {
 			isa = PBXGroup;
 			children = (
+				34434E251D6F5E5600BF5063 /* Frameworks */,
 				3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */,
 				3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */,
+				34963A931D6B919800F9CA2F /* UIImage+Resize.h */,
+				34963A941D6B919800F9CA2F /* UIImage+Resize.m */,
 				3400A8091CEB54A6008A0BC7 /* Products */,
-				DE9F36C10D014D61FADE41D2 /* Pods */,
-				65C0726CDFB1FE151957AC17 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,23 +96,32 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		65C0726CDFB1FE151957AC17 /* Frameworks */ = {
+		34434E251D6F5E5600BF5063 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				28D0F40878CF442B0366B8BD /* libPods-ios.a */,
-				1BD68D2BA210764F2B45A9E8 /* libPods.a */,
-				7EEAACF4A99BFA29DE7F70DA /* libPods-imageCropPicker.a */,
+				34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */,
+				34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		DE9F36C10D014D61FADE41D2 /* Pods */ = {
+		34434E271D6F5EA300BF5063 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DF0383191562417F69CE13C0 /* Pods-imageCropPicker.debug.xcconfig */,
-				2463CBAB1C77CC256B77EF66 /* Pods-imageCropPicker.release.xcconfig */,
+				34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */,
+				34434E301D6F5EA300BF5063 /* QBImagePickerTests.xctest */,
+				34434E321D6F5EA300BF5063 /* QBImagePickerDemo.app */,
+				34434E341D6F5EA300BF5063 /* QBImagePickerDemoTests.xctest */,
 			);
-			name = Pods;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		34434E361D6F5EBB00BF5063 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -95,11 +131,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3400A8111CEB54A6008A0BC7 /* Build configuration list for PBXNativeTarget "imageCropPicker" */;
 			buildPhases = (
-				1F2C7A7F1CD107249FB80C39 /* Check Pods Manifest.lock */,
 				3400A8041CEB54A6008A0BC7 /* Sources */,
 				3400A8051CEB54A6008A0BC7 /* Frameworks */,
-				3400A8061CEB54A6008A0BC7 /* CopyFiles */,
-				B7013FD691B18B2F86EDB78C /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -130,10 +163,25 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				de,
+				es,
+				ja,
+				pl,
+				"zh-Hans",
 			);
 			mainGroup = 3400A7FF1CEB54A6008A0BC7;
 			productRefGroup = 3400A8091CEB54A6008A0BC7 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 34434E271D6F5EA300BF5063 /* Products */;
+					ProjectRef = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+				},
+				{
+					ProductGroup = 34434E361D6F5EBB00BF5063 /* Products */;
+					ProjectRef = 34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				3400A8071CEB54A6008A0BC7 /* imageCropPicker */,
@@ -141,44 +189,52 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		1F2C7A7F1CD107249FB80C39 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
+/* Begin PBXReferenceProxy section */
+		34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = QBImagePicker.framework;
+			remoteRef = 34434E2D1D6F5EA300BF5063 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		B7013FD691B18B2F86EDB78C /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-imageCropPicker/Pods-imageCropPicker-resources.sh\"\n";
-			showEnvVarsInLog = 0;
+		34434E301D6F5EA300BF5063 /* QBImagePickerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = QBImagePickerTests.xctest;
+			remoteRef = 34434E2F1D6F5EA300BF5063 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-/* End PBXShellScriptBuildPhase section */
+		34434E321D6F5EA300BF5063 /* QBImagePickerDemo.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = QBImagePickerDemo.app;
+			remoteRef = 34434E311D6F5EA300BF5063 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		34434E341D6F5EA300BF5063 /* QBImagePickerDemoTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = QBImagePickerDemoTests.xctest;
+			remoteRef = 34434E331D6F5EA300BF5063 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = RSKImageCropper.framework;
+			remoteRef = 34434E391D6F5EBB00BF5063 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3400A8041CEB54A6008A0BC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */,
+				347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */,
+				34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */,
 				3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,8 +326,17 @@
 		};
 		3400A8121CEB54A6008A0BC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DF0383191562417F69CE13C0 /* Pods-imageCropPicker.debug.xcconfig */;
 			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../example/node_modules/react-native/React/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/QBImagePicker/**/**",
+				);
+				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
@@ -283,8 +348,17 @@
 		};
 		3400A8131CEB54A6008A0BC7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2463CBAB1C77CC256B77EF66 /* Pods-imageCropPicker.release.xcconfig */;
 			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../example/node_modules/react-native/React/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../node_modules/react-native/React/**",
+					"$(SRCROOT)/QBImagePicker/**/**",
+				);
+				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",

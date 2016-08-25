@@ -77,56 +77,18 @@ ImagePicker.openCamera({
 
 ## Install
 
-`npm install react-native-image-crop-picker --save`
-
-#### iOS
-
 ```
-pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
+npm install react-native-image-crop-picker --save
+react-native link react-native-image-crop-picker
 ```
 
-[- Step By Step tutorial](https://github.com/ivpusic/react-native-image-crop-picker#ios-step-by-step-installation)
+#### Post-install steps
 
-#### Android
-```gradle
-// file: android/settings.gradle
-...
+##### iOS
 
-include ':react-native-image-crop-picker'
-project(':react-native-image-crop-picker').projectDir = new File(settingsDir, '../node_modules/react-native-image-crop-picker/android')
-```
-```gradle
-// file: android/app/build.gradle
-...
-
-dependencies {
-    ...
-    compile project(':react-native-image-crop-picker')
-}
-```
-
-```java
-// file: MainApplication.java
-...
-
-import com.reactnative.picker.PickerPackage; // import package
-
-public class MainApplication extends ReactApplication {
-...
-   /**
-   * A list of packages used by the app. If the app uses additional views
-   * or modules besides the default ones, add more packages here.
-   */
-    @Override
-    protected List<ReactPackage> getPackages() {
-        return Arrays.<ReactPackage>asList(
-            new MainReactPackage(),
-            new PickerPackage() // Add package
-        );
-    }
-...
-}
-```
+- Click on project General tab
+  - Under `Deployment Info` set `Deployment Target` to `8.0`
+  - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
 
 ## How it works?
 
@@ -139,38 +101,6 @@ It is basically wrapper around few libraries
 #### iOS
 - QBImagePickerController
 - RSKImageCropper
-
-# iOS Step by Step installation
-
-- Create new react native project with Pods support
-```
-react-native init picker
-cd picker
-npm i react-native-image-crop-picker --save
-cd ios
-pod init
-```
-
-- Inside `ios` directory change `Podfile` to following
-```
-platform :ios, '8.0'
-
-target 'picker' do
-    source 'https://github.com/CocoaPods/Specs.git'
-    pod 'React', :path => '../node_modules/react-native'
-    pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
-end
-```
-
-- Run
-```
-pod install
-```
-
-- open **project_name.xcworkspace**
-- Add `$(inherited)` to other linker flags under Build Settings
-
-Done!
 
 ## License
 *MIT*

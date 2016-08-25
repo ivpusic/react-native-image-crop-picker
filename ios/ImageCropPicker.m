@@ -129,7 +129,6 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.showsNumberOfSelectedAssets = YES;
             imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             
-            UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
             });
@@ -204,7 +203,6 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         imageCropVC.delegate = self;
         
         [viewController dismissViewControllerAnimated:YES completion:^{
-            UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
             });
