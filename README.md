@@ -84,6 +84,11 @@ react-native link react-native-image-crop-picker
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
 
+##### Android
+
+- [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
+  - `<uses-permission android:name="android.permission.CAMERA"/>`  
+
 ## How it works?
 
 It is basically wrapper around few libraries
