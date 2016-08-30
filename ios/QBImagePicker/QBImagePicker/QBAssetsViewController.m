@@ -177,7 +177,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (IBAction)done:(id)sender
 {
-    [NSThread detachNewThreadSelector:@selector(showLoader) toTarget:self withObject:nil];
+    if (self.imagePickerController.allowsMultipleSelection) {
+        [NSThread detachNewThreadSelector:@selector(showLoader) toTarget:self withObject:nil];
+    }
 
     if ([self.imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didFinishPickingAssets:)]) {
         [self.imagePickerController.delegate qb_imagePickerController:self.imagePickerController
