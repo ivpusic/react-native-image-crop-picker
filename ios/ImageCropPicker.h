@@ -11,9 +11,10 @@
 #import <Foundation/Foundation.h>
 #import "RCTBridgeModule.h"
 #import "RCTLog.h"
-#import <QBImagePickerController/QBImagePickerController.h>
-#import <RSKImageCropper/RSKImageCropper.h>
-#import "UIImage+Resize.h"
+#import "QBImagePicker/QBImagePicker.h"
+#import "RSKImageCropper/RSKImageCropper.h"
+#import "UIImage-Resize/UIImage+Resize.h"
+#import <math.h>
 
 @interface ImageCropPicker : NSObject<
   RCTBridgeModule,

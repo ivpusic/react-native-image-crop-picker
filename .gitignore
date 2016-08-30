@@ -2,6 +2,12 @@
 #
 .DS_Store
 
+# android studio
+*.iml
+.idea
+.gradle
+build/
+
 # Xcode
 #
 build/
