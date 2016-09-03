@@ -6,6 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		340A78C61D79092200241672 /* Build RSKImageCropper */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 340A78C91D79092200241672 /* Build configuration list for PBXAggregateTarget "Build RSKImageCropper" */;
+			buildPhases = (
+				340A78CA1D79093200241672 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Build RSKImageCropper";
+			productName = "Build Framework";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		A5BE39D91B32BD2B00ECDF88 /* RSKImageCropper.h in Headers */ = {isa = PBXBuildFile; fileRef = A5BE39CB1B32BD2B00ECDF88 /* RSKImageCropper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A5BE39DA1B32BD2B00ECDF88 /* CGGeometry+RSKImageCropper.h in Headers */ = {isa = PBXBuildFile; fileRef = A5BE39CC1B32BD2B00ECDF88 /* CGGeometry+RSKImageCropper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -156,6 +170,10 @@
 			attributes = {
 				LastUpgradeCheck = 0700;
 				TargetAttributes = {
+					340A78C61D79092200241672 = {
+						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 5WFBC66J2G;
+					};
 					A5BE393C1B32B49D00ECDF88 = {
 						CreatedOnToolsVersion = 6.3.2;
 					};
@@ -174,6 +192,7 @@
 			projectRoot = "";
 			targets = (
 				A5BE393C1B32B49D00ECDF88 /* RSKImageCropper */,
+				340A78C61D79092200241672 /* Build RSKImageCropper */,
 			);
 		};
 /* End PBXProject section */
@@ -188,6 +207,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		340A78CA1D79093200241672 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Merge Script\n\n# 1\n# Set bash script to exit immediately if any commands fail.\nset -e\n\n# 2\n# Setup some constants for use later on.\nFRAMEWORK_NAME=\"RSKImageCropper\"\nDEST_DIR=\"$(cd ../$(SRCROOT) && pwd)/ImageCropPickerSDK\"\n\n# 3\n# If remnants from a previous build exist, delete them.\nif [ -d \"${SRCROOT}/build\" ]; then\nrm -rf \"${SRCROOT}/build\"\nfi\n\n# 4\n# Build the framework for device and for simulator (using\n# all needed architectures).\nxcodebuild -target \"${FRAMEWORK_NAME}\" -configuration Release -arch arm64 -arch armv7 -arch armv7s only_active_arch=no defines_module=yes -sdk \"iphoneos\"\nxcodebuild -target \"${FRAMEWORK_NAME}\" -configuration Release -arch x86_64 -arch i386 only_active_arch=no defines_module=yes -sdk \"iphonesimulator\"\n\n# 5\n# Remove .framework file if exists on Desktop from previous run.\nif [ -d \"$DEST_DIR/${FRAMEWORK_NAME}.framework\" ]; then\nrm -rf \"$DEST_DIR/${FRAMEWORK_NAME}.framework\"\nfi\n\n# 6\n# Copy the device version of framework to Desktop.\ncp -r \"${SRCROOT}/build/Release-iphoneos/${FRAMEWORK_NAME}.framework\" \"$DEST_DIR/${FRAMEWORK_NAME}.framework\"\n\n# 7\n# Replace the framework executable within the framework with\n# a new version created by merging the device and simulator\n# frameworks' executables with lipo.\nlipo -create -output \"$DEST_DIR/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\" \"${SRCROOT}/build/Release-iphoneos/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\" \"${SRCROOT}/build/Release-iphonesimulator/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\"\n\n# 9\n# Delete the most recent build.\nif [ -d \"${SRCROOT}/build\" ]; then\nrm -rf \"${SRCROOT}/build\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A5BE39381B32B49D00ECDF88 /* Sources */ = {
@@ -207,6 +242,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		340A78C71D79092200241672 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		340A78C81D79092200241672 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A5BE39511B32B49D00ECDF88 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -306,6 +355,7 @@
 				INFOPLIST_FILE = Framework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ruslanskorb.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = RSKImageCropper;
 				SKIP_INSTALL = YES;
@@ -322,6 +372,7 @@
 				INFOPLIST_FILE = Framework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ruslanskorb.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = RSKImageCropper;
 				SKIP_INSTALL = YES;
@@ -331,6 +382,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		340A78C91D79092200241672 /* Build configuration list for PBXAggregateTarget "Build RSKImageCropper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				340A78C71D79092200241672 /* Debug */,
+				340A78C81D79092200241672 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A5BE39371B32B49D00ECDF88 /* Build configuration list for PBXProject "RSKImageCropper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

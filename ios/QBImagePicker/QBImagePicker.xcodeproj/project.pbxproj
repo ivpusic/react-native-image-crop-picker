@@ -6,6 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		340A78CB1D7909FB00241672 /* Build QBImagePicker */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 340A78CE1D7909FC00241672 /* Build configuration list for PBXAggregateTarget "Build QBImagePicker" */;
+			buildPhases = (
+				340A78CF1D790A0100241672 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Build QBImagePicker";
+			productName = "Build QBImagePicker";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		790A850F1AE7D4D9008E2A80 /* QBSlomoIconView.h in Headers */ = {isa = PBXBuildFile; fileRef = 790A850D1AE7D4D9008E2A80 /* QBSlomoIconView.h */; };
 		790A85101AE7D4D9008E2A80 /* QBSlomoIconView.m in Sources */ = {isa = PBXBuildFile; fileRef = 790A850E1AE7D4D9008E2A80 /* QBSlomoIconView.m */; };
@@ -199,6 +213,10 @@
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = "Katsuma Tanaka";
 				TargetAttributes = {
+					340A78CB1D7909FB00241672 = {
+						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 5WFBC66J2G;
+					};
 					AAA8FE021ACDA079002A9710 = {
 						CreatedOnToolsVersion = 6.2;
 					};
@@ -223,6 +241,7 @@
 			projectRoot = "";
 			targets = (
 				AAA8FE021ACDA079002A9710 /* QBImagePicker */,
+				340A78CB1D7909FB00241672 /* Build QBImagePicker */,
 			);
 		};
 /* End PBXProject section */
@@ -238,6 +257,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		340A78CF1D790A0100241672 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Merge Script\n\n# 1\n# Set bash script to exit immediately if any commands fail.\nset -e\n\n# 2\n# Setup some constants for use later on.\nFRAMEWORK_NAME=\"QBImagePicker\"\nDEST_DIR=\"$(cd ../$(SRCROOT) && pwd)/ImageCropPickerSDK\"\n\n# 3\n# If remnants from a previous build exist, delete them.\nif [ -d \"${SRCROOT}/build\" ]; then\nrm -rf \"${SRCROOT}/build\"\nfi\n\n# 4\n# Build the framework for device and for simulator (using\n# all needed architectures).\nxcodebuild -target \"${FRAMEWORK_NAME}\" -configuration Release -arch arm64 -arch armv7 -arch armv7s only_active_arch=no defines_module=yes -sdk \"iphoneos\"\nxcodebuild -target \"${FRAMEWORK_NAME}\" -configuration Release -arch x86_64 -arch i386 only_active_arch=no defines_module=yes -sdk \"iphonesimulator\"\n\n# 5\n# Remove .framework file if exists on Desktop from previous run.\nif [ -d \"$DEST_DIR/${FRAMEWORK_NAME}.framework\" ]; then\nrm -rf \"$DEST_DIR/${FRAMEWORK_NAME}.framework\"\nfi\n\n# 6\n# Copy the device version of framework to Desktop.\ncp -r \"${SRCROOT}/build/Release-iphoneos/${FRAMEWORK_NAME}.framework\" \"$DEST_DIR/${FRAMEWORK_NAME}.framework\"\n\n# 7\n# Replace the framework executable within the framework with\n# a new version created by merging the device and simulator\n# frameworks' executables with lipo.\nlipo -create -output \"$DEST_DIR/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\" \"${SRCROOT}/build/Release-iphoneos/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\" \"${SRCROOT}/build/Release-iphonesimulator/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}\"\n\n# 9\n# Delete the most recent build.\nif [ -d \"${SRCROOT}/build\" ]; then\nrm -rf \"${SRCROOT}/build\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AAA8FDFE1ACDA079002A9710 /* Sources */ = {
@@ -275,6 +310,20 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		340A78CC1D7909FC00241672 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		340A78CD1D7909FC00241672 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		AAA8FE171ACDA079002A9710 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -367,6 +416,7 @@
 		AAA8FE1A1ACDA079002A9710 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -374,15 +424,18 @@
 				INFOPLIST_FILE = QBImagePicker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.questbeat.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
 			};
 			name = Debug;
 		};
 		AAA8FE1B1ACDA079002A9710 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -390,15 +443,26 @@
 				INFOPLIST_FILE = QBImagePicker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp.questbeat.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		340A78CE1D7909FC00241672 /* Build configuration list for PBXAggregateTarget "Build QBImagePicker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				340A78CC1D7909FC00241672 /* Debug */,
+				340A78CD1D7909FC00241672 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AAA8FDFD1ACDA079002A9710 /* Build configuration list for PBXProject "QBImagePicker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

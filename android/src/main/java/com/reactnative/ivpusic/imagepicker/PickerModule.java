@@ -53,10 +53,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private static final String E_PICKER_CANCELLED_MSG = "User cancelled image selection";
 
     private static final String E_FAILED_TO_SHOW_PICKER = "E_FAILED_TO_SHOW_PICKER";
-    private static final String E_FAILED_TO_OPEN_CAMERA = "E_FALIED_TO_OPEN_CAMERA";
+    private static final String E_FAILED_TO_OPEN_CAMERA = "E_FAILED_TO_OPEN_CAMERA";
     private static final String E_NO_IMAGE_DATA_FOUND = "E_NO_IMAGE_DATA_FOUND";
     private static final String E_CAMERA_IS_NOT_AVAILABLE = "E_CAMERA_IS_NOT_AVAILABLE";
-    private static final String E_CANNOT_LAUNCH_CAMERA = "CANNOT_LAUNCH_CAMERA";
+    private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
     private static final String E_PERMISSIONS_MISSING = "E_PERMISSIONS_MISSING";
 
     private Promise mPickerPromise;
