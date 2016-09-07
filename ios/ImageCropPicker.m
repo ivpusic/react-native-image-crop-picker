@@ -16,6 +16,9 @@
 #define ERROR_PICKER_CANCEL_KEY @"picker_cancel"
 #define ERROR_PICKER_CANCEL_MSG @"User cancelled image selection"
 
+#define ERROR_CLEANUP_ERROR_KEY @"cleanup_error"
+#define ERROR_CLEANUP_ERROR_MSG @"Error while cleaning up tmp files"
+
 #define ERROR_CANNOT_SAVE_IMAGE_KEY @"cannot_save_image"
 #define ERROR_CANNOT_SAVE_IMAGE_MSG @"Cannot save image. Unable to write to tmp location."
 
@@ -113,6 +116,48 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
+- (NSString*) getTmpDirectory {
+    NSString* TMP_DIRECTORY = @"/react-native-image-crop-picker/";
+    return [NSTemporaryDirectory() stringByAppendingString:TMP_DIRECTORY];
+}
+
+- (BOOL)cleanTmpDirectory {
+    NSString* tmpDirectoryPath = [self getTmpDirectory];
+    NSArray* tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tmpDirectoryPath error:NULL];
+    
+    for (NSString *file in tmpDirectory) {
+        BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", tmpDirectoryPath, file] error:NULL];
+        
+        if (!deleted) {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+RCT_EXPORT_METHOD(cleanSingle:(NSString *) path
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+    
+    if (!deleted) {
+        reject(ERROR_CLEANUP_ERROR_KEY, ERROR_CLEANUP_ERROR_MSG, nil);
+    } else {
+        resolve(nil);
+    }
+}
+
+RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    if (![self cleanTmpDirectory]) {
+        reject(ERROR_CLEANUP_ERROR_KEY, ERROR_CLEANUP_ERROR_MSG, nil);
+    } else {
+        resolve(nil);
+    }
+}
+
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
@@ -158,6 +203,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                  NSString *filePath = [self persistFile:data];
                  if (filePath == nil) {
                      self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                     [imagePickerController dismissViewControllerAnimated:YES completion:nil];
                      return;
                  }
                  
@@ -212,6 +258,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         NSString *filePath = [self persistFile:data];
         if (filePath == nil) {
             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+            [viewController dismissViewControllerAnimated:YES completion:nil];
             return;
         }
         
@@ -301,6 +348,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     NSString *filePath = [self persistFile:data];
     if (filePath == nil) {
         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+        [controller dismissViewControllerAnimated:YES completion:nil];
         return;
     }
     
@@ -319,8 +367,16 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 // at the moment it is not possible to upload image by reading PHAsset
 // we are saving image and saving it to the tmp location where we are allowed to access image later
 - (NSString*) persistFile:(NSData*)data {
+    // create tmp directory
+    NSString *tmpDirFullPath = [self getTmpDirectory];
+    BOOL dirCreated = [[NSFileManager defaultManager] createDirectoryAtPath: tmpDirFullPath
+                                                withIntermediateDirectories:YES attributes:nil error:nil];
+    if (!dirCreated) {
+        return nil;
+    }
+    
     // create temp file
-    NSString *filePath = [NSTemporaryDirectory() stringByAppendingString:[[NSUUID UUID] UUIDString]];
+    NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".jpg"];
     
     // save cropped file

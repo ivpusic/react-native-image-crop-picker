@@ -47,6 +47,17 @@ ImagePicker.openCamera({
 });
 ```
 
+#### Optional cleanup
+Module is creating tmp images which are going to be cleaned up automatically somewhere in the future. If you want to force cleanup, you can use `clean` to clean all tmp files, or `cleanSingle(path)` to clean single tmp file.
+
+```javascript
+ImagePicker.clean().then(() => {
+  console.log('removed all tmp images from tmp directory');
+}).catch(e => {
+  alert(e);
+});
+```
+
 #### Request Object
 
 | Property        | Type           | Description  |
