@@ -90,6 +90,14 @@ react-native link react-native-image-crop-picker
 #### Post-install steps
 
 ##### iOS
+
+###### cocoapods users
+
+- Add `platform :ios, '8.0'` to Podfile (!important)
+- Add `pod 'RSKImageCropper'` and `pod 'QBImagePickerController'` to Podfile
+  
+###### non-cocoapods users
+
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
@@ -103,6 +111,12 @@ react-native link react-native-image-crop-picker
 #### Production build
 
 ##### iOS
+
+###### cocoapods users
+
+- You are already done
+
+###### non-cocoapods users
 
 If you are using pre-built frameworks from `ios/ImageCropPickerSDK`, then before deploying app to production you should strip off simulator ARCHs from these, or you can add frameworks from `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework` to Embedded Binaries instead of pre-built ones.
 Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/61.
@@ -127,3 +141,4 @@ It is basically wrapper around few libraries
 
 ## License
 *MIT*
+
