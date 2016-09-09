@@ -33,12 +33,13 @@ RCT_EXPORT_MODULE();
                                 @"multiple": @NO,
                                 @"cropping": @NO,
                                 @"includeBase64": @NO,
+                                @"resizeMultiple": @NO,
                                 @"maxFiles": @5,
                                 @"width": @200,
                                 @"height": @200
                                 };
     }
-    
+
     return self;
 }
 
@@ -61,7 +62,7 @@ RCT_EXPORT_MODULE();
 - (void) setConfiguration:(NSDictionary *)options
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject {
-    
+
     self.resolve = resolve;
     self.reject = reject;
     self.options = [NSMutableDictionary dictionaryWithDictionary:self.defaultOptions];
@@ -75,16 +76,16 @@ RCT_EXPORT_MODULE();
     while (root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
-    
+
     return root;
 }
 
 RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     [self setConfiguration:options resolver:resolve rejecter:reject];
-    
+
 #if TARGET_IPHONE_SIMULATOR
     self.reject(ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY, ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG, nil);
     return;
@@ -94,13 +95,13 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             self.reject(ERROR_PICKER_NO_CAMERA_PERMISSION_KEY, ERROR_PICKER_NO_CAMERA_PERMISSION_MSG, nil);
             return;
         }
-        
+
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
         picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
         picker.delegate = self;
-        
+
         [[self getRootVC] presentViewController:picker animated:YES completion:nil];
     }];
 #endif
@@ -124,24 +125,24 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 - (BOOL)cleanTmpDirectory {
     NSString* tmpDirectoryPath = [self getTmpDirectory];
     NSArray* tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tmpDirectoryPath error:NULL];
-    
+
     for (NSString *file in tmpDirectory) {
         BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", tmpDirectoryPath, file] error:NULL];
-        
+
         if (!deleted) {
             return NO;
         }
     }
-    
+
     return YES;
 }
 
 RCT_EXPORT_METHOD(cleanSingle:(NSString *) path
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
-    
+
     if (!deleted) {
         reject(ERROR_CLEANUP_ERROR_KEY, ERROR_CLEANUP_ERROR_MSG, nil);
     } else {
@@ -161,7 +162,7 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     [self setConfiguration:options resolver:resolve rejecter:reject];
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -173,7 +174,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.maximumNumberOfSelection = [[self.options objectForKey:@"maxFiles"] intValue];
             imagePickerController.showsNumberOfSelectedAssets = YES;
             imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-            
+
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
             });
@@ -184,40 +185,52 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)qb_imagePickerController:
 (QBImagePickerController *)imagePickerController
           didFinishPickingAssets:(NSArray *)assets {
-    
+
     PHImageManager *manager = [PHImageManager defaultManager];
-    
+
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
         NSMutableArray *images = [[NSMutableArray alloc] init];
         PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
         options.synchronous = YES;
-        
+
         for (PHAsset *asset in assets) {
             [manager
              requestImageDataForAsset:asset
              options:options
              resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                  UIImage *image = [UIImage imageWithData:imageData];
+                 float width;
+                 float height;
+
+                 if ([[[self options] objectForKey:@"resizeMultiple"] boolValue]) {
+                   width = [[self.options valueForKey:@"width"] floatValue];
+                   height = [[self.options valueForKey:@"height"] floatValue];
+                   image = [self makeThumbnail:image width:width height:height];
+                } else {
+                   width = [@(asset.pixelWidth) floatValue];
+                   height = [@(asset.pixelHeight) floatValue];
+                }
+
                  NSData *data = UIImageJPEGRepresentation(image, 1);
-                 
+
                  NSString *filePath = [self persistFile:data];
                  if (filePath == nil) {
                      self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
                      [imagePickerController dismissViewControllerAnimated:YES completion:nil];
                      return;
                  }
-                 
+
                  [images addObject:@{
                                      @"path": filePath,
-                                     @"width": @(asset.pixelWidth),
-                                     @"height": @(asset.pixelHeight),
+                                     @"width": @(width),
+                                     @"height": @(height),
                                      @"mime": @"image/jpeg",
                                      @"size": [NSNumber numberWithUnsignedInteger:data.length],
                                      @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
                                      }];
              }];
         }
-        
+
         self.resolve(images);
         [imagePickerController dismissViewControllerAnimated:YES completion:nil];
     } else {
@@ -243,11 +256,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
     if ([[[self options] objectForKey:@"cropping"] boolValue]) {
         RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image cropMode:RSKImageCropModeCustom];
-        
+
         imageCropVC.avoidEmptySpaceAroundImage = YES;
         imageCropVC.dataSource = self;
         imageCropVC.delegate = self;
-        
+
         [viewController dismissViewControllerAnimated:YES completion:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
@@ -261,7 +274,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             [viewController dismissViewControllerAnimated:YES completion:nil];
             return;
         }
-        
+
         self.resolve(@{
                        @"path": filePath,
                        @"width": @(image.size.width),
@@ -282,14 +295,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     CGSize maskSize = CGSizeMake(
                                  [[self.options objectForKey:@"width"] intValue],
                                  [[self.options objectForKey:@"height"] intValue]);
-    
+
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-    
+
     CGRect maskRect = CGRectMake((viewWidth - maskSize.width) * 0.5f,
                                  (viewHeight - maskSize.height) * 0.5f,
                                  maskSize.width, maskSize.height);
-    
+
     return maskRect;
 }
 
@@ -299,13 +312,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     CGRect rect = controller.maskRect;
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-    
+
     double scaleFactor = fmin(viewWidth / rect.size.width, viewHeight / rect.size.height);
     rect.size.width *= scaleFactor;
     rect.size.height *= scaleFactor;
     rect.origin.x = (viewWidth - rect.size.width) / 2;
     rect.origin.y = (viewHeight - rect.size.height) / 2;
-    
+
     return rect;
 }
 
@@ -338,20 +351,20 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)imageCropViewController:(RSKImageCropViewController *)controller
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
-    
+
     // we have correct rect, but not correct dimensions
     // so resize image
     CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     NSData *data = UIImageJPEGRepresentation(resizedImage, 1);
-    
+
     NSString *filePath = [self persistFile:data];
     if (filePath == nil) {
         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
         [controller dismissViewControllerAnimated:YES completion:nil];
         return;
     }
-    
+
     self.resolve(@{
                    @"path": filePath,
                    @"width": @(resizedImage.size.width),
@@ -360,7 +373,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                    @"size": [NSNumber numberWithUnsignedInteger:data.length],
                    @"data": [[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null],
                    });
-    
+
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -374,17 +387,17 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     if (!dirCreated) {
         return nil;
     }
-    
+
     // create temp file
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".jpg"];
-    
+
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
     if (!status) {
         return nil;
     }
-    
+
     return filePath;
 }
 
@@ -395,6 +408,25 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   usingCropRect:(CGRect)cropRect
                   rotationAngle:(CGFloat)rotationAngle {
     [self imageCropViewController:controller didCropImage:croppedImage usingCropRect:cropRect];
+}
+
+- (UIImage*)makeThumbnail:(UIImage*)image width:(float)width height:(float)height
+{
+  UIImage* newImage = image;
+
+  CGSize thumb = CGSizeMake(width, height);
+  thumb.width = (int)thumb.width;
+  thumb.height = (int)thumb.height;
+
+  UIGraphicsBeginImageContext(thumb);
+  [image drawInRect:CGRectMake(0, 0, thumb.width, thumb.height)];
+  newImage = UIGraphicsGetImageFromCurrentImageContext();
+  if (newImage == nil) {
+      NSLog(@"could not scale image");
+  }
+  UIGraphicsEndImageContext();
+
+  return newImage;
 }
 
 @end
