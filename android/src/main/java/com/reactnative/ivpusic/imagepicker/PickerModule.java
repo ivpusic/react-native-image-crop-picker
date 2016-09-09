@@ -65,8 +65,9 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private boolean cropping = false;
     private boolean multiple = false;
     private boolean includeBase64 = false;
-    private int width = 100;
-    private int height = 100;
+    private int width = 200;
+    private int height = 200;
+    private boolean resizeMultiple = false;
     private Boolean tmpImage;
     private final ReactApplicationContext mReactContext;
     private Uri mCameraCaptureURI;
@@ -88,6 +89,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
+        resizeMultiple = options.hasKey("resizeMultiple") ? options.getBoolean("resizeMultiple") : resizeMultiple;
     }
 
     @ReactMethod
@@ -206,23 +208,46 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             path = RealPathUtil.getRealPathFromURI(activity, uri);
         }
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
+        if (resizeMultiple) {
+          Bitmap photo = BitmapFactory.decodeFile(path);
+           if (photo != null) {
+             Bitmap resized = Bitmap.createScaledBitmap(photo,width,height,true);
+             photo.recycle();
+             if (resized != null) {
+               ByteArrayOutputStream baos = new ByteArrayOutputStream();
+               resized.compress(Bitmap.CompressFormat.PNG, 100, baos);
 
-        long fileLen = 0;
-        if (path != null) {
+               byte[] byteArray = baos.toByteArray();
+               String encoded = Base64.encodeToString(byteArray,Base64.DEFAULT);
+
+               image.putString("path", "file://" + path);
+               image.putInt("width", resized.getWidth());
+               image.putInt("height", resized.getHeight());
+               image.putString("mime", "image/png");
+               image.putString("data", encoded);
+               image.putInt("size",baos.size());
+               resized.recycle();
+             }
+           }
+        } else {
+          BitmapFactory.Options options = new BitmapFactory.Options();
+          options.inJustDecodeBounds = true;
+
+          long fileLen = 0;
+          if (path != null) {
             fileLen = new File(path).length();
-        }
+          }
 
-        BitmapFactory.decodeFile(path, options);
-        image.putString("path", "file://" + path);
-        image.putInt("width", options.outWidth);
-        image.putInt("height", options.outHeight);
-        image.putString("mime", options.outMimeType);
-        image.putInt("size", (int) fileLen);
+          BitmapFactory.decodeFile(path, options);
+          image.putString("path", "file://" + path);
+          image.putInt("width", options.outWidth);
+          image.putInt("height", options.outHeight);
+          image.putString("mime", options.outMimeType);
+          image.putInt("size", (int) fileLen);
 
-        if (includeBase64) {
+          if (includeBase64) {
             image.putString("data", getBase64StringFromFile(path));
+          }
         }
 
         return image;
