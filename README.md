@@ -68,6 +68,7 @@ ImagePicker.clean().then(() => {
 | multiple | bool (default false) | Enable or disable multiple image selection |
 | includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
 | maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
+| smartAlbums (ios only) | array ['UserLibrary', 'Panoramas', 'Videos', 'Bursts'] | Remove smart albums or rearrange order |
 
 #### Response Object
 
@@ -95,7 +96,7 @@ react-native link react-native-image-crop-picker
 
 - Add `platform :ios, '8.0'` to Podfile (!important)
 - Add `pod 'RSKImageCropper'` and `pod 'QBImagePickerController'` to Podfile
-  
+
 ###### non-cocoapods users
 
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
@@ -141,4 +142,3 @@ It is basically wrapper around few libraries
 
 ## License
 *MIT*
-
