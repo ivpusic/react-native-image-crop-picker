@@ -177,22 +177,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (IBAction)done:(id)sender
 {
-    if (self.imagePickerController.allowsMultipleSelection) {
-        [NSThread detachNewThreadSelector:@selector(showLoader) toTarget:self withObject:nil];
-    }
-
     if ([self.imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didFinishPickingAssets:)]) {
         [self.imagePickerController.delegate qb_imagePickerController:self.imagePickerController
-                                               didFinishPickingAssets:self.imagePickerController.selectedAssets.array];
+                                             didFinishPickingAssets:self.imagePickerController.selectedAssets.array];
     }
-}
-
-- (void) showLoader {
-    UIActivityIndicatorView * activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-    UIBarButtonItem * loadingView = [[UIBarButtonItem alloc] initWithCustomView:activityIndicator];
-    activityIndicator.color = [UIColor blackColor];
-    [self.navigationItem setRightBarButtonItem:loadingView animated:NO];
-    [activityIndicator startAnimating];
 }
 
 
