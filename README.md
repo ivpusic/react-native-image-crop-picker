@@ -47,6 +47,17 @@ ImagePicker.openCamera({
 });
 ```
 
+#### Optional cleanup
+Module is creating tmp images which are going to be cleaned up automatically somewhere in the future. If you want to force cleanup, you can use `clean` to clean all tmp files, or `cleanSingle(path)` to clean single tmp file.
+
+```javascript
+ImagePicker.clean().then(() => {
+  console.log('removed all tmp images from tmp directory');
+}).catch(e => {
+  alert(e);
+});
+```
+
 #### Request Object
 
 | Property        | Type           | Description  |
@@ -79,6 +90,14 @@ react-native link react-native-image-crop-picker
 #### Post-install steps
 
 ##### iOS
+
+###### cocoapods users
+
+- Add `platform :ios, '8.0'` to Podfile (!important)
+- Add `pod 'RSKImageCropper'` and `pod 'QBImagePickerController'` to Podfile
+  
+###### non-cocoapods users
+
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
@@ -88,6 +107,25 @@ react-native link react-native-image-crop-picker
 
 - [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`  
+
+#### Production build
+
+##### iOS
+
+###### cocoapods users
+
+- You are already done
+
+###### non-cocoapods users
+
+If you are using pre-built frameworks from `ios/ImageCropPickerSDK`, then before deploying app to production you should strip off simulator ARCHs from these, or you can add frameworks from `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework` to Embedded Binaries instead of pre-built ones.
+Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/61.
+
+Details for second approach:
+
+1. Remove the pre-built frameworks from `Embedded Binaries`
+2. Build for Device
+4. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
 
 ## How it works?
 
@@ -103,3 +141,4 @@ It is basically wrapper around few libraries
 
 ## License
 *MIT*
+

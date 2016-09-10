@@ -91,6 +91,16 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     }
 
     @ReactMethod
+    public void clean(final Promise promise) {
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void cleanSingle(final String path, final Promise promise) {
+        promise.resolve(null);
+    }
+
+    @ReactMethod
     public void openCamera(final ReadableMap options, final Promise promise) {
         int requestCode = CAMERA_PICKER_REQUEST;
         Intent cameraIntent;

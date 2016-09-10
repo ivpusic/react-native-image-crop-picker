@@ -60,6 +60,25 @@ export default class App extends Component {
     }).catch(e => {});
   }
 
+  cleanupImages() {
+    ImagePicker.clean().then(() => {
+      console.log('removed tmp images from tmp directory');
+    }).catch(e => {
+      alert(e);
+    });
+  }
+
+  cleanupSingleImage() {
+    let image = this.state.image || (this.state.images && this.state.images.length ? this.state.images[0] : null);
+    console.log('will cleanup image', image);
+
+    ImagePicker.cleanSingle(image ? image.uri : null).then(() => {
+      console.log(`removed tmp image ${image.uri} from tmp directory`);
+    }).catch(e => {
+      alert(e);
+    })
+  }
+
   pickSingle(cropit) {
     ImagePicker.openPicker({
       width: 300,
@@ -116,6 +135,12 @@ export default class App extends Component {
       </TouchableOpacity>
       <TouchableOpacity onPress={this.pickMultiple.bind(this)} style={styles.button}>
         <Text style={styles.text}>Select Multiple</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={this.cleanupImages.bind(this)} style={styles.button}>
+        <Text style={styles.text}>Cleanup All Images</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={this.cleanupSingleImage.bind(this)} style={styles.button}>
+        <Text style={styles.text}>Cleanup Single Image</Text>
       </TouchableOpacity>
     </View>;
   }
