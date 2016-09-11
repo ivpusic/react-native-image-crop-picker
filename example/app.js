@@ -1,7 +1,11 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, ScrollView, Image, TouchableOpacity} from 'react-native';
+import {
+  View, Text, StyleSheet, ScrollView,
+  Image, TouchableOpacity, NativeModules, Dimensions
+} from 'react-native';
 
-import {NativeModules, Dimensions} from 'react-native';
+import Video from 'react-native-video';
+
 var ImagePicker = NativeModules.ImageCropPicker;
 
 const styles = StyleSheet.create({
@@ -57,7 +61,7 @@ export default class App extends Component {
         image: {uri: `data:${image.mime};base64,`+ image.data, width: image.width, height: image.height},
         images: null
       });
-    }).catch(e => {});
+    }).catch(e => alert(e));
   }
 
   cleanupImages() {
@@ -83,14 +87,15 @@ export default class App extends Component {
     ImagePicker.openPicker({
       width: 300,
       height: 300,
-      cropping: cropit
+      cropping: cropit,
+      compressVideo: true
     }).then(image => {
       console.log('received image', image);
       this.setState({
-        image: {uri: image.path, width: image.width, height: image.height},
+        image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
         images: null
       });
-    }).catch(e => {});
+    }).catch(e => alert(e));
   }
 
   pickMultiple() {
@@ -101,21 +106,54 @@ export default class App extends Component {
         image: null,
         images: images.map(i => {
           console.log('received image', i);
-          return {uri: i.path, width: i.width, height: i.height};
+          return {uri: i.path, width: i.width, height: i.height, mime: i.mime};
         })
       });
-    }).catch(e => {});
+    }).catch(e => alert(e));
   }
 
   scaledHeight(oldW, oldH, newW) {
     return (oldH / oldW) * newW;
   }
 
+  renderVideo(uri) {
+    return <View style={{height: 300, width: 300}}>
+      <Video source={{uri}}
+         style={{position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0
+          }}
+         rate={1}
+         paused={false}
+         volume={1}
+         muted={false}
+         resizeMode={'cover'}
+         onLoad={load => console.log(load)}
+         onProgress={() => {}}
+         onEnd={() => { console.log('Done!'); }}
+         repeat={true} />
+     </View>;
+  }
+
+  renderImage(image) {
+    return <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image} />
+  }
+
+  renderAsset(image) {
+    if (image.mime && image.mime.toLowerCase().indexOf('video/') !== -1) {
+      return this.renderVideo(image.uri);
+    }
+
+    return this.renderImage(image);
+  }
+
   render() {
     return <View style={styles.container}>
       <ScrollView>
-        {this.state.image ? <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={this.state.image} /> : null}
-        {this.state.images ? this.state.images.map(i => <Image key={i.uri} style={{width: 300, height: this.scaledHeight(i.width, i.height, 300)}} source={i} />) : null}
+        {this.state.image ? this.renderAsset(this.state.image) : null}
+        {this.state.images ? this.state.images.map(i => <View key={i.uri}>{this.renderAsset(i)}</View>) : null}
       </ScrollView>
 
       <TouchableOpacity onPress={() => this.pickSingleWithCamera(false)} style={styles.button}>
