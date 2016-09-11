@@ -63,7 +63,6 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
 
     private Promise mPickerPromise;
-    private Activity activity;
 
     private boolean cropping = false;
     private boolean multiple = false;
@@ -160,7 +159,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             return;
         }
 
-        activity = getCurrentActivity();
+        Activity activity = getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -197,7 +196,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
-        activity = getCurrentActivity();
+        Activity activity = getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -264,7 +263,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         return type;
     }
 
-    public WritableMap getSelection(Uri uri) throws Exception {
+    public WritableMap getSelection(Activity activity, Uri uri) throws Exception {
         String path = RealPathUtil.getRealPathFromURI(activity, uri);
         if (path == null || path.isEmpty()) {
             throw new Exception("Cannot resolve image path.");
@@ -275,7 +274,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             return getVideo(path, mime);
         }
 
-        return getImage(uri, true);
+        return getImage(activity, uri, true);
     }
 
     public WritableMap getVideo(String path, String mime) {
@@ -297,7 +296,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         return image;
     }
 
-    private WritableMap getImage(Uri uri, boolean resolvePath) throws Exception {
+    private WritableMap getImage(Activity activity, Uri uri, boolean resolvePath) throws Exception {
         WritableMap image = new WritableNativeMap();
         String path = uri.getPath();
 
@@ -309,10 +308,19 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             throw new Exception("Cannot resolve image path.");
         }
 
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            throw new Exception("Cannot select remote files");
+        }
+
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
         BitmapFactory.decodeFile(path, options);
+
+        if (options.outMimeType == null || options.outWidth == 0 || options.outHeight == 0) {
+            throw new Exception("Invalid image selected");
+        }
+
         image.putString("path", "file://" + path);
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
@@ -326,7 +334,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         return image;
     }
 
-    public void startCropping(Uri uri) {
+    public void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
 
@@ -337,7 +345,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
                 .start(activity);
     }
 
-    public void imagePickerResult(final int requestCode, final int resultCode, final Intent data) {
+    public void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (mPickerPromise == null) {
             return;
         }
@@ -352,10 +360,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
                 try {
                     // only one image selected
                     if (clipData == null) {
-                        result.pushMap(getSelection(data.getData()));
+                        result.pushMap(getSelection(activity, data.getData()));
                     } else {
                         for (int i = 0; i < clipData.getItemCount(); i++) {
-                            result.pushMap(getSelection(clipData.getItemAt(i).getUri()));
+                            result.pushMap(getSelection(activity, clipData.getItemAt(i).getUri()));
                         }
                     }
 
@@ -372,10 +380,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
                 }
 
                 if (cropping) {
-                    startCropping(uri);
+                    startCropping(activity, uri);
                 } else {
                     try {
-                        mPickerPromise.resolve(getSelection(uri));
+                        mPickerPromise.resolve(getSelection(activity, uri));
                     } catch (Exception ex) {
                         mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                     }
@@ -384,7 +392,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
     }
 
-    public void cameraPickerResult(final int requestCode, final int resultCode, final Intent data) {
+    public void cameraPickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (mPickerPromise == null) {
             return;
         }
@@ -402,10 +410,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             if (cropping) {
                 UCrop.Options options = new UCrop.Options();
                 options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
-                startCropping(uri);
+                startCropping(activity, uri);
             } else {
                 try {
-                    mPickerPromise.resolve(getImage(uri, true));
+                    mPickerPromise.resolve(getImage(activity, uri, true));
                 } catch (Exception ex) {
                     mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -413,12 +421,12 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         }
     }
 
-    public void croppingResult(final int requestCode, final int resultCode, final Intent data) {
+    public void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (data != null) {
             final Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
                 try {
-                    mPickerPromise.resolve(getImage(resultUri, false));
+                    mPickerPromise.resolve(getImage(activity, resultUri, false));
                 } catch (Exception ex) {
                     mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -431,13 +439,13 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == IMAGE_PICKER_REQUEST) {
-            imagePickerResult(requestCode, resultCode, data);
+            imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {
-            cameraPickerResult(requestCode, resultCode, data);
+            cameraPickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == UCrop.REQUEST_CROP) {
-            croppingResult(requestCode, resultCode, data);
+            croppingResult(activity, requestCode, resultCode, data);
         }
     }
 
