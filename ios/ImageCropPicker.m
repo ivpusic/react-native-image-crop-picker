@@ -42,7 +42,7 @@ RCT_EXPORT_MODULE();
                                 @"height": @200
                                 };
     }
-    
+
     return self;
 }
 
@@ -65,7 +65,7 @@ RCT_EXPORT_MODULE();
 - (void) setConfiguration:(NSDictionary *)options
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject {
-    
+
     self.resolve = resolve;
     self.reject = reject;
     self.options = [NSMutableDictionary dictionaryWithDictionary:self.defaultOptions];
@@ -79,16 +79,16 @@ RCT_EXPORT_MODULE();
     while (root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
-    
+
     return root;
 }
 
 RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     [self setConfiguration:options resolver:resolve rejecter:reject];
-    
+
 #if TARGET_IPHONE_SIMULATOR
     self.reject(ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY, ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG, nil);
     return;
@@ -98,13 +98,13 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             self.reject(ERROR_PICKER_NO_CAMERA_PERMISSION_KEY, ERROR_PICKER_NO_CAMERA_PERMISSION_MSG, nil);
             return;
         }
-        
+
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
         picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
         picker.delegate = self;
-        
+
         [[self getRootVC] presentViewController:picker animated:YES completion:nil];
     }];
 #endif
@@ -123,38 +123,38 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 - (NSString*) getTmpDirectory {
     NSString *TMP_DIRECTORY = @"react-native-image-crop-picker/";
     NSString *tmpFullPath = [NSTemporaryDirectory() stringByAppendingString:TMP_DIRECTORY];
-    
+
     BOOL isDir;
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:tmpFullPath isDirectory:&isDir];
     if (!exists) {
         [[NSFileManager defaultManager] createDirectoryAtPath: tmpFullPath
                                   withIntermediateDirectories:YES attributes:nil error:nil];
     }
-    
+
     return tmpFullPath;
 }
 
 - (BOOL)cleanTmpDirectory {
     NSString* tmpDirectoryPath = [self getTmpDirectory];
     NSArray* tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tmpDirectoryPath error:NULL];
-    
+
     for (NSString *file in tmpDirectory) {
         BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", tmpDirectoryPath, file] error:NULL];
-        
+
         if (!deleted) {
             return NO;
         }
     }
-    
+
     return YES;
 }
 
 RCT_EXPORT_METHOD(cleanSingle:(NSString *) path
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
-    
+
     if (!deleted) {
         reject(ERROR_CLEANUP_ERROR_KEY, ERROR_CLEANUP_ERROR_MSG, nil);
     } else {
@@ -174,7 +174,7 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     [self setConfiguration:options resolver:resolve rejecter:reject];
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -185,13 +185,30 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
             imagePickerController.maximumNumberOfSelection = [[self.options objectForKey:@"maxFiles"] intValue];
             imagePickerController.showsNumberOfSelectedAssets = YES;
-            
+
+            if ([self.options objectForKey:@"smartAlbums"] != nil) {
+                NSDictionary *smartAlbums = @{
+                                          @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                          @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                                          @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                                          @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                          @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                          };
+                NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
+                for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
+                    if ([smartAlbums objectForKey:album] != nil) {
+                        [albumsToShow addObject:[smartAlbums objectForKey:album]];
+                    }
+                }
+                imagePickerController.assetCollectionSubtypes = albumsToShow;
+            }
+
             if ([[self.options objectForKey:@"cropping"] boolValue]) {
                 imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             } else {
                 imagePickerController.mediaType = QBImagePickerMediaTypeAny;
             }
-            
+
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
             });
@@ -215,18 +232,18 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
 - (void)showActivityIndicator:(void (^)(UIActivityIndicatorView*, UIView*))handler {
     UIView *mainView = [[self getRootVC] view];
-    
+
     // create overlay
     UIView *loadingView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
     loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
     loadingView.clipsToBounds = YES;
-    
+
     // create loading spinner
     UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     activityView.frame = CGRectMake(65, 40, activityView.bounds.size.width, activityView.bounds.size.height);
     activityView.center = loadingView.center;
     [loadingView addSubview:activityView];
-    
+
     // create message
     UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
     loadingLabel.backgroundColor = [UIColor clearColor];
@@ -239,11 +256,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     loadingLabel.text = @"Processing assets...";
     [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
     [loadingView addSubview:loadingLabel];
-    
+
     // show all
     [mainView addSubview:loadingView];
     [activityView startAnimating];
-    
+
     handler(activityView, loadingView);
 }
 
@@ -252,7 +269,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     PHImageManager *manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;
-    
+
     [manager
      requestAVAssetForVideo:forAsset
      options:options
@@ -261,13 +278,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
          NSURL *sourceURL = [(AVURLAsset *)asset URL];
          AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
          CGSize dimensions = CGSizeApplyAffineTransform(track.naturalSize, track.preferredTransform);
-         
+
          if (![[self.options objectForKey:@"compressVideo"] boolValue]) {
              NSNumber *fileSizeValue = nil;
              [sourceURL getResourceValue:&fileSizeValue
                                   forKey:NSURLFileSizeKey
                                    error:nil];
-             
+
              completion([self createAttachmentResponse:[sourceURL absoluteString]
                                              withWidth:[NSNumber numberWithFloat:dimensions.width]
                                             withHeight:[NSNumber numberWithFloat:dimensions.height]
@@ -276,20 +293,20 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                               withData:[NSNull null]]);
              return;
          }
-         
+
          // create temp file
          NSString *tmpDirFullPath = [self getTmpDirectory];
          NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
          filePath = [filePath stringByAppendingString:@".mp4"];
          NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-         
+
          [self convertVideoToLowQuailtyWithInputURL:sourceURL outputURL:outputURL handler:^(AVAssetExportSession *exportSession) {
              if (exportSession.status == AVAssetExportSessionStatusCompleted) {
                  NSNumber *fileSizeValue = nil;
                  [outputURL getResourceValue:&fileSizeValue
                                       forKey:NSURLFileSizeKey
                                        error:nil];
-                 
+
                  completion([self createAttachmentResponse:[outputURL absoluteString]
                                                  withWidth:[NSNumber numberWithFloat:dimensions.width]
                                                 withHeight:[NSNumber numberWithFloat:dimensions.height]
@@ -317,31 +334,31 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)qb_imagePickerController:
 (QBImagePickerController *)imagePickerController
           didFinishPickingAssets:(NSArray *)assets {
-    
+
     PHImageManager *manager = [PHImageManager defaultManager];
-    
+
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
         NSMutableArray *selections = [[NSMutableArray alloc] init];
         PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
         options.synchronous = YES;
-        
+
         [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
             NSLock *lock = [[NSLock alloc] init];
             __block int processed = 0;
-            
+
             for (PHAsset *phAsset in assets) {
-                
+
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         [lock lock];
-                        
+
                         if (video != nil) {
                             [selections addObject:video];
                         }
-                        
+
                         processed++;
                         [lock unlock];
-                        
+
                         if (processed == [assets count]) {
                             self.resolve(selections);
                             [indicatorView stopAnimating];
@@ -357,14 +374,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                      resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                          UIImage *image = [UIImage imageWithData:imageData];
                          NSData *data = UIImageJPEGRepresentation(image, 1);
-                         
+
                          NSString *filePath = [self persistFile:data];
                          if (filePath == nil) {
                              self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
                              [imagePickerController dismissViewControllerAnimated:YES completion:nil];
                              return;
                          }
-                         
+
                          [lock lock];
                          [selections addObject:[self createAttachmentResponse:filePath
                                                                     withWidth:@(phAsset.pixelWidth)
@@ -375,7 +392,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                                 ]];
                          processed++;
                          [lock unlock];
-                         
+
                          if (processed == [assets count]) {
                              self.resolve(selections);
                              [indicatorView stopAnimating];
@@ -389,9 +406,9 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         }];
     } else {
         PHAsset *phAsset = [assets objectAtIndex:0];
-        
+
         if (phAsset.mediaType == PHAssetMediaTypeVideo) {
-            
+
             [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
                 [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                     if (video != nil) {
@@ -399,8 +416,8 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                     } else {
                         self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
                     }
-                    
-                    
+
+
                     [indicatorView stopAnimating];
                     [overlayView removeFromSuperview];
                     [imagePickerController dismissViewControllerAnimated:YES completion:nil];
@@ -430,11 +447,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
     if ([[[self options] objectForKey:@"cropping"] boolValue]) {
         RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image cropMode:RSKImageCropModeCustom];
-        
+
         imageCropVC.avoidEmptySpaceAroundImage = YES;
         imageCropVC.dataSource = self;
         imageCropVC.delegate = self;
-        
+
         [viewController dismissViewControllerAnimated:YES completion:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
@@ -448,14 +465,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             [viewController dismissViewControllerAnimated:YES completion:nil];
             return;
         }
-        
+
         self.resolve([self createAttachmentResponse:filePath
                                           withWidth:@(image.size.width)
                                          withHeight:@(image.size.height)
                                            withMime:@"image/jpeg"
                                            withSize:[NSNumber numberWithUnsignedInteger:data.length]
                                            withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null]]);
-        
+
         [viewController dismissViewControllerAnimated:YES completion:nil];
     }
 }
@@ -468,14 +485,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     CGSize maskSize = CGSizeMake(
                                  [[self.options objectForKey:@"width"] intValue],
                                  [[self.options objectForKey:@"height"] intValue]);
-    
+
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-    
+
     CGRect maskRect = CGRectMake((viewWidth - maskSize.width) * 0.5f,
                                  (viewHeight - maskSize.height) * 0.5f,
                                  maskSize.width, maskSize.height);
-    
+
     return maskRect;
 }
 
@@ -485,13 +502,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     CGRect rect = controller.maskRect;
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-    
+
     double scaleFactor = fmin(viewWidth / rect.size.width, viewHeight / rect.size.height);
     rect.size.width *= scaleFactor;
     rect.size.height *= scaleFactor;
     rect.origin.x = (viewWidth - rect.size.width) / 2;
     rect.origin.y = (viewHeight - rect.size.height) / 2;
-    
+
     return rect;
 }
 
@@ -524,27 +541,27 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)imageCropViewController:(RSKImageCropViewController *)controller
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
-    
+
     // we have correct rect, but not correct dimensions
     // so resize image
     CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     NSData *data = UIImageJPEGRepresentation(resizedImage, 1);
-    
+
     NSString *filePath = [self persistFile:data];
     if (filePath == nil) {
         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
         [controller dismissViewControllerAnimated:YES completion:nil];
         return;
     }
-    
+
     self.resolve([self createAttachmentResponse:filePath
                                       withWidth:@(resizedImage.size.width)
                                      withHeight:@(resizedImage.size.height)
                                        withMime:@"image/jpeg"
                                        withSize:[NSNumber numberWithUnsignedInteger:data.length]
                                        withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null]]);
-    
+
     [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -555,13 +572,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".jpg"];
-    
+
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
     if (!status) {
         return nil;
     }
-    
+
     return filePath;
 }
 
