@@ -68,8 +68,8 @@ ImagePicker.clean().then(() => {
 | multiple | bool (default false) | Enable or disable multiple image selection |
 | includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
 | maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
-| compressVideo (ios only) | number (default true) | When video is selected, compress it and convert it to mp4 |
-| smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) |
+| compressVideo (ios only) | bool (default true) | When video is selected, compress it and convert it to mp4 |
+| smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from |
 
 #### Response Object
 
