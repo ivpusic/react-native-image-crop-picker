@@ -51,7 +51,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private static final int CAMERA_PICKER_REQUEST = 2;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
 
-    private static final String E_PICKER_CANCELLED_KEY = "picker_cancel";
+    private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
     private static final String E_PICKER_CANCELLED_MSG = "User cancelled image selection";
 
     private static final String E_FAILED_TO_SHOW_PICKER = "E_FAILED_TO_SHOW_PICKER";
@@ -67,8 +67,8 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private boolean cropping = false;
     private boolean multiple = false;
     private boolean includeBase64 = false;
-    private int width = 100;
-    private int height = 100;
+    private int width = 200;
+    private int height = 200;
     private Boolean tmpImage;
     private final ReactApplicationContext mReactContext;
     private Uri mCameraCaptureURI;

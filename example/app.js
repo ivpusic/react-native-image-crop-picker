@@ -95,7 +95,10 @@ export default class App extends Component {
         image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
         images: null
       });
-    }).catch(e => alert(e));
+    }).catch(e => {
+      console.log(e.code);
+      alert(e);
+    });
   }
 
   pickMultiple() {

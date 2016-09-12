@@ -7,22 +7,22 @@
 
 #import "ImageCropPicker.h"
 
-#define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"cannot_run_camera_on_simulator"
+#define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG @"Cannot run camera on simulator"
 
-#define ERROR_PICKER_NO_CAMERA_PERMISSION_KEY @"missing_camera_permission"
+#define ERROR_PICKER_NO_CAMERA_PERMISSION_KEY @"E_PICKER_NO_CAMERA_PERMISSION"
 #define ERROR_PICKER_NO_CAMERA_PERMISSION_MSG @"User did not grant camera permission."
 
-#define ERROR_PICKER_CANCEL_KEY @"picker_cancel"
+#define ERROR_PICKER_CANCEL_KEY @"E_PICKER_CANCELLED"
 #define ERROR_PICKER_CANCEL_MSG @"User cancelled image selection"
 
-#define ERROR_CLEANUP_ERROR_KEY @"cleanup_error"
+#define ERROR_CLEANUP_ERROR_KEY @"E_ERROR_WHILE_CLEANING_FILES"
 #define ERROR_CLEANUP_ERROR_MSG @"Error while cleaning up tmp files"
 
-#define ERROR_CANNOT_SAVE_IMAGE_KEY @"cannot_save_image"
+#define ERROR_CANNOT_SAVE_IMAGE_KEY @"E_CANNOT_SAVE_IMAGE"
 #define ERROR_CANNOT_SAVE_IMAGE_MSG @"Cannot save image. Unable to write to tmp location."
 
-#define ERROR_CANNOT_PROCESS_VIDEO_KEY @"cannot_process_video"
+#define ERROR_CANNOT_PROCESS_VIDEO_KEY @"E_CANNOT_PROCESS_VIDEO"
 #define ERROR_CANNOT_PROCESS_VIDEO_MSG @"Cannot process video data"
 
 @implementation ImageCropPicker
