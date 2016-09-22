@@ -16,6 +16,9 @@
 #define ERROR_PICKER_CANCEL_KEY @"E_PICKER_CANCELLED"
 #define ERROR_PICKER_CANCEL_MSG @"User cancelled image selection"
 
+#define ERROR_PICKER_NO_DATA_KEY @"ERROR_PICKER_NO_DATA"
+#define ERROR_PICKER_NO_DATA_MSG @"Cannot find image data"
+
 #define ERROR_CLEANUP_ERROR_KEY @"E_ERROR_WHILE_CLEANING_FILES"
 #define ERROR_CLEANUP_ERROR_MSG @"Error while cleaning up tmp files"
 
@@ -445,6 +448,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
 - (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
+    
+    if (image == nil) {
+        self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
+    
     if ([[[self options] objectForKey:@"cropping"] boolValue]) {
         RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image cropMode:RSKImageCropModeCustom];
 
