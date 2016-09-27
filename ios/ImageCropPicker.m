@@ -430,23 +430,25 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 }];
             }];
         } else {
-            [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
-                options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-                    NSLog(@"%f", progress);
-                    if (stop == YES) {
-                        [indicatorView stopAnimating];
-                        [overlayView removeFromSuperview];
-                    }
-                };
-                [manager
-                 requestImageDataForAsset:phAsset
-                 options:options
-                 resultHandler:^(NSData *imageData, NSString *dataUTI,
-                                 UIImageOrientation orientation,
-                                 NSDictionary *info) {
-                     [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
-                 }];
-            }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
+                    options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+                        NSLog(@"%f", progress);
+                        if (stop == YES) {
+                            [indicatorView stopAnimating];
+                            [overlayView removeFromSuperview];
+                        }
+                    };
+                    [manager
+                     requestImageDataForAsset:phAsset
+                     options:options
+                     resultHandler:^(NSData *imageData, NSString *dataUTI,
+                                     UIImageOrientation orientation,
+                                     NSDictionary *info) {
+                         [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
+                     }];
+                }];
+            }
         }
     }
 }
