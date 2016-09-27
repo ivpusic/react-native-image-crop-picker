@@ -4,6 +4,12 @@ Tell us which versions you are using:
 - react-native-image-crop-picker v0.?.?
 - react-native v0.?.?
 
+### Platform
+Tell us to which platform this issue is related
+
+- iOS
+- Android
+
 ### Expected behaviour
 
 
@@ -15,7 +21,9 @@ Tell us which versions you are using:
 ### Steps to reproduce
 
 1.
+
 2.
+
 3.
 
 ### Attachments
