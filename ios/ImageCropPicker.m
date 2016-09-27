@@ -343,7 +343,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     PHImageManager *manager = [PHImageManager defaultManager];
     PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
     options.synchronous = YES;
-    options.isNetworkAccessAllowed = YES;
+    options.networkAccessAllowed = YES;
 
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
         NSMutableArray *selections = [[NSMutableArray alloc] init];
