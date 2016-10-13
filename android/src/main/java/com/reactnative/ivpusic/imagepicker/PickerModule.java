@@ -3,16 +3,11 @@ package com.reactnative.ivpusic.imagepicker;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PixelFormat;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.Manifest;
 import android.os.Environment;
@@ -41,9 +36,9 @@ import java.util.*;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
-import java.io.File;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 /**
  * Created by ipusic on 5/16/16.
@@ -57,6 +52,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
     private static final String E_PICKER_CANCELLED_MSG = "User cancelled image selection";
 
+    private static final String E_CALLBACK_ERROR = "E_CALLBACK_ERROR";
     private static final String E_FAILED_TO_SHOW_PICKER = "E_FAILED_TO_SHOW_PICKER";
     private static final String E_FAILED_TO_OPEN_CAMERA = "E_FAILED_TO_OPEN_CAMERA";
     private static final String E_NO_IMAGE_DATA_FOUND = "E_NO_IMAGE_DATA_FOUND";
@@ -116,39 +112,119 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void clean(final Promise promise) {
-        try {
-            File file = new File(this.getTmpDir());
-            if (!file.exists()) throw new Exception("File does not exist");
 
-            this.deleteRecursive(file);
-            promise.resolve(null);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+        final Activity activity = getCurrentActivity();
+        final PickerModule module = this;
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
         }
+
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                try {
+                    File file = new File(module.getTmpDir());
+                    if (!file.exists()) throw new Exception("File does not exist");
+
+                    module.deleteRecursive(file);
+                    promise.resolve(null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+                }
+
+                return null;
+            }
+        });
     }
 
     @ReactMethod
-    public void cleanSingle(String path, final Promise promise) {
-        if (path == null) {
+    public void cleanSingle(final String pathToDelete, final Promise promise) {
+        if (pathToDelete == null) {
             promise.reject(E_ERROR_WHILE_CLEANING_FILES, "Cannot cleanup empty path");
             return;
         }
 
-        try {
-            final String filePrefix = "file://";
-            if (path.startsWith(filePrefix)) {
-                path = path.substring(filePrefix.length());
+        final Activity activity = getCurrentActivity();
+        final PickerModule module = this;
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                try {
+                    String path = pathToDelete;
+                    final String filePrefix = "file://";
+                    if (path.startsWith(filePrefix)) {
+                        path = path.substring(filePrefix.length());
+                    }
+
+                    File file = new File(path);
+                    if (!file.exists()) throw new Exception("File does not exist. Path: " + path);
+
+                    module.deleteRecursive(file);
+                    promise.resolve(null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+                }
+
+                return null;
             }
+        });
+    }
 
-            File file = new File(path);
-            if (!file.exists()) throw new Exception("File does not exist. Path: " + path);
+    private void permissionsCheck(final Activity activity, final Promise promise, final List<String> requiredPermissions, final Callable<Void> callback) {
 
-            this.deleteRecursive(file);
-            promise.resolve(null);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+        List<String> missingPermissions = new ArrayList<>();
+
+        for (String permission : requiredPermissions) {
+            int status = ActivityCompat.checkSelfPermission(activity, permission);
+            if (status != PackageManager.PERMISSION_GRANTED) {
+                missingPermissions.add(permission);
+            }
+        }
+
+        if (!missingPermissions.isEmpty()) {
+
+            ((ReactActivity) activity).requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), 1, new PermissionListener() {
+
+                @Override
+                public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                    if (requestCode == 1) {
+
+                        for (int i = 0; i < grantResults.length; i++) {
+                            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                                promise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
+                                return true;
+                            }
+                        }
+
+                        try {
+                            callback.call();
+                        } catch (Exception e) {
+                            promise.reject(E_CALLBACK_ERROR, "Unknown error", e);
+                        }
+                    }
+
+                    return true;
+                }
+            });
+
+            return;
+        }
+
+        // all permissions granted
+        try {
+            callback.call();
+        } catch (Exception e) {
+            promise.reject(E_CALLBACK_ERROR, "Unknown error", e);
         }
     }
 
@@ -160,7 +236,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             return;
         }
 
-        Activity activity = getCurrentActivity();
+        final Activity activity = getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -170,8 +246,13 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         setConfiguration(options);
         mPickerPromise = promise;
 
-        if(permissionsCheck(activity)) initiateCamera(activity);
-
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                initiateCamera(activity);
+                return null;
+            }
+        });
     }
 
     private void initiateCamera(Activity activity) {
@@ -198,18 +279,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     }
 
-    @ReactMethod
-    public void openPicker(final ReadableMap options, final Promise promise) {
-        Activity activity = getCurrentActivity();
-
-        if (activity == null) {
-            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
-            return;
-        }
-
-        setConfiguration(options);
-        mPickerPromise = promise;
-
+    public void initiatePicker(final Activity activity) {
         try {
             final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
 
@@ -228,6 +298,27 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
         } catch (Exception e) {
             mPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e);
         }
+    }
+
+    @ReactMethod
+    public void openPicker(final ReadableMap options, final Promise promise) {
+        final Activity activity = getCurrentActivity();
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        setConfiguration(options);
+        mPickerPromise = promise;
+
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                initiatePicker(activity);
+                return null;
+            }
+        });
     }
 
     private String getBase64StringFromFile(String absoluteFilePath) {
@@ -455,54 +546,6 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     @Override
     public void onNewIntent(Intent intent) {
-    }
-
-    private boolean permissionsCheck(final Activity activity) {
-
-        int cameraPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
-        int storagePermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        List<String> permissions = new ArrayList<>();
-        if(cameraPermission != PackageManager.PERMISSION_GRANTED) permissions.add(Manifest.permission.CAMERA);
-        if(storagePermission != PackageManager.PERMISSION_GRANTED) permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if(!permissions.isEmpty()) {
-
-            ((ReactActivity) activity).requestPermissions(permissions.toArray(new String[permissions.size()]), 1, new PermissionListener() {
-
-                @Override
-                public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-                    if(requestCode == 1) {
-
-                        final Map<String, Integer> permissionResults = new HashMap<String, Integer>();
-                        permissionResults.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
-                        permissionResults.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
-
-                        for(int i = 0; i < permissions.length; i++) {
-                            permissionResults.put(permissions[i], grantResults[i]);
-                        }
-
-                        if(permissionResults.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                                permissionResults.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-
-                            initiateCamera(activity);
-                            return true;
-
-                        } else {
-                            mPickerPromise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
-                        }
-
-                    }
-
-                    return false;
-                }
-
-            });
-
-            return false;
-        }
-
-        return true;
     }
 
     private boolean isCameraAvailable() {
