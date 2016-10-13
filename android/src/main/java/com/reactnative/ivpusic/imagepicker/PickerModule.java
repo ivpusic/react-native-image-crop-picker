@@ -12,10 +12,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.Manifest;
 import android.os.Environment;
 
+import com.facebook.react.ReactActivity;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -31,10 +33,11 @@ import android.support.v4.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.webkit.MimeTypeMap;
 
+import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.util.UUID;
+import java.util.*;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
@@ -151,8 +154,6 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
     @ReactMethod
     public void openCamera(final ReadableMap options, final Promise promise) {
-        int requestCode = CAMERA_PICKER_REQUEST;
-        Intent cameraIntent;
 
         if (!isCameraAvailable()) {
             promise.reject(E_CAMERA_IS_NOT_AVAILABLE, "Camera not available");
@@ -166,16 +167,19 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             return;
         }
 
-        if (!permissionsCheck(activity)) {
-            promise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
-            return;
-        }
-
         setConfiguration(options);
         mPickerPromise = promise;
 
+        if(permissionsCheck(activity)) initiateCamera(activity);
+
+    }
+
+    private void initiateCamera(Activity activity) {
+
         try {
-            cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            int requestCode = CAMERA_PICKER_REQUEST;
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             tmpImage = true;
             // we create a tmp file to save the result
             File imageFile = createNewFile(true);
@@ -183,7 +187,7 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
             if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) == null) {
-                promise.reject(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
+                mPickerPromise.reject(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
                 return;
             }
 
@@ -453,15 +457,48 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     public void onNewIntent(Intent intent) {
     }
 
-    private boolean permissionsCheck(Activity activity) {
+    private boolean permissionsCheck(final Activity activity) {
+
         int cameraPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
+        int storagePermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
-            String[] PERMISSIONS = {
-                    Manifest.permission.CAMERA
-            };
+        List<String> permissions = new ArrayList<>();
+        if(cameraPermission != PackageManager.PERMISSION_GRANTED) permissions.add(Manifest.permission.CAMERA);
+        if(storagePermission != PackageManager.PERMISSION_GRANTED) permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-            ActivityCompat.requestPermissions(activity, PERMISSIONS, 1);
+        if(!permissions.isEmpty()) {
+
+            ((ReactActivity) activity).requestPermissions(permissions.toArray(new String[permissions.size()]), 1, new PermissionListener() {
+
+                @Override
+                public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                    if(requestCode == 1) {
+
+                        final Map<String, Integer> permissionResults = new HashMap<String, Integer>();
+                        permissionResults.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
+                        permissionResults.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+
+                        for(int i = 0; i < permissions.length; i++) {
+                            permissionResults.put(permissions[i], grantResults[i]);
+                        }
+
+                        if(permissionResults.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                                permissionResults.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+
+                            initiateCamera(activity);
+                            return true;
+
+                        } else {
+                            mPickerPromise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
+                        }
+
+                    }
+
+                    return false;
+                }
+
+            });
+
             return false;
         }
 
@@ -492,4 +529,5 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
             return f;
         }
     }
+
 }
