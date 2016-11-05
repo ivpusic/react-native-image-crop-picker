@@ -517,6 +517,10 @@ public class PickerModule extends ReactContextBaseJavaModule implements Activity
     }
 
     public void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
+        if (mPickerPromise == null) {
+            return;
+        }
+        
         if (data != null) {
             final Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
