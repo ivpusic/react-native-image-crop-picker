@@ -70,7 +70,7 @@ ImagePicker.clean().then(() => {
 | maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
 | compressVideo (ios only) | bool (default true) | When video is selected, compress it and convert it to mp4 |
 | smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from |
-
+| useFrontCamera (ios only) | bool (default false) | Whether to default to the front/'selfie' camera when opened |
 #### Response Object
 
 | Property        | Type           | Description  |
@@ -108,7 +108,7 @@ react-native link react-native-image-crop-picker
 ##### Android
 
 - [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
-  - `<uses-permission android:name="android.permission.CAMERA"/>`  
+  - `<uses-permission android:name="android.permission.CAMERA"/>`
 
 #### Production build
 
