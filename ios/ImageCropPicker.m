@@ -214,9 +214,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 imagePickerController.mediaType = QBImagePickerMediaTypeAny;
             }
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
-            });
+            [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
         });
     }];
 }
@@ -236,37 +234,39 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 }
 
 - (void)showActivityIndicator:(void (^)(UIActivityIndicatorView*, UIView*))handler {
-    UIView *mainView = [[self getRootVC] view];
-
-    // create overlay
-    UIView *loadingView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
-    loadingView.clipsToBounds = YES;
-
-    // create loading spinner
-    UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityView.frame = CGRectMake(65, 40, activityView.bounds.size.width, activityView.bounds.size.height);
-    activityView.center = loadingView.center;
-    [loadingView addSubview:activityView];
-
-    // create message
-    UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
-    loadingLabel.backgroundColor = [UIColor clearColor];
-    loadingLabel.textColor = [UIColor whiteColor];
-    loadingLabel.adjustsFontSizeToFitWidth = YES;
-    CGPoint loadingLabelLocation = loadingView.center;
-    loadingLabelLocation.y += [activityView bounds].size.height;
-    loadingLabel.center = loadingLabelLocation;
-    loadingLabel.textAlignment = UITextAlignmentCenter;
-    loadingLabel.text = @"Processing assets...";
-    [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
-    [loadingView addSubview:loadingLabel];
-
-    // show all
-    [mainView addSubview:loadingView];
-    [activityView startAnimating];
-
-    handler(activityView, loadingView);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIView *mainView = [[self getRootVC] view];
+        
+        // create overlay
+        UIView *loadingView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
+        loadingView.clipsToBounds = YES;
+        
+        // create loading spinner
+        UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        activityView.frame = CGRectMake(65, 40, activityView.bounds.size.width, activityView.bounds.size.height);
+        activityView.center = loadingView.center;
+        [loadingView addSubview:activityView];
+        
+        // create message
+        UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
+        loadingLabel.backgroundColor = [UIColor clearColor];
+        loadingLabel.textColor = [UIColor whiteColor];
+        loadingLabel.adjustsFontSizeToFitWidth = YES;
+        CGPoint loadingLabelLocation = loadingView.center;
+        loadingLabelLocation.y += [activityView bounds].size.height;
+        loadingLabel.center = loadingLabelLocation;
+        loadingLabel.textAlignment = UITextAlignmentCenter;
+        loadingLabel.text = @"Processing assets...";
+        [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
+        [loadingView addSubview:loadingLabel];
+        
+        // show all
+        [mainView addSubview:loadingView];
+        [activityView startAnimating];
+        
+        handler(activityView, loadingView);
+    });
 }
 
 
@@ -356,56 +356,61 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
-                        [lock lock];
-
-                        if (video != nil) {
-                            [selections addObject:video];
-                        }
-
-                        processed++;
-                        [lock unlock];
-
-                        if (processed == [assets count]) {
-                            self.resolve(selections);
-                            [indicatorView stopAnimating];
-                            [overlayView removeFromSuperview];
-                            [imagePickerController dismissViewControllerAnimated:YES completion:nil];
-                            return;
-                        }
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [lock lock];
+                            
+                            if (video != nil) {
+                                [selections addObject:video];
+                            }
+                            
+                            processed++;
+                            [lock unlock];
+                            
+                            if (processed == [assets count]) {
+                                self.resolve(selections);
+                                [indicatorView stopAnimating];
+                                [overlayView removeFromSuperview];
+                                [imagePickerController dismissViewControllerAnimated:YES completion:nil];
+                                return;
+                            }
+                        });
                     }];
                 } else {
                     [manager
                      requestImageDataForAsset:phAsset
                      options:options
                      resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                         UIImage *image = [UIImage imageWithData:imageData];
-                         NSData *data = UIImageJPEGRepresentation(image, 1);
-
-                         NSString *filePath = [self persistFile:data];
-                         if (filePath == nil) {
-                             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                             [imagePickerController dismissViewControllerAnimated:YES completion:nil];
-                             return;
-                         }
-
-                         [lock lock];
-                         [selections addObject:[self createAttachmentResponse:filePath
-                                                                    withWidth:@(phAsset.pixelWidth)
-                                                                   withHeight:@(phAsset.pixelHeight)
-                                                                     withMime:@"image/jpeg"
-                                                                     withSize:[NSNumber numberWithUnsignedInteger:data.length]
-                                                                     withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null]
-                                                ]];
-                         processed++;
-                         [lock unlock];
-
-                         if (processed == [assets count]) {
-                             self.resolve(selections);
-                             [indicatorView stopAnimating];
-                             [overlayView removeFromSuperview];
-                             [imagePickerController dismissViewControllerAnimated:YES completion:nil];
-                             return;
-                         }
+                         
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                             UIImage *image = [UIImage imageWithData:imageData];
+                             NSData *data = UIImageJPEGRepresentation(image, 1);
+                             
+                             NSString *filePath = [self persistFile:data];
+                             if (filePath == nil) {
+                                 self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                 [imagePickerController dismissViewControllerAnimated:YES completion:nil];
+                                 return;
+                             }
+                             
+                             [lock lock];
+                             [selections addObject:[self createAttachmentResponse:filePath
+                                                                        withWidth:@(phAsset.pixelWidth)
+                                                                       withHeight:@(phAsset.pixelHeight)
+                                                                         withMime:@"image/jpeg"
+                                                                         withSize:[NSNumber numberWithUnsignedInteger:data.length]
+                                                                         withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                    ]];
+                             processed++;
+                             [lock unlock];
+                             
+                             if (processed == [assets count]) {
+                                 self.resolve(selections);
+                                 [indicatorView stopAnimating];
+                                 [overlayView removeFromSuperview];
+                                 [imagePickerController dismissViewControllerAnimated:YES completion:nil];
+                                 return;
+                             }
+                         });
                      }];
                 }
             }
@@ -416,16 +421,18 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
             if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                 [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
-                    if (video != nil) {
-                        self.resolve(video);
-                    } else {
-                        self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
-                    }
-
-
-                    [indicatorView stopAnimating];
-                    [overlayView removeFromSuperview];
-                    [imagePickerController dismissViewControllerAnimated:YES completion:nil];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (video != nil) {
+                            self.resolve(video);
+                        } else {
+                            self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                        }
+                        
+                        
+                        [indicatorView stopAnimating];
+                        [overlayView removeFromSuperview];
+                        [imagePickerController dismissViewControllerAnimated:YES completion:nil];
+                    });
                 }];
             } else {
                 [manager
@@ -434,10 +441,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                  resultHandler:^(NSData *imageData, NSString *dataUTI,
                                  UIImageOrientation orientation,
                                  NSDictionary *info) {
-                     
-                     [indicatorView stopAnimating];
-                     [overlayView removeFromSuperview];
-                     [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                         [indicatorView stopAnimating];
+                         [overlayView removeFromSuperview];
+                         [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
+                     });
                  }];
             }
         }];
