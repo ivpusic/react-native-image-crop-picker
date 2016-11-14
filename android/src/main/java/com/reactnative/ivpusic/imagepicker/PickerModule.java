@@ -44,8 +44,8 @@ import java.util.concurrent.Callable;
 
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
-    private static final int IMAGE_PICKER_REQUEST = 1062228920;
-    private static final int CAMERA_PICKER_REQUEST = 1062228921;
+    private static final int IMAGE_PICKER_REQUEST = 61110;
+    private static final int CAMERA_PICKER_REQUEST = 61111;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
 
     private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
