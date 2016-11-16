@@ -236,18 +236,18 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)showActivityIndicator:(void (^)(UIActivityIndicatorView*, UIView*))handler {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIView *mainView = [[self getRootVC] view];
-        
+
         // create overlay
         UIView *loadingView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
         loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
         loadingView.clipsToBounds = YES;
-        
+
         // create loading spinner
         UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         activityView.frame = CGRectMake(65, 40, activityView.bounds.size.width, activityView.bounds.size.height);
         activityView.center = loadingView.center;
         [loadingView addSubview:activityView];
-        
+
         // create message
         UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
         loadingLabel.backgroundColor = [UIColor clearColor];
@@ -260,11 +260,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         loadingLabel.text = @"Processing assets...";
         [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
         [loadingView addSubview:loadingLabel];
-        
+
         // show all
         [mainView addSubview:loadingView];
         [activityView startAnimating];
-        
+
         handler(activityView, loadingView);
     });
 }
@@ -358,14 +358,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [lock lock];
-                            
+
                             if (video != nil) {
                                 [selections addObject:video];
                             }
-                            
+
                             processed++;
                             [lock unlock];
-                            
+
                             if (processed == [assets count]) {
                                 self.resolve(selections);
                                 [indicatorView stopAnimating];
@@ -380,18 +380,18 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                      requestImageDataForAsset:phAsset
                      options:options
                      resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                         
+
                          dispatch_async(dispatch_get_main_queue(), ^{
                              UIImage *image = [UIImage imageWithData:imageData];
                              NSData *data = UIImageJPEGRepresentation(image, 1);
-                             
+
                              NSString *filePath = [self persistFile:data];
                              if (filePath == nil) {
                                  self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
                                  [imagePickerController dismissViewControllerAnimated:YES completion:nil];
                                  return;
                              }
-                             
+
                              [lock lock];
                              [selections addObject:[self createAttachmentResponse:filePath
                                                                         withWidth:@(phAsset.pixelWidth)
@@ -402,7 +402,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                                     ]];
                              processed++;
                              [lock unlock];
-                             
+
                              if (processed == [assets count]) {
                                  self.resolve(selections);
                                  [indicatorView stopAnimating];
@@ -427,8 +427,8 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                         } else {
                             self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
                         }
-                        
-                        
+
+
                         [indicatorView stopAnimating];
                         [overlayView removeFromSuperview];
                         [imagePickerController dismissViewControllerAnimated:YES completion:nil];
@@ -461,25 +461,22 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
 - (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
-    
+
     if (image == nil) {
         self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
         [viewController dismissViewControllerAnimated:YES completion:nil];
         return;
     }
-    
+
     if ([[[self options] objectForKey:@"cropping"] boolValue]) {
         RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image cropMode:RSKImageCropModeCustom];
 
         imageCropVC.avoidEmptySpaceAroundImage = YES;
         imageCropVC.dataSource = self;
         imageCropVC.delegate = self;
-
-        [viewController dismissViewControllerAnimated:YES completion:^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
-            });
-        }];
+        [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
+        [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
+        [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     } else {
         NSData *data = UIImageJPEGRepresentation(image, 1);
         NSString *filePath = [self persistFile:data];
@@ -571,10 +568,14 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     NSData *data = UIImageJPEGRepresentation(resizedImage, 1);
 
+    //We've presented the cropper on top of the image picker as to not have a double modal animation.
+    //Thus, we need to dismiss the image picker view controller to dismiss the whole stack.
+    UIViewController *topViewController = controller.presentingViewController.presentingViewController;
+
     NSString *filePath = [self persistFile:data];
     if (filePath == nil) {
         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-        [controller dismissViewControllerAnimated:YES completion:nil];
+        [topViewController dismissViewControllerAnimated:YES completion:nil];
         return;
     }
 
@@ -585,7 +586,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                        withSize:[NSNumber numberWithUnsignedInteger:data.length]
                                        withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [data base64EncodedStringWithOptions:0] : [NSNull null]]);
 
-    [controller dismissViewControllerAnimated:YES completion:nil];
+    [topViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 // at the moment it is not possible to upload image by reading PHAsset
