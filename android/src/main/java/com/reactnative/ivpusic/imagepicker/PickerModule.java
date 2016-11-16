@@ -5,7 +5,9 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -44,8 +46,8 @@ import java.util.concurrent.Callable;
 
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
-    private static final int IMAGE_PICKER_REQUEST = 61110;
-    private static final int CAMERA_PICKER_REQUEST = 61111;
+    private static final int IMAGE_PICKER_REQUEST = 61111;
+    private static final int CAMERA_PICKER_REQUEST = 61112;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
 
     private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
@@ -65,6 +67,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean cropping = false;
     private boolean multiple = false;
     private boolean includeBase64 = false;
+    private boolean isCompressedBase64 = false;
     private int width = 200;
     private int height = 200;
     private final ReactApplicationContext mReactContext;
@@ -92,6 +95,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void setConfiguration(final ReadableMap options) {
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
+        isCompressedBase64 = options.hasKey("isCompressedBase64") && options.getBoolean("isCompressedBase64");
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
@@ -427,17 +431,127 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             throw new Exception("Invalid image selected");
         }
 
-        image.putString("path", "file://" + path);
         image.putInt("width", options.outWidth);
-        image.putInt("height", options.outHeight);
+        image.putInt("height",  options.outHeight);
         image.putString("mime", options.outMimeType);
-        image.putInt("size", (int) new File(path).length());
+        image.putString("path", "file://" + path);
 
         if (includeBase64) {
-            image.putString("data", getBase64StringFromFile(path));
+            if(isCompressedBase64){
+                Bitmap scaledBitmap = getScaledBitmap(path);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                String data = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+                image.putString("data", data);
+                image.putInt("width", scaledBitmap.getWidth());
+                image.putInt("height", scaledBitmap.getHeight());
+                image.putInt("size", byteArray.length);
+            }else{
+                image.putString("data", getBase64StringFromFile(path));
+                image.putInt("size", (int) new File(path).length());
+            }
+        }
+        else{
+            image.putInt("size", (int) new File(path).length());
         }
 
         return image;
+    }
+
+    private Bitmap getScaledBitmap(String path) {
+            ExifInterface exif = null;
+            try {
+                exif = new ExifInterface(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }  
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 
+                                                ExifInterface.ORIENTATION_UNDEFINED);
+            final int IMAGE_MAX_SIZE = 150000; // 150kb
+
+            // Decode image size
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(path, options);
+
+            int scale = 1;
+            while ((options.outWidth * options.outHeight) * (1 / Math.pow(scale, 2)) > 
+                IMAGE_MAX_SIZE) {
+            scale++;
+            }
+
+            Bitmap image = null;
+            if (scale > 1) {
+                scale--;
+                // scale to max possible inSampleSize that still yields an image
+                // larger than target
+                options = new BitmapFactory.Options();
+                options.inSampleSize = scale;
+                image = rotateBitmap(BitmapFactory.decodeFile(path, options), orientation);  
+
+                // resize to desired dimensions
+                int height = image.getHeight();
+                int width = image.getWidth();
+
+                double y = Math.sqrt(IMAGE_MAX_SIZE
+                        / (((double) width) / height));
+                double x = (y / height) * width;
+
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(image, (int) x, 
+                (int) y, true);
+                image.recycle();
+                image = scaledBitmap;
+
+                System.gc();
+            } else {
+                image = rotateBitmap(BitmapFactory.decodeFile(path), orientation);
+            }
+
+            return image;
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+        case ExifInterface.ORIENTATION_ROTATE_90:
+            matrix.setRotate(90);
+            break;
+        case ExifInterface.ORIENTATION_TRANSVERSE:
+            matrix.setRotate(-90);
+            matrix.postScale(-1, 1);
+            break;
+        case ExifInterface.ORIENTATION_ROTATE_270:
+            matrix.setRotate(-90);
+            break;
+        default:
+            return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void startCropping(Activity activity, Uri uri) {
