@@ -554,7 +554,10 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
     self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    [controller dismissViewControllerAnimated:YES completion:nil];
+    //We've presented the cropper on top of the image picker as to not have a double modal animation.
+    //Thus, we need to dismiss the image picker view controller to dismiss the whole stack.
+    UIViewController *topViewController = controller.presentingViewController.presentingViewController;
+    [topViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 // The original image has been cropped.
