@@ -67,6 +67,7 @@ ImagePicker.clean().then(() => {
 | height      | number      | Height of result image when used with `cropping` option |
 | multiple | bool (default false) | Enable or disable multiple image selection |
 | includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
+| cropperTintColor (android only) | string (default `"#424242"`) | When cropping image, determines the color of Toolbar and other UX elements.  Uses UCrop's `setToolbarColor, setActiveWidgetColor, and setStatusBarColor` with color specified. |
 | maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
 | compressVideo (ios only) | bool (default true) | When video is selected, compress it and convert it to mp4 |
 | smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from |
@@ -108,7 +109,7 @@ react-native link react-native-image-crop-picker
 ##### Android
 
 - [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
-  - `<uses-permission android:name="android.permission.CAMERA"/>`  
+  - `<uses-permission android:name="android.permission.CAMERA"/>`
 
 #### Production build
 

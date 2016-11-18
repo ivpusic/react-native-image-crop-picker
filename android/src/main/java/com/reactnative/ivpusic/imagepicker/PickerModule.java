@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -65,6 +66,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean cropping = false;
     private boolean multiple = false;
     private boolean includeBase64 = false;
+
+    //Default colors from from https://material.google.com/style/color.html#
+
+    //Grey 800
+    private final String DEFAULT_TINT = "#424242";
+    private String cropperTintColor = DEFAULT_TINT;
+
+    //Light Blue 500
+    private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
     private int width = 200;
     private int height = 200;
     private final ReactApplicationContext mReactContext;
@@ -95,6 +105,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
+        cropperTintColor = options.hasKey("cropperTintColor") ? options.getString("cropperTintColor") : cropperTintColor;
+
     }
 
     private void deleteRecursive(File fileOrDirectory) {
@@ -440,9 +452,27 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return image;
     }
 
+    private void configureCropperColors(UCrop.Options options) {
+        int color = Color.parseColor(cropperTintColor);
+        options.setToolbarColor(color);
+        options.setStatusBarColor(color);
+        if (cropperTintColor.equals(DEFAULT_TINT)) {
+            /*
+            Default tint is grey => use a more flashy color that stands out more as the call to action
+            Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
+            */
+            options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
+        } else {
+            //If they pass a custom tint color in, we use this for everything
+            options.setActiveWidgetColor(color);
+        }
+
+    }
+
     private void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        configureCropperColors(options);
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(), UUID.randomUUID().toString() + ".jpg")))
                 .withMaxResultSize(width, height)
@@ -526,7 +556,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
         }
     }
-    
+
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (mPickerPromise == null) {
             return;
