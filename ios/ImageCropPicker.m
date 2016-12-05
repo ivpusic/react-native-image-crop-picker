@@ -42,7 +42,8 @@ RCT_EXPORT_MODULE();
                                 @"compressVideo": @YES,
                                 @"maxFiles": @5,
                                 @"width": @200,
-                                @"height": @200
+                                @"height": @200,
+                                @"useFrontCamera": @NO
                                 };
     }
 
@@ -106,7 +107,9 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         picker.delegate = self;
         picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-        picker.delegate = self;
+        if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
+            picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+        }
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [[self getRootVC] presentViewController:picker animated:YES completion:nil];
