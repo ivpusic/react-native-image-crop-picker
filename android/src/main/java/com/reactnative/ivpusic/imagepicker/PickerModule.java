@@ -15,7 +15,7 @@ import android.util.Base64;
 import android.Manifest;
 import android.os.Environment;
 
-import com.facebook.react.ReactActivity;
+
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -31,6 +31,7 @@ import android.support.v4.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.webkit.MimeTypeMap;
 
+import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
 
@@ -202,7 +203,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         if (!missingPermissions.isEmpty()) {
 
-            ((ReactActivity) activity).requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), 1, new PermissionListener() {
+            ((PermissionAwareActivity) activity).requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), 1, new PermissionListener() {
 
                 @Override
                 public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
