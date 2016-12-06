@@ -39,7 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -131,16 +131,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        try {
-            File file = new File(module.getTmpDir());
-            if (!file.exists()) throw new Exception("File does not exist");
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                try {
+                    File file = new File(module.getTmpDir());
+                    if (!file.exists()) throw new Exception("File does not exist");
 
-            module.deleteRecursive(file);
-            promise.resolve(null);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
-        }
+                    module.deleteRecursive(file);
+                    promise.resolve(null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+                }
+
+                return null;
+            }
+        });
     }
 
     @ReactMethod
@@ -158,22 +165,29 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        try {
-            String path = pathToDelete;
-            final String filePrefix = "file://";
-            if (path.startsWith(filePrefix)) {
-                path = path.substring(filePrefix.length());
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                try {
+                    String path = pathToDelete;
+                    final String filePrefix = "file://";
+                    if (path.startsWith(filePrefix)) {
+                        path = path.substring(filePrefix.length());
+                    }
+
+                    File file = new File(path);
+                    if (!file.exists()) throw new Exception("File does not exist. Path: " + path);
+
+                    module.deleteRecursive(file);
+                    promise.resolve(null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+                }
+
+                return null;
             }
-
-            File file = new File(path);
-            if (!file.exists()) throw new Exception("File does not exist. Path: " + path);
-
-            module.deleteRecursive(file);
-            promise.resolve(null);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
-        }
+        });
     }
 
     private void permissionsCheck(final Activity activity, final Promise promise, final List<String> requiredPermissions, final Callable<Void> callback) {
@@ -242,7 +256,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         mPickerPromise = promise;
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.CAMERA), new Callable<Void>() {
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 initiateCamera(activity);
@@ -313,7 +327,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         setConfiguration(options);
         mPickerPromise = promise;
-        initiatePicker(activity);
+
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                initiatePicker(activity);
+                return null;
+            }
+        });
     }
 
     private String getBase64StringFromFile(String absoluteFilePath) {
