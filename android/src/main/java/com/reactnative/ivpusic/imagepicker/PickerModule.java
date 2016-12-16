@@ -64,9 +64,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private Promise mPickerPromise;
 
-    private boolean cropping = false;
     private boolean multiple = false;
     private boolean includeBase64 = false;
+    private boolean cropping = false;
+    private boolean cropCircleOverlay = false;
+    
 
     //Default colors from from https://material.google.com/style/color.html#
 
@@ -107,7 +109,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
         cropperTintColor = options.hasKey("cropperTintColor") ? options.getString("cropperTintColor") : cropperTintColor;
-
+        cropCircleOverlay = options.hasKey("cropCircleOverlay") ? options.getBoolean("cropCircleOverlay") : cropCircleOverlay;
     }
 
     private void deleteRecursive(File fileOrDirectory) {
@@ -473,6 +475,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCircleDimmedLayer(cropCircleOverlay);
         configureCropperColors(options);
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(), UUID.randomUUID().toString() + ".jpg")))
