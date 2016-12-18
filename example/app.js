@@ -84,13 +84,12 @@ export default class App extends Component {
     })
   }
 
-  pickSingle(cropit) {
+  pickSingle(cropit, circular=false) {
     ImagePicker.openPicker({
       width: 300,
       height: 300,
       cropping: cropit,
-      cropping: true,
-      cropperCircleOverlay: true,
+      cropperCircleOverlay: circular,
       compressVideo: true
     }).then(image => {
       console.log('received image', image);
@@ -176,6 +175,9 @@ export default class App extends Component {
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.pickSingle(true)} style={styles.button}>
         <Text style={styles.text}>Select Single With Cropping</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => this.pickSingle(true, true)} style={styles.button}>
+        <Text style={styles.text}>Select Single With Circular Cropping</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={this.pickMultiple.bind(this)} style={styles.button}>
         <Text style={styles.text}>Select Multiple</Text>
