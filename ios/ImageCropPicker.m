@@ -38,6 +38,7 @@ RCT_EXPORT_MODULE();
         self.defaultOptions = @{
                                 @"multiple": @NO,
                                 @"cropping": @NO,
+                                @"cropperCircleOverlay": @NO,
                                 @"includeBase64": @NO,
                                 @"compressVideo": @YES,
                                 @"maxFiles": @5,
@@ -472,7 +473,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     }
 
     if ([[[self options] objectForKey:@"cropping"] boolValue]) {
-        RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image cropMode:RSKImageCropModeCustom];
+        RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image];
+        
+        if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
+           imageCropVC.cropMode = RSKImageCropModeCircle;
+        } else {
+            imageCropVC.cropMode = RSKImageCropModeCustom;
+        }
 
         imageCropVC.avoidEmptySpaceAroundImage = YES;
         imageCropVC.dataSource = self;
