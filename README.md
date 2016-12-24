@@ -70,9 +70,12 @@ ImagePicker.clean().then(() => {
 | cropperTintColor (android only) | string (default `"#424242"`) | When cropping image, determines the color of Toolbar and other UX elements.  Uses UCrop's `setToolbarColor, setActiveWidgetColor, and setStatusBarColor` with color specified. |
 | cropperCircleOverlay | bool (default false) | Enable or disable circular cropping mask. |
 | maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
-| compressVideo (ios only) | bool (default true) | When video is selected, compress it and convert it to mp4 |
 | smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from |
 | useFrontCamera (ios only) | bool (default false) | Whether to default to the front/'selfie' camera when opened |
+| compressVideoPreset (ios only) | string (default MediumQuality) | Choose which preset will be used for video compression |
+| compressImageMaxWidth | number (default none) | Compress image with maximum width |
+| compressImageMaxHeight | number (default none) | Compress image with maximum height |
+| compressImageQuality | number (default 1) | Compress image with quality (from 0 to 1, where 1 is best quality) |
 #### Response Object
 
 | Property        | Type           | Description  |
@@ -130,18 +133,6 @@ Details for second approach:
 1. Remove the pre-built frameworks from `Embedded Binaries`
 2. Build for Device
 4. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
-
-## How it works?
-
-It is basically wrapper around few libraries
-
-#### Android
-- Native Image Picker
-- uCrop
-
-#### iOS
-- QBImagePickerController
-- RSKImageCropper
 
 ## License
 *MIT*
