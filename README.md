@@ -111,6 +111,20 @@ react-native link react-native-image-crop-picker
 
 - [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
+- If you have an existing fileprovider:
+  - Add `tools:replace="android:authorities"` to the `<provider>` entry from `AndroidManifest.xml`.
+  - Add the following path to your `android.support.FILE_PROVIDER_PATHS` resource file: ```<external-path name="external_files" path="."/>```
+  - Before using ImagePicker set the new `android:authorities` value. For example, in case that the `android:authorities` is `com.package.myfileprovider`: 
+```javascript
+ImagePicker.setFileProviderAuthorities('myfileprovider')
+ImagePicker.openCamera({
+  width: 300,
+  height: 400,
+  cropping: true
+}).then(image => {
+  console.log(image);
+})
+```
 
 #### Production build
 
