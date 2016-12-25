@@ -83,6 +83,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private final ReactApplicationContext mReactContext;
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
+    private String fileProviderAuthorities = "provider";
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -279,7 +280,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 mCameraCaptureURI = Uri.fromFile(imageFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
-                        activity.getApplicationContext().getPackageName() + ".provider",
+                        activity.getApplicationContext().getPackageName() + "." + this.fileProviderAuthorities,
                         imageFile);
             }
 
@@ -316,6 +317,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         } catch (Exception e) {
             mPickerPromise.reject(E_FAILED_TO_SHOW_PICKER, e);
         }
+    }
+    
+    @ReactMethod
+    public void setFileProviderAuthorities(String fileProviderAuthorities) {
+        this.fileProviderAuthorities = fileProviderAuthorities;
     }
 
     @ReactMethod
