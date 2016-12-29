@@ -1,5 +1,5 @@
 # react-native-image-crop-picker
-iOS/Android image picker with support for camera, video compression, multiple images and cropping
+iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
 
 ## Result
 

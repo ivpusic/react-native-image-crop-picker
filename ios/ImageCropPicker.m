@@ -48,9 +48,8 @@ RCT_EXPORT_MODULE();
                                 @"width": @200,
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
-                                @"compressQuality": @0.8,
-                                @"compressMaxWidth": @0,
-                                @"compressMaxHeight": @0,
+                                @"compressImageQuality": @1,
+                                @"compressVideoPreset": @"MediumQuality",
                                 };
         self.compression = [[Compression alloc] init];
     }
