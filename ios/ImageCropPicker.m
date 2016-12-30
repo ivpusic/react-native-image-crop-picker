@@ -13,6 +13,9 @@
 #define ERROR_PICKER_NO_CAMERA_PERMISSION_KEY @"E_PICKER_NO_CAMERA_PERMISSION"
 #define ERROR_PICKER_NO_CAMERA_PERMISSION_MSG @"User did not grant camera permission."
 
+#define ERROR_PICKER_UNAUTHORIZED_KEY @"ERROR_PICKER_UNAUTHORIZED_KEY"
+#define ERROR_PICKER_UNAUTHORIZED_MSG @"Cannot access images. Please allow access if you want to be able to select images."
+
 #define ERROR_PICKER_CANCEL_KEY @"E_PICKER_CANCELLED"
 #define ERROR_PICKER_CANCEL_MSG @"User cancelled image selection"
 
@@ -192,6 +195,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
     [self setConfiguration:options resolver:resolve rejecter:reject];
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        if (status != PHAuthorizationStatusAuthorized) {
+            self.reject(ERROR_PICKER_UNAUTHORIZED_KEY, ERROR_PICKER_UNAUTHORIZED_MSG, nil);
+            return;
+        }
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             // init picker
             QBImagePickerController *imagePickerController =
