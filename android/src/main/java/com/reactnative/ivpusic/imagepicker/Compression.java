@@ -19,11 +19,16 @@ import id.zelory.compressor.Compressor;
 public class Compression {
 
     public File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) {
-        Log.d("image-crop-picker", "Image compression activated");
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
 
+        if (maxWidth == null && maxHeight == null && quality == null) {
+            Log.d("image-crop-picker", "Skipping image compression");
+            return new File(originalImagePath);
+        }
+
+        Log.d("image-crop-picker", "Image compression activated");
         Compressor.Builder builder = new Compressor.Builder(activity)
                 .setCompressFormat(Bitmap.CompressFormat.JPEG)
                 .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
