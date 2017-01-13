@@ -50,6 +50,7 @@ RCT_EXPORT_MODULE();
                                 @"maxFiles": @5,
                                 @"width": @200,
                                 @"height": @200,
+                                @"mimeType":@"image/jpeg",
                                 @"useFrontCamera": @NO,
                                 @"compressImageQuality": @1,
                                 @"compressVideoPreset": @"MediumQuality",
@@ -441,6 +442,10 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                      dispatch_async(dispatch_get_main_queue(), ^{
                          [indicatorView stopAnimating];
                          [overlayView removeFromSuperview];
+                         NSString *mimeType = [self mimeTypeForData:imageData];
+                         if(mimeType != nil){
+                             [self.options setValue:mimeType forKey:@"mimeType"];
+                         }
                          [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
                      });
                  }];
@@ -452,6 +457,36 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController {
     self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
     [imagePickerController dismissViewControllerAnimated:YES completion:nil];
+}
+
+//get mime type of image
+//refer to https://github.com/rs/SDWebImage/blob/master/SDWebImage/NSData+ImageContentType.m
+- (NSString *)mimeTypeForData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+    
+    switch (c) {
+        case 0xFF:
+            return @"image/jpeg";
+        case 0x89:
+            return @"image/png";
+        case 0x47:
+            return @"image/gif";
+        case 0x49:
+        case 0x4D:
+            return @"image/tiff";
+        case 0x52:
+            // R as RIFF for WEBP
+            if ([data length] < 12) {
+                return nil;
+            }
+            
+            NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
+            if ([testString hasPrefix:@"RIFF"] && [testString hasSuffix:@"WEBP"]) {
+                return @"image/webp";
+            }
+    }
+    return nil;
 }
 
 // when user selected single image, with camera or from photo gallery,
