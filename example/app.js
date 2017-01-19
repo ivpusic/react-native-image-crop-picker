@@ -125,7 +125,7 @@ export default class App extends Component {
 
   renderVideo(video) {
     return (<View style={{height: 300, width: 300}}>
-      <Video source={{uri: video.uri}}
+      <Video source={{uri: video.uri, type: video.mime}}
          style={{position: 'absolute',
             top: 0,
             left: 0,
@@ -139,7 +139,6 @@ export default class App extends Component {
          resizeMode={'cover'}
          onError={e => console.log(e)}
          onLoad={load => console.log(load)}
-         onProgress={() => {}}
          repeat={true} />
      </View>);
   }

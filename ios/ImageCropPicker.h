@@ -9,8 +9,8 @@
 #define RN_IMAGE_CROP_PICKER_h
 
 #import <Foundation/Foundation.h>
-#import "RCTBridgeModule.h"
-#import "RCTLog.h"
+#import <React/RCTBridgeModule.h>
+#import <React/RCTLog.h>
 #import "QBImagePicker/QBImagePicker.h"
 #import "RSKImageCropper/RSKImageCropper.h"
 #import "UIImage-Resize/UIImage+Resize.h"
