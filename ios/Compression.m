@@ -47,8 +47,8 @@
     
     CGFloat scaleFactor = (oldWidth > oldHeight) ? [maxWidth floatValue] / oldWidth : [maxHeight floatValue] / oldHeight;
     
-    CGFloat newWidth = oldWidth * scaleFactor;
-    CGFloat newHeight = oldHeight * scaleFactor;
+    int newWidth = oldWidth * scaleFactor;
+    int newHeight = oldHeight * scaleFactor;
     CGSize newSize = CGSizeMake(newWidth, newHeight);
     
     UIGraphicsBeginImageContext(newSize);
