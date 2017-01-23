@@ -53,6 +53,7 @@ RCT_EXPORT_MODULE();
                                 @"useFrontCamera": @NO,
                                 @"compressImageQuality": @1,
                                 @"compressVideoPreset": @"MediumQuality",
+                                @"loadingLabelText": @"Processing assets...",
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -261,7 +262,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         loadingLabelLocation.y += [activityView bounds].size.height;
         loadingLabel.center = loadingLabelLocation;
         loadingLabel.textAlignment = UITextAlignmentCenter;
-        loadingLabel.text = @"Processing assets...";
+        loadingLabel.text = [self.options objectForKey:@"loadingLabelText"];
         [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
         [loadingView addSubview:loadingLabel];
 
