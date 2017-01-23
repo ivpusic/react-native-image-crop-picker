@@ -76,6 +76,7 @@ ImagePicker.clean().then(() => {
 | compressImageMaxWidth | number (default none) | Compress image with maximum width |
 | compressImageMaxHeight | number (default none) | Compress image with maximum height |
 | compressImageQuality | number (default 1) | Compress image with quality (from 0 to 1, where 1 is best quality) |
+| loadingLabelText (ios only) | string (default "Processing assets...") | Text displayed while photo is loading in picker |
 #### Response Object
 
 | Property        | Type           | Description  |
