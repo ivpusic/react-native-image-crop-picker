@@ -296,6 +296,7 @@
 					"$(SRCROOT)/../../react-native/React/**",
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/QBImagePicker/**/**",
+					"$(SRCROOT)/../../react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
@@ -319,6 +320,7 @@
 					"$(SRCROOT)/../../react-native/React/**",
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/QBImagePicker/**/**",
+					"$(SRCROOT)/../../react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (

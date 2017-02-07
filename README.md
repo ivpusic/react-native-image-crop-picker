@@ -47,6 +47,17 @@ ImagePicker.openCamera({
 });
 ```
 
+#### Crop picture
+```javascript
+ImagePicker.openCropper({
+  path: 'my-file-path.jpg',
+  width: 300,
+  height: 400
+}).then(image => {
+  console.log(image);
+});
+```
+
 #### Optional cleanup
 Module is creating tmp images which are going to be cleaned up automatically somewhere in the future. If you want to force cleanup, you can use `clean` to clean all tmp files, or `cleanSingle(path)` to clean single tmp file.
 

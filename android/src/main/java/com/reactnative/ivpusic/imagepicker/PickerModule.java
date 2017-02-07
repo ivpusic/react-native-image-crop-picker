@@ -337,6 +337,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         });
     }
 
+    @ReactMethod
+    public void openCropper(final ReadableMap options, final Promise promise) {
+        final Activity activity = getCurrentActivity();
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+        Uri uri = Uri.parse(options.getString("path"));
+        resultCollector = new ResultCollector(promise, multiple);
+
+        setConfiguration(options);
+        startCropping(activity, uri);
+    }
+
     private String getBase64StringFromFile(String absoluteFilePath) {
         InputStream inputStream;
 
