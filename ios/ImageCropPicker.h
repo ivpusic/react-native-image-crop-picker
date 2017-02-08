@@ -9,13 +9,15 @@
 #define RN_IMAGE_CROP_PICKER_h
 
 #import <Foundation/Foundation.h>
+
 #if __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
-#import "RCTLog.h"
+#import "RCTImageLoader.h"
 #else
 #import <React/RCTBridgeModule.h>
-#import <React/RCTLog.h>
+#import <React/RCTImageLoader.h>
 #endif
+
 #import "QBImagePicker/QBImagePicker.h"
 #import "RSKImageCropper/RSKImageCropper.h"
 #import "UIImage-Resize/UIImage+Resize.h"
@@ -33,6 +35,7 @@
 @property (nonatomic, retain) NSMutableDictionary *options;
 @property (nonatomic, strong) RCTPromiseResolveBlock resolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock reject;
+@property BOOL cropOnly;
 
 @end
 

@@ -41,6 +41,7 @@
 		3408F5F01E0DE76F00E97159 /* Compression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Compression.m; sourceTree = "<group>"; };
 		34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QBImagePicker.xcodeproj; path = QBImagePicker/QBImagePicker.xcodeproj; sourceTree = "<group>"; };
 		34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RSKImageCropper.xcodeproj; path = RSKImageCropper/RSKImageCropper.xcodeproj; sourceTree = "<group>"; };
+		347ACA051E4B2B2F0068D500 /* libRCTImage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCTImage.a; path = "../../../../Library/Developer/Xcode/DerivedData/example-grvsvunjwoajzcfynrlckgmefufr/Build/Products/Debug-iphonesimulator/libRCTImage.a"; sourceTree = "<group>"; };
 		34963A931D6B919800F9CA2F /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Resize.h"; path = "UIImage-Resize/UIImage+Resize.h"; sourceTree = "<group>"; };
 		34963A941D6B919800F9CA2F /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Resize.m"; path = "UIImage-Resize/UIImage+Resize.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -69,6 +70,7 @@
 				34963A931D6B919800F9CA2F /* UIImage+Resize.h */,
 				34963A941D6B919800F9CA2F /* UIImage+Resize.m */,
 				3400A8091CEB54A6008A0BC7 /* Products */,
+				347ACA041E4B2B2F0068D500 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,6 +105,14 @@
 				34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		347ACA041E4B2B2F0068D500 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				347ACA051E4B2B2F0068D500 /* libRCTImage.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -293,9 +303,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../example/node_modules/react-native/React/**",
-					"$(SRCROOT)/../../react-native/React/**",
-					"$(SRCROOT)/../node_modules/react-native/React/**",
-					"$(SRCROOT)/QBImagePicker/**/**",
+					"$(SRCROOT)/../example/node_modules/react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
@@ -316,9 +324,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../example/node_modules/react-native/React/**",
-					"$(SRCROOT)/../../react-native/React/**",
-					"$(SRCROOT)/../node_modules/react-native/React/**",
-					"$(SRCROOT)/QBImagePicker/**/**",
+					"$(SRCROOT)/../example/node_modules/react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (

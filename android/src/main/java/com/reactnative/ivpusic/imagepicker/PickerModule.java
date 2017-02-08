@@ -337,6 +337,22 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         });
     }
 
+    @ReactMethod
+    public void openCropper(final ReadableMap options, final Promise promise) {
+        final Activity activity = getCurrentActivity();
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        setConfiguration(options);
+        resultCollector = new ResultCollector(promise, false);
+
+        Uri uri = Uri.parse(options.getString("path"));
+        startCropping(activity, uri);
+    }
+
     private String getBase64StringFromFile(String absoluteFilePath) {
         InputStream inputStream;
 
@@ -519,12 +535,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             //If they pass a custom tint color in, we use this for everything
             options.setActiveWidgetColor(color);
         }
-
     }
 
     private void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         configureCropperColors(options);
 
