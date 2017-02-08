@@ -345,10 +345,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
             return;
         }
-        Uri uri = Uri.parse(options.getString("path"));
-        resultCollector = new ResultCollector(promise, multiple);
 
         setConfiguration(options);
+        resultCollector = new ResultCollector(promise, false);
+
+        Uri uri = Uri.parse(options.getString("path"));
         startCropping(activity, uri);
     }
 
@@ -534,12 +535,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             //If they pass a custom tint color in, we use this for everything
             options.setActiveWidgetColor(color);
         }
-
     }
 
     private void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         configureCropperColors(options);
 

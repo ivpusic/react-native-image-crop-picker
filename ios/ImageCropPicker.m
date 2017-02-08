@@ -108,7 +108,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                   rejecter:(RCTPromiseRejectBlock)reject) {
 
     [self setConfiguration:options resolver:resolve rejecter:reject];
-    self.cropOnly = false;
+    self.cropOnly = NO;
 
 #if TARGET_IPHONE_SIMULATOR
     self.reject(ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY, ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG, nil);
@@ -201,7 +201,8 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   rejecter:(RCTPromiseRejectBlock)reject) {
 
     [self setConfiguration:options resolver:resolve rejecter:reject];
-    self.cropOnly = false;
+    self.cropOnly = NO;
+    
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         if (status != PHAuthorizationStatusAuthorized) {
             self.reject(ERROR_PICKER_UNAUTHORIZED_KEY, ERROR_PICKER_UNAUTHORIZED_MSG, nil);
@@ -250,13 +251,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                   rejecter:(RCTPromiseRejectBlock)reject) {
 
     [self setConfiguration:options resolver:resolve rejecter:reject];
-    self.cropOnly = true;
+    self.cropOnly = YES;
 
     NSString *path = [options objectForKey:@"path"];
     NSURL *url = [NSURL URLWithString:path];
 
-    NSURLRequest *imageUrlrequest = [NSURLRequest requestWithURL:url];
-    [self.bridge.imageLoader loadImageWithURLRequest:imageUrlrequest callback:^(NSError *error, UIImage *image) {
+    [self.bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
         if (error) {
             self.reject(ERROR_CROPPER_IMAGE_NOT_FOUND_KEY, ERROR_CROPPER_IMAGE_NOT_FOUND_MSG, nil);
         } else {
@@ -590,10 +590,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
     self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+    [self dismissCropper:controller];
+}
 
+- (void) dismissCropper:(RSKImageCropViewController*) controller {
     //We've presented the cropper on top of the image picker as to not have a double modal animation.
     //Thus, we need to dismiss the image picker view controller to dismiss the whole stack.
-    if (self.cropOnly == false) {
+    if (!self.cropOnly) {
         UIViewController *topViewController = controller.presentingViewController.presentingViewController;
         [topViewController dismissViewControllerAnimated:YES completion:nil];
     } else {
@@ -612,14 +615,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
 
-    //We've presented the cropper on top of the image picker as to not have a double modal animation.
-    //Thus, we need to dismiss the image picker view controller to dismiss the whole stack.
-    UIViewController *topViewController = controller.presentingViewController.presentingViewController;
-
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-        [topViewController dismissViewControllerAnimated:YES completion:nil];
+        [self dismissCropper:controller];
         return;
     }
 
@@ -630,7 +629,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                        withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                        withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
 
-    [topViewController dismissViewControllerAnimated:YES completion:nil];
+    [self dismissCropper:controller];
 }
 
 // at the moment it is not possible to upload image by reading PHAsset
