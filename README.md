@@ -110,6 +110,8 @@ react-native link react-native-image-crop-picker
 
 ##### iOS
 
+In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why do you need access to user photos. More info here https://forums.developer.apple.com/thread/62229
+
 ###### cocoapods users
 
 - Add `platform :ios, '8.0'` to Podfile (!important)
