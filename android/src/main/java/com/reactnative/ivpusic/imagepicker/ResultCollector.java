@@ -66,7 +66,7 @@ public class ResultCollector {
         resultSent = true;
     }
 
-    public void notifyProblem(String code, Throwable throwable) {
+    public synchronized void notifyProblem(String code, Throwable throwable) {
         if (resultSent) {
             Log.w("image-crop-picker", "Skipping result, already sent...");
         }
