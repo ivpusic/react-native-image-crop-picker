@@ -302,7 +302,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (cropping) {
                 galleryIntent.setType("image/*");
             } else {
-                galleryIntent.setType("image/*,video/*");
+                String[] mimetypes = {"image/*", "video/*"};
+                galleryIntent.setType("*/*");
+                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
 
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
