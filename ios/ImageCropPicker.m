@@ -521,15 +521,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             [viewController dismissViewControllerAnimated:YES completion:nil];
             return;
         }
-
-        self.resolve([self createAttachmentResponse:filePath
-                                          withWidth:imageResult.width
-                                         withHeight:imageResult.height
-                                           withMime:imageResult.mime
-                                           withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                           withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
-
-        [viewController dismissViewControllerAnimated:YES completion:nil];
+        
+        // Wait for viewController to dismiss before resolving, or we lose the ability to display
+        // Alert.alert in the .then() handler.
+        __weak __typeof__(self) weakSelf = self;
+        [viewController dismissViewControllerAnimated:YES completion:^{
+            weakSelf.resolve([weakSelf createAttachmentResponse:filePath
+                                                      withWidth:imageResult.width
+                                                     withHeight:imageResult.height
+                                                       withMime:imageResult.mime
+                                                       withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                       withData:[[weakSelf.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
+        }];
     }
 }
 
