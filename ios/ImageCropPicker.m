@@ -141,8 +141,9 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    [picker dismissViewControllerAnimated:YES completion:NULL];
+    [picker dismissViewControllerAnimated:YES completion:^{
+        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+    }];
 }
 
 - (NSString*) getTmpDirectory {
@@ -598,8 +599,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // Crop image has been canceled.
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
-    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    [self dismissCropper:controller];
+    [self dismissCropper:controller completion:^{
+        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+    }];
 }
 
 - (void) dismissCropper:(RSKImageCropViewController*) controller completion:(^void) completion{
