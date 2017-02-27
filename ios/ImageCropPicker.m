@@ -604,7 +604,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }];
 }
 
-- (void) dismissCropper:(RSKImageCropViewController*) controller completion:(^void) completion{
+- (void) dismissCropper:(RSKImageCropViewController*) controller completion:(void (^)())completion {
     //We've presented the cropper on top of the image picker as to not have a double modal animation.
     //Thus, we need to dismiss the image picker view controller to dismiss the whole stack.
     if (!self.cropOnly) {
