@@ -81,6 +81,7 @@ ImagePicker.clean().then(() => {
 | cropperTintColor (android only) | string (default `"#424242"`) | When cropping image, determines the color of Toolbar and other UX elements.  Uses UCrop's `setToolbarColor, setActiveWidgetColor, and setStatusBarColor` with color specified. |
 | cropperCircleOverlay | bool (default false) | Enable or disable circular cropping mask. |
 | maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
+| waitAnimationEnd (ios only) | bool (default true) | Promise will resolve/reject once ViewController `completion` block is called |
 | smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from |
 | useFrontCamera (ios only) | bool (default false) | Whether to default to the front/'selfie' camera when opened |
 | compressVideoPreset (ios only) | string (default MediumQuality) | Choose which preset will be used for video compression |

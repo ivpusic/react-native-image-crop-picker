@@ -128,7 +128,8 @@ export default class App extends Component {
 
   pickMultiple() {
     ImagePicker.openPicker({
-      multiple: true
+      multiple: true,
+      waitAnimationEnd: false
     }).then(images => {
       this.setState({
         image: null,

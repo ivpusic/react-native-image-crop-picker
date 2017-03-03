@@ -54,6 +54,7 @@ RCT_EXPORT_MODULE();
                                 @"compressVideo": @YES,
                                 @"maxFiles": @5,
                                 @"width": @200,
+                                @"waitAnimationEnd": @YES,
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
                                 @"compressImageQuality": @1,
@@ -64,6 +65,18 @@ RCT_EXPORT_MODULE();
     }
 
     return self;
+}
+
+- (void (^ __nullable)(void))waitAnimationEnd:(void (^ __nullable)(void))completion {
+    if ([[self.options objectForKey:@"waitAnimationEnd"] boolValue]) {
+        return completion;
+    }
+    
+    if (completion != nil) {
+        completion();
+    }
+    
+    return nil;
 }
 
 - (void)checkCameraPermissions:(void(^)(BOOL granted))callback
@@ -141,9 +154,9 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    [picker dismissViewControllerAnimated:YES completion:^{
+    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
         self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    }];
+    }]];
 }
 
 - (NSString*) getTmpDirectory {
@@ -399,9 +412,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             if (video == nil) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
-                                [imagePickerController dismissViewControllerAnimated:YES completion:^{
+                                [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                                     self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
-                                }];
+                                }]];
                                 return;
                             }
                             
@@ -412,9 +425,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             if (processed == [assets count]) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
-                                [imagePickerController dismissViewControllerAnimated:YES completion:^{
+                                [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                                     self.resolve(selections);
-                                }];
+                                }]];
                                 return;
                             }
                         });
@@ -434,9 +447,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              if (filePath == nil) {
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
-                                 [imagePickerController dismissViewControllerAnimated:YES completion:^{
+                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                                      self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                                 }];
+                                 }]];
                                  return;
                              }
 
@@ -454,9 +467,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
-                                 [imagePickerController dismissViewControllerAnimated:YES completion:^{
+                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                                      self.resolve(selections);
-                                 }];
+                                 }]];
                                  return;
                              }
                          });
@@ -473,13 +486,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [indicatorView stopAnimating];
                         [overlayView removeFromSuperview];
-                        [imagePickerController dismissViewControllerAnimated:YES completion:^{
+                        [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                             if (video != nil) {
                                 self.resolve(video);
                             } else {
                                 self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
                             }
-                        }];
+                        }]];
                     });
                 }];
             } else {
@@ -501,9 +514,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController {
-    [imagePickerController dismissViewControllerAnimated:YES completion:^{
+    [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
         self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    }];
+    }]];
 }
 
 // when user selected single image, with camera or from photo gallery,
@@ -512,9 +525,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
 
     if (image == nil) {
-        [viewController dismissViewControllerAnimated:YES completion:^{
+        [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
             self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
-        }];
+        }]];
         return;
     }
 
@@ -524,22 +537,22 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options];
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
-            [viewController dismissViewControllerAnimated:YES completion:^{
+            [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                 self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-            }];
+            }]];
             return;
         }
         
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
-        [viewController dismissViewControllerAnimated:YES completion:^{
+        [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
             self.resolve([self createAttachmentResponse:filePath
-                                                      withWidth:imageResult.width
-                                                     withHeight:imageResult.height
-                                                       withMime:imageResult.mime
-                                                       withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                                       withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
-        }];
+                                              withWidth:imageResult.width
+                                             withHeight:imageResult.height
+                                               withMime:imageResult.mime
+                                               withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
+        }]];
     }
 }
 
@@ -599,9 +612,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // Crop image has been canceled.
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
-    [self dismissCropper:controller completion:^{
+    [self dismissCropper:controller completion:[self waitAnimationEnd:^{
         self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    }];
+    }]];
 }
 
 - (void) dismissCropper:(RSKImageCropViewController*) controller completion:(void (^)())completion {
@@ -628,20 +641,20 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
-        [self dismissCropper:controller completion:^{
+        [self dismissCropper:controller completion:[self waitAnimationEnd:^{
             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-        }];
+        }]];
         return;
     }
 
-    [self dismissCropper:controller completion:^{
+    [self dismissCropper:controller completion:[self waitAnimationEnd:^{
         self.resolve([self createAttachmentResponse:filePath
                                           withWidth:imageResult.width
                                          withHeight:imageResult.height
                                            withMime:imageResult.mime
                                            withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                            withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
-    }];
+    }]];
 }
 
 // at the moment it is not possible to upload image by reading PHAsset
