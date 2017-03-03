@@ -126,6 +126,32 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 ##### Android
 
+- Make sure you are using Gradle `2.2.x` (project build.gradle)
+```gradle
+buildscript {
+    ...
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        ...
+    }
+    ...
+}
+```
+
+- Add `useSupportLibrary` (app build.gradle)
+```gradle
+android {
+    ...
+
+    defaultConfig {
+        ...
+        vectorDrawables.useSupportLibrary = true
+        ...
+    }
+    ...
+}
+```
+
 - [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
