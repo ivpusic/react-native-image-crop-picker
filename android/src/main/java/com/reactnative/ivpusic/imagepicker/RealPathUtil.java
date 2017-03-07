@@ -22,11 +22,7 @@ public class RealPathUtil {
               final String[] split = docId.split(":");
               final String type = split[0];
 
-              if ("primary".equalsIgnoreCase(type)) {
-                  return Environment.getExternalStorageDirectory() + "/" + split[1];
-              }
-
-              // TODO handle non-primary volumes
+              return Environment.getExternalStorageDirectory() + "/" + split[1];
           }
           // DownloadsProvider
           else if (isDownloadsDocument(uri)) {
