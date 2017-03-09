@@ -89,6 +89,8 @@ ImagePicker.clean().then(() => {
 | compressImageMaxHeight | number (default none) | Compress image with maximum height |
 | compressImageQuality | number (default 1) | Compress image with quality (from 0 to 1, where 1 is best quality) |
 | loadingLabelText (ios only) | string (default "Processing assets...") | Text displayed while photo is loading in picker |
+| mediaType (ios only) | string (default any) | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
+| showsSelectedCount (ios only) | bool (default true) | Whether to show the number of selected assets |
 #### Response Object
 
 | Property        | Type           | Description  |

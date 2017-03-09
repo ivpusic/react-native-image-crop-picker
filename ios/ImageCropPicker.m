@@ -60,6 +60,8 @@ RCT_EXPORT_MODULE();
                                 @"compressImageQuality": @1,
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
+                                @"mediaType": @"any",
+                                @"showsSelectedCount": @YES
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -230,7 +232,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.delegate = self;
             imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
             imagePickerController.maximumNumberOfSelection = [[self.options objectForKey:@"maxFiles"] intValue];
-            imagePickerController.showsNumberOfSelectedAssets = YES;
+            imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
 
             if ([self.options objectForKey:@"smartAlbums"] != nil) {
                 NSDictionary *smartAlbums = @{
@@ -248,11 +250,20 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 }
                 imagePickerController.assetCollectionSubtypes = albumsToShow;
             }
-
+            
             if ([[self.options objectForKey:@"cropping"] boolValue]) {
                 imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             } else {
-                imagePickerController.mediaType = QBImagePickerMediaTypeAny;
+                NSString *mediaType = [self.options objectForKey:@"mediaType"];
+                
+                if ([mediaType isEqualToString:@"any"]) {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
+                } else if ([mediaType isEqualToString:@"photo"]) {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+                } else {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
+                }
+
             }
 
             [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
