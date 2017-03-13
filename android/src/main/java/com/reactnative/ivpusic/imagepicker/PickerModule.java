@@ -487,6 +487,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private BitmapFactory.Options validateImage(String path) throws Exception {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inDither = true;
+
         BitmapFactory.decodeFile(path, options);
 
         if (options.outMimeType == null || options.outWidth == 0 || options.outHeight == 0) {
