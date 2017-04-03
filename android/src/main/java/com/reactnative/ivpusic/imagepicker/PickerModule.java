@@ -31,6 +31,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCropActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -68,6 +69,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
     private boolean showCropGuidelines = true;
+    private boolean hideBottomControls = false;
+    private boolean enableRotationGesture = false;
     private ReadableMap options;
 
 
@@ -112,6 +115,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperTintColor = options.hasKey("cropperTintColor") ? options.getString("cropperTintColor") : cropperTintColor;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
+        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
+        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
         this.options = options;
     }
 
@@ -554,6 +559,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setShowCropGrid(showCropGuidelines);
+        options.setHideBottomControls(hideBottomControls);
+        if (enableRotationGesture) {
+            // UCropActivity.ALL = enable both rotation & scaling
+            options.setAllowedGestures(
+                UCropActivity.ALL, // When 'scale'-tab active
+                UCropActivity.ALL, // When 'rotate'-tab active
+                UCropActivity.ALL  // When 'aspect ratio'-tab active
+            );
+        }
         configureCropperColors(options);
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
