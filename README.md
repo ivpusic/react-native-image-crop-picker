@@ -91,6 +91,7 @@ ImagePicker.clean().then(() => {
 | loadingLabelText (ios only) | string (default "Processing assets...") | Text displayed while photo is loading in picker |
 | mediaType | string (default any) | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only) | bool (default true) | Whether to show the number of selected assets |
+| showCropGuidelines (android only) | bool (default true) | Whether to show the 3x3 grid on top of the image during cropping |
 #### Response Object
 
 | Property        | Type           | Description  |
