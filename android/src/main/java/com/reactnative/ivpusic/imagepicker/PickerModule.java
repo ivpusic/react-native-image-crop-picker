@@ -67,6 +67,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean includeBase64 = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
+    private boolean showCropGuidelines = true;
     private ReadableMap options;
 
 
@@ -110,6 +111,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
         cropperTintColor = options.hasKey("cropperTintColor") ? options.getString("cropperTintColor") : cropperTintColor;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
+        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         this.options = options;
     }
 
@@ -551,6 +553,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
+        options.setShowCropGrid(showCropGuidelines);
         configureCropperColors(options);
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
