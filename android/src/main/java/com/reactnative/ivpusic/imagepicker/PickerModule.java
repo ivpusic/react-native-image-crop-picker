@@ -683,14 +683,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private File createImageFile() throws IOException {
+
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
+
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
         File image = File.createTempFile(imageFileName, ".jpg", path);
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
 
         return image;
+
     }
 }
