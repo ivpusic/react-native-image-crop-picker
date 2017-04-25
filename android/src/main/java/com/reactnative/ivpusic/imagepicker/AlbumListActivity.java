@@ -2,11 +2,14 @@ package com.reactnative.ivpusic.imagepicker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +26,8 @@ import android.widget.TextView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.imnjh.imagepicker.SImagePicker;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,21 +46,16 @@ public class AlbumListActivity extends AppCompatActivity {
     private List<Album> albumList;
     private AlbumAdapter albumAdapter;
 
-    String[] projection = new String[] {
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_TAKEN,
-            MediaStore.Images.Media.DATA,
-            MediaStore.Images.Thumbnails._ID,
-    };
+    public static final int REQUEST_CODE_IMAGE = 101;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_list);
 
-        Fresco.initialize(this);
+
 
         cancel = (TextView) findViewById(R.id.album_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -67,24 +67,39 @@ public class AlbumListActivity extends AppCompatActivity {
 
         albumList = new ArrayList<>();
 
-        listView = (ListView) findViewById(R.id.album_list);
-
         albumAdapter = new AlbumAdapter(albumList,AlbumListActivity.this);
+
+        listView = (ListView) findViewById(R.id.album_list);
 
         listView.setAdapter(albumAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i("chen",""+position);
+//                Log.i("chen",""+position);
+//                Intent intent = new Intent(AlbumListActivity.this,PhotoListActivity.class);
+//                startActivity(intent);
+                SImagePicker
+                        .from(AlbumListActivity.this)
+                        .maxCount(9)
+                        .rowCount(4)
+                        .pickMode(SImagePicker.MODE_IMAGE)
+                        .fileInterceptor(null)
+                        .forResult(REQUEST_CODE_IMAGE);
             }
         });
 
+        //ArrayList<String> mlist = getAllShownImagesPath(this);
+        //if (mlist.size()>0)
+            //Log.i("chen",mlist.get(0));
 
-
-        ArrayList<String> mlist = getAllShownImagesPath(this);
-        if (mlist.size()>0)
-            Log.i("chen",mlist.get(0));
+        String[] projection = new String[] {
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.DATA,
+                MediaStore.Images.Thumbnails._ID,
+        };
 
         // content:// style URI for the "primary" external storage volume
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -235,6 +250,7 @@ public class AlbumListActivity extends AppCompatActivity {
     }
 
     public class AlbumAdapter extends BaseAdapter {
+
         public List<Album> albumList;
         public LayoutInflater inflater;
 
@@ -260,7 +276,7 @@ public class AlbumListActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View view = inflater.inflate(R.layout.album_list_item, null);
+            View view = inflater.inflate(R.layout.albums_list_item, null);
             Album album = getItem(position);
             SimpleDraweeView cover = (SimpleDraweeView) view.findViewById(R.id.album_cover);
             TextView name = (TextView) view.findViewById(R.id.album_name);

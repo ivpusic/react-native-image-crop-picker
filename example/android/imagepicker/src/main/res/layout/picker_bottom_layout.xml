@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/bottombar_height"
+    android:background="@color/white">
+
+
+    <LinearLayout
+        android:id="@+id/original_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="left|center_vertical"
+        android:gravity="left"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/original_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:buttonTint="#48baf3"
+            android:checked="false"/>
+
+        <TextView
+            android:id="@+id/original_size"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="7dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/gray"
+            android:textSize="16dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="12dp"
+        android:text="@string/general_send"
+        android:textSize="16dp"/>
+
+</FrameLayout>

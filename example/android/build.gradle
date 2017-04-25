@@ -3,10 +3,11 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
-
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -22,3 +23,19 @@ allprojects {
         }
     }
 }
+
+
+ext {
+    minSdk = 14
+    targetSdk = 19
+    buildToolsVersion = "23.0.2"
+    compileSdkVersion = 23
+
+    javaSourceCompatibility = JavaVersion.VERSION_1_8
+    javaTargetCompatibility = JavaVersion.VERSION_1_8
+
+    // Libraries
+    appcompat7Version = '23.3.0'
+    recyclerviewVersion = '23.3.0'
+}
+

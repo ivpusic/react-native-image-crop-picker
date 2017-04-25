@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <com.imnjh.imagepicker.widget.ClipImageLayout
+        android:id="@+id/clip_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+
+    <TextView
+        android:id="@+id/cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="15dp"
+        android:text="@string/general_cancel"
+        android:textColor="@color/white"
+        android:textSize="25dp"/>
+
+    <TextView
+        android:id="@+id/confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="15dp"
+        android:text="@string/general_ok"
+        android:textColor="@color/white"
+        android:textSize="25dp"/>
+
+</RelativeLayout>

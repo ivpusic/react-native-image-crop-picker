@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">imagePicker</string>
+    <string name="general_ok">确定</string>
+    <string name="general_cancel">取消</string>
+    <string name="general_send">发送</string>
+    <string name="general_original">原图</string>
+    <string name="bracket_str">(%1$s)</string>
+    <string name="bracket_num">(%1$d)</string>
+    <string name="error_maximun_nine_photos">最多选择 %1$d 张图片</string>
+    <string name="general_all_pictures">所有图片</string>
+</resources>

@@ -1,0 +1,47 @@
+<manifest package="com.imnjh.imagepicker"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
+        <activity
+            android:name=".activity.PhotoPickerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Popup"/>
+
+        <activity
+            android:name=".activity.PickerPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CaptureConfirmActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CropImageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CaptureTempActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+    </application>
+</manifest>

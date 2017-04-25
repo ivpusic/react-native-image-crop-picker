@@ -30,6 +30,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
+import com.imnjh.imagepicker.SImagePicker;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
@@ -88,6 +89,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector;
     private Compression compression = new Compression();
+
+
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -323,12 +326,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
             galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
+
+
             Activity currentActivity = getCurrentActivity();
             if (null!=currentActivity){
                 final Intent albumIntent = new Intent(currentActivity,AlbumListActivity.class);
                 activity.startActivityForResult(albumIntent, ALBUM_LIST_REQUEST);
-            }
 
+            }
 
             //final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
             //activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);

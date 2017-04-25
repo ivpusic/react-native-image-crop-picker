@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TextView
+    android:id="@android:id/text1"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:drawablePadding="7dp"
+    android:drawableRight="@drawable/ic_arrow_down_white"
+    android:fontFamily="sans-serif-medium"
+    android:gravity="center_vertical"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:textColor="@color/white"
+    android:textSize="20sp"
+    tools:background="#666"
+    tools:text="Inbox"/>
