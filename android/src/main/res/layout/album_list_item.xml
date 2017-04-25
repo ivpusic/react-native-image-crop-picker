@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="66dp">
+
+    <!--<ImageView-->
+        <!--android:id="@+id/album_cover"-->
+        <!--android:layout_width="66dp"-->
+        <!--android:layout_height="66dp" />-->
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/album_cover"
+        android:layout_width="66dp"
+        android:layout_height="66dp" />
+
+    <TextView
+        android:id="@+id/album_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="20dp"
+        android:textColor="#41464b"
+        android:textSize="17sp"
+        android:text="Album Name"/>
+
+    <TextView
+        android:id="@+id/album_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="8dp"
+        android:textColor="#a0a2a5"
+        android:textSize="13sp"
+        android:text="999"/>
+
+</LinearLayout>

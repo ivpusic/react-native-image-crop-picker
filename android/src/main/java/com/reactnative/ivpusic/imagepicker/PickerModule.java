@@ -49,6 +49,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private static final int IMAGE_PICKER_REQUEST = 61110;
     private static final int CAMERA_PICKER_REQUEST = 61111;
+    private static final int ALBUM_LIST_REQUEST = 61112;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
 
     private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
@@ -322,8 +323,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
             galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            Activity currentActivity = getCurrentActivity();
+            if (null!=currentActivity){
+                final Intent albumIntent = new Intent(currentActivity,AlbumListActivity.class);
+                activity.startActivityForResult(albumIntent, ALBUM_LIST_REQUEST);
+            }
+
+
+            //final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+            //activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }

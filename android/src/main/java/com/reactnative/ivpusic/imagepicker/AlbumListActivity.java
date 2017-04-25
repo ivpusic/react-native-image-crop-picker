@@ -1,0 +1,276 @@
+package com.reactnative.ivpusic.imagepicker;
+
+import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.view.SimpleDraweeView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+public class AlbumListActivity extends AppCompatActivity {
+
+    private TextView title;
+    private TextView cancel;
+    private ListView listView;
+
+    private List<Album> albumList;
+    private AlbumAdapter albumAdapter;
+
+    String[] projection = new String[] {
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_TAKEN,
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Thumbnails._ID,
+    };
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_album_list);
+
+        Fresco.initialize(this);
+
+        cancel = (TextView) findViewById(R.id.album_cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        albumList = new ArrayList<>();
+
+        listView = (ListView) findViewById(R.id.album_list);
+
+        albumAdapter = new AlbumAdapter(albumList,AlbumListActivity.this);
+
+        listView.setAdapter(albumAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.i("chen",""+position);
+            }
+        });
+
+
+
+        ArrayList<String> mlist = getAllShownImagesPath(this);
+        if (mlist.size()>0)
+            Log.i("chen",mlist.get(0));
+
+        // content:// style URI for the "primary" external storage volume
+        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        // Make the query.
+        Cursor cur = managedQuery(images,
+                projection, // Which columns to return
+                null,       // Which rows to return (all rows)
+                null,       // Selection arguments (none)
+                null        // Ordering
+        );
+
+        Log.i("ListingImages"," query count=" + cur.getCount());
+
+        if (cur.moveToFirst()) {
+            String id;
+            String bucket;
+            String date;
+            //String data;
+            String thumbId;
+
+            int idColumn = cur.getColumnIndex(MediaStore.Images.Media._ID);
+            int bucketColumn = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+            int dateColumn = cur.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN);
+            //int dataColumn = cur.getColumnIndex(MediaStore.Images.Media.DATA);
+            int thumbIdColumn = cur.getColumnIndex(MediaStore.Images.Thumbnails._ID);
+
+            int i=0;
+
+            ArrayList<String> bucketList = new ArrayList<>();
+            ArrayList<String> bucketCover = new ArrayList<>();
+            ArrayList<Integer> bucketCount = new ArrayList<>();
+
+            do {
+                // Get the field values
+                bucket = cur.getString(bucketColumn);
+                date = cur.getString(dateColumn);
+                //data = cur.getString(dataColumn);
+                id = cur.getString(idColumn);
+                thumbId = cur.getString(thumbIdColumn);
+
+                String cover = images+"/"+Integer.parseInt(thumbId);
+                //Uri coverUri = Uri.parse(cover);
+                //cover = getThumbnail(coverUri);
+
+                if (!bucketList.contains(bucket)) {
+                    bucketList.add(bucket);
+                    bucketCover.add(cover);
+                    bucketCount.add(1);
+                }else{
+                    int count = bucketCount.get(bucketCount.size()-1);
+                    bucketCount.set(bucketCount.size()-1,count+1);
+                }
+
+                i++;
+
+                // Do something with the values.
+                Log.i("ListingImages", " bucket=" + bucket + "  date_taken=" + date + "  uri=" + cover);
+
+            } while (cur.moveToNext());
+
+
+            for (i=0;i<bucketList.size();i++){
+                Album album = new Album();
+                album.setCover(bucketCover.get(i));
+                album.setName(bucketList.get(i));
+                album.setCount(bucketCount.get(i));
+                albumList.add(album);
+            }
+
+            albumAdapter.albumList = albumList;
+            albumAdapter.notifyDataSetChanged();
+
+        }
+
+    }
+
+
+
+    public String getThumbnail(Uri imageUri){
+        Cursor cursor = MediaStore.Images.Thumbnails.queryMiniThumbnails(
+                getContentResolver(), imageUri,
+                MediaStore.Images.Thumbnails.MINI_KIND,
+                null );
+        if( cursor != null && cursor.getCount() > 0 ) {
+            cursor.moveToFirst();//**EDIT**
+            String uriString = cursor.getString( cursor.getColumnIndex( MediaStore.Images.Thumbnails.DATA ) );
+            return uriString;
+        }else{
+            return null;
+        }
+    }
+
+    public static ArrayList<String> getAllShownImagesPath(Activity activity) {
+        Uri uri;
+        Cursor cursor;
+        int column_index_data, column_index_folder_name;
+        ArrayList<String> listOfAllImages = new ArrayList<String>();
+        String absolutePathOfImage = null;
+        uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        String[] projection = { MediaStore.MediaColumns.DATA,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME };
+
+        cursor = activity.getContentResolver().query(uri, projection, null,
+                null, null);
+
+        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+        column_index_folder_name = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+        while (cursor.moveToNext()) {
+            absolutePathOfImage = cursor.getString(column_index_data);
+
+            listOfAllImages.add(absolutePathOfImage);
+        }
+        return listOfAllImages;
+    }
+
+
+    public class Album{
+        private String name;
+        private int count;
+        private String cover;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCover(String cover) {
+            this.cover = cover;
+        }
+
+        public String getCover() {
+            return cover;
+        }
+    }
+
+    public class AlbumAdapter extends BaseAdapter {
+        public List<Album> albumList;
+        public LayoutInflater inflater;
+
+        public AlbumAdapter(List<Album> albumList,Context context){
+            this.albumList = albumList;
+            this.inflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public int getCount() {
+            return albumList==null?0:albumList.size();
+        }
+
+        @Override
+        public Album getItem(int position) {
+            return albumList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = inflater.inflate(R.layout.album_list_item, null);
+            Album album = getItem(position);
+            SimpleDraweeView cover = (SimpleDraweeView) view.findViewById(R.id.album_cover);
+            TextView name = (TextView) view.findViewById(R.id.album_name);
+            TextView count = (TextView) view.findViewById(R.id.album_count);
+            cover.setImageURI(album.getCover());
+            name.setText(album.getName());
+            count.setText(""+album.getCount());
+
+            return view;
+
+        }
+    }
+}
