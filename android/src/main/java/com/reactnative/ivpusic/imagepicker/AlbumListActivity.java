@@ -95,6 +95,7 @@ public class AlbumListActivity extends AppCompatActivity {
 
         String[] projection = new String[] {
                 MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
                 MediaStore.Images.Media.DATE_TAKEN,
                 MediaStore.Images.Media.DATA,
@@ -116,12 +117,14 @@ public class AlbumListActivity extends AppCompatActivity {
 
         if (cur.moveToFirst()) {
             String id;
+            String bucketId;
             String bucket;
             String date;
             //String data;
             String thumbId;
 
             int idColumn = cur.getColumnIndex(MediaStore.Images.Media._ID);
+            int bucketIdColumn = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
             int bucketColumn = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
             int dateColumn = cur.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN);
             //int dataColumn = cur.getColumnIndex(MediaStore.Images.Media.DATA);
@@ -135,15 +138,18 @@ public class AlbumListActivity extends AppCompatActivity {
 
             do {
                 // Get the field values
+                id = cur.getString(idColumn);
+                bucketId = cur.getString(bucketIdColumn);
                 bucket = cur.getString(bucketColumn);
                 date = cur.getString(dateColumn);
                 //data = cur.getString(dataColumn);
-                id = cur.getString(idColumn);
                 thumbId = cur.getString(thumbIdColumn);
 
                 String cover = images+"/"+Integer.parseInt(thumbId);
                 //Uri coverUri = Uri.parse(cover);
                 //cover = getThumbnail(coverUri);
+
+                Log.i("chen","bucketId:"+bucketId);
 
                 if (!bucketList.contains(bucket)) {
                     bucketList.add(bucket);

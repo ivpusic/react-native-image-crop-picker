@@ -162,7 +162,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
       photoController.onCreate(this, recyclerView, selectionChangeListener, maxCount, rowCount,
           mode, capturePhotoHelper);
     }
-    photoController.loadAllPhoto(this);
+    //photoController.loadAllPhoto(this);
+    photoController.loadAlbumPhoto(this,String.valueOf(-1231174397));
 
     fileChooseInterceptor = getIntent().getParcelableExtra(PARAM_FILE_CHOOSE_INTERCEPTOR);
     ArrayList<String> selected = getIntent().getStringArrayListExtra(PARAM_SELECTED);

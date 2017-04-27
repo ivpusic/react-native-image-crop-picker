@@ -111,6 +111,16 @@ public class PhotoController extends BaseLoaderController {
     load(album);
   }
 
+  /**
+   *
+   */
+  public void loadAlbumPhoto(Context context,String bucketId) {
+    Album album = new Album(bucketId, 123,
+            context.getString(Album.ALBUM_NAME_ALL_RES_ID), 2);
+    load(album);
+  }
+
+
 
   /**
    * restartLoader will cancel, stop and destroy the loader (and close the
