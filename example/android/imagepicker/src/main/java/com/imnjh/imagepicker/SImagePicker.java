@@ -1,9 +1,5 @@
 package com.imnjh.imagepicker;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.IntDef;
@@ -13,6 +9,10 @@ import android.support.v4.app.Fragment;
 import com.imnjh.imagepicker.activity.CropImageActivity;
 import com.imnjh.imagepicker.activity.PhotoPickerActivity;
 import com.imnjh.imagepicker.util.SystemUtil;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 
 
 /**
@@ -68,6 +68,18 @@ public class SImagePicker {
     return pickerConfig;
   }
 
+  private String albumName;
+  public SImagePicker albumName(String albumName) {
+    this.albumName = albumName;
+    return this;
+  }
+
+  private String bucketId;
+  public SImagePicker bucketId(String bucketId) {
+    this.bucketId = bucketId;
+    return this;
+  }
+
   public SImagePicker maxCount(int maxCount) {
     this.maxCount = maxCount;
     return this;
@@ -121,6 +133,8 @@ public class SImagePicker {
     intent.putExtra(PhotoPickerActivity.PARAM_CUSTOM_PICK_TEXT_RES, pickRes);
     intent.putExtra(PhotoPickerActivity.PARAM_FILE_CHOOSE_INTERCEPTOR, fileChooseInterceptor);
     intent.putExtra(CropImageActivity.PARAM_AVATAR_PATH, avatarFilePath);
+    intent.putExtra(PhotoPickerActivity.PARAM_ALBUM_NAME, albumName);
+    intent.putExtra(PhotoPickerActivity.PARAM_BUCKET_ID, bucketId);
     if (activity != null) {
       intent.setClass(activity, PhotoPickerActivity.class);
       activity.startActivityForResult(intent, requestCode);

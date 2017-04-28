@@ -2,40 +2,27 @@ package com.reactnative.ivpusic.imagepicker;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.imnjh.imagepicker.SImagePicker;
 
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 public class AlbumListActivity extends AppCompatActivity {
 
@@ -79,8 +66,11 @@ public class AlbumListActivity extends AppCompatActivity {
 //                Log.i("chen",""+position);
 //                Intent intent = new Intent(AlbumListActivity.this,PhotoListActivity.class);
 //                startActivity(intent);
+                Album album = albumList.get(position);
                 SImagePicker
                         .from(AlbumListActivity.this)
+                        .albumName(album.getName())
+                        .bucketId(album.getBucketId())
                         .maxCount(9)
                         .rowCount(4)
                         .pickMode(SImagePicker.MODE_IMAGE)
@@ -135,6 +125,7 @@ public class AlbumListActivity extends AppCompatActivity {
             ArrayList<String> bucketList = new ArrayList<>();
             ArrayList<String> bucketCover = new ArrayList<>();
             ArrayList<Integer> bucketCount = new ArrayList<>();
+            ArrayList<String> bucketIdList = new ArrayList<>();
 
             do {
                 // Get the field values
@@ -155,6 +146,7 @@ public class AlbumListActivity extends AppCompatActivity {
                     bucketList.add(bucket);
                     bucketCover.add(cover);
                     bucketCount.add(1);
+                    bucketIdList.add(bucketId);
                 }else{
                     int count = bucketCount.get(bucketCount.size()-1);
                     bucketCount.set(bucketCount.size()-1,count+1);
@@ -173,6 +165,7 @@ public class AlbumListActivity extends AppCompatActivity {
                 album.setCover(bucketCover.get(i));
                 album.setName(bucketList.get(i));
                 album.setCount(bucketCount.get(i));
+                album.setBucketId(bucketIdList.get(i));
                 albumList.add(album);
             }
 
@@ -225,10 +218,11 @@ public class AlbumListActivity extends AppCompatActivity {
     }
 
 
-    public class Album{
+    public class Album {
         private String name;
         private int count;
         private String cover;
+        private String bucketId;
 
         public void setName(String name) {
             this.name = name;
@@ -252,6 +246,14 @@ public class AlbumListActivity extends AppCompatActivity {
 
         public String getCover() {
             return cover;
+        }
+
+        public void setBucketId(String bucketId) {
+            this.bucketId = bucketId;
+        }
+
+        public String getBucketId() {
+            return bucketId;
         }
     }
 

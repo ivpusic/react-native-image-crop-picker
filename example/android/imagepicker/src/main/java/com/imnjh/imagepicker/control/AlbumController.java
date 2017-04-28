@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatSpinner;
-import android.view.View;
-import android.widget.AdapterView;
 
 import com.imnjh.imagepicker.adapter.AlbumAdapter;
 import com.imnjh.imagepicker.loader.AlbumLoader;
@@ -17,18 +14,26 @@ import com.imnjh.imagepicker.model.Album;
  * Created by Martin on 2017/1/17.
  */
 public class AlbumController extends BaseLoaderController
-    implements AdapterView.OnItemSelectedListener {
+//    implements AdapterView.OnItemSelectedListener
+{
 
   private AlbumAdapter albumAdapter;
   private OnDirectorySelectListener directorySelectListener;
 
-  public void onCreate(Activity activity, AppCompatSpinner spinner,
-      OnDirectorySelectListener directorySelectListener) {
+//  public void onCreate(Activity activity, AppCompatSpinner spinner,
+//                         OnDirectorySelectListener directorySelectListener) {
+//    super.onCreate(activity);
+//    this.albumAdapter = new AlbumAdapter(activity, null);
+//    this.directorySelectListener = directorySelectListener;
+//    spinner.setAdapter(albumAdapter);
+//    spinner.setOnItemSelectedListener(this);
+//  }
+
+  public void onCreate(Activity activity,
+                       OnDirectorySelectListener directorySelectListener) {
     super.onCreate(activity);
     this.albumAdapter = new AlbumAdapter(activity, null);
     this.directorySelectListener = directorySelectListener;
-    spinner.setAdapter(albumAdapter);
-    spinner.setOnItemSelectedListener(this);
   }
 
   @Override
@@ -61,19 +66,19 @@ public class AlbumController extends BaseLoaderController
     loaderManager.initLoader(getLoaderId(), null, this);
   }
 
-  @Override
-  public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-    if (directorySelectListener != null) {
-      Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-      Album album = Album.valueOf(cursor);
-      directorySelectListener.onSelect(album);
-    }
-  }
+//  @Override
+//  public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//    if (directorySelectListener != null) {
+//      Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+//      Album album = Album.valueOf(cursor);
+//      directorySelectListener.onSelect(album);
+//    }
+//  }
 
-  @Override
-  public void onNothingSelected(AdapterView<?> parent) {
-
-  }
+//  @Override
+//  public void onNothingSelected(AdapterView<?> parent) {
+//
+//  }
 
 
   public interface OnDirectorySelectListener {

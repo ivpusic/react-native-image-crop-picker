@@ -21,8 +21,8 @@
 
         <activity
             android:name=".activity.PhotoPickerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Popup"/>
+            android:screenOrientation="portrait" />
+        <!--android:theme="@style/AppTheme.Popup"-->
 
         <activity
             android:name=".activity.PickerPreviewActivity"

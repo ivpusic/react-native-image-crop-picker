@@ -1,19 +1,16 @@
 package com.imnjh.imagepicker.activity;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
-import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.imnjh.imagepicker.CapturePhotoHelper;
 import com.imnjh.imagepicker.FileChooseInterceptor;
@@ -32,6 +29,9 @@ import com.imnjh.imagepicker.widget.GridInsetDecoration;
 import com.imnjh.imagepicker.widget.PickerBottomLayout;
 import com.imnjh.imagepicker.widget.SquareRelativeLayout;
 
+import java.io.File;
+import java.util.ArrayList;
+
 
 /**
  * Created by Martin on 2017/1/17.
@@ -48,6 +48,12 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   public static final String PARAM_SHOW_CAMERA = "PARAM_SHOW_CAMERA";
   public static final String PARAM_CUSTOM_PICK_TEXT_RES = "PARAM_CUSTOM_PICK_TEXT_RES";
   public static final String PARAM_FILE_CHOOSE_INTERCEPTOR = "PARAM_FILE_CHOOSE_INTERCEPTOR";
+
+  private String albumName;
+  private String bucketId;
+  public static final String PARAM_ALBUM_NAME = "PARAM_ALBUM_NAME";
+  public static final String PARAM_BUCKET_ID = "PARAM_BUCKET_ID";
+  private TextView textView;//album name textview
 
   public static final int REQUEST_CODE_PICKER_PREVIEW = 100;
   public static final int REQUEST_CODE_CROP_IMAGE = 101;
@@ -67,21 +73,21 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private FileChooseInterceptor fileChooseInterceptor;
   private CapturePhotoHelper capturePhotoHelper;
 
-  private AppCompatSpinner albumSpinner;
+//  private AppCompatSpinner albumSpinner;
   private final PhotoController photoController = new PhotoController();
   private final AlbumController albumController = new AlbumController();
   private final AlbumController.OnDirectorySelectListener directorySelectListener =
-      new AlbumController.OnDirectorySelectListener() {
-        @Override
-        public void onSelect(Album album) {
-          photoController.resetLoad(album);
-        }
+          new AlbumController.OnDirectorySelectListener() {
+            @Override
+            public void onSelect(Album album) {
+              photoController.resetLoad(album);
+            }
 
-        @Override
-        public void onReset(Album album) {
-          photoController.load(album);
-        }
-      };
+            @Override
+            public void onReset(Album album) {
+              photoController.load(album);
+            }
+          };
 
   private final PhotoAdapter.OnPhotoActionListener selectionChangeListener =
       new PhotoAdapter.OnPhotoActionListener() {
@@ -134,6 +140,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     avatarFilePath = getIntent().getStringExtra(CropImageActivity.PARAM_AVATAR_PATH);
     rowCount = getIntent().getIntExtra(PARAM_ROW_COUNT, 4);
     showCamera = getIntent().getBooleanExtra(PARAM_SHOW_CAMERA, false);
+    albumName = getIntent().getStringExtra(PARAM_ALBUM_NAME);
+    bucketId = getIntent().getStringExtra(PARAM_BUCKET_ID);
     initUI();
   }
 
@@ -144,6 +152,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
       toolbar.setBackgroundColor(SImagePicker.getPickerConfig().getToolbarColor());
     }
     recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+    //TODO: 疑似崩溃待测
     toolbar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -162,8 +172,12 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
       photoController.onCreate(this, recyclerView, selectionChangeListener, maxCount, rowCount,
           mode, capturePhotoHelper);
     }
-    //photoController.loadAllPhoto(this);
-    photoController.loadAlbumPhoto(this,String.valueOf(-1231174397));
+//    photoController.loadAllPhoto(this);
+
+    /**
+     *
+     */
+    photoController.loadAlbumPhoto(this,String.valueOf(bucketId));
 
     fileChooseInterceptor = getIntent().getParcelableExtra(PARAM_FILE_CHOOSE_INTERCEPTOR);
     ArrayList<String> selected = getIntent().getStringArrayListExtra(PARAM_SELECTED);
@@ -174,12 +188,15 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     bottomLayout.setCustomPickText(pickRes);
     updateBottomBar();
 
-    albumSpinner =
-        (AppCompatSpinner) LayoutInflater.from(this).inflate(R.layout.common_toolbar_spinner,
-            toolbar, false);
-    toolbar.addView(albumSpinner);
-    albumController.onCreate(this, albumSpinner, directorySelectListener);
-    albumController.loadAlbums();
+//    albumSpinner =
+//        (AppCompatSpinner) LayoutInflater.from(this).inflate(R.layout.common_toolbar_spinner,
+//            toolbar, false);
+    textView = (TextView) LayoutInflater.from(this).inflate(R.layout.album_name, toolbar, false);
+    toolbar.addView(textView);
+    textView.setText(albumName);
+//    albumController.onCreate(this, albumSpinner, directorySelectListener);
+//    albumController.loadAlbums();
+    albumController.onCreate(this, directorySelectListener);
     bottomLayout.send.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -201,6 +218,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     super.onDestroy();
   }
 
+
+  //TODO: 疑似崩溃待测
   @Override
   public void onBackPressed() {
     setResultAndFinish(photoController.getSelectedPhoto(),
