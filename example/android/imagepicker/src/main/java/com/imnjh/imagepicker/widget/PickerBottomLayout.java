@@ -2,11 +2,8 @@ package com.imnjh.imagepicker.widget;
 
 import android.content.Context;
 import android.support.annotation.StringRes;
-import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -23,11 +20,13 @@ public class PickerBottomLayout extends FrameLayout {
 
   public TextView originalSize;
 
-  public View originalContainer;
+//  public View originalContainer;
 
   public TextView send;
 
-  private int pickTextRes = R.string.general_send;
+  public TextView preview;
+
+  private int pickTextRes = R.string.general_ok;
 
   public PickerBottomLayout(Context context) {
     this(context, null);
@@ -45,17 +44,20 @@ public class PickerBottomLayout extends FrameLayout {
   private void init(Context context) {
     inflate(context, R.layout.picker_bottom_layout, this);
     send = (TextView) findViewById(R.id.send);
-    originalSize = (TextView) findViewById(R.id.original_size);
-    originalContainer = findViewById(R.id.original_container);
-    originalCheckbox = (android.widget.CheckBox) findViewById(R.id.original_checkbox);
-    originalCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        originalSize.setTextColor(isChecked
-            ? getResources().getColor(R.color.color_48baf3)
-            : getResources().getColor(R.color.gray));
-      }
-    });
+
+    //TODO: 预览操作的逻辑处理
+    preview = (TextView) findViewById(R.id.preview);
+//    originalSize = (TextView) findViewById(R.id.original_size);
+//    originalContainer = findViewById(R.id.original_container);
+//    originalCheckbox = (android.widget.CheckBox) findViewById(R.id.original_checkbox);
+//    originalCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//      @Override
+//      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//        originalSize.setTextColor(isChecked
+//            ? getResources().getColor(R.color.color_48baf3)
+//            : getResources().getColor(R.color.gray));
+//      }
+//    });
   }
 
   public void updateSelectedCount(int count) {
@@ -63,26 +65,26 @@ public class PickerBottomLayout extends FrameLayout {
       send.setTextColor(getResources().getColor(R.color.gray));
       send.setEnabled(false);
       send.setText(getResources().getString(pickTextRes));
-      originalContainer.setVisibility(View.GONE);
+      //originalContainer.setVisibility(View.GONE);
     } else {
       send.setTextColor(getResources().getColor(R.color.color_48baf3));
       send.setEnabled(true);
       send.setText(getResources().getString(pickTextRes) + " "
           + getResources().getString(R.string.bracket_num, count));
-      originalContainer.setVisibility(View.VISIBLE);
+//      originalContainer.setVisibility(View.VISIBLE);
     }
   }
 
-  public void updateSelectedSize(String size) {
-    if (TextUtils.isEmpty(size)) {
-      originalContainer.setVisibility(View.GONE);
-      originalCheckbox.setChecked(false);
-    } else {
-      originalContainer.setVisibility(View.VISIBLE);
-      originalSize.setText(getResources().getString(R.string.general_original) + " "
-          + getResources().getString(R.string.bracket_str, size));
-    }
-  }
+//  public void updateSelectedSize(String size) {
+//    if (TextUtils.isEmpty(size)) {
+//      originalContainer.setVisibility(View.GONE);
+//      originalCheckbox.setChecked(false);
+//    } else {
+//      originalContainer.setVisibility(View.VISIBLE);
+//      originalSize.setText(getResources().getString(R.string.general_original) + " "
+//          + getResources().getString(R.string.bracket_str, size));
+//    }
+//  }
 
   public void hide() {
     animate().translationY(getHeight())

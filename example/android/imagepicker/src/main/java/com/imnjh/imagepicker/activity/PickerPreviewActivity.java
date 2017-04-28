@@ -555,11 +555,11 @@ public class PickerPreviewActivity extends BasePickerActivity implements PickerA
   }
 
   private void updateBottomBar() {
-    if (selected.isEmpty()) {
-      previewBottomLayout.updateSelectedSize(null);
-    } else {
-      previewBottomLayout.updateSelectedSize(FileUtil.getFilesSize(this, selected));
-    }
+//    if (selected.isEmpty()) {
+//      previewBottomLayout.updateSelectedSize(null);
+//    } else {
+//      previewBottomLayout.updateSelectedSize(FileUtil.getFilesSize(this, selected));
+//    }
     previewBottomLayout.updateSelectedCount(selected.size());
   }
 

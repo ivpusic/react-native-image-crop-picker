@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,7 +22,6 @@ import com.imnjh.imagepicker.control.PhotoController;
 import com.imnjh.imagepicker.model.Album;
 import com.imnjh.imagepicker.model.Photo;
 import com.imnjh.imagepicker.util.CollectionUtils;
-import com.imnjh.imagepicker.util.FileUtil;
 import com.imnjh.imagepicker.widget.GridInsetDecoration;
 import com.imnjh.imagepicker.widget.PickerBottomLayout;
 import com.imnjh.imagepicker.widget.SquareRelativeLayout;
@@ -60,7 +57,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   PickerBottomLayout bottomLayout;
   RecyclerView recyclerView;
-  Toolbar toolbar;
+//  Toolbar toolbar;
 
   private GridLayoutManager layoutManager;
   private int maxCount;
@@ -147,20 +144,19 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   private void initUI() {
     bottomLayout = (PickerBottomLayout) findViewById(R.id.picker_bottom);
-    toolbar = (Toolbar) findViewById(R.id.toolbar);
-    if (SImagePicker.getPickerConfig().getToolbarColor() != 0) {
-      toolbar.setBackgroundColor(SImagePicker.getPickerConfig().getToolbarColor());
-    }
+//    toolbar = (Toolbar) findViewById(R.id.toolbar);
+//    if (SImagePicker.getPickerConfig().getToolbarColor() != 0) {
+//      toolbar.setBackgroundColor(SImagePicker.getPickerConfig().getToolbarColor());
+//    }
     recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-    //TODO: 疑似崩溃待测
-    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        onBackPressed();
-      }
-    });
-    toolbar.setNavigationIcon(R.drawable.ic_general_cancel_left);
+//    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//      @Override
+//      public void onClick(View v) {
+//        onBackPressed();
+//      }
+//    });
+//    toolbar.setNavigationIcon(R.drawable.ic_general_cancel_left);
     layoutManager = new GridLayoutManager(this, rowCount);
     recyclerView.setLayoutManager(layoutManager);
     recyclerView.addItemDecoration(new GridInsetDecoration());
@@ -191,9 +187,9 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 //    albumSpinner =
 //        (AppCompatSpinner) LayoutInflater.from(this).inflate(R.layout.common_toolbar_spinner,
 //            toolbar, false);
-    textView = (TextView) LayoutInflater.from(this).inflate(R.layout.album_name, toolbar, false);
-    toolbar.addView(textView);
-    textView.setText(albumName);
+//    textView = (TextView) LayoutInflater.from(this).inflate(R.layout.album_name, toolbar, false);
+//    toolbar.addView(textView);
+//    textView.setText(albumName);
 //    albumController.onCreate(this, albumSpinner, directorySelectListener);
 //    albumController.loadAlbums();
     albumController.onCreate(this, directorySelectListener);
@@ -300,12 +296,12 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private void updateBottomBar() {
     if (mode == SImagePicker.MODE_IMAGE) {
       bottomLayout.updateSelectedCount(photoController.getSelectedPhoto().size());
-      if (CollectionUtils.isEmpty(photoController.getSelectedPhoto())) {
-        bottomLayout.updateSelectedSize(null);
-      } else {
-        bottomLayout.updateSelectedSize(FileUtil.getFilesSize(PhotoPickerActivity.this,
-            photoController.getSelectedPhoto()));
-      }
+//      if (CollectionUtils.isEmpty(photoController.getSelectedPhoto())) {
+//        bottomLayout.updateSelectedSize(null);
+//      } else {
+//        bottomLayout.updateSelectedSize(FileUtil.getFilesSize(PhotoPickerActivity.this,
+//            photoController.getSelectedPhoto()));
+//      }
     } else if (mode == SImagePicker.MODE_AVATAR) {
       bottomLayout.setVisibility(View.GONE);
     }
