@@ -1,7 +1,5 @@
 package com.imnjh.imagepicker.adapter;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -11,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,8 @@ import com.imnjh.imagepicker.model.Photo;
 import com.imnjh.imagepicker.util.SystemUtil;
 import com.imnjh.imagepicker.util.UriUtil;
 import com.imnjh.imagepicker.widget.SquareRelativeLayout;
+
+import java.util.ArrayList;
 
 /**
  * Created by Martin on 2017/1/17.
@@ -58,10 +59,15 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
     SImagePicker.getPickerConfig().getImageLoader().bindImage(holder.photoCell.photo,
         new Uri.Builder().scheme(UriUtil.LOCAL_FILE_SCHEME)
             .path(photo.getFilePath()).build(), photoSize, photoSize);
+
+    /**
+     * TODO: 禁用点击单图预览
+     */
     holder.photoCell.photo.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        actionListener.onPreview(position, photo, originHolder.itemView);
+        Log.i("click", "photo click");
+        //actionListener.onPreview(position, photo, originHolder.itemView);
       }
     });
     if (mode == SImagePicker.MODE_IMAGE) {
@@ -108,9 +114,16 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
     }
   }
 
+  /**
+   * TODO: 选中9张图片时 所有未被选中的图片变为不可选状态
+   * @param photoCell
+   * @param photo
+     */
   private void onCheckStateChange(SquareRelativeLayout photoCell, Photo photo) {
     if (isCountOver() && !selectedPhoto.contains(photo.getFilePath())) {
-      showMaxDialog(mContext, maxCount);
+
+
+//      showMaxDialog(mContext, maxCount);
       return;
     }
     if (selectedPhoto.contains(photo.getFilePath())) {
@@ -124,7 +137,8 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
       selectedPhoto.add(photo.getFilePath());
       photoCell.checkBox.setText(String.valueOf(selectedPhoto.size()));
       photoCell.checkBox.setChecked(true, true);
-      photoCell.photo.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+      //取消选中图片时 图片变灰色的效果
+//      photoCell.photo.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
       if (actionListener != null) {
         actionListener.onSelect(photo.getFilePath());
       }

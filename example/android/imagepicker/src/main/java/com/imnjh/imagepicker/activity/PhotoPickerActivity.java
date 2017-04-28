@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -28,6 +29,7 @@ import com.imnjh.imagepicker.widget.SquareRelativeLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -224,8 +226,16 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   private void commit() {
     if (!photoController.getSelectedPhoto().isEmpty()) {
-      setResultAndFinish(photoController.getSelectedPhoto(),
-          bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_OK);
+
+      /**
+       *  TODO: 确定后 获取选中的photo的存储路径
+       */
+      List<String> photos = photoController.getSelectedPhoto();
+      for (String photo : photos) {
+        Log.e("Photo", photo);
+      }
+//      setResultAndFinish(photoController.getSelectedPhoto(),
+//          bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_OK);
     }
   }
 

@@ -82,8 +82,8 @@ public class CheckBox extends View {
     disabledColor =
         a.getColor(R.styleable.CheckBox_disabled_color,
             getResources().getColor(R.color.color_e5e5e5));
-    borderColor =
-        a.getColor(R.styleable.CheckBox_border_color, Color.WHITE);
+    borderColor =                                     //TODO: checkbox 圆圈颜色
+        a.getColor(R.styleable.CheckBox_border_color, Color.LTGRAY);
     size = a.getDimensionPixelSize(R.styleable.CheckBox_checkbox_size, SystemUtil.dp(22));
     unchecked_invisible = a.getBoolean(R.styleable.CheckBox_invisible_in_unchecked_state, false);
     checkDrawable = a.getDrawable(R.styleable.CheckBox_checked_drawable);
@@ -229,7 +229,8 @@ public class CheckBox extends View {
             * (roundProgressCheckState - progressBounceDiff) / progressBounceDiff;
       }
       if (drawBackground) {
-        paint.setColor(unCheckedColor);
+        //TODO:checkbox 取消圈内灰色背景
+        paint.setColor(Color.TRANSPARENT);
         canvas.drawCircle(paddingLeft + rad, paddingTop + rad, drawRad
             - SystemUtil.dp(1), paint);
         canvas.drawCircle(paddingLeft + rad, paddingTop + rad, drawRad

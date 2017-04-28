@@ -22,9 +22,9 @@ public class PickerBottomLayout extends FrameLayout {
 
 //  public View originalContainer;
 
-  public TextView send;
+  public TextView send; //确定
 
-  public TextView preview;
+  public TextView preview; //预览
 
   private int pickTextRes = R.string.general_ok;
 
@@ -64,12 +64,12 @@ public class PickerBottomLayout extends FrameLayout {
     if (count == 0) {
       send.setTextColor(getResources().getColor(R.color.gray));
       send.setEnabled(false);
-      send.setText(getResources().getString(pickTextRes));
+      send.setText(getResources().getString(R.string.general_ok));
       //originalContainer.setVisibility(View.GONE);
     } else {
       send.setTextColor(getResources().getColor(R.color.color_48baf3));
       send.setEnabled(true);
-      send.setText(getResources().getString(pickTextRes) + " "
+      send.setText(getResources().getString(R.string.general_ok) + " "
           + getResources().getString(R.string.bracket_num, count));
 //      originalContainer.setVisibility(View.VISIBLE);
     }

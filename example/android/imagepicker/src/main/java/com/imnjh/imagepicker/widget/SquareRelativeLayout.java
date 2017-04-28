@@ -33,6 +33,9 @@ public class SquareRelativeLayout extends RelativeLayout {
   protected void onFinishInflate() {
     super.onFinishInflate();
     checkBox = (CheckBox) findViewById(R.id.checkbox);
+
+    //TODO:checkbox背景图 || 其他更好的实现方式
+    checkBox.setBackgroundResource(R.drawable.mark_check);
   }
 
   public void setPhotoView(ImageView imageView) {
