@@ -54,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:background="#e5e5e5"
-        android:layout_marginBottom="4dp"/>
+        android:layout_marginBottom="1.5dp"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
