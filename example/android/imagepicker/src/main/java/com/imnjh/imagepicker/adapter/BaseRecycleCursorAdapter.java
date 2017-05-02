@@ -107,6 +107,7 @@ public abstract class BaseRecycleCursorAdapter<VH extends RecyclerView.ViewHolde
     }
   }
 
+
   /**
    * @param position Adapter position to query
    * @see android.support.v7.widget.RecyclerView.Adapter#getItemId(int)

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fl_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -27,7 +28,7 @@
         android:layout_height="match_parent"
         android:background="#d8d8d8"
         android:clickable="true"
-        android:alpha="0.4"
+        android:alpha="0.8"
         android:visibility="gone"
         />
 

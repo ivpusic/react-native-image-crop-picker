@@ -148,8 +148,11 @@ public class AlbumListActivity extends AppCompatActivity {
                     bucketCount.add(1);
                     bucketIdList.add(bucketId);
                 }else{
-                    int count = bucketCount.get(bucketCount.size()-1);
-                    bucketCount.set(bucketCount.size()-1,count+1);
+                    int index = bucketList.indexOf(bucket);
+                    int count = bucketCount.get(index);
+                    bucketCount.set(index,count+1);
+                    //Log.e("Picker", "Title : " + bucket + "  size : " + count);
+
                 }
 
                 i++;

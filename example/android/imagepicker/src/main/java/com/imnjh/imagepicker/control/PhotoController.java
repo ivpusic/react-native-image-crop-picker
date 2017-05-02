@@ -146,4 +146,8 @@ public class PhotoController extends BaseLoaderController {
   public void getAllPhoto(PhotoLoadListener photoLoadListener) {
     photoAdapter.getAllPhoto(photoLoadListener);
   }
+
+  public void cancelSelectedPhoto() {
+    photoAdapter.cancelSelectedPhoto();
+  }
 }

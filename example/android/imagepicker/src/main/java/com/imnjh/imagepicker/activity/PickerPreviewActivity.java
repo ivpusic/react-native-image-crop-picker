@@ -269,13 +269,13 @@ public class PickerPreviewActivity extends BasePickerActivity implements PickerA
     });
     startEnterAnimation(uris.get(viewPager.getCurrentItem()));
 
-    previewBottomLayout.originalCheckbox.setChecked(selectOriginal);
-    previewBottomLayout.send.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        send();
-      }
-    });
+//    previewBottomLayout.originalCheckbox.setChecked(selectOriginal);
+//    previewBottomLayout.send.setOnClickListener(new View.OnClickListener() {
+//      @Override
+//      public void onClick(View v) {
+//        send();
+//      }
+//    });
     updateTitle();
     int pickTextRes = getIntent().getIntExtra(PARAM_CUSTOM_PICK_TEXT_RES, 0);
     previewBottomLayout.setCustomPickText(pickTextRes);
@@ -536,14 +536,14 @@ public class PickerPreviewActivity extends BasePickerActivity implements PickerA
   }
 
   private void setResultAndFinish(int resultCode) {
-    boolean original = previewBottomLayout.originalCheckbox.isChecked();
-    if (fileChooseInterceptor != null
-        && !fileChooseInterceptor.onFileChosen(this, selected, original, resultCode, this)) {
-      // Prevent finish if interceptor returns false.
-      return;
-    }
-    proceedResultAndFinish(selected, original, resultCode);
-  }
+//    boolean original = previewBottomLayout.originalCheckbox.isChecked();
+//    if (fileChooseInterceptor != null
+//          && !fileChooseInterceptor.onFileChosen(this, selected, original, resultCode, this)) {
+//    // Prevent finish if interceptor returns false.
+//    return;
+//  }
+//  proceedResultAndFinish(selected, original, resultCode);
+}
 
   @Override
   public void proceedResultAndFinish(ArrayList<String> selected, boolean original, int resultCode) {

@@ -16,9 +16,9 @@ import com.imnjh.imagepicker.R;
 public class PickerBottomLayout extends FrameLayout {
 
 
-  public android.widget.CheckBox originalCheckbox;
+//  public android.widget.CheckBox originalCheckbox;
 
-  public TextView originalSize;
+//  public TextView originalSize;
 
 //  public View originalContainer;
 

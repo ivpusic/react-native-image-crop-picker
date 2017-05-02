@@ -9,6 +9,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.imnjh.imagepicker.CapturePhotoHelper;
@@ -52,7 +54,10 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private String bucketId;
   public static final String PARAM_ALBUM_NAME = "PARAM_ALBUM_NAME";
   public static final String PARAM_BUCKET_ID = "PARAM_BUCKET_ID";
-  private TextView textView;//album name textview
+
+  private TextView tvPhotoTitle;//album name textview
+  private TextView tvCancel;
+  private ImageView ivBack;
 
   public static final int REQUEST_CODE_PICKER_PREVIEW = 100;
   public static final int REQUEST_CODE_CROP_IMAGE = 101;
@@ -111,7 +116,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
                 if (!CollectionUtils.isEmpty(photoUris)) {
                   PickerPreviewActivity.startPicturePreviewFromPicker(PhotoPickerActivity.this,
                       photoUris, photoController.getSelectedPhoto(), position,
-                      bottomLayout.originalCheckbox.isChecked(), maxCount, rowCount,
+                      /*bottomLayout.originalCheckbox.isChecked()*/ false, maxCount, rowCount,
                       fileChooseInterceptor,
                       pickRes, pickNumRes,
                       PickerPreviewActivity.AnchorInfo.newInstance(view),
@@ -159,6 +164,21 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 //      }
 //    });
 //    toolbar.setNavigationIcon(R.drawable.ic_general_cancel_left);
+    ivBack = (ImageView) findViewById(R.id.photo_back);
+    ivBack.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onBackPressed();
+      }
+    });
+    tvCancel = (TextView) findViewById(R.id.album_cancel);
+    tvCancel.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        photoController.cancelSelectedPhoto();
+        updateBottomBar();
+      }
+    });
     layoutManager = new GridLayoutManager(this, rowCount);
     recyclerView.setLayoutManager(layoutManager);
     recyclerView.addItemDecoration(new GridInsetDecoration());
@@ -194,6 +214,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 //    textView.setText(albumName);
 //    albumController.onCreate(this, albumSpinner, directorySelectListener);
 //    albumController.loadAlbums();
+    tvPhotoTitle = (TextView) findViewById(R.id.photo_title);
+    tvPhotoTitle.setText(albumName);
     albumController.onCreate(this, directorySelectListener);
     bottomLayout.send.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -216,12 +238,14 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     super.onDestroy();
   }
 
-
-  //TODO: 疑似崩溃待测
   @Override
   public void onBackPressed() {
+//    setResultAndFinish(photoController.getSelectedPhoto(),
+//        bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_CANCELED);
+
+    //原逻辑中添加是否原图的checkbox 直接传入false
     setResultAndFinish(photoController.getSelectedPhoto(),
-        bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_CANCELED);
+            false, Activity.RESULT_CANCELED);
   }
 
   private void commit() {
@@ -237,6 +261,15 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 //      setResultAndFinish(photoController.getSelectedPhoto(),
 //          bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_OK);
     }
+  }
+
+  private void setResultAndFinish(ArrayList<String> selected,  int resultCode) {
+    if (fileChooseInterceptor != null
+            && !fileChooseInterceptor.onFileChosen(this, selected, false, resultCode, this)) {
+      // Prevent finish if interceptor returns false.
+      return;
+    }
+    proceedResultAndFinish(selected, false, resultCode);
   }
 
   private void setResultAndFinish(ArrayList<String> selected, boolean original, int resultCode) {
@@ -265,7 +298,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
             data.getStringArrayListExtra(PickerPreviewActivity.KEY_SELECTED);
         boolean selectOriginal =
             data.getBooleanExtra(PickerPreviewActivity.KEY_SELECTED_ORIGINAL, false);
-        bottomLayout.originalCheckbox.setChecked(selectOriginal);
+//        bottomLayout.originalCheckbox.setChecked(selectOriginal);
         if (resultCode == Activity.RESULT_CANCELED) {
           photoController.setSelectedPhoto(selected);
           updateBottomBar();
@@ -322,16 +355,28 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     int lastVisible = layoutManager.findLastVisibleItemPosition();
     for (int i = firstVisible; i <= lastVisible; i++) {
       View view = layoutManager.findViewByPosition(i);
-      if (view instanceof SquareRelativeLayout) {
-        SquareRelativeLayout item = (SquareRelativeLayout) view;
-        if (item != null) {
-          String photoPath = (String) item.getTag();
-          if (photoController.getSelectedPhoto().contains(photoPath)) {
-            item.checkBox.setText(String.valueOf(photoController.getSelectedPhoto()
-                .indexOf(photoPath) + 1));
-            item.checkBox.refresh(false);
-          }
-        }
+//      if (view instanceof SquareRelativeLayout) {
+//        SquareRelativeLayout item = (SquareRelativeLayout) view;
+//        if (item != null) {
+//          String photoPath = (String) item.getTag();
+//          if (photoController.getSelectedPhoto().contains(photoPath)) {
+//            item.checkBox.setText(String.valueOf(photoController.getSelectedPhoto()
+//                .indexOf(photoPath) + 1));
+//            item.checkBox.refresh(false);
+//          }
+//        }
+       if (view instanceof FrameLayout) {
+         FrameLayout frameLayout = (FrameLayout) view;
+         if (frameLayout != null) {
+           SquareRelativeLayout item = (SquareRelativeLayout) frameLayout.findViewById(R.id.photo_cell);
+           if (item != null) {
+             String photoPath = (String) item.getTag();
+             if (photoController.getSelectedPhoto().contains(photoPath)) {
+               item.checkBox.setText(String.valueOf(photoController.getSelectedPhoto().indexOf(photoPath) + 1));
+               item.checkBox.refresh(false);
+             }
+           }
+         }
       }
     }
   }
