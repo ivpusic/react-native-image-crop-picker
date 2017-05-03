@@ -3,15 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="66dp">
 
-    <!--<ImageView-->
+    <ImageView
+        android:id="@+id/album_cover"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:scaleType="fitXY"/>
+
+    <!--<com.facebook.drawee.view.SimpleDraweeView-->
         <!--android:id="@+id/album_cover"-->
         <!--android:layout_width="66dp"-->
         <!--android:layout_height="66dp" />-->
-
-    <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/album_cover"
-        android:layout_width="66dp"
-        android:layout_height="66dp" />
 
     <TextView
         android:id="@+id/album_name"

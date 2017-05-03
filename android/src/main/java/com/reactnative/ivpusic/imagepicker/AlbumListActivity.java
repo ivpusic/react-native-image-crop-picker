@@ -1,28 +1,49 @@
 package com.reactnative.ivpusic.imagepicker;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.facebook.cache.common.CacheKey;
+import com.facebook.common.references.CloseableReference;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.bitmaps.PlatformBitmapFactory;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.facebook.imagepipeline.request.Postprocessor;
 import com.imnjh.imagepicker.SImagePicker;
 
+import org.w3c.dom.Text;
+
+import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nullable;
+
+import static android.R.attr.path;
 
 public class AlbumListActivity extends AppCompatActivity {
 
@@ -287,17 +308,155 @@ public class AlbumListActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View view = inflater.inflate(R.layout.albums_list_item, null);
+            ViewHolder holder;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.albums_list_item, null);
+                holder = new ViewHolder();
+                holder.cover = (ImageView) convertView.findViewById(R.id.album_cover);
+                holder.name = (TextView) convertView.findViewById(R.id.album_name);
+                holder.count = (TextView) convertView.findViewById(R.id.album_count);
+                convertView.setTag(holder);
+            }
+            else {
+                holder = (ViewHolder) convertView.getTag();
+            }
             Album album = getItem(position);
-            SimpleDraweeView cover = (SimpleDraweeView) view.findViewById(R.id.album_cover);
-            TextView name = (TextView) view.findViewById(R.id.album_name);
-            TextView count = (TextView) view.findViewById(R.id.album_count);
-            cover.setImageURI(album.getCover());
-            name.setText(album.getName());
-            count.setText(""+album.getCount());
+            ImageSize imageSize = getImageViewSize(holder.cover);
+            Bitmap bitmap = decodeSampleBitmapFromPath(getRealFilePath(AlbumListActivity.this,
+                    Uri.parse(album.getCover())), imageSize.width,imageSize.height);
+            holder.cover.setImageBitmap(bitmap);
+            holder.name.setText(album.getName());
+            holder.count.setText(""+album.getCount());
 
-            return view;
-
+            return convertView;
         }
+
+        //通过Uri获取图片的实际存储路径
+        public String getRealFilePath( final Context context, final Uri uri ) {
+            if ( null == uri ) return null;
+            final String scheme = uri.getScheme();
+            String data = null;
+            if ( scheme == null )
+                data = uri.getPath();
+            else if ( ContentResolver.SCHEME_FILE.equals( scheme ) ) {
+                data = uri.getPath();
+            } else if ( ContentResolver.SCHEME_CONTENT.equals( scheme ) ) {
+                Cursor cursor = context.getContentResolver().query( uri, new String[] { MediaStore.Images.ImageColumns.DATA }, null, null, null );
+                if ( null != cursor ) {
+                    if ( cursor.moveToFirst() ) {
+                        int index = cursor.getColumnIndex( MediaStore.Images.ImageColumns.DATA );
+                        if ( index > -1 ) {
+                            data = cursor.getString( index );
+                        }
+                    }
+                    cursor.close();
+                }
+            }
+            return data;
+        }
+
+
+        //根据图片需要显示的宽和高对图片进行压缩
+        protected Bitmap decodeSampleBitmapFromPath(String path, int width, int height) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(path, options);
+            options.inSampleSize = calculateInSampleSize(options, width, height);
+            options.inJustDecodeBounds = false;
+            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+            return bitmap;
+        }
+
+
+        //根据需求的宽和高以及图片实际的宽和高计算SampleSize
+        private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+            int width = options.outWidth;
+            int height = options.outHeight;
+
+            int inSampleSize = 1;
+
+            if(width > reqWidth || height > reqHeight) {
+                int widthRadio = Math.round(width * 1.0f/reqWidth);
+                int heightRadio = Math.round(height * 1.0f/reqHeight);
+
+                inSampleSize = Math.max(widthRadio, heightRadio);
+            }
+
+            return inSampleSize;
+        }
+
+
+        private ImageSize getImageViewSize(ImageView imageView) {
+            ImageSize imageSize = new ImageSize();
+
+            DisplayMetrics displayMetrics = imageView.getContext().getResources().getDisplayMetrics();
+
+            ViewGroup.LayoutParams lp = imageView.getLayoutParams();
+
+            int width = imageView.getWidth();//获取imageView的实际宽度
+            if(width <= 0) {
+                width = lp.width; //获取imageView在layout中声明的宽度
+            }
+            if(width <= 0) {
+//            width = imageView.getMaxWidth();//检查最大值
+                width = getImageViewFieldValue(imageView, "mMaxWidth");
+            }
+            if (width <= 0) {
+                width = displayMetrics.widthPixels;
+            }
+
+
+            int height = imageView.getHeight();//获取imageView的实际宽度
+            if(height <= 0) {
+                height = lp.height; //获取imageView在layout中声明的宽度
+            }
+            if(height <= 0) {
+//            height = imageView.getMaxHeight();//检查最大值
+                height = getImageViewFieldValue(imageView, "mMaxHeight");
+            }
+            if (height <= 0) {
+                height = displayMetrics.heightPixels;
+            }
+            imageSize.width = width;
+            imageSize.height = height;
+            return imageSize;
+        }
+
+        /**
+         * 通过反射获取imageview的某个属性值
+         * @param object
+         * @param fieldName
+         * @return
+         */
+        private int getImageViewFieldValue(Object object, String fieldName) {
+            int value = 0;
+
+            try {
+                Field field = ImageView.class.getDeclaredField(fieldName);
+                field.setAccessible(true);
+
+                int fieldValue = field.getInt(object);
+                if (fieldValue > 0 && fieldValue < Integer.MAX_VALUE) {
+                    value = fieldValue;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return value;
+        }
+
+
+        class ViewHolder {
+            private ImageView cover;
+//            private SimpleDraweeView cover;
+            private TextView name;
+            private TextView count;
+        }
+
+        class ImageSize {
+            private int width;
+            private int height;
+        }
+
     }
 }
