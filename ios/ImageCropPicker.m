@@ -152,7 +152,8 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
-    [self processSingleImagePick:chosenImage withViewController:picker];
+    UIImage *chosenImageT = [chosenImage fixOrientation];
+    [self processSingleImagePick:chosenImageT withViewController:picker];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -451,8 +452,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                          dispatch_async(dispatch_get_main_queue(), ^{
                              [lock lock];
+                             UIImage *imgT = [UIImage imageWithData:imageData];
+                             UIImage *imageT = [imgT fixOrientation];
                              
-                             ImageResult *imageResult = [self.compression compressImage:[UIImage imageWithData:imageData] withOptions:self.options];
+                             ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
                              NSString *filePath = [self persistFile:imageResult.data];
                              
                              if (filePath == nil) {
