@@ -244,8 +244,9 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 //        bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_CANCELED);
 
     //原逻辑中添加是否原图的checkbox 直接传入false
-    setResultAndFinish(photoController.getSelectedPhoto(),
-            false, Activity.RESULT_CANCELED);
+//    setResultAndFinish(photoController.getSelectedPhoto(),
+//            false, Activity.RESULT_CANCELED);
+    finish();
   }
 
   private void commit() {
@@ -258,6 +259,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
       for (String photo : photos) {
         Log.e("Photo", photo);
       }
+      setResultAndFinish(photoController.getSelectedPhoto(), 101);
+      finish();
 //      setResultAndFinish(photoController.getSelectedPhoto(),
 //          bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_OK);
     }

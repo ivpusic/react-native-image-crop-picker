@@ -16,7 +16,6 @@ public class Photo implements Parcelable {
   private final String displayName;
   private final String filePath;
 
-
   public Photo(long id, String displayName, String filePath) {
     this.id = id;
     this.displayName = displayName;

@@ -3,6 +3,7 @@ package com.reactnative.ivpusic.imagepicker;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +23,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.cache.common.CacheKey;
 import com.facebook.common.references.CloseableReference;
@@ -33,6 +35,7 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.facebook.imagepipeline.request.Postprocessor;
 import com.imnjh.imagepicker.SImagePicker;
+import com.imnjh.imagepicker.activity.PhotoPickerActivity;
 
 import org.w3c.dom.Text;
 
@@ -56,6 +59,16 @@ public class AlbumListActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_IMAGE = 101;
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == REQUEST_CODE_IMAGE) {
+            List<String> images = data.getStringArrayListExtra(PhotoPickerActivity.EXTRA_RESULT_SELECTION);
+            for (String path : images) {
+                Log.e("Path : ", path);
+            }
+
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override

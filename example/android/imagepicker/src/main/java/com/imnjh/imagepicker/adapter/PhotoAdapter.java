@@ -24,6 +24,7 @@ import com.imnjh.imagepicker.widget.PickerBottomLayout;
 import com.imnjh.imagepicker.widget.SquareRelativeLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Martin on 2017/1/17.
@@ -33,14 +34,12 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
   private final LayoutInflater layoutInflater;
   private final int photoSize;
   private ArrayList<String> selectedPhoto;
-  private ArrayList<PhotoViewHolder> allVH;
   private ArrayList<PhotoViewHolder> selectedVH;
-  private ArrayList<PhotoViewHolder> coveredVH;
   private OnPhotoActionListener actionListener;
   private int maxCount = 1;
   private int mode;
 
-//  private volatile boolean COVER_PHOTO = false;
+  private boolean isCovered = false;
 
   public PhotoAdapter(Context context, Cursor c, @SImagePicker.PickMode int mode, int rowCount) {
     super(context, c);
@@ -48,8 +47,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
     this.photoSize = SystemUtil.displaySize.x / rowCount;
     this.selectedPhoto = new ArrayList<>();
     this.selectedVH =  new ArrayList<>();
-    this.coveredVH = new ArrayList<>();
-    this.allVH = new ArrayList<>();
     this.mode = mode;
   }
 
@@ -62,19 +59,14 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
 
     final PhotoViewHolder holder = (PhotoViewHolder) originHolder;
 
-//    if (!allVH.contains(holder)) {
-//      allVH.add(holder);
-//    }
     final Photo photo = Photo.fromCursor(cursor);
 
-    holder.photoCell.photo.setTag(photo.getFilePath());
-
-//    if (COVER_PHOTO && !selectedVH.contains(holder)) {
-//      if (!coveredVH.contains(holder)) {
-//        holder.coverView.setVisibility(View.VISIBLE);
-//        coveredVH.add(holder);
-//      }
-//    }
+    if (selectedPhoto.size() >= 9 && !selectedPhoto.contains(photo.getFilePath()) && isCovered) {
+        holder.coverView.setVisibility(View.VISIBLE);
+    }
+    else {
+      holder.coverView.setVisibility(View.GONE);
+    }
 
     final int position = cursor.getPosition();
     SImagePicker.getPickerConfig().getImageLoader().bindImage(holder.photoCell.photo,
@@ -107,10 +99,10 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
       holder.photoCell.checkBox
           .setText(String.valueOf(selectedPhoto.indexOf(photo.getFilePath()) + 1));
       holder.photoCell.checkBox.setChecked(true, false);
-      holder.photoCell.photo.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+//      holder.photoCell.photo.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
     } else {
       holder.photoCell.checkBox.setChecked(false, false);
-      holder.photoCell.photo.clearColorFilter();
+//      holder.photoCell.photo.clearColorFilter();
     }
 
     holder.photoCell.setTag(photo.getFilePath());
@@ -141,13 +133,15 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
   private void onCheckStateChange(PhotoViewHolder holder, Photo photo) {
     if (isCountOver() && !selectedPhoto.contains(photo.getFilePath())) {
 
-//      coverUnsekectedPhoto();
-      showMaxDialog(mContext, maxCount);
       return;
     }
     if (selectedPhoto.contains(photo.getFilePath())) {
       selectedVH.remove(holder);
       selectedPhoto.remove(photo.getFilePath());
+      if (isCovered) {
+        isCovered = false;
+        notifyDataSetChanged();
+      }
       holder.photoCell.checkBox.setChecked(false, true);
       holder.photoCell.photo.clearColorFilter();
       if (actionListener != null) {
@@ -158,10 +152,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
         selectedVH.add(holder);
       }
       selectedPhoto.add(photo.getFilePath());
-//      if (isCountOver()) {
-//        COVER_PHOTO = true;
-//        coverUnsekectedPhoto();
-//      }
       holder.photoCell.checkBox.setText(String.valueOf(selectedPhoto.size()));
       holder.photoCell.checkBox.setChecked(true, true);
       //取消选中图片时 图片变灰色的效果
@@ -169,23 +159,13 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
       if (actionListener != null) {
         actionListener.onSelect(photo.getFilePath());
       }
-    }
-  }
-
-  private void coverUnsekectedPhoto() {
-    for (PhotoViewHolder holder : allVH) {
-      if (!selectedVH.contains(holder)) {
-        holder.coverView.setVisibility(View.VISIBLE);
-        coveredVH.add(holder);
+      if (isCountOver()) {
+        isCovered = true;
+        this.notifyDataSetChanged();
       }
     }
   }
 
-  /**
-   * TODO: 选中9张图片时 所有未被选中的图片变为不可选状态
-   * @param photoCell
-   * @param photo
-     */
   private void onCheckStateChange(SquareRelativeLayout photoCell, Photo photo) {
     if (isCountOver() && !selectedPhoto.contains(photo.getFilePath())) {
 //      showMaxDialog(mContext, maxCount);
@@ -201,7 +181,7 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
     } else {
       selectedPhoto.add(photo.getFilePath());
       if (isCountOver()) {
-        Log.e("Size", selectedPhoto.size() + " SSS");
+
         showMaxDialog(mContext, maxCount);
       }
       photoCell.checkBox.setText(String.valueOf(selectedPhoto.size()));
