@@ -34,7 +34,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
   private final LayoutInflater layoutInflater;
   private final int photoSize;
   private ArrayList<String> selectedPhoto;
-  private ArrayList<PhotoViewHolder> selectedVH;
   private OnPhotoActionListener actionListener;
   private int maxCount = 1;
   private int mode;
@@ -46,7 +45,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
     this.layoutInflater = LayoutInflater.from(context);
     this.photoSize = SystemUtil.displaySize.x / rowCount;
     this.selectedPhoto = new ArrayList<>();
-    this.selectedVH =  new ArrayList<>();
     this.mode = mode;
   }
 
@@ -136,7 +134,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
       return;
     }
     if (selectedPhoto.contains(photo.getFilePath())) {
-      selectedVH.remove(holder);
       selectedPhoto.remove(photo.getFilePath());
       if (isCovered) {
         isCovered = false;
@@ -148,9 +145,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
         actionListener.onDeselect(photo.getFilePath());
       }
     } else {
-      if (!selectedVH.contains(holder)) {
-        selectedVH.add(holder);
-      }
       selectedPhoto.add(photo.getFilePath());
       holder.photoCell.checkBox.setText(String.valueOf(selectedPhoto.size()));
       holder.photoCell.checkBox.setChecked(true, true);
@@ -268,13 +262,9 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
   }
 
   public void cancelSelectedPhoto() {
-    if (selectedVH != null && selectedVH.size() > 0) {
-      for (PhotoViewHolder holder : selectedVH) {
-        holder.photoCell.checkBox.setChecked(false, false);
-      }
-    }
     if (selectedPhoto != null && selectedPhoto.size() > 0) {
       selectedPhoto.clear();
+      notifyDataSetChanged();
     }
   }
 }
