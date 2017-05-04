@@ -39,6 +39,7 @@ import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
 
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,11 +65,51 @@ public class AlbumListActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == REQUEST_CODE_IMAGE) {
             List<String> images = data.getStringArrayListExtra(PhotoPickerActivity.EXTRA_RESULT_SELECTION);
+            ArrayList<Uri> uris = new ArrayList<>();
             for (String path : images) {
-                Log.e("Path : ", path);
+                Uri uri = getUri(Uri.fromFile(new File(path)));
+                uris.add(uri);
+                Log.e("URI :", uri.toString());
             }
-
+            Intent uriIntent = new Intent();
+            uriIntent.putParcelableArrayListExtra("data", uris);
+            setResult(Activity.RESULT_OK, uriIntent);
+            finish();
         }
+    }
+
+    private Uri getUri(Uri uri){
+        String path = uri.getEncodedPath();
+        if (path != null) {
+            path = Uri.decode(path);
+            ContentResolver cr = this.getContentResolver();
+            StringBuffer buff = new StringBuffer();
+            buff.append("(")
+                    .append(MediaStore.Images.ImageColumns.DATA)
+                    .append("=")
+                    .append("'" + path + "'")
+                    .append(")");
+            Cursor cur = cr.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    new String[] { MediaStore.Images.ImageColumns._ID },
+                    buff.toString(), null, null);
+            int index = 0;
+            for (cur.moveToFirst(); !cur.isAfterLast(); cur
+                    .moveToNext()) {
+                index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
+                index = cur.getInt(index);
+            }
+            if (index == 0) {
+            } else {
+                Uri uri_temp = Uri
+                        .parse("content://media/external/images/media/"
+                                + index);
+                if (uri_temp != null) {
+                    uri = uri_temp;
+                }
+            }
+        }
+        return uri;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
