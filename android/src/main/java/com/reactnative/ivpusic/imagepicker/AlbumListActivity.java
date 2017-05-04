@@ -23,6 +23,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import android.widget.Toast;
 
 import com.facebook.cache.common.CacheKey;
@@ -37,16 +38,10 @@ import com.facebook.imagepipeline.request.Postprocessor;
 import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
 
-import org.w3c.dom.Text;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Nullable;
-
-import static android.R.attr.path;
 
 public class AlbumListActivity extends AppCompatActivity {
 

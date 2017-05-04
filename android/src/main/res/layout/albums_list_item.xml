@@ -7,7 +7,7 @@
         android:id="@+id/album_cover"
         android:layout_width="66dp"
         android:layout_height="66dp"
-        android:scaleType="fitXY"/>
+        android:scaleType="centerCrop"/>
 
     <!--<com.facebook.drawee.view.SimpleDraweeView-->
         <!--android:id="@+id/album_cover"-->
