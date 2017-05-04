@@ -5,15 +5,13 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
-import com.example.imageloader.FrescoImageLoader;
+
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.react.ReactApplication;
 import com.brentvatne.react.ReactVideoPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
-import com.imnjh.imagepicker.PickerConfig;
-import com.imnjh.imagepicker.SImagePicker;
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
 
 import java.util.Arrays;
@@ -21,7 +19,6 @@ import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
 
-    private static Application instance;
 
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
         @Override
@@ -49,17 +46,7 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        instance = this;
-        Fresco.initialize(this);
-
-        SImagePicker.init(new PickerConfig.Builder().setAppContext(this)
-                .setImageLoader(new FrescoImageLoader())
-                .setToolbaseColor(getColor(R.color.colorPrimary))
-                .build());
 
     }
 
-    public static Context getAppContext() {
-        return instance;
-    }
 }

@@ -34,8 +34,8 @@ import com.facebook.imagepipeline.bitmaps.PlatformBitmapFactory;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.facebook.imagepipeline.request.Postprocessor;
-import com.imnjh.imagepicker.SImagePicker;
-import com.imnjh.imagepicker.activity.PhotoPickerActivity;
+import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
+import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
 
 import org.w3c.dom.Text;
 
@@ -49,6 +49,12 @@ import javax.annotation.Nullable;
 import static android.R.attr.path;
 
 public class AlbumListActivity extends AppCompatActivity {
+
+    private static Activity instance;
+
+    public static Context getAppContext() {
+        return instance;
+    }
 
     private TextView title;
     private TextView cancel;
@@ -75,8 +81,14 @@ public class AlbumListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_list);
+        instance = this;
 
+        Fresco.initialize(this);
 
+        SImagePicker.init(new PickerConfig.Builder().setAppContext(this)
+                .setImageLoader(new FrescoImageLoader())
+                .setToolbaseColor(getColor(R.color.colorPrimary))
+                .build());
 
         cancel = (TextView) findViewById(R.id.album_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -98,8 +110,10 @@ public class AlbumListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                Log.i("chen",""+position);
+
 //                Intent intent = new Intent(AlbumListActivity.this,PhotoListActivity.class);
 //                startActivity(intent);
+
                 Album album = albumList.get(position);
                 SImagePicker
                         .from(AlbumListActivity.this)
@@ -110,6 +124,7 @@ public class AlbumListActivity extends AppCompatActivity {
                         .pickMode(SImagePicker.MODE_IMAGE)
                         .fileInterceptor(null)
                         .forResult(REQUEST_CODE_IMAGE);
+
             }
         });
 

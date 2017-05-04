@@ -19,8 +19,35 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
         <activity android:name=".AlbumListActivity" />
-        <activity android:name=".PhotoListActivity"></activity>
+
+        <activity android:name=".PhotoListActivity" />
+
+        <activity
+            android:name=".activity.PhotoPickerActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.PickerPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CaptureConfirmActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CropImageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CaptureTempActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
     </application>
 
 </manifest>

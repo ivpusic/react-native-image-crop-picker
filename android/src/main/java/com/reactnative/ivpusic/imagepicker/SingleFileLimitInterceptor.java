@@ -9,8 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Parcel;
 
-import com.imnjh.imagepicker.FileChooseInterceptor;
-import com.imnjh.imagepicker.PickerAction;
+import com.reactnative.ivpusic.imagepicker.FileChooseInterceptor;
+import com.reactnative.ivpusic.imagepicker.PickerAction;
 
 /**
  * Created by Martin on 2017/1/18.
@@ -51,7 +51,7 @@ public class SingleFileLimitInterceptor implements FileChooseInterceptor {
       final int resultCode,
       final PickerAction action, final ArrayList<String> confirmedFiles) {
     new AlertDialog.Builder(context)
-        .setMessage(R.string.general_max_per_image)
+        .setMessage("general_max_per_image")
         .setPositiveButton(
             R.string.general_ok, new DialogInterface.OnClickListener() {
               @Override
