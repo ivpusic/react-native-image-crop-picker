@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.reactnative.ivpusic.imagepicker.AlbumListActivity;
 import com.reactnative.ivpusic.imagepicker.CapturePhotoHelper;
 import com.reactnative.ivpusic.imagepicker.FileChooseInterceptor;
 import com.reactnative.ivpusic.imagepicker.PhotoLoadListener;
@@ -64,7 +65,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   PickerBottomLayout bottomLayout;
   RecyclerView recyclerView;
-//  Toolbar toolbar;
 
   private GridLayoutManager layoutManager;
   private int maxCount;
@@ -77,7 +77,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private FileChooseInterceptor fileChooseInterceptor;
   private CapturePhotoHelper capturePhotoHelper;
 
-//  private AppCompatSpinner albumSpinner;
   private final PhotoController photoController = new PhotoController();
   private final AlbumController albumController = new AlbumController();
   private final AlbumController.OnDirectorySelectListener directorySelectListener =
@@ -151,19 +150,8 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   private void initUI() {
     bottomLayout = (PickerBottomLayout) findViewById(R.id.picker_bottom);
-//    toolbar = (Toolbar) findViewById(R.id.toolbar);
-//    if (SImagePicker.getPickerConfig().getToolbarColor() != 0) {
-//      toolbar.setBackgroundColor(SImagePicker.getPickerConfig().getToolbarColor());
-//    }
     recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-//    toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(View v) {
-//        onBackPressed();
-//      }
-//    });
-//    toolbar.setNavigationIcon(R.drawable.ic_general_cancel_left);
     ivBack = (ImageView) findViewById(R.id.photo_back);
     ivBack.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -171,6 +159,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
         onBackPressed();
       }
     });
+
     tvCancel = (TextView) findViewById(R.id.album_cancel);
     tvCancel.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -179,6 +168,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
         updateBottomBar();
       }
     });
+
     layoutManager = new GridLayoutManager(this, rowCount);
     recyclerView.setLayoutManager(layoutManager);
     recyclerView.addItemDecoration(new GridInsetDecoration());
@@ -190,10 +180,9 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
       photoController.onCreate(this, recyclerView, selectionChangeListener, maxCount, rowCount,
           mode, capturePhotoHelper);
     }
-//    photoController.loadAllPhoto(this);
 
     /**
-     *
+     *通过bucketId加载相册
      */
     photoController.loadAlbumPhoto(this,String.valueOf(bucketId));
 
@@ -206,14 +195,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     bottomLayout.setCustomPickText(pickRes);
     updateBottomBar();
 
-//    albumSpinner =
-//        (AppCompatSpinner) LayoutInflater.from(this).inflate(R.layout.common_toolbar_spinner,
-//            toolbar, false);
-//    textView = (TextView) LayoutInflater.from(this).inflate(R.layout.album_name, toolbar, false);
-//    toolbar.addView(textView);
-//    textView.setText(albumName);
-//    albumController.onCreate(this, albumSpinner, directorySelectListener);
-//    albumController.loadAlbums();
     tvPhotoTitle = (TextView) findViewById(R.id.photo_title);
     tvPhotoTitle.setText(albumName);
     albumController.onCreate(this, directorySelectListener);
@@ -240,12 +221,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   @Override
   public void onBackPressed() {
-//    setResultAndFinish(photoController.getSelectedPhoto(),
-//        bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_CANCELED);
-
-    //原逻辑中添加是否原图的checkbox 直接传入false
-//    setResultAndFinish(photoController.getSelectedPhoto(),
-//            false, Activity.RESULT_CANCELED);
     finish();
   }
 
@@ -253,16 +228,13 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     if (!photoController.getSelectedPhoto().isEmpty()) {
 
       /**
-       *  TODO: 确定后 获取选中的photo的存储路径
+       *  确定后 获取选中的photo的存储路径
        */
       List<String> photos = photoController.getSelectedPhoto();
       for (String photo : photos) {
         Log.e("Photo", photo);
       }
-      setResultAndFinish(photoController.getSelectedPhoto(), 101);
-      finish();
-//      setResultAndFinish(photoController.getSelectedPhoto(),
-//          bottomLayout.originalCheckbox.isChecked(), Activity.RESULT_OK);
+      setResultAndFinish(photoController.getSelectedPhoto(), AlbumListActivity.REQUEST_CODE_IMAGE);
     }
   }
 
@@ -342,12 +314,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private void updateBottomBar() {
     if (mode == SImagePicker.MODE_IMAGE) {
       bottomLayout.updateSelectedCount(photoController.getSelectedPhoto().size());
-//      if (CollectionUtils.isEmpty(photoController.getSelectedPhoto())) {
-//        bottomLayout.updateSelectedSize(null);
-//      } else {
-//        bottomLayout.updateSelectedSize(FileUtil.getFilesSize(PhotoPickerActivity.this,
-//            photoController.getSelectedPhoto()));
-//      }
     } else if (mode == SImagePicker.MODE_AVATAR) {
       bottomLayout.setVisibility(View.GONE);
     }
@@ -358,16 +324,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     int lastVisible = layoutManager.findLastVisibleItemPosition();
     for (int i = firstVisible; i <= lastVisible; i++) {
       View view = layoutManager.findViewByPosition(i);
-//      if (view instanceof SquareRelativeLayout) {
-//        SquareRelativeLayout item = (SquareRelativeLayout) view;
-//        if (item != null) {
-//          String photoPath = (String) item.getTag();
-//          if (photoController.getSelectedPhoto().contains(photoPath)) {
-//            item.checkBox.setText(String.valueOf(photoController.getSelectedPhoto()
-//                .indexOf(photoPath) + 1));
-//            item.checkBox.refresh(false);
-//          }
-//        }
        if (view instanceof FrameLayout) {
          FrameLayout frameLayout = (FrameLayout) view;
          if (frameLayout != null) {

@@ -1,17 +1,13 @@
 package com.reactnative.ivpusic.imagepicker;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -24,22 +20,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import android.widget.Toast;
-
-import com.facebook.cache.common.CacheKey;
-import com.facebook.common.references.CloseableReference;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.bitmaps.PlatformBitmapFactory;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
-import com.facebook.imagepipeline.request.Postprocessor;
 import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
+import com.reactnative.ivpusic.imagepicker.util.BitmapUtil;
+import com.reactnative.ivpusic.imagepicker.util.UriUtil;
 
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,12 +52,7 @@ public class AlbumListActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == REQUEST_CODE_IMAGE) {
             List<String> images = data.getStringArrayListExtra(PhotoPickerActivity.EXTRA_RESULT_SELECTION);
-            ArrayList<Uri> uris = new ArrayList<>();
-            for (String path : images) {
-                Uri uri = getUri(Uri.fromFile(new File(path)));
-                uris.add(uri);
-                Log.e("URI :", uri.toString());
-            }
+            ArrayList<Uri> uris = UriUtil.getUris(this, images);
             Intent uriIntent = new Intent();
             uriIntent.putParcelableArrayListExtra("data", uris);
             setResult(Activity.RESULT_OK, uriIntent);
@@ -78,41 +60,6 @@ public class AlbumListActivity extends AppCompatActivity {
         }
     }
 
-    private Uri getUri(Uri uri){
-        String path = uri.getEncodedPath();
-        if (path != null) {
-            path = Uri.decode(path);
-            ContentResolver cr = this.getContentResolver();
-            StringBuffer buff = new StringBuffer();
-            buff.append("(")
-                    .append(MediaStore.Images.ImageColumns.DATA)
-                    .append("=")
-                    .append("'" + path + "'")
-                    .append(")");
-            Cursor cur = cr.query(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    new String[] { MediaStore.Images.ImageColumns._ID },
-                    buff.toString(), null, null);
-            int index = 0;
-            for (cur.moveToFirst(); !cur.isAfterLast(); cur
-                    .moveToNext()) {
-                index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
-                index = cur.getInt(index);
-            }
-            if (index == 0) {
-            } else {
-                Uri uri_temp = Uri
-                        .parse("content://media/external/images/media/"
-                                + index);
-                if (uri_temp != null) {
-                    uri = uri_temp;
-                }
-            }
-        }
-        return uri;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,7 +70,7 @@ public class AlbumListActivity extends AppCompatActivity {
 
         SImagePicker.init(new PickerConfig.Builder().setAppContext(this)
                 .setImageLoader(new FrescoImageLoader())
-                .setToolbaseColor(getColor(R.color.colorPrimary))
+//                .setToolbaseColor(getColor(R.color.colorPrimary))
                 .build());
 
         cancel = (TextView) findViewById(R.id.album_cancel);
@@ -145,12 +92,8 @@ public class AlbumListActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Log.i("chen",""+position);
-
-//                Intent intent = new Intent(AlbumListActivity.this,PhotoListActivity.class);
-//                startActivity(intent);
-
                 Album album = albumList.get(position);
+                //加载相册
                 SImagePicker
                         .from(AlbumListActivity.this)
                         .albumName(album.getName())
@@ -163,10 +106,6 @@ public class AlbumListActivity extends AppCompatActivity {
 
             }
         });
-
-        //ArrayList<String> mlist = getAllShownImagesPath(this);
-        //if (mlist.size()>0)
-            //Log.i("chen",mlist.get(0));
 
         String[] projection = new String[] {
                 MediaStore.Images.Media._ID,
@@ -259,9 +198,7 @@ public class AlbumListActivity extends AppCompatActivity {
 
             albumAdapter.albumList = albumList;
             albumAdapter.notifyDataSetChanged();
-
         }
-
     }
 
 
@@ -386,8 +323,9 @@ public class AlbumListActivity extends AppCompatActivity {
             }
             Album album = getItem(position);
             ImageSize imageSize = getImageViewSize(holder.cover);
-            Bitmap bitmap = decodeSampleBitmapFromPath(getRealFilePath(AlbumListActivity.this,
-                    Uri.parse(album.getCover())), imageSize.width,imageSize.height);
+            Bitmap bitmap = BitmapUtil.decodeSampleBitmapFromPath(
+                    UriUtil.getRealFilePath(AlbumListActivity.this,
+                    Uri.parse(album.getCover())), imageSize.width, imageSize.height);
             holder.cover.setImageBitmap(bitmap);
             holder.name.setText(album.getName());
             holder.count.setText(""+album.getCount());
@@ -395,61 +333,11 @@ public class AlbumListActivity extends AppCompatActivity {
             return convertView;
         }
 
-        //通过Uri获取图片的实际存储路径
-        public String getRealFilePath( final Context context, final Uri uri ) {
-            if ( null == uri ) return null;
-            final String scheme = uri.getScheme();
-            String data = null;
-            if ( scheme == null )
-                data = uri.getPath();
-            else if ( ContentResolver.SCHEME_FILE.equals( scheme ) ) {
-                data = uri.getPath();
-            } else if ( ContentResolver.SCHEME_CONTENT.equals( scheme ) ) {
-                Cursor cursor = context.getContentResolver().query( uri, new String[] { MediaStore.Images.ImageColumns.DATA }, null, null, null );
-                if ( null != cursor ) {
-                    if ( cursor.moveToFirst() ) {
-                        int index = cursor.getColumnIndex( MediaStore.Images.ImageColumns.DATA );
-                        if ( index > -1 ) {
-                            data = cursor.getString( index );
-                        }
-                    }
-                    cursor.close();
-                }
-            }
-            return data;
-        }
-
-
-        //根据图片需要显示的宽和高对图片进行压缩
-        protected Bitmap decodeSampleBitmapFromPath(String path, int width, int height) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(path, options);
-            options.inSampleSize = calculateInSampleSize(options, width, height);
-            options.inJustDecodeBounds = false;
-            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
-            return bitmap;
-        }
-
-
-        //根据需求的宽和高以及图片实际的宽和高计算SampleSize
-        private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-            int width = options.outWidth;
-            int height = options.outHeight;
-
-            int inSampleSize = 1;
-
-            if(width > reqWidth || height > reqHeight) {
-                int widthRadio = Math.round(width * 1.0f/reqWidth);
-                int heightRadio = Math.round(height * 1.0f/reqHeight);
-
-                inSampleSize = Math.max(widthRadio, heightRadio);
-            }
-
-            return inSampleSize;
-        }
-
-
+        /**
+         * 获取ImageView的宽高
+         * @param imageView
+         * @return
+         */
         private ImageSize getImageViewSize(ImageView imageView) {
             ImageSize imageSize = new ImageSize();
 
@@ -512,7 +400,6 @@ public class AlbumListActivity extends AppCompatActivity {
 
         class ViewHolder {
             private ImageView cover;
-//            private SimpleDraweeView cover;
             private TextView name;
             private TextView count;
         }

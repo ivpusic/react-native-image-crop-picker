@@ -15,13 +15,6 @@ import com.reactnative.ivpusic.imagepicker.R;
  */
 public class PickerBottomLayout extends FrameLayout {
 
-
-//  public android.widget.CheckBox originalCheckbox;
-
-//  public TextView originalSize;
-
-//  public View originalContainer;
-
   public TextView send; //确定
 
   public TextView preview; //预览
@@ -47,17 +40,7 @@ public class PickerBottomLayout extends FrameLayout {
 
     //TODO: 预览操作的逻辑处理
     preview = (TextView) findViewById(R.id.preview);
-//    originalSize = (TextView) findViewById(R.id.original_size);
-//    originalContainer = findViewById(R.id.original_container);
-//    originalCheckbox = (android.widget.CheckBox) findViewById(R.id.original_checkbox);
-//    originalCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//      @Override
-//      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//        originalSize.setTextColor(isChecked
-//            ? getResources().getColor(R.color.color_48baf3)
-//            : getResources().getColor(R.color.gray));
-//      }
-//    });
+
   }
 
   public void updateSelectedCount(int count) {
@@ -65,13 +48,11 @@ public class PickerBottomLayout extends FrameLayout {
       send.setTextColor(getResources().getColor(R.color.gray));
       send.setEnabled(false);
       send.setText(getResources().getString(R.string.general_ok));
-      //originalContainer.setVisibility(View.GONE);
     } else {
       send.setTextColor(getResources().getColor(R.color.color_48baf3));
       send.setEnabled(true);
       send.setText(getResources().getString(R.string.general_ok) + " "
           + getResources().getString(R.string.bracket_num, count));
-//      originalContainer.setVisibility(View.VISIBLE);
     }
   }
 
