@@ -141,6 +141,9 @@ public class PhotoController extends BaseLoaderController {
 
   public void setSelectedPhoto(ArrayList<String> selectedPhoto) {
     photoAdapter.setSelectedPhoto(selectedPhoto);
+    if (selectedPhoto.size() == 9) {
+      photoAdapter.setIsCovered(true);
+    }
   }
 
   public void getAllPhoto(PhotoLoadListener photoLoadListener) {

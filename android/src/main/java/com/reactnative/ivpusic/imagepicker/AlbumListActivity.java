@@ -47,6 +47,7 @@ public class AlbumListActivity extends AppCompatActivity {
     private AlbumAdapter albumAdapter;
 
     public static final int REQUEST_CODE_IMAGE = 101;
+    public static final int REQUEST_CODE_IMAGE_SELECTED = 102;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -54,8 +55,11 @@ public class AlbumListActivity extends AppCompatActivity {
             List<String> images = data.getStringArrayListExtra(PhotoPickerActivity.EXTRA_RESULT_SELECTION);
             ArrayList<Uri> uris = UriUtil.getUris(this, images);
             Intent uriIntent = new Intent();
-            uriIntent.putParcelableArrayListExtra("data", uris);
+            uriIntent.putParcelableArrayListExtra(PhotoPickerActivity.PARAM_DATA, uris);
             setResult(Activity.RESULT_OK, uriIntent);
+            finish();
+        } else if (resultCode == REQUEST_CODE_IMAGE_SELECTED) {
+            setResult(Activity.RESULT_OK, data);
             finish();
         }
     }
@@ -127,7 +131,7 @@ public class AlbumListActivity extends AppCompatActivity {
                 null        // Ordering
         );
 
-        Log.i("ListingImages"," query count=" + cur.getCount());
+//        Log.i("ListingImages"," query count=" + cur.getCount());
 
         if (cur.moveToFirst()) {
             String id;
@@ -164,15 +168,15 @@ public class AlbumListActivity extends AppCompatActivity {
                 //Uri coverUri = Uri.parse(cover);
                 //cover = getThumbnail(coverUri);
 
-                Log.i("chen","bucketId:"+bucketId);
+//                Log.i("chen","bucketId:"+bucketId);
 
-                if (!bucketList.contains(bucket)) {
+                if (!bucketIdList.contains(bucketId)) {
                     bucketList.add(bucket);
                     bucketCover.add(cover);
                     bucketCount.add(1);
                     bucketIdList.add(bucketId);
                 }else{
-                    int index = bucketList.indexOf(bucket);
+                    int index = bucketIdList.indexOf(bucketId);
                     int count = bucketCount.get(index);
                     bucketCount.set(index,count+1);
                     //Log.e("Picker", "Title : " + bucket + "  size : " + count);
@@ -182,7 +186,7 @@ public class AlbumListActivity extends AppCompatActivity {
                 i++;
 
                 // Do something with the values.
-                Log.i("ListingImages", " bucket=" + bucket + "  date_taken=" + date + "  uri=" + cover);
+//                Log.i("ListingImages", " bucket=" + bucket + "  date_taken=" + date + "  uri=" + cover);
 
             } while (cur.moveToNext());
 

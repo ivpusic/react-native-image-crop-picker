@@ -26,12 +26,16 @@ import com.reactnative.ivpusic.imagepicker.control.PhotoController;
 import com.reactnative.ivpusic.imagepicker.model.Album;
 import com.reactnative.ivpusic.imagepicker.model.Photo;
 import com.reactnative.ivpusic.imagepicker.util.CollectionUtils;
+import com.reactnative.ivpusic.imagepicker.util.UriUtil;
 import com.reactnative.ivpusic.imagepicker.widget.GridInsetDecoration;
 import com.reactnative.ivpusic.imagepicker.widget.PickerBottomLayout;
 import com.reactnative.ivpusic.imagepicker.widget.SquareRelativeLayout;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -55,6 +59,12 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private String bucketId;
   public static final String PARAM_ALBUM_NAME = "PARAM_ALBUM_NAME";
   public static final String PARAM_BUCKET_ID = "PARAM_BUCKET_ID";
+  public static final String PARAM_SELECTED_URIS = "ARAM_SELECTED_URIS";
+  public static final String PARAM_ALL_URIS = "PARAM_ALL_URIS";
+  public static final String PARAM_DATA = "PARAM_DATA";
+  public static final String PARAM_CURRENT_POSITION = "PARAM_CURRENT_POSITION";
+  public static final String PARAM_FIRST_CLICKED_URI = "PARAM_FIRST_CLICKED_URI";
+  public static final int PARAM_SELECTED_PREVIEW = 1019;
 
   private TextView tvPhotoTitle;//album name textview
   private TextView tvCancel;
@@ -107,20 +117,26 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
         }
 
         @Override
-        public void onPreview(final int position, Photo photo, final View view) {
+        public void onPreview(final int position, final Photo photo, final View view) {
           if (mode == SImagePicker.MODE_IMAGE) {
             photoController.getAllPhoto(new PhotoLoadListener() {
               @Override
               public void onLoadComplete(ArrayList<Uri> photoUris) {
-                if (!CollectionUtils.isEmpty(photoUris)) {
-                  PickerPreviewActivity.startPicturePreviewFromPicker(PhotoPickerActivity.this,
-                      photoUris, photoController.getSelectedPhoto(), position,
-                      /*bottomLayout.originalCheckbox.isChecked()*/ false, maxCount, rowCount,
-                      fileChooseInterceptor,
-                      pickRes, pickNumRes,
-                      PickerPreviewActivity.AnchorInfo.newInstance(view),
-                      REQUEST_CODE_PICKER_PREVIEW);
-                }
+                //TODO: Change
+                /**
+                 *
+                 */
+
+                Uri firstUri = UriUtil.pathToUri(PhotoPickerActivity.this, Uri.fromFile(new File(photo.getFilePath())));
+                List<String> paths = photoController.getSelectedPhoto();
+                ArrayList<Uri> selectedUris = UriUtil.getUris(PhotoPickerActivity.this, paths);
+                ArrayList<Uri> allUris = UriUtil.getContentUris(PhotoPickerActivity.this, photoUris);
+                Intent intent = new Intent(PhotoPickerActivity.this, SelectedPreviewActivity.class);
+                intent.putExtra(PARAM_FIRST_CLICKED_URI, firstUri);
+                intent.putParcelableArrayListExtra(PARAM_SELECTED_URIS, selectedUris);
+                intent.putParcelableArrayListExtra(PARAM_ALL_URIS, allUris);
+                intent.putExtra(PARAM_CURRENT_POSITION, position);
+                PhotoPickerActivity.this.startActivityForResult(intent, PARAM_SELECTED_PREVIEW);
               }
 
               @Override
@@ -204,6 +220,24 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
         commit();
       }
     });
+
+    bottomLayout.preview.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        preview();
+      }
+    });
+  }
+
+  private void preview() {
+    List<String> images = photoController.getSelectedPhoto();
+    if (images != null && images.size() > 0 && !images.isEmpty()) {
+      Intent intent = new Intent(this, SelectedPreviewActivity.class);
+      ArrayList<Uri> uris = new ArrayList<>();
+      uris = UriUtil.getUris(this, images);
+      intent.putParcelableArrayListExtra(PARAM_SELECTED_URIS, uris);
+      startActivityForResult(intent, PARAM_SELECTED_PREVIEW);
+    }
   }
 
   @Override
@@ -308,6 +342,23 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
           setResultAndFinish(result, true, Activity.RESULT_OK);
         }
       }
+    } else if (resultCode == PARAM_SELECTED_PREVIEW) {
+      /**
+       * 预览后 确定
+       */
+      setResult(AlbumListActivity.REQUEST_CODE_IMAGE_SELECTED, data);
+      finish();
+    } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT) {
+      ArrayList<Uri> uris = data.getParcelableArrayListExtra(BasePreviewActivity.PARAM_SELECTED_URIS);
+      ArrayList<String> paths = new ArrayList<>();
+      for (Uri uri : uris) {
+        String path = UriUtil.getRealFilePath(PhotoPickerActivity.this, uri);
+        paths.add(path);
+      }
+      photoController.setSelectedPhoto(paths);
+    }
+    else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT_NULL) {
+      photoController.setSelectedPhoto(new ArrayList<String>());
     }
   }
 

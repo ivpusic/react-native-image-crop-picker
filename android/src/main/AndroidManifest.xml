@@ -48,6 +48,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Picture"/>
 
+
+        <activity
+            android:name=".activity.SelectedPreviewActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

@@ -71,14 +71,13 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
         new Uri.Builder().scheme(UriUtil.LOCAL_FILE_SCHEME)
             .path(photo.getFilePath()).build(), photoSize, photoSize);
 
-    /**
-     * TODO: 禁用点击单图预览
-     */
     holder.photoCell.photo.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Log.i("click", "photo click");
-        //actionListener.onPreview(position, photo, originHolder.itemView);
+        /**
+         * 点击单图 预览
+         */
+        actionListener.onPreview(position, photo, originHolder.itemView);
       }
     });
     if (mode == SImagePicker.MODE_IMAGE) {
@@ -148,8 +147,7 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
       selectedPhoto.add(photo.getFilePath());
       holder.photoCell.checkBox.setText(String.valueOf(selectedPhoto.size()));
       holder.photoCell.checkBox.setChecked(true, true);
-      //取消选中图片时 图片变灰色的效果
-//      photoCell.photo.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+
       if (actionListener != null) {
         actionListener.onSelect(photo.getFilePath());
       }
@@ -203,6 +201,10 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
 
   public ArrayList<String> getSelectedPhoto() {
     return selectedPhoto;
+  }
+
+  public void setIsCovered(boolean isCovered) {
+    this.isCovered = isCovered;
   }
 
   public void setSelectedPhoto(ArrayList<String> selectedPhoto) {

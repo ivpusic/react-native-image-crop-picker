@@ -32,6 +32,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.reactnative.ivpusic.imagepicker.SImagePicker;
+import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
@@ -596,10 +597,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
         } else if (resultCode == Activity.RESULT_OK) {
 
-            //TODO: 选取的图片的URI传到这里了
-            List<Uri> uris = data.getParcelableArrayListExtra("data");
+            //TODO: 选取图片的URI
+            List<Uri> uris = data.getParcelableArrayListExtra(PhotoPickerActivity.PARAM_DATA);
             for (Uri uri : uris) {
-                Log.e("TAGU", uri.toString());
+                Log.e("DES", uri.toString());
             }
             if (multiple) {
                 //ClipData clipData = data.getClipData();

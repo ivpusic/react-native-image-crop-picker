@@ -93,7 +93,17 @@ public class UriUtil {
     return uris;
   }
 
-  private static Uri pathToUri(Context context, Uri uri){
+  public static ArrayList<Uri> getContentUris(Context context, List<Uri> uriList) {
+    ArrayList<Uri> uris = new ArrayList<>();
+    for (Uri uri_tem : uriList) {
+      Uri uri = pathToUri(context, uri_tem);
+      uris.add(uri);
+      Log.e("URI :", uri.toString());
+    }
+    return uris;
+  }
+
+  public static Uri pathToUri(Context context, Uri uri){
     String path = uri.getEncodedPath();
     if (path != null) {
       path = Uri.decode(path);
@@ -109,19 +119,20 @@ public class UriUtil {
               new String[] { MediaStore.Images.ImageColumns._ID },
               buff.toString(), null, null);
       int index = 0;
-      for (cur.moveToFirst(); !cur.isAfterLast(); cur
-              .moveToNext()) {
-        index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
-        index = cur.getInt(index);
-      }
-      if (index == 0) {
-      } else {
-        Uri uri_temp = Uri
-                .parse("content://media/external/images/media/"
-                        + index);
-        if (uri_temp != null) {
-          uri = uri_temp;
+      if (cur != null) {
+        for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+          index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
+          index = cur.getInt(index);
         }
+
+        if (index == 0) {
+        } else {
+          Uri uri_temp = Uri.parse("content://media/external/images/media/" + index);
+          if (uri_temp != null) {
+            uri = uri_temp;
+          }
+        }
+        cur.close();
       }
     }
     return uri;

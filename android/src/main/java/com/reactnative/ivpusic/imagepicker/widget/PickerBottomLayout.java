@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.reactnative.ivpusic.imagepicker.R;
 
-
 /**
  * Created by Martin on 2017/1/17.
  */
@@ -34,13 +33,11 @@ public class PickerBottomLayout extends FrameLayout {
     init(context);
   }
 
-  private void init(Context context) {
+  private void init(final Context context) {
     inflate(context, R.layout.picker_bottom_layout, this);
     send = (TextView) findViewById(R.id.send);
 
-    //TODO: 预览操作的逻辑处理
     preview = (TextView) findViewById(R.id.preview);
-
   }
 
   public void updateSelectedCount(int count) {
