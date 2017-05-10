@@ -10,14 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.reactnative.ivpusic.imagepicker.R;
-import com.reactnative.ivpusic.imagepicker.SImagePicker;
-import com.reactnative.ivpusic.imagepicker.util.GlideUtil;
-import com.reactnative.ivpusic.imagepicker.util.PhotoMetadataUtils;
 import com.reactnative.ivpusic.imagepicker.widget.subsamplingview.ImageSource;
 import com.reactnative.ivpusic.imagepicker.widget.subsamplingview.SubsamplingScaleImageView;
-
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
-import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 
 public class PreviewItemFragment extends Fragment {
 
