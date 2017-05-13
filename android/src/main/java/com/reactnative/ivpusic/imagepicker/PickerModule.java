@@ -74,14 +74,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private ReadableMap options;
 
 
-    //Grey 800
+    // Grey 800
     private final String DEFAULT_TINT = "#424242";
     private String cropperTintColor = DEFAULT_TINT;
 
-    //Light Blue 500
+    // Light Blue 500
     private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
     private int width = 200;
     private int height = 200;
+
+    private int ratioX = 1;
+    private int ratioY = 1;
 
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
@@ -117,6 +120,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
+        ratioX = options.hasKey("ratioX") ? options.getInt("ratioX") : ratioX;
+        ratioY = options.hasKey("ratioY") ? options.getInt("ratioY") : ratioY;
         this.options = options;
     }
 
@@ -572,7 +577,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
                 .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
+                .withAspectRatio(ratioX, ratioY)
                 .withOptions(options)
                 .start(activity);
     }
