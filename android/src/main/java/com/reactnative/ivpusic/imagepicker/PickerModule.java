@@ -31,6 +31,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCropActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,10 +63,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_PERMISSIONS_MISSING = "E_PERMISSIONS_MISSING";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
 
+    private String mediaType = "any";
     private boolean multiple = false;
     private boolean includeBase64 = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
+    private boolean showCropGuidelines = true;
+    private boolean hideBottomControls = false;
+    private boolean enableRotationGesture = false;
     private ReadableMap options;
 
 
@@ -101,6 +106,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void setConfiguration(final ReadableMap options) {
+        mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : mediaType;
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         width = options.hasKey("width") ? options.getInt("width") : width;
@@ -108,6 +114,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
         cropperTintColor = options.hasKey("cropperTintColor") ? options.getString("cropperTintColor") : cropperTintColor;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
+        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
+        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
+        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
         this.options = options;
     }
 
@@ -299,11 +308,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         try {
             final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
 
-            if (cropping) {
+            if (cropping || mediaType.equals("photo")) {
                 galleryIntent.setType("image/*");
+            } else if (mediaType.equals("video")) {
+                galleryIntent.setType("video/*");
             } else {
-                String[] mimetypes = {"image/*", "video/*"};
                 galleryIntent.setType("*/*");
+                String[] mimetypes = {"image/*", "video/*"};
                 galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
 
@@ -547,6 +558,16 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
+        options.setShowCropGrid(showCropGuidelines);
+        options.setHideBottomControls(hideBottomControls);
+        if (enableRotationGesture) {
+            // UCropActivity.ALL = enable both rotation & scaling
+            options.setAllowedGestures(
+                UCropActivity.ALL, // When 'scale'-tab active
+                UCropActivity.ALL, // When 'rotate'-tab active
+                UCropActivity.ALL  // When 'aspect ratio'-tab active
+            );
+        }
         configureCropperColors(options);
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
@@ -662,14 +683,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private File createImageFile() throws IOException {
+
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
+
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
         File image = File.createTempFile(imageFileName, ".jpg", path);
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
 
         return image;
+
     }
 }

@@ -302,8 +302,8 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../example/node_modules/react-native/React/**",
-					"$(SRCROOT)/../example/node_modules/react-native/Libraries/Image/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
@@ -323,8 +323,8 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../example/node_modules/react-native/React/**",
-					"$(SRCROOT)/../example/node_modules/react-native/Libraries/Image/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (

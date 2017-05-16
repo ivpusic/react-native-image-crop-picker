@@ -89,8 +89,11 @@ ImagePicker.clean().then(() => {
 | compressImageMaxHeight | number (default none) | Compress image with maximum height |
 | compressImageQuality | number (default 1) | Compress image with quality (from 0 to 1, where 1 is best quality) |
 | loadingLabelText (ios only) | string (default "Processing assets...") | Text displayed while photo is loading in picker |
-| mediaType (ios only) | string (default any) | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
+| mediaType | string (default any) | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only) | bool (default true) | Whether to show the number of selected assets |
+| showCropGuidelines (android only) | bool (default true) | Whether to show the 3x3 grid on top of the image during cropping |
+| hideBottomControls (android only) | bool (default false) | Whether to display bottom controls |
+| enableRotationGesture (android only) | bool (default false) | Whether to enable rotating the image by hand gesture |
 #### Response Object
 
 | Property        | Type           | Description  |
