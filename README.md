@@ -177,8 +177,9 @@ Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/
 Details for second approach:
 
 1. Remove the pre-built frameworks from `Embedded Binaries`
-2. Build for Device
-4. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
+2. Build for Device (In `Product > Build`)
+3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
+4. Remove the ImageCropperSDK folder from Xcode. This was the folder added in the post-install steps. Be sure to choose to Remove References.
 
 ## License
 *MIT*
