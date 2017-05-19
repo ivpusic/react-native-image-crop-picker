@@ -17,6 +17,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+import android.util.Log;
+import android.content.ContentResolver;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -87,10 +89,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector;
     private Compression compression = new Compression();
+    private ReactApplicationContext reactContext = null;
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
+        this.reactContext = reactContext;
     }
 
     private String getTmpDir(Activity activity) {
@@ -393,14 +397,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return Base64.encodeToString(bytes, Base64.NO_WRAP);
     }
 
-    private static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-
-        return type;
+    private String getMimeType(String url) {
+      String mimeType = null;
+      Uri uri = Uri.fromFile(new File(url));
+      if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+          ContentResolver cr = reactContext.getContentResolver();
+          mimeType = cr.getType(uri);
+      } else {
+          String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                  .toString());
+          mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                  fileExtension.toLowerCase());
+      }
+      return mimeType;
     }
 
     private WritableMap getSelection(Activity activity, Uri uri, boolean isCamera) throws Exception {
