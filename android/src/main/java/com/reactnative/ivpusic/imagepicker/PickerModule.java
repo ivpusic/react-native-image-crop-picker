@@ -17,7 +17,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
-import android.util.Log;
 import android.content.ContentResolver;
 
 import com.facebook.react.bridge.ActivityEventListener;
