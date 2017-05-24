@@ -22,7 +22,8 @@ public class SImagePicker {
 
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({MODE_IMAGE, MODE_AVATAR})
-  public @interface PickMode {}
+  public @interface PickMode {
+  }
 
   public static final int MODE_IMAGE = 1;
   public static final int MODE_AVATAR = 2;
@@ -37,7 +38,9 @@ public class SImagePicker {
   private boolean showCamera = false;
   private String avatarFilePath;
   private ArrayList<String> selected;
-  private @StringRes int pickRes = R.string.general_send;
+  private
+  @StringRes
+  int pickRes = R.string.general_send;
   private FileChooseInterceptor fileChooseInterceptor;
 
   private SImagePicker(Fragment fragment) {
@@ -69,12 +72,14 @@ public class SImagePicker {
   }
 
   private String albumName;
+
   public SImagePicker albumName(String albumName) {
     this.albumName = albumName;
     return this;
   }
 
   private String bucketId;
+
   public SImagePicker bucketId(String bucketId) {
     this.bucketId = bucketId;
     return this;

@@ -45,11 +45,17 @@ public class PickerBottomLayout extends FrameLayout {
       send.setTextColor(getResources().getColor(R.color.gray));
       send.setEnabled(false);
       send.setText(getResources().getString(R.string.general_ok));
+
+      preview.setTextColor(getResources().getColor(R.color.gray));
+      preview.setEnabled(false);
     } else {
       send.setTextColor(getResources().getColor(R.color.color_48baf3));
       send.setEnabled(true);
       send.setText(getResources().getString(R.string.general_ok) + " "
           + getResources().getString(R.string.bracket_num, count));
+
+      preview.setTextColor(getResources().getColor(R.color.color_48baf3));
+      preview.setEnabled(true);
     }
   }
 
