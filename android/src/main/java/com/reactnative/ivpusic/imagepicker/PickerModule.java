@@ -94,7 +94,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private Compression compression = new Compression();
 
 
-
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
@@ -330,10 +329,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
 
-
             Activity currentActivity = getCurrentActivity();
-            if (null!=currentActivity){
-                final Intent albumIntent = new Intent(currentActivity,AlbumListActivity.class);
+            if (null != currentActivity) {
+                final Intent albumIntent = new Intent(currentActivity, AlbumListActivity.class);
                 activity.startActivityForResult(albumIntent, IMAGE_PICKER_REQUEST);
 
             }
@@ -579,9 +577,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (enableRotationGesture) {
             // UCropActivity.ALL = enable both rotation & scaling
             options.setAllowedGestures(
-                UCropActivity.ALL, // When 'scale'-tab active
-                UCropActivity.ALL, // When 'rotate'-tab active
-                UCropActivity.ALL  // When 'aspect ratio'-tab active
+                    UCropActivity.ALL, // When 'scale'-tab active
+                    UCropActivity.ALL, // When 'rotate'-tab active
+                    UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
         configureCropperColors(options);
@@ -597,33 +595,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (resultCode == Activity.RESULT_CANCELED) {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
         } else if (resultCode == Activity.RESULT_OK) {
-
-            //TODO: 选取图片的URI
             List<Uri> uris = data.getParcelableArrayListExtra(PhotoPickerActivity.PARAM_DATA);
-            for (Uri uri : uris) {
-                Log.e("DES", uri.toString());
-            }
             if (multiple) {
-                //ClipData clipData = data.getClipData();
-
                 try {
-                    // only one image selected
-//                    if (clipData == null) {
-//                        resultCollector.setWaitCount(1);
-//                        getAsyncSelection(activity, data.getData(), false);
-//                    } else {
-//                        resultCollector.setWaitCount(clipData.getItemCount());
-//                        for (int i = 0; i < clipData.getItemCount(); i++) {
-//                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
-//                        }
-//                    }
+                    resultCollector.setWaitCount(uris.size());
+                    for (Uri uri : uris) {
+                        getAsyncSelection(activity, uri, false);
+                    }
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
-
             } else {
-                Uri uri = data.getData();
-
+                Uri uri = uris.size() > 0 ? uris.get(0) : null;
                 if (uri == null) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve image url");
                     return;
