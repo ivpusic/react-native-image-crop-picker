@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.facebook.react.bridge.ActivityEventListener;
@@ -30,6 +31,8 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
+import com.reactnative.ivpusic.imagepicker.SImagePicker;
+import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
@@ -49,6 +52,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private static final int IMAGE_PICKER_REQUEST = 61110;
     private static final int CAMERA_PICKER_REQUEST = 61111;
+    private static final int ALBUM_LIST_REQUEST = 61112;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
 
     private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
@@ -87,6 +91,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector;
     private Compression compression = new Compression();
+
+
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -322,8 +328,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
             galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+
+
+            Activity currentActivity = getCurrentActivity();
+            if (null!=currentActivity){
+                final Intent albumIntent = new Intent(currentActivity,AlbumListActivity.class);
+                activity.startActivityForResult(albumIntent, IMAGE_PICKER_REQUEST);
+
+            }
+
+            //final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+            //activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
@@ -581,20 +596,26 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (resultCode == Activity.RESULT_CANCELED) {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
         } else if (resultCode == Activity.RESULT_OK) {
+
+            //TODO: 选取图片的URI
+            List<Uri> uris = data.getParcelableArrayListExtra(PhotoPickerActivity.PARAM_DATA);
+            for (Uri uri : uris) {
+                Log.e("DES", uri.toString());
+            }
             if (multiple) {
-                ClipData clipData = data.getClipData();
+                //ClipData clipData = data.getClipData();
 
                 try {
                     // only one image selected
-                    if (clipData == null) {
-                        resultCollector.setWaitCount(1);
-                        getAsyncSelection(activity, data.getData(), false);
-                    } else {
-                        resultCollector.setWaitCount(clipData.getItemCount());
-                        for (int i = 0; i < clipData.getItemCount(); i++) {
-                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
-                        }
-                    }
+//                    if (clipData == null) {
+//                        resultCollector.setWaitCount(1);
+//                        getAsyncSelection(activity, data.getData(), false);
+//                    } else {
+//                        resultCollector.setWaitCount(clipData.getItemCount());
+//                        for (int i = 0; i < clipData.getItemCount(); i++) {
+//                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
+//                        }
+//                    }
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }

@@ -14,8 +14,12 @@ android {
     }
 }
 
+
+
 dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.yalantis:ucrop:2.2.0-native'
     compile 'id.zelory:compressor:1.0.4'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+    compile 'com.facebook.fresco:fresco:0.12.0'
 }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionModeOverlay">true</item>
+        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="actionBarStyle">@style/ActionBarStyleNoShadow</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_general_back</item>
+        <item name="homeAsUpIndicator">@drawable/ic_general_back</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
+    </style>
+
+    <style name="ActionBarStyleNoShadow" parent="Widget.AppCompat.ActionBar">
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="CommonSpinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/bg_toolbar_spinner</item>
+        <item name="android:dropDownSelector">@drawable/bs_selectable</item>
+        <item name="android:divider">@null</item>
+        <item name="android:overlapAnchor">true</item>
+        <item name="android:dropDownVerticalOffset">10dip</item>
+        <item name="android:dropDownHorizontalOffset">0dip</item>
+        <item name="android:popupElevation">0.1dp</item>
+        <item name="android:popupBackground">@drawable/bg_spinner_default</item>
+    </style>
+
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="app_bar_no_shadow">
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="AppTheme.Popup">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@style/AnimationStylePopup</item>
+    </style>
+
+    <style name="AppTheme.Picture">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="AnimationStylePopup">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_bottom</item>
+    </style>
+
+
+</resources>

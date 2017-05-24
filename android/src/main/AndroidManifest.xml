@@ -1,10 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.reactnative.ivpusic.imagepicker">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application>
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -19,6 +19,40 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity android:name=".AlbumListActivity" />
+
+        <activity android:name=".PhotoListActivity" />
+
+        <activity
+            android:name=".activity.PhotoPickerActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.PickerPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CaptureConfirmActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CropImageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+        <activity
+            android:name=".activity.CaptureTempActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture"/>
+
+
+        <activity
+            android:name=".activity.SelectedPreviewActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>
