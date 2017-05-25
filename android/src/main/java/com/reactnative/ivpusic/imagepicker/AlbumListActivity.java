@@ -31,6 +31,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 选择相册
+ */
 public class AlbumListActivity extends AppCompatActivity {
 
   private static Activity instance;
@@ -89,10 +92,10 @@ public class AlbumListActivity extends AppCompatActivity {
 
     albumAdapter = new AlbumAdapter(albumList, AlbumListActivity.this);
 
+    final Boolean multiple = this.getIntent().getBooleanExtra("multiple", true);
+
     listView = (ListView) findViewById(R.id.album_list);
-
     listView.setAdapter(albumAdapter);
-
     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -102,7 +105,7 @@ public class AlbumListActivity extends AppCompatActivity {
             .from(AlbumListActivity.this)
             .albumName(album.getName())
             .bucketId(album.getBucketId())
-            .maxCount(9)
+            .maxCount(multiple ? 9 : 1)
             .rowCount(4)
             .pickMode(SImagePicker.MODE_IMAGE)
             .fileInterceptor(null)

@@ -312,32 +312,31 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
   private void initiatePicker(final Activity activity) {
     try {
-      final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
+//      final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
 
-      if (cropping || mediaType.equals("photo")) {
-        galleryIntent.setType("image/*");
-      } else if (mediaType.equals("video")) {
-        galleryIntent.setType("video/*");
-      } else {
-        galleryIntent.setType("*/*");
-        String[] mimetypes = {"image/*", "video/*"};
-        galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-      }
-
-      galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-      galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-      galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-
+//      if (cropping || mediaType.equals("photo")) {
+//        galleryIntent.setType("image/*");
+//      } else if (mediaType.equals("video")) {
+//        galleryIntent.setType("video/*");
+//      } else {
+//        galleryIntent.setType("*/*");
+//        String[] mimetypes = {"image/*", "video/*"};
+//        galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//      }
+//
+//      galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
+//      galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+//      galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
       Activity currentActivity = getCurrentActivity();
       if (null != currentActivity) {
         final Intent albumIntent = new Intent(currentActivity, AlbumListActivity.class);
+        albumIntent.putExtra("multiple", multiple);
         activity.startActivityForResult(albumIntent, IMAGE_PICKER_REQUEST);
-
       }
 
-      //final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-      //activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+//      final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+//      activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
     } catch (Exception e) {
       resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
     }
