@@ -350,7 +350,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
              */
             setResult(AlbumListActivity.REQUEST_CODE_IMAGE_SELECTED, data);
             finish();
-        } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT) {
+        } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT) { // 预览后有选择的照片
             ArrayList<Uri> uris = data.getParcelableArrayListExtra(BasePreviewActivity.PARAM_SELECTED_URIS);
             ArrayList<String> paths = new ArrayList<>();
             for (Uri uri : uris) {
@@ -358,8 +358,10 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
                 paths.add(path);
             }
             photoController.setSelectedPhoto(paths);
-        } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT_NULL) {
+            this.updateBottomBar();
+        } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT_NULL) { // 预览后没有选择的照片
             photoController.setSelectedPhoto(new ArrayList<String>());
+            this.updateBottomBar();
         }
     }
 
