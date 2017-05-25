@@ -307,7 +307,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     } catch (Exception e) {
       resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
     }
-
   }
 
   private void initiatePicker(final Activity activity) {

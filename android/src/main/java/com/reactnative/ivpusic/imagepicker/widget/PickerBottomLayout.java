@@ -18,6 +18,8 @@ public class PickerBottomLayout extends FrameLayout {
 
   public TextView preview; //预览
 
+  public Boolean showSendNumber = true; // 是否显示 send 上的数字
+
   private int pickTextRes = R.string.general_ok;
 
   public PickerBottomLayout(Context context) {
@@ -51,9 +53,12 @@ public class PickerBottomLayout extends FrameLayout {
     } else {
       send.setTextColor(getResources().getColor(R.color.color_48baf3));
       send.setEnabled(true);
-      send.setText(getResources().getString(R.string.general_ok) + " "
-          + getResources().getString(R.string.bracket_num, count));
-
+      if (showSendNumber) {
+        send.setText(getResources().getString(R.string.general_ok) + " "
+            + getResources().getString(R.string.bracket_num, count));
+      }  else {
+        send.setText(getResources().getString(R.string.general_ok));
+      }
       preview.setTextColor(getResources().getColor(R.color.color_48baf3));
       preview.setEnabled(true);
     }

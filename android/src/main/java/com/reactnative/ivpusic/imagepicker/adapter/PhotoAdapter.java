@@ -31,11 +31,12 @@ import java.util.List;
  */
 public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHolder> {
 
+  public int maxCount = 1;
+
   private final LayoutInflater layoutInflater;
   private final int photoSize;
   private ArrayList<String> selectedPhoto;
   private OnPhotoActionListener actionListener;
-  private int maxCount = 1;
   private int mode;
 
   private boolean isCovered = false;
@@ -59,7 +60,7 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
 
     final Photo photo = Photo.fromCursor(cursor);
 
-    if (selectedPhoto.size() >= 9 && !selectedPhoto.contains(photo.getFilePath()) && isCovered) {
+    if (selectedPhoto.size() >= this.maxCount && !selectedPhoto.contains(photo.getFilePath()) && isCovered) {
         holder.coverView.setVisibility(View.VISIBLE);
     }
     else {

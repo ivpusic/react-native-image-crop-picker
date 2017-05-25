@@ -41,7 +41,7 @@ export default class App extends Component {
       width: 500,
       height: 500,
     }).then(image => {
-      console.log('received image', image);
+      console.log('received 1 image: ', image);
       this.setState({
         image: {uri: image.path, width: image.width, height: image.height},
         images: null
@@ -56,7 +56,7 @@ export default class App extends Component {
       cropping: cropit,
       includeBase64: true
     }).then(image => {
-      console.log('received base64 image');
+      console.log('received 1 base64 image:');
       this.setState({
         image: {uri: `data:${image.mime};base64,`+ image.data, width: image.width, height: image.height},
         images: null
@@ -84,16 +84,16 @@ export default class App extends Component {
   }
 
   cropLast() {
-    if (!this.state.image) {
+    let image = this.state.image || (this.state.images && this.state.images.length ? this.state.images[this.state.images.length - 1] : null);
+    if (!image) {
       return Alert.alert('No image', 'Before open cropping only, please select image');
     }
-
     ImagePicker.openCropper({
-      path: this.state.image.uri,
+      path: image.uri,
       width: 200,
       height: 200
     }).then(image => {
-      console.log('received cropped image', image);
+      console.log('received 1 cropped image:', image);
       this.setState({
         image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
         images: null
@@ -115,7 +115,7 @@ export default class App extends Component {
       compressImageQuality: 0.5,
       compressVideoPreset: 'MediumQuality',
     }).then(image => {
-      console.log('received image', image);
+      console.log('received 1 image:', image);
       this.setState({
         image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
         images: null
@@ -128,9 +128,16 @@ export default class App extends Component {
 
   pickMultiple() {
     ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      compressImageMaxWidth: 640,
+      compressImageMaxHeight: 480,
+      compressImageQuality: 0.5,
+      compressVideoPreset: 'MediumQuality',
       multiple: true,
       waitAnimationEnd: false
     }).then(images => {
+      console.log(`received ${images.length} image:`);
       this.setState({
         image: null,
         images: images.map(i => {
