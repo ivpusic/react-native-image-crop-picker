@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHolder> {
 
-  public int maxCount = 1;
+  private int maxCount = 1;
 
   private final LayoutInflater layoutInflater;
   private final int photoSize;
@@ -250,6 +250,10 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
 
   public void setMaxCount(int maxCount) {
     this.maxCount = maxCount;
+  }
+
+  public int getMaxCount() {
+    return this.maxCount;
   }
 
   private static void showMaxDialog(Context context, int max) {

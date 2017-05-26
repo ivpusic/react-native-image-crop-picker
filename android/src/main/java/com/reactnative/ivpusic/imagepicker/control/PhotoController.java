@@ -141,7 +141,7 @@ public class PhotoController extends BaseLoaderController {
 
   public void setSelectedPhoto(ArrayList<String> selectedPhoto) {
     photoAdapter.setSelectedPhoto(selectedPhoto);
-    if (selectedPhoto.size() == this.photoAdapter.maxCount) {
+    if (selectedPhoto.size() == this.photoAdapter.getMaxCount()) {
       photoAdapter.setIsCovered(true);
     }
   }
