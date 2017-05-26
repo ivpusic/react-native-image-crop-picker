@@ -20,12 +20,13 @@ public class SingleFileLimitInterceptor implements FileChooseInterceptor {
 
   private static final long MAX_FILE_SIZE_ORIGINAL = 200 * 1024; // 200K
 
-  public SingleFileLimitInterceptor() {}
+  public SingleFileLimitInterceptor() {
+  }
 
   @Override
   public boolean onFileChosen(Context context, ArrayList<String> selectedPic,
-      boolean original,
-      int resultCode, PickerAction action) {
+                              boolean original,
+                              int resultCode, PickerAction action) {
     if (resultCode != Activity.RESULT_OK) {
       return true;
     }
@@ -48,8 +49,8 @@ public class SingleFileLimitInterceptor implements FileChooseInterceptor {
   }
 
   private void showSingleFileLimitDialog(Context context, final boolean original,
-      final int resultCode,
-      final PickerAction action, final ArrayList<String> confirmedFiles) {
+                                         final int resultCode,
+                                         final PickerAction action, final ArrayList<String> confirmedFiles) {
     new AlertDialog.Builder(context)
         .setMessage("general_max_per_image")
         .setPositiveButton(
@@ -61,7 +62,8 @@ public class SingleFileLimitInterceptor implements FileChooseInterceptor {
             })
         .setNegativeButton(R.string.general_cancel, new DialogInterface.OnClickListener() {
           @Override
-          public void onClick(DialogInterface dialog, int which) {}
+          public void onClick(DialogInterface dialog, int which) {
+          }
         })
         .show();
   }
@@ -76,7 +78,8 @@ public class SingleFileLimitInterceptor implements FileChooseInterceptor {
 
   }
 
-  protected SingleFileLimitInterceptor(Parcel in) {}
+  protected SingleFileLimitInterceptor(Parcel in) {
+  }
 
   public static final Creator<SingleFileLimitInterceptor> CREATOR =
       new Creator<SingleFileLimitInterceptor>() {

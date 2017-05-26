@@ -10,5 +10,5 @@ import android.os.Parcelable;
  */
 public interface FileChooseInterceptor extends Parcelable {
   boolean onFileChosen(Context context, ArrayList<String> selectedPic, boolean original,
-      int resultCode, PickerAction action);
+                       int resultCode, PickerAction action);
 }

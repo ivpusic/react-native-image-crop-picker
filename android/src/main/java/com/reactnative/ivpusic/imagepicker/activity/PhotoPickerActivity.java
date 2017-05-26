@@ -41,6 +41,8 @@ import java.util.List;
 
 /**
  * Created by Martin on 2017/1/17.
+ * <p>
+ * 选择照片
  */
 public class PhotoPickerActivity extends BasePickerActivity implements PickerAction {
 
@@ -82,25 +84,29 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
   private int rowCount;
   private boolean showCamera = false;
   private String avatarFilePath;
-  private @StringRes int pickRes;
-  private @StringRes int pickNumRes;
+  private
+  @StringRes
+  int pickRes;
+  private
+  @StringRes
+  int pickNumRes;
   private FileChooseInterceptor fileChooseInterceptor;
   private CapturePhotoHelper capturePhotoHelper;
 
   private final PhotoController photoController = new PhotoController();
   private final AlbumController albumController = new AlbumController();
   private final AlbumController.OnDirectorySelectListener directorySelectListener =
-          new AlbumController.OnDirectorySelectListener() {
-            @Override
-            public void onSelect(Album album) {
-              photoController.resetLoad(album);
-            }
+      new AlbumController.OnDirectorySelectListener() {
+        @Override
+        public void onSelect(Album album) {
+          photoController.resetLoad(album);
+        }
 
-            @Override
-            public void onReset(Album album) {
-              photoController.load(album);
-            }
-          };
+        @Override
+        public void onReset(Album album) {
+          photoController.load(album);
+        }
+      };
 
   private final PhotoAdapter.OnPhotoActionListener selectionChangeListener =
       new PhotoAdapter.OnPhotoActionListener() {
@@ -123,10 +129,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
               @Override
               public void onLoadComplete(ArrayList<Uri> photoUris) {
                 //TODO: Change
-                /**
-                 *
-                 */
-
                 Uri firstUri = UriUtil.pathToUri(PhotoPickerActivity.this, Uri.fromFile(new File(photo.getFilePath())));
                 List<String> paths = photoController.getSelectedPhoto();
                 ArrayList<Uri> selectedUris = UriUtil.getUris(PhotoPickerActivity.this, paths);
@@ -166,6 +168,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
 
   private void initUI() {
     bottomLayout = (PickerBottomLayout) findViewById(R.id.picker_bottom);
+    bottomLayout.showSendNumber = maxCount > 1;
     recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
     ivBack = (ImageView) findViewById(R.id.photo_back);
@@ -198,9 +201,9 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     }
 
     /**
-     *通过bucketId加载相册
+     * 通过bucketId加载相册
      */
-    photoController.loadAlbumPhoto(this,String.valueOf(bucketId));
+    photoController.loadAlbumPhoto(this, String.valueOf(bucketId));
 
     fileChooseInterceptor = getIntent().getParcelableExtra(PARAM_FILE_CHOOSE_INTERCEPTOR);
     ArrayList<String> selected = getIntent().getStringArrayListExtra(PARAM_SELECTED);
@@ -262,7 +265,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     if (!photoController.getSelectedPhoto().isEmpty()) {
 
       /**
-       *  确定后 获取选中的photo的存储路径
+       * 确定后 获取选中的photo的存储路径
        */
       List<String> photos = photoController.getSelectedPhoto();
       for (String photo : photos) {
@@ -272,9 +275,9 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     }
   }
 
-  private void setResultAndFinish(ArrayList<String> selected,  int resultCode) {
+  private void setResultAndFinish(ArrayList<String> selected, int resultCode) {
     if (fileChooseInterceptor != null
-            && !fileChooseInterceptor.onFileChosen(this, selected, false, resultCode, this)) {
+        && !fileChooseInterceptor.onFileChosen(this, selected, false, resultCode, this)) {
       // Prevent finish if interceptor returns false.
       return;
     }
@@ -348,7 +351,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
        */
       setResult(AlbumListActivity.REQUEST_CODE_IMAGE_SELECTED, data);
       finish();
-    } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT) {
+    } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT) { // 预览后有选择的照片
       ArrayList<Uri> uris = data.getParcelableArrayListExtra(BasePreviewActivity.PARAM_SELECTED_URIS);
       ArrayList<String> paths = new ArrayList<>();
       for (Uri uri : uris) {
@@ -356,9 +359,10 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
         paths.add(path);
       }
       photoController.setSelectedPhoto(paths);
-    }
-    else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT_NULL) {
+      this.updateBottomBar();
+    } else if (resultCode == BasePreviewActivity.PARAM_SELECTED_RESULT_NULL) { // 预览后没有选择的照片
       photoController.setSelectedPhoto(new ArrayList<String>());
+      this.updateBottomBar();
     }
   }
 
@@ -375,18 +379,18 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     int lastVisible = layoutManager.findLastVisibleItemPosition();
     for (int i = firstVisible; i <= lastVisible; i++) {
       View view = layoutManager.findViewByPosition(i);
-       if (view instanceof FrameLayout) {
-         FrameLayout frameLayout = (FrameLayout) view;
-         if (frameLayout != null) {
-           SquareRelativeLayout item = (SquareRelativeLayout) frameLayout.findViewById(R.id.photo_cell);
-           if (item != null) {
-             String photoPath = (String) item.getTag();
-             if (photoController.getSelectedPhoto().contains(photoPath)) {
-               item.checkBox.setText(String.valueOf(photoController.getSelectedPhoto().indexOf(photoPath) + 1));
-               item.checkBox.refresh(false);
-             }
-           }
-         }
+      if (view instanceof FrameLayout) {
+        FrameLayout frameLayout = (FrameLayout) view;
+        if (frameLayout != null) {
+          SquareRelativeLayout item = (SquareRelativeLayout) frameLayout.findViewById(R.id.photo_cell);
+          if (item != null) {
+            String photoPath = (String) item.getTag();
+            if (photoController.getSelectedPhoto().contains(photoPath)) {
+              item.checkBox.setText(String.valueOf(photoController.getSelectedPhoto().indexOf(photoPath) + 1));
+              item.checkBox.refresh(false);
+            }
+          }
+        }
       }
     }
   }
