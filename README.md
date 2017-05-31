@@ -78,7 +78,7 @@ ImagePicker.clean().then(() => {
 | height      | number      | Height of result image when used with `cropping` option |
 | multiple | bool (default false) | Enable or disable multiple image selection |
 | includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
-| cropperTintColor (android only) | string (default `"#424242"`) | When cropping image, determines ActiveWidget color. |
+| cropperActiveWidgetColor (android only) | string (default `"#424242"`) | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only) | string (default `#424242`) | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only) | string (default `#424242`) | When cropping image, determines the color of Toolbar. |
 | cropperCircleOverlay | bool (default false) | Enable or disable circular cropping mask. |
