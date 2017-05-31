@@ -76,7 +76,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
-    private String cropperTintColor = DEFAULT_TINT;
+    private String cropperActiveWidgetColor = DEFAULT_TINT;
+    private String cropperStatusBarColor = DEFAULT_TINT;
+    private String cropperToolbarColor = DEFAULT_TINT;
 
     //Light Blue 500
     private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
@@ -112,7 +114,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
-        cropperTintColor = options.hasKey("cropperTintColor") ? options.getString("cropperTintColor") : cropperTintColor;
+        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : cropperActiveWidgetColor;
+        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : cropperStatusBarColor;
+        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : cropperToolbarColor;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
@@ -538,10 +542,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void configureCropperColors(UCrop.Options options) {
-        int color = Color.parseColor(cropperTintColor);
-        options.setToolbarColor(color);
-        options.setStatusBarColor(color);
-        if (cropperTintColor.equals(DEFAULT_TINT)) {
+        int activeWidgetColor = Color.parseColor(cropperActiveWidgetColor);
+        int toolbarColor = Color.parseColor(cropperToolbarColor);
+        int statusBarColor = Color.parseColor(cropperStatusBarColor);
+        options.setToolbarColor(toolbarColor);
+        options.setStatusBarColor(statusBarColor);
+        if (activeWidgetColor.equals(DEFAULT_TINT)) {
             /*
             Default tint is grey => use a more flashy color that stands out more as the call to action
             Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
@@ -549,7 +555,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
         } else {
             //If they pass a custom tint color in, we use this for everything
-            options.setActiveWidgetColor(color);
+            options.setActiveWidgetColor(activeWidgetColor);
         }
     }
 
