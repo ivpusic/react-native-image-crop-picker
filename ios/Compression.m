@@ -66,13 +66,18 @@
                    withOptions:(NSDictionary*)options {
     ImageResult *result = [self compressImageDimensions:image withOptions:options];
     
-    NSNumber *compressQuality = [options valueForKey:@"compressImageQuality"];
-    if (compressQuality == nil) {
-        compressQuality = [NSNumber numberWithFloat:1];
+    if([@"image/png" isEqualToString:[options objectForKey:@"mimeType"]]){
+        result.data = UIImagePNGRepresentation(image);
+        result.mime = @"image/png";
+    }else{
+        NSNumber *compressQuality = [options valueForKey:@"compressImageQuality"];
+        if (compressQuality == nil) {
+            compressQuality = [NSNumber numberWithFloat:1];
+        }
+        
+        result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
+        result.mime = @"image/jpeg";
     }
-    
-    result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
-    result.mime = @"image/jpeg";
     
     return result;
 }
