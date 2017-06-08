@@ -605,10 +605,23 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     return rect;
 }
 
+- (CGRect)getCropRect{
+    CGRect rect = controller.maskRect;
+    CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
+    CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
+    
+    if(rect.size.width > viewWidth || rect.size.height > viewHeight){
+        rect = [self scaleRect:controller];
+    }else{
+        rect = [self imageCropViewControllerCustomMaskRect:controller];
+    }
+    return rect;
+}
+
 // Returns a custom path for the mask.
 - (UIBezierPath *)imageCropViewControllerCustomMaskPath:
 (RSKImageCropViewController *)controller {
-    CGRect rect = [self scaleRect:controller];
+    CGRect rect = [self getCropRect];
     UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect
                                                byRoundingCorners:UIRectCornerAllCorners
                                                      cornerRadii:CGSizeMake(0, 0)];
@@ -618,7 +631,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // Returns a custom rect in which the image can be moved.
 - (CGRect)imageCropViewControllerCustomMovementRect:
 (RSKImageCropViewController *)controller {
-    return [self scaleRect:controller];
+    return [self getCropRect];
 }
 
 #pragma mark - CropFinishDelegate
