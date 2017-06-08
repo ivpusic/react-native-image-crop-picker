@@ -547,7 +547,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         int statusBarColor = Color.parseColor(cropperStatusBarColor);
         options.setToolbarColor(toolbarColor);
         options.setStatusBarColor(statusBarColor);
-        if (activeWidgetColor.equals(DEFAULT_TINT)) {
+        if (activeWidgetColor == Color.parseColor(DEFAULT_TINT)) {
             /*
             Default tint is grey => use a more flashy color that stands out more as the call to action
             Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
