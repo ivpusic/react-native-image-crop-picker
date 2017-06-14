@@ -585,14 +585,14 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     CGSize maskSize = CGSizeMake(
                                  [[self.options objectForKey:@"width"] intValue],
                                  [[self.options objectForKey:@"height"] intValue]);
-    
+
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-    
+
     CGRect maskRect = CGRectMake((viewWidth - maskSize.width) * 0.5f,
                                  (viewHeight - maskSize.height) * 0.5f,
                                  maskSize.width, maskSize.height);
-    
+
     return maskRect;
 }
 
@@ -602,13 +602,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     CGRect rect = controller.maskRect;
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-    
+
     double scaleFactor = fmin(viewWidth / rect.size.width, viewHeight / rect.size.height);
     rect.size.width *= scaleFactor;
     rect.size.height *= scaleFactor;
     rect.origin.x = (viewWidth - rect.size.width) / 2;
     rect.origin.y = (viewHeight - rect.size.height) / 2;
-    
+
     return rect;
 }
 
@@ -653,13 +653,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (void)imageCropViewController:(RSKImageCropViewController *)controller
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
-    
+
     // we have correct rect, but not correct dimensions
     // so resize image
     CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
-    
+
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
         [self dismissCropper:controller completion:[self waitAnimationEnd:^{
@@ -667,7 +667,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         }]];
         return;
     }
-    
+
     [self dismissCropper:controller completion:[self waitAnimationEnd:^{
         self.resolve([self createAttachmentResponse:filePath
                                           withWidth:imageResult.width
@@ -686,7 +686,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".jpg"];
-    
+
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
     if (!status) {
