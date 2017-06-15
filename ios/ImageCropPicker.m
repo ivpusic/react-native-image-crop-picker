@@ -74,11 +74,11 @@ RCT_EXPORT_MODULE();
     if ([[self.options objectForKey:@"waitAnimationEnd"] boolValue]) {
         return completion;
     }
-
+    
     if (completion != nil) {
         completion();
     }
-
+    
     return nil;
 }
 
@@ -224,13 +224,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.cropOnly = NO;
-
+    
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         if (status != PHAuthorizationStatusAuthorized) {
             self.reject(ERROR_PICKER_UNAUTHORIZED_KEY, ERROR_PICKER_UNAUTHORIZED_MSG, nil);
             return;
         }
-
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             // init picker
             QBImagePickerController *imagePickerController =
@@ -256,12 +256,12 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 }
                 imagePickerController.assetCollectionSubtypes = albumsToShow;
             }
-
+            
             if ([[self.options objectForKey:@"cropping"] boolValue]) {
                 imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             } else {
                 NSString *mediaType = [self.options objectForKey:@"mediaType"];
-
+                
                 if ([mediaType isEqualToString:@"any"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeAny;
                 } else if ([mediaType isEqualToString:@"photo"]) {
@@ -373,7 +373,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              if (exportSession.status == AVAssetExportSessionStatusCompleted) {
                  AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
                  AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-
+                 
                  NSNumber *fileSizeValue = nil;
                  [outputURL getResourceValue:&fileSizeValue
                                       forKey:NSURLFileSizeKey
@@ -427,7 +427,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [lock lock];
-
+                            
                             if (video == nil) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
@@ -436,7 +436,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 }]];
                                 return;
                             }
-
+                            
                             [selections addObject:video];
                             processed++;
                             [lock unlock];
@@ -461,10 +461,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              [lock lock];
                              UIImage *imgT = [UIImage imageWithData:imageData];
                              UIImage *imageT = [imgT fixOrientation];
-
+                             
                              ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
                              NSString *filePath = [self persistFile:imageResult.data];
-
+                             
                              if (filePath == nil) {
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
@@ -575,7 +575,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             }]];
             return;
         }
-
+        
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -706,7 +706,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     if (!status) {
         return nil;
     }
-    
+
     return filePath;
 }
 
