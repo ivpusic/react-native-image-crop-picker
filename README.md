@@ -78,6 +78,7 @@ ImagePicker.clean().then(() => {
 | height      | number      | Height of result image when used with `cropping` option |
 | multiple | bool (default false) | Enable or disable multiple image selection |
 | includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
+| includeExif | bool (default false) | Enable or disable returning exif data with image. Does not work when cropping is set to `true`. |
 | cropperActiveWidgetColor (android only) | string (default `"#424242"`) | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only) | string (default `#424242`) | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only) | string (default `#424242`) | When cropping image, determines the color of Toolbar. |
@@ -105,6 +106,7 @@ ImagePicker.clean().then(() => {
 | height | number      | Selected image height |
 | mime | string | Selected image MIME type (image/jpeg, image/png) |
 | size | number | Selected image size in bytes |
+| exif | object | exif data of the selected image |
 | data | base64 | Optional base64 selected file representation |
 
 ## Install
