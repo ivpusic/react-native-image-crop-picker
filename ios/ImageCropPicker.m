@@ -242,12 +242,12 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
             if ([self.options objectForKey:@"smartAlbums"] != nil) {
                 NSDictionary *smartAlbums = @{
-                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
-                                              @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
-                                              @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
-                                              @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
-                                              @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
-                                              };
+                                          @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                          @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                                          @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                                          @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                          @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                          };
                 NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
                 for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
                     if ([smartAlbums objectForKey:album] != nil) {
