@@ -379,7 +379,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                 withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
                                                   withMime:@"video/mp4"
                                                   withSize:fileSizeValue
-                                                  withData:[NSNull null]]);
+                                                  withData:[NSNull null]
+                                                   withURL:[NSNull null]]);
              } else {
                  completion(nil);
              }
