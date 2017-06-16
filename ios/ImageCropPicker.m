@@ -387,7 +387,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      }];
 }
 
-- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
+- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withURL:(NSString*)url {
     return @{
              @"path": filePath,
              @"width": width,
@@ -395,7 +395,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"mime": mime,
              @"size": size,
              @"data": data,
+             @"url": url,
              };
+}
+
+-(NSString*)getAssetUrlFromFilePath: (PHAsset *) phAsset {
+    NSString *identifier = [phAsset.localIdentifier substringToIndex:36];
+    NSString *url = @"assets-library://asset/asset.JPG?id=";
+    url = [url stringByAppendingString:identifier];
+    url = [url stringByAppendingString:@"&ext=JPG"];
+    CIImage *fullImage = [CIImage imageWithContentsOfURL:url];
+    
+    return url;
 }
 
 - (void)qb_imagePickerController:
@@ -473,6 +484,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                                          withMime:imageResult.mime
                                                                          withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                                                          withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                                          withURL: [self getAssetUrlFromFilePath:phAsset]
                                                     ]];
                              processed++;
                              [lock unlock];
@@ -565,7 +577,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
                                                withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
+                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                withURL:[NSNull null]]);
         }]];
     }
 }
@@ -667,7 +680,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                          withHeight:imageResult.height
                                            withMime:imageResult.mime
                                            withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                           withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
+                                           withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                            withURL:[NSNull null]]);
     }]];
 }
 
