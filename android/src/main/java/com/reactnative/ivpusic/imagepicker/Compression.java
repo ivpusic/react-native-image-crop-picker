@@ -9,6 +9,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 
 import java.io.File;
+import java.io.IOException;
 
 import id.zelory.compressor.Compressor;
 
@@ -18,7 +19,7 @@ import id.zelory.compressor.Compressor;
 
 public class Compression {
 
-    public File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) {
+    public File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
@@ -29,31 +30,30 @@ public class Compression {
         }
 
         Log.d("image-crop-picker", "Image compression activated");
-        Compressor.Builder builder = new Compressor.Builder(activity)
+        Compressor compressor = new Compressor(activity)
                 .setCompressFormat(Bitmap.CompressFormat.JPEG)
                 .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES).getAbsolutePath());
 
         if (quality == null) {
             Log.d("image-crop-picker", "Compressing image with quality 100");
-            builder.setQuality(100);
+            compressor.setQuality(100);
         } else {
             Log.d("image-crop-picker", "Compressing image with quality " + (quality * 100));
-            builder.setQuality((int) (quality * 100));
+            compressor.setQuality((int) (quality * 100));
         }
 
         if (maxWidth != null) {
             Log.d("image-crop-picker", "Compressing image with max width " + maxWidth);
-            builder.setMaxWidth(maxWidth);
+            compressor.setMaxWidth(maxWidth);
         }
 
         if (maxHeight != null) {
             Log.d("image-crop-picker", "Compressing image with max height " + maxHeight);
-            builder.setMaxHeight(maxHeight);
+            compressor.setMaxHeight(maxHeight);
         }
 
-        return builder
-                .build()
+        return compressor
                 .compressToFile(new File(originalImagePath));
     }
 
