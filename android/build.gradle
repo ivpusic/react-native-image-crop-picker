@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion "23.0.3"
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
     }
     lintOptions {
@@ -17,5 +17,5 @@ android {
 dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.yalantis:ucrop:2.2.0-native'
-    compile 'id.zelory:compressor:1.0.4'
+    compile 'id.zelory:compressor:2.0.0'
 }
