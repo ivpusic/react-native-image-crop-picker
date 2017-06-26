@@ -20,4 +20,5 @@ dependencies {
     compile 'id.zelory:compressor:1.0.4'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
     compile 'com.facebook.fresco:fresco:0.12.0'
+    compile "com.android.support:appcompat-v7:23.0.3"
 }
