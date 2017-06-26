@@ -331,7 +331,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         CGPoint loadingLabelLocation = loadingView.center;
         loadingLabelLocation.y += [activityView bounds].size.height;
         loadingLabel.center = loadingLabelLocation;
-        loadingLabel.textAlignment = UITextAlignmentCenter;
+        loadingLabel.textAlignment = NSTextAlignmentCenter;
         loadingLabel.text = [self.options objectForKey:@"loadingLabelText"];
         [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
         [loadingView addSubview:loadingLabel];
@@ -386,7 +386,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      }];
 }
 
-- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
+- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSObject*)data {
     return @{
              @"path": filePath,
              @"width": width,
@@ -412,24 +412,22 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
             NSLock *lock = [[NSLock alloc] init];
             __block int processed = 0;
-
+            __block int failed = 0;
             for (PHAsset *phAsset in assets) {
-
+                if (failed) {
+                    break;
+                }
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [lock lock];
                             
                             if (video == nil) {
-                                [indicatorView stopAnimating];
-                                [overlayView removeFromSuperview];
-                                [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                    self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
-                                }]];
-                                return;
+                                failed ++;
+                            } else {
+                                [selections addObject:video];
                             }
                             
-                            [selections addObject:video];
                             processed++;
                             [lock unlock];
 
@@ -437,9 +435,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                    self.resolve(selections);
+                                    if (failed > 0 && failed == processed) { // all failed
+                                        self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                    } else {
+                                        self.resolve(selections);
+                                    }
                                 }]];
-                                return;
                             }
                         });
                     }];
@@ -451,37 +452,38 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                          dispatch_async(dispatch_get_main_queue(), ^{
                              [lock lock];
-                             
-                             ImageResult *imageResult = [self.compression compressImage:[UIImage imageWithData:imageData] withOptions:self.options];
-                             NSString *filePath = [self persistFile:imageResult.data];
+                             ImageResult *imageResult;
+                             NSString *filePath;
+                             if (imageData) {
+                                 imageResult = [self.compression compressImage:[UIImage imageWithData:imageData] withOptions:self.options];
+                                 filePath = [self persistFile:imageResult.data];
+                             }
                              
                              if (filePath == nil) {
-                                 [indicatorView stopAnimating];
-                                 [overlayView removeFromSuperview];
-                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                     self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                                 }]];
-                                 return;
+                                 failed++;
+                             } else {
+                                 [selections addObject:[self createAttachmentResponse:filePath
+                                                                            withWidth:imageResult.width
+                                                                           withHeight:imageResult.height
+                                                                             withMime:imageResult.mime
+                                                                             withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                                             withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                        ]];
                              }
 
-                             [selections addObject:[self createAttachmentResponse:filePath
-                                                                        withWidth:imageResult.width
-                                                                       withHeight:imageResult.height
-                                                                         withMime:imageResult.mime
-                                                                         withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                                                         withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
-                                                    ]];
                              processed++;
                              [lock unlock];
 
                              if (processed == [assets count]) {
-
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
                                  [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                     self.resolve(selections);
+                                     if (failed > 0 && failed == processed) { // all failed
+                                         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                     } else {
+                                         self.resolve(selections);
+                                     }
                                  }]];
-                                 return;
                              }
                          });
                      }];
