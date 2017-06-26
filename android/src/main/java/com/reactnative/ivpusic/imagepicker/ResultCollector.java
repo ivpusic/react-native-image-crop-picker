@@ -18,6 +18,7 @@ public class ResultCollector {
   private int waitCount;
   private boolean multiple;
   private AtomicInteger waitCounter;
+  private AtomicInteger filedCounter;
   private WritableArray arrayResult;
   private boolean resultSent = false;
 
@@ -35,6 +36,7 @@ public class ResultCollector {
   public void setWaitCount(int waitCount) {
     this.waitCount = waitCount;
     this.waitCounter = new AtomicInteger(0);
+    this.filedCounter = new AtomicInteger(0);
   }
 
   public synchronized void notifySuccess(WritableMap result) {
@@ -47,12 +49,12 @@ public class ResultCollector {
       int currentCount = waitCounter.addAndGet(1);
 
       if (currentCount == waitCount) {
-        promise.resolve(arrayResult);
         resultSent = true;
+        promise.resolve(arrayResult);
       }
     } else {
-      promise.resolve(result);
       resultSent = true;
+      promise.resolve(result);
     }
   }
 
@@ -61,9 +63,23 @@ public class ResultCollector {
       Log.w("image-crop-picker", "Skipping result, already sent...");
     }
 
-    Log.e("image-crop-picker", "Promise rejected. " + message);
-    promise.reject(code, message);
-    resultSent = true;
+    Log.e("image-crop-picker", "pick failed. " + message);
+
+    if (multiple) {
+      int currentCount = waitCounter.addAndGet(1);
+      int filedCount = filedCounter.addAndGet(1);
+      if (currentCount == waitCount) { // all processed
+        resultSent = true;
+        if (filedCount == waitCount) { // all failed
+          promise.reject(code, message);
+        } else {
+          promise.resolve(arrayResult);
+        }
+      }
+    } else {
+      resultSent = true;
+      promise.reject(code, message);
+    }
   }
 
   public synchronized void notifyProblem(String code, Throwable throwable) {
@@ -71,8 +87,22 @@ public class ResultCollector {
       Log.w("image-crop-picker", "Skipping result, already sent...");
     }
 
-    Log.e("image-crop-picker", "Promise rejected. " + throwable.getMessage());
-    promise.reject(code, throwable);
-    resultSent = true;
+    Log.e("image-crop-picker", "pick failed. " + throwable.getMessage());
+
+    if (multiple) {
+      int currentCount = waitCounter.addAndGet(1);
+      int filedCount = filedCounter.addAndGet(1);
+      if (currentCount == waitCount) { // all processed
+        resultSent = true;
+        if (filedCount == waitCount) { // all failed
+          promise.reject(code, throwable);
+        } else {
+          promise.resolve(arrayResult);
+        }
+      }
+    } else {
+      resultSent = true;
+      promise.reject(code, throwable);
+    }
   }
 }
