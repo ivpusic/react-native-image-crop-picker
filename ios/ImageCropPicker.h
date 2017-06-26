@@ -24,11 +24,12 @@
 #import "Compression.h"
 #import <math.h>
 
-@interface ImageCropPicker : NSObject<
-  RCTBridgeModule,
-  QBImagePickerControllerDelegate,
-  RSKImageCropViewControllerDelegate,
-  RSKImageCropViewControllerDataSource>
+@interface ImageCropPicker : NSObject <
+RCTBridgeModule,
+QBImagePickerControllerDelegate,
+RSKImageCropViewControllerDelegate,
+RSKImageCropViewControllerDataSource,
+UINavigationControllerDelegate>
 
 @property (nonatomic, strong) NSDictionary *defaultOptions;
 @property (nonatomic, strong) Compression *compression;
