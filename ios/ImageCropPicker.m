@@ -73,11 +73,11 @@ RCT_EXPORT_MODULE();
     if ([[self.options objectForKey:@"waitAnimationEnd"] boolValue]) {
         return completion;
     }
-    
+
     if (completion != nil) {
         completion();
     }
-    
+
     return nil;
 }
 
@@ -219,13 +219,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.cropOnly = NO;
-    
+
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         if (status != PHAuthorizationStatusAuthorized) {
             self.reject(ERROR_PICKER_UNAUTHORIZED_KEY, ERROR_PICKER_UNAUTHORIZED_MSG, nil);
             return;
         }
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             // init picker
             QBImagePickerController *imagePickerController =
@@ -251,12 +251,12 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 }
                 imagePickerController.assetCollectionSubtypes = albumsToShow;
             }
-            
+
             if ([[self.options objectForKey:@"cropping"] boolValue]) {
                 imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             } else {
                 NSString *mediaType = [self.options objectForKey:@"mediaType"];
-                
+
                 if ([mediaType isEqualToString:@"any"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeAny;
                 } else if ([mediaType isEqualToString:@"photo"]) {
@@ -280,7 +280,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     self.cropOnly = YES;
 
     NSString *path = [options objectForKey:@"path"];
-    NSURL *url = [NSURL URLWithString:path];
 
     [self.bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
         if (error) {
@@ -368,7 +367,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              if (exportSession.status == AVAssetExportSessionStatusCompleted) {
                  AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
                  AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-                 
+
                  NSNumber *fileSizeValue = nil;
                  [outputURL getResourceValue:&fileSizeValue
                                       forKey:NSURLFileSizeKey
@@ -420,7 +419,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [lock lock];
-                            
+
                             if (video == nil) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
@@ -429,7 +428,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 }]];
                                 return;
                             }
-                            
+
                             [selections addObject:video];
                             processed++;
                             [lock unlock];
@@ -454,10 +453,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              [lock lock];
                              UIImage *imgT = [UIImage imageWithData:imageData];
                              UIImage *imageT = [imgT fixOrientation];
-                             
+
                              ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
                              NSString *filePath = [self persistFile:imageResult.data];
-                             
+
                              if (filePath == nil) {
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
@@ -556,7 +555,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             }]];
             return;
         }
-        
+
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -626,17 +625,24 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // Crop image has been canceled.
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
-    [self dismissCropper:controller completion:[self waitAnimationEnd:^{
-        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+    [self dismissCropper:controller dismissAll: NO completion:[self waitAnimationEnd:^{
+        if (self.cropOnly) {
+            self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+        }
     }]];
 }
 
-- (void) dismissCropper:(RSKImageCropViewController*) controller completion:(void (^)())completion {
+- (void) dismissCropper:(RSKImageCropViewController*) controller dismissAll: (BOOL) dissmissAll completion:(void (^)())completion {
     //We've presented the cropper on top of the image picker as to not have a double modal animation.
     //Thus, we need to dismiss the image picker view controller to dismiss the whole stack.
     if (!self.cropOnly) {
-        UIViewController *topViewController = controller.presentingViewController.presentingViewController;
-        [topViewController dismissViewControllerAnimated:YES completion:completion];
+        if (dissmissAll) {
+            UIViewController *topViewController = controller.presentingViewController.presentingViewController;
+            [topViewController dismissViewControllerAnimated:YES completion:completion];
+        } else {
+            UIViewController *topViewController = controller.presentingViewController;
+            [topViewController dismissViewControllerAnimated:YES completion:completion];
+        }
     } else {
         [controller dismissViewControllerAnimated:YES completion:completion];
     }
@@ -655,13 +661,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
-        [self dismissCropper:controller completion:[self waitAnimationEnd:^{
+        [self dismissCropper:controller dismissAll: YES completion:[self waitAnimationEnd:^{
             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
         }]];
         return;
     }
 
-    [self dismissCropper:controller completion:[self waitAnimationEnd:^{
+    [self dismissCropper:controller dismissAll: YES completion:[self waitAnimationEnd:^{
         self.resolve([self createAttachmentResponse:filePath
                                           withWidth:imageResult.width
                                          withHeight:imageResult.height
