@@ -2,7 +2,6 @@ package com.reactnative.ivpusic.imagepicker;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,13 +10,11 @@ import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.facebook.react.bridge.ActivityEventListener;
@@ -32,7 +29,6 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
-import com.reactnative.ivpusic.imagepicker.SImagePicker;
 import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
@@ -596,7 +592,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
       List<Uri> uris = data.getParcelableArrayListExtra(PhotoPickerActivity.PARAM_DATA);
       if (multiple) {
         try {
-          resultCollector.setWaitCount(uris.size());
+          resultCollector.setMaxCount(uris.size());
           for (Uri uri : uris) {
             getAsyncSelection(activity, uri, false);
           }

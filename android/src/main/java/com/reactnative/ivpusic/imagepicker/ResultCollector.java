@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ResultCollector {
   private Promise promise;
-  private int waitCount;
+  private int maxCount;
   private boolean multiple;
   private AtomicInteger waitCounter;
   private AtomicInteger filedCounter;
@@ -28,13 +28,14 @@ public class ResultCollector {
 
     if (multiple) {
       this.arrayResult = new WritableNativeArray();
+      setMaxCount(1);
     }
   }
 
   // if user has provided "multiple" option, we will wait for X number of result to come,
   // and also return result as an array
-  public void setWaitCount(int waitCount) {
-    this.waitCount = waitCount;
+  public void setMaxCount(int waitCount) {
+    this.maxCount = waitCount;
     this.waitCounter = new AtomicInteger(0);
     this.filedCounter = new AtomicInteger(0);
   }
@@ -48,7 +49,7 @@ public class ResultCollector {
       arrayResult.pushMap(result);
       int currentCount = waitCounter.addAndGet(1);
 
-      if (currentCount == waitCount) {
+      if (currentCount == maxCount) {
         resultSent = true;
         promise.resolve(arrayResult);
       }
@@ -68,9 +69,9 @@ public class ResultCollector {
     if (multiple) {
       int currentCount = waitCounter.addAndGet(1);
       int filedCount = filedCounter.addAndGet(1);
-      if (currentCount == waitCount) { // all processed
+      if (currentCount == maxCount) { // all processed
         resultSent = true;
-        if (filedCount == waitCount) { // all failed
+        if (filedCount == maxCount) { // all failed
           promise.reject(code, message);
         } else {
           promise.resolve(arrayResult);
@@ -92,9 +93,9 @@ public class ResultCollector {
     if (multiple) {
       int currentCount = waitCounter.addAndGet(1);
       int filedCount = filedCounter.addAndGet(1);
-      if (currentCount == waitCount) { // all processed
+      if (currentCount == maxCount) { // all processed
         resultSent = true;
-        if (filedCount == waitCount) { // all failed
+        if (filedCount == maxCount) { // all failed
           promise.reject(code, throwable);
         } else {
           promise.resolve(arrayResult);
