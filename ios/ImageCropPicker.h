@@ -36,11 +36,13 @@
   RSKImageCropViewControllerDelegate,
   RSKImageCropViewControllerDataSource>
 
+@property(nonatomic, assign) UIModalTransitionStyle UIModalTransitionStyleFlipHorizontal;
 @property (nonatomic, strong) NSDictionary *defaultOptions;
 @property (nonatomic, strong) Compression *compression;
 @property (nonatomic, retain) NSMutableDictionary *options;
 @property (nonatomic, strong) RCTPromiseResolveBlock resolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock reject;
+@property BOOL animated;
 @property BOOL cropOnly;
 
 @end

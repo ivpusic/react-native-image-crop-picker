@@ -5,6 +5,7 @@ declare module "react-native-image-crop-picker" {
         height?: number;
         multiple?: boolean;
         path?: string;
+        horizontalTransition?: boolean;
         includeBase64?: boolean;
         cropperTintColor?: string;
         cropperCircleOverlay?: boolean;
