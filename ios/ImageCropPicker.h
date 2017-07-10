@@ -23,7 +23,7 @@
 #import "RSKImageCropper.h"
 #else
 #import "QBImagePicker/QBImagePicker.h"
-#import "RSKImageCropper/RSKImageCropper.h"
+#import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
 #import "UIImage-Resize/UIImage+Resize.h"
