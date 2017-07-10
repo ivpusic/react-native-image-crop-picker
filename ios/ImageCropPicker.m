@@ -51,6 +51,7 @@ RCT_EXPORT_MODULE();
                                 @"cropping": @NO,
                                 @"cropperCircleOverlay": @NO,
                                 @"includeBase64": @NO,
+                                @"includeExif": @NO,
                                 @"compressVideo": @YES,
                                 @"maxFiles": @5,
                                 @"width": @200,
@@ -153,7 +154,11 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
     UIImage *chosenImageT = [chosenImage fixOrientation];
-    [self processSingleImagePick:chosenImageT withViewController:picker];
+    NSDictionary* exif = [NSNull null];
+    if([[self.options objectForKey:@"includeExif"] boolValue]) {
+        exif = [info objectForKey:UIImagePickerControllerMediaMetadata];
+    }
+    [self processSingleImagePick:chosenImageT withExif:exif withViewController:picker];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -378,7 +383,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                 withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
                                                   withMime:@"video/mp4"
                                                   withSize:fileSizeValue
-                                                  withData:[NSNull null]]);
+                                                  withData:[NSNull null]
+                                                  withExif:[NSNull null]]);
              } else {
                  completion(nil);
              }
@@ -386,7 +392,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      }];
 }
 
-- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
+- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withExif: (NSDictionary*) exif {
     return @{
              @"path": filePath,
              @"width": width,
@@ -394,6 +400,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"mime": mime,
              @"size": size,
              @"data": data,
+             @"exif": exif,
              };
 }
 
@@ -466,12 +473,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  return;
                              }
 
+                             NSDictionary* exif = [NSNull null];
+                             if([[self.options objectForKey:@"includeExif"] boolValue]) {
+                                 exif = [[CIImage imageWithData:imageData] properties];
+                             }
+
                              [selections addObject:[self createAttachmentResponse:filePath
                                                                         withWidth:imageResult.width
                                                                        withHeight:imageResult.height
                                                                          withMime:imageResult.mime
                                                                          withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                                                          withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                                         withExif:exif
                                                     ]];
                              processed++;
                              [lock unlock];
@@ -515,10 +528,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                  resultHandler:^(NSData *imageData, NSString *dataUTI,
                                  UIImageOrientation orientation,
                                  NSDictionary *info) {
+
+                     NSDictionary* exif = [NSNull null];
+                     if([[self.options objectForKey:@"includeExif"] boolValue]) {
+                         exif = [[CIImage imageWithData:imageData] properties];
+                     }
+
                      dispatch_async(dispatch_get_main_queue(), ^{
                          [indicatorView stopAnimating];
                          [overlayView removeFromSuperview];
-                         [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
+                         [self processSingleImagePick:[UIImage imageWithData:imageData] withExif:exif withViewController:imagePickerController];
                      });
                  }];
             }
@@ -535,7 +554,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // when user selected single image, with camera or from photo gallery,
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
-- (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
+- (void) processSingleImagePick:(UIImage*)image withExif:(NSDictionary*)exif withViewController:(UIViewController*)viewController {
 
     if (image == nil) {
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -564,7 +583,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
                                                withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
+                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                               withExif:[[self.options objectForKey:@"includeExif"] boolValue] ? exif : [NSNull null]
+                          ]);
         }]];
     }
 }
@@ -673,7 +694,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                          withHeight:imageResult.height
                                            withMime:imageResult.mime
                                            withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                           withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]]);
+                                           withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                           withExif:[NSNull null]]);
     }]];
 }
 

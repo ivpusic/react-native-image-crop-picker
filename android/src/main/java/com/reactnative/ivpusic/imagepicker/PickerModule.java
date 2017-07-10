@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.facebook.react.bridge.ActivityEventListener;
@@ -67,6 +68,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String mediaType = "any";
     private boolean multiple = false;
     private boolean includeBase64 = false;
+    private boolean includeExif = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
     private boolean showCropGuidelines = true;
@@ -112,6 +114,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : mediaType;
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
+        includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
@@ -522,6 +525,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             throw new Exception("Cannot select remote files");
         }
         validateImage(path);
+
+        if (includeExif) {
+            try {
+                WritableMap exif = ExifExtractor.extract(path);
+                image.putMap("exif", exif);
+            } catch (Exception ex) {
+                Log.e("image-crop-picker", ex.getMessage());
+            }
+        }
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
