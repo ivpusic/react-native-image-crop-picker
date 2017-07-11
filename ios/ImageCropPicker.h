@@ -22,7 +22,7 @@
 #import "QBImagePicker.h"
 #import "RSKImageCropper.h"
 #else
-#import "QBImagePicker/QBImagePicker.h"
+#import "QBImagePickerController/QBImagePickerController.h"
 #import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
