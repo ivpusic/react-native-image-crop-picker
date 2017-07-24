@@ -110,11 +110,14 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
   public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View itemView = layoutInflater.inflate(R.layout.picker_photo_item, parent, false);
     SquareRelativeLayout photoCell = (SquareRelativeLayout) itemView.findViewById(R.id.photo_cell);
-    photoCell.setPhotoView(SImagePicker.getPickerConfig().getImageLoader()
-        .createImageView(parent.getContext()));
+    try {
+      photoCell.setPhotoView(SImagePicker.getPickerConfig().getImageLoader()
+          .createImageView(parent.getContext()));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     return new PhotoViewHolder(itemView);
   }
-
 
   static class PhotoViewHolder extends RecyclerView.ViewHolder {
 
