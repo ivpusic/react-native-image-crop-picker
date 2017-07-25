@@ -36,6 +36,7 @@
   RSKImageCropViewControllerDelegate,
   RSKImageCropViewControllerDataSource>
 
+@property (nonatomic, strong) NSMutableDictionary *croppingFile;
 @property (nonatomic, strong) NSDictionary *defaultOptions;
 @property (nonatomic, strong) Compression *compression;
 @property (nonatomic, retain) NSMutableDictionary *options;

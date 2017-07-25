@@ -71,41 +71,43 @@ ImagePicker.clean().then(() => {
 
 #### Request Object
 
-| Property        | Type           | Description  |
-| ------------- |:-------------:| :-----|
-| cropping | bool (default false)      | Enable or disable cropping |
-| width          | number | Width of result image when used with `cropping` option |
-| height      | number      | Height of result image when used with `cropping` option |
-| multiple | bool (default false) | Enable or disable multiple image selection |
-| includeBase64 | bool (default false) | Enable or disable returning base64 data with image |
-| cropperActiveWidgetColor (android only) | string (default `"#424242"`) | When cropping image, determines ActiveWidget color. |
-| cropperStatusBarColor (android only) | string (default `#424242`) | When cropping image, determines the color of StatusBar. |
-| cropperToolbarColor (android only) | string (default `#424242`) | When cropping image, determines the color of Toolbar. |
-| cropperCircleOverlay | bool (default false) | Enable or disable circular cropping mask. |
-| maxFiles (ios only) | number (default 5) | Max number of files to select when using `multiple` option |
-| waitAnimationEnd (ios only) | bool (default true) | Promise will resolve/reject once ViewController `completion` block is called |
-| smartAlbums (ios only) | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from |
-| useFrontCamera (ios only) | bool (default false) | Whether to default to the front/'selfie' camera when opened |
-| compressVideoPreset (ios only) | string (default MediumQuality) | Choose which preset will be used for video compression |
-| compressImageMaxWidth | number (default none) | Compress image with maximum width |
-| compressImageMaxHeight | number (default none) | Compress image with maximum height |
-| compressImageQuality | number (default 1) | Compress image with quality (from 0 to 1, where 1 is best quality) |
-| loadingLabelText (ios only) | string (default "Processing assets...") | Text displayed while photo is loading in picker |
-| mediaType | string (default any) | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
-| showsSelectedCount (ios only) | bool (default true) | Whether to show the number of selected assets |
-| showCropGuidelines (android only) | bool (default true) | Whether to show the 3x3 grid on top of the image during cropping |
-| hideBottomControls (android only) | bool (default false) | Whether to display bottom controls |
-| enableRotationGesture (android only) | bool (default false) | Whether to enable rotating the image by hand gesture |
+| Property                                |                   Type                   | Description                              |
+| --------------------------------------- | :--------------------------------------: | :--------------------------------------- |
+| cropping                                |           bool (default false)           | Enable or disable cropping               |
+| width                                   |                  number                  | Width of result image when used with `cropping` option |
+| height                                  |                  number                  | Height of result image when used with `cropping` option |
+| multiple                                |           bool (default false)           | Enable or disable multiple image selection |
+| includeBase64                           |           bool (default false)           | Enable or disable returning base64 data with image |
+| cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
+| cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
+| cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
+| cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
+| maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
+| waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
+| smartAlbums (ios only)                  | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
+| useFrontCamera (ios only)               |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
+| compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
+| compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
+| compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
+| compressImageQuality                    |            number (default 1)            | Compress image with quality (from 0 to 1, where 1 is best quality) |
+| loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
+| mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
+| showsSelectedCount (ios only)           |           bool (default true)            | Whether to show the number of selected assets |
+| showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
+| hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
+| enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 #### Response Object
 
-| Property        | Type           | Description  |
-| ------------- |:-------------:| :-----|
-| path          | string | Selected image location |
-| width      | number      | Selected image width |
-| height | number      | Selected image height |
-| mime | string | Selected image MIME type (image/jpeg, image/png) |
-| size | number | Selected image size in bytes |
-| data | base64 | Optional base64 selected file representation |
+| Property        |  Type  | Description                              |
+| --------------- | :----: | :--------------------------------------- |
+| path            | string | Selected image location                  |
+| localIdentifier | string | Selected images' localidentifier, used for PHAsset searching |
+| filename        | string | Selected images' filename                |
+| width           | number | Selected image width                     |
+| height          | number | Selected image height                    |
+| mime            | string | Selected image MIME type (image/jpeg, image/png) |
+| size            | number | Selected image size in bytes             |
+| data            | base64 | Optional base64 selected file representation |
 
 ## Install
 
@@ -180,7 +182,7 @@ Details for second approach:
 
 1. Remove the pre-built frameworks from `Embedded Binaries`
 2. Build for Device
-4. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
+3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
 
 ## License
 *MIT*

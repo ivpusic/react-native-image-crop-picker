@@ -153,7 +153,8 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
     UIImage *chosenImageT = [chosenImage fixOrientation];
-    [self processSingleImagePick:chosenImageT withViewController:picker];
+    
+    [self processSingleImagePick:chosenImageT withViewController:picker withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"]];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -374,6 +375,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                        error:nil];
 
                  completion([self createAttachmentResponse:[outputURL absoluteString]
+                                                 withLocalIdentifier: forAsset.localIdentifier
+                                                 withFilename: sourceURL.lastPathComponent
                                                  withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
                                                 withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
                                                   withMime:@"video/mp4"
@@ -386,9 +389,11 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      }];
 }
 
-- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
+- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
     return @{
              @"path": filePath,
+             @"localIdentifier": localIdentifier,
+             @"filename": filename,
              @"width": width,
              @"height": height,
              @"mime": mime,
@@ -448,7 +453,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                      requestImageDataForAsset:phAsset
                      options:options
                      resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-
+                         
+                         NSURL *sourceURL = [info objectForKey:@"PHImageFileURLKey"];
+                         
                          dispatch_async(dispatch_get_main_queue(), ^{
                              [lock lock];
                              UIImage *imgT = [UIImage imageWithData:imageData];
@@ -467,6 +474,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              }
 
                              [selections addObject:[self createAttachmentResponse:filePath
+                                                                        withLocalIdentifier: phAsset.localIdentifier
+                                                                        withFilename: sourceURL.lastPathComponent
                                                                         withWidth:imageResult.width
                                                                        withHeight:imageResult.height
                                                                          withMime:imageResult.mime
@@ -515,10 +524,11 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                  resultHandler:^(NSData *imageData, NSString *dataUTI,
                                  UIImageOrientation orientation,
                                  NSDictionary *info) {
+                     NSURL *sourceURL = [info objectForKey:@"PHImageFileURLKey"];
                      dispatch_async(dispatch_get_main_queue(), ^{
                          [indicatorView stopAnimating];
                          [overlayView removeFromSuperview];
-                         [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController];
+                         [self processSingleImagePick:[UIImage imageWithData:imageData] withViewController:imagePickerController withLocalIdentifier:phAsset.localIdentifier withFilename:sourceURL.lastPathComponent];
                      });
                  }];
             }
@@ -535,7 +545,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // when user selected single image, with camera or from photo gallery,
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
-- (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController {
+- (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename {
 
     if (image == nil) {
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -543,8 +553,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         }]];
         return;
     }
-
+    
+    NSLog(@"id: %@ filename: %@", localIdentifier, filename);
+    
     if ([[[self options] objectForKey:@"cropping"] boolValue]) {
+        self.croppingFile = [[NSMutableDictionary alloc] init];
+        self.croppingFile[@"localIdentifier"] = localIdentifier;
+        self.croppingFile[@"filename"] = filename;
+        NSLog(@"CroppingFile %@", self.croppingFile);
+        
         [self startCropping:image];
     } else {
         ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options];
@@ -560,6 +577,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
             self.resolve([self createAttachmentResponse:filePath
+                                              withLocalIdentifier: localIdentifier
+                                              withFilename: filename
                                               withWidth:imageResult.width
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
@@ -669,6 +688,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
     [self dismissCropper:controller dismissAll: YES completion:[self waitAnimationEnd:^{
         self.resolve([self createAttachmentResponse:filePath
+                                          withLocalIdentifier: self.croppingFile[@"localIdentifier"]
+                                          withFilename: self.croppingFile[@"filename"]
                                           withWidth:imageResult.width
                                          withHeight:imageResult.height
                                            withMime:imageResult.mime
