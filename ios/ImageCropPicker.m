@@ -458,30 +458,32 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                          
                          dispatch_async(dispatch_get_main_queue(), ^{
                              [lock lock];
-                             UIImage *imgT = [UIImage imageWithData:imageData];
-                             UIImage *imageT = [imgT fixOrientation];
-
-                             ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
-                             NSString *filePath = [self persistFile:imageResult.data];
-
-                             if (filePath == nil) {
-                                 [indicatorView stopAnimating];
-                                 [overlayView removeFromSuperview];
-                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                     self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                                 }]];
-                                 return;
+                             @autoreleasepool {
+                                 UIImage *imgT = [UIImage imageWithData:imageData];
+                                 UIImage *imageT = [imgT fixOrientation];
+                                 
+                                 ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
+                                 NSString *filePath = [self persistFile:imageResult.data];
+                                 
+                                 if (filePath == nil) {
+                                     [indicatorView stopAnimating];
+                                     [overlayView removeFromSuperview];
+                                     [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                     }]];
+                                     return;
+                                 }
+                                 
+                                 [selections addObject:[self createAttachmentResponse:filePath
+                                                                  withLocalIdentifier: phAsset.localIdentifier
+                                                                         withFilename: sourceURL.lastPathComponent
+                                                                            withWidth:imageResult.width
+                                                                           withHeight:imageResult.height
+                                                                             withMime:imageResult.mime
+                                                                             withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                                             withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                        ]];
                              }
-
-                             [selections addObject:[self createAttachmentResponse:filePath
-                                                                        withLocalIdentifier: phAsset.localIdentifier
-                                                                        withFilename: sourceURL.lastPathComponent
-                                                                        withWidth:imageResult.width
-                                                                       withHeight:imageResult.height
-                                                                         withMime:imageResult.mime
-                                                                         withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                                                         withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
-                                                    ]];
                              processed++;
                              [lock unlock];
 
