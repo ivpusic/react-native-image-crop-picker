@@ -52,6 +52,7 @@ RCT_EXPORT_MODULE();
                                 @"cropperCircleOverlay": @NO,
                                 @"includeBase64": @NO,
                                 @"compressVideo": @YES,
+                                @"horizontalTransition": @NO,
                                 @"maxFiles": @5,
                                 @"width": @200,
                                 @"waitAnimationEnd": @YES,
@@ -107,6 +108,24 @@ RCT_EXPORT_MODULE();
     for (NSString *key in options.keyEnumerator) {
         [self.options setValue:options[key] forKey:key];
     }
+    self.animated = ![[self.options objectForKey:@"horizontalTransition"] boolValue];
+}
+
+- (CATransition*) getHorizontalAnimation {
+    // HOB EDITS
+    CATransition *animation = [CATransition animation];
+    [animation setDuration:0.5];
+    [animation setType:kCATransitionPush];
+    [animation setSubtype:kCATransitionFromRight];
+    [animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+    return animation;
+}
+
+- (void) addAnimationToLayer:(UIViewController *)animationVC {
+    if ([[self.options objectForKey:@"horizontalTransition"] boolValue]) {
+        CATransition *horizontalAnimation = [self getHorizontalAnimation];
+        [animationVC.view.window.layer addAnimation:horizontalAnimation forKey:nil];
+    }
 }
 
 - (UIViewController*) getRootVC {
@@ -114,7 +133,7 @@ RCT_EXPORT_MODULE();
     while (root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
-
+    [self addAnimationToLayer:root];
     return root;
 }
 
@@ -136,6 +155,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         }
 
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+
         picker.delegate = self;
         picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -144,7 +164,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[self getRootVC] presentViewController:picker animated:YES completion:nil];
+            [[self getRootVC] presentViewController:picker animated:self.animated completion:nil];
         });
     }];
 #endif
@@ -158,7 +178,9 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+    [self addAnimationToLayer:picker];
+
+    [picker dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
         self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
     }]];
 }
@@ -268,7 +290,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
             }
 
-            [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
+            [[self getRootVC] presentViewController:imagePickerController animated:self.animated completion:nil];
         });
     }];
 }
@@ -305,7 +327,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
+        [[self getRootVC] presentViewController:imageCropVC animated:self.animated completion:nil];
     });
 }
 
@@ -406,6 +428,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 (QBImagePickerController *)imagePickerController
           didFinishPickingAssets:(NSArray *)assets {
 
+    [self addAnimationToLayer:imagePickerController];
+
     PHImageManager *manager = [PHImageManager defaultManager];
     PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
@@ -428,7 +452,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             if (video == nil) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
-                                [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                [imagePickerController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
                                     self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
                                 }]];
                                 return;
@@ -441,7 +465,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             if (processed == [assets count]) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
-                                [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                [imagePickerController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
                                     self.resolve(selections);
                                 }]];
                                 return;
@@ -467,7 +491,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              if (filePath == nil) {
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
-                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                 [imagePickerController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
                                      self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
                                  }]];
                                  return;
@@ -489,7 +513,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
-                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                 [imagePickerController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
                                      self.resolve(selections);
                                  }]];
                                  return;
@@ -508,7 +532,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [indicatorView stopAnimating];
                         [overlayView removeFromSuperview];
-                        [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                        [imagePickerController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
                             if (video != nil) {
                                 self.resolve(video);
                             } else {
@@ -537,7 +561,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController {
-    [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+    [self addAnimationToLayer:imagePickerController];
+
+    [imagePickerController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
         self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
     }]];
 }
@@ -547,8 +573,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // or to user directly
 - (void) processSingleImagePick:(UIImage*)image withViewController:(UIViewController*)viewController withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename {
 
+    [self addAnimationToLayer:viewController];
+
     if (image == nil) {
-        [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+        [viewController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
             self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
         }]];
         return;
@@ -567,7 +595,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options];
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
-            [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+            [viewController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
                 self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
             }]];
             return;
@@ -575,7 +603,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
-        [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+        [viewController dismissViewControllerAnimated:self.animated completion:[self waitAnimationEnd:^{
             self.resolve([self createAttachmentResponse:filePath
                                               withLocalIdentifier: localIdentifier
                                               withFilename: filename
@@ -657,13 +685,17 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     if (!self.cropOnly) {
         if (dissmissAll) {
             UIViewController *topViewController = controller.presentingViewController.presentingViewController;
-            [topViewController dismissViewControllerAnimated:YES completion:completion];
+            [self addAnimationToLayer:controller];
+            [topViewController dismissViewControllerAnimated:self.animated completion:completion];
         } else {
             UIViewController *topViewController = controller.presentingViewController;
-            [topViewController dismissViewControllerAnimated:YES completion:completion];
+            [self addAnimationToLayer:topViewController];
+
+            [topViewController dismissViewControllerAnimated:self.animated completion:completion];
         }
     } else {
-        [controller dismissViewControllerAnimated:YES completion:completion];
+        [self addAnimationToLayer:controller];
+        [controller dismissViewControllerAnimated:self.animated completion:completion];
     }
 }
 
