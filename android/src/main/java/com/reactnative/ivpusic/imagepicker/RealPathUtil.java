@@ -8,6 +8,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.content.ContentUris;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
+import java.io.File;
 
 public class RealPathUtil {
   public static String getRealPathFromURI(final Context context, final Uri uri) {
@@ -24,9 +26,21 @@ public class RealPathUtil {
 
               if ("primary".equalsIgnoreCase(type)) {
                   return Environment.getExternalStorageDirectory() + "/" + split[1];
-              }
+              } else {
+                final int splitIndex = docId.indexOf(':', 1);
+                final String tag = docId.substring(0, splitIndex);
+                final String path = docId.substring(splitIndex + 1);
 
-              // TODO handle non-primary volumes
+                String nonPrimaryVolume = getPathToNonPrimaryVolume(context, tag);
+                if (nonPrimaryVolume != null) {
+                    String result = nonPrimaryVolume + "/" + path;
+                    File file = new File(result);
+                    if (file.exists() && file.canRead()) {
+                        return result;
+                    }
+                    return null;
+                }
+              }
           }
           // DownloadsProvider
           else if (isDownloadsDocument(uri)) {
@@ -141,6 +155,25 @@ public class RealPathUtil {
    */
   public static boolean isGooglePhotosUri(Uri uri) {
       return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+  }
+
+  @RequiresApi(Build.VERSION_CODES.KITKAT)
+  public static String getPathToNonPrimaryVolume(Context context, String tag) {
+      File[] volumes = context.getExternalCacheDirs();
+      if (volumes != null) {
+          for (File volume : volumes) {
+              if (volume != null) {
+                  String path = volume.getAbsolutePath();
+                  if (path != null) {
+                      int index = path.indexOf(tag);
+                      if (index != -1) {
+                          return path.substring(0, index) + tag;
+                      }
+                  }
+              }
+          }
+      }
+      return null;
   }
 
 }

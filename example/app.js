@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
+  View, Text, StyleSheet, ScrollView, Alert,
   Image, TouchableOpacity, NativeModules, Dimensions
 } from 'react-native';
 
@@ -37,10 +37,9 @@ export default class App extends Component {
 
   pickSingleWithCamera(cropping) {
     ImagePicker.openCamera({
-      cropping: true,
-      // cropperCircleOverlay: true,
+      cropping: cropping,
       width: 500,
-      height: 500
+      height: 500,
     }).then(image => {
       console.log('received image', image);
       this.setState({
@@ -57,7 +56,7 @@ export default class App extends Component {
       cropping: cropit,
       includeBase64: true
     }).then(image => {
-      console.log('received image', image);
+      console.log('received base64 image');
       this.setState({
         image: {uri: `data:${image.mime};base64,`+ image.data, width: image.width, height: image.height},
         images: null
@@ -84,13 +83,37 @@ export default class App extends Component {
     })
   }
 
+  cropLast() {
+    if (!this.state.image) {
+      return Alert.alert('No image', 'Before open cropping only, please select image');
+    }
+
+    ImagePicker.openCropper({
+      path: this.state.image.uri,
+      width: 200,
+      height: 200
+    }).then(image => {
+      console.log('received cropped image', image);
+      this.setState({
+        image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
+        images: null
+      });
+    }).catch(e => {
+      console.log(e);
+      Alert.alert(e.message ? e.message : e);
+    });
+  }
+
   pickSingle(cropit, circular=false) {
     ImagePicker.openPicker({
       width: 300,
       height: 300,
       cropping: cropit,
       cropperCircleOverlay: circular,
-      compressVideo: true
+      compressImageMaxWidth: 640,
+      compressImageMaxHeight: 480,
+      compressImageQuality: 0.5,
+      compressVideoPreset: 'MediumQuality',
     }).then(image => {
       console.log('received image', image);
       this.setState({
@@ -98,14 +121,15 @@ export default class App extends Component {
         images: null
       });
     }).catch(e => {
-      console.log(e.code);
-      alert(e);
+      console.log(e);
+      Alert.alert(e.message ? e.message : e);
     });
   }
 
   pickMultiple() {
     ImagePicker.openPicker({
-      multiple: true
+      multiple: true,
+      waitAnimationEnd: false
     }).then(images => {
       this.setState({
         image: null,
@@ -121,9 +145,9 @@ export default class App extends Component {
     return (oldH / oldW) * newW;
   }
 
-  renderVideo(uri) {
-    return <View style={{height: 300, width: 300}}>
-      <Video source={{uri}}
+  renderVideo(video) {
+    return (<View style={{height: 300, width: 300}}>
+      <Video source={{uri: video.uri, type: video.mime}}
          style={{position: 'absolute',
             top: 0,
             left: 0,
@@ -135,11 +159,10 @@ export default class App extends Component {
          volume={1}
          muted={false}
          resizeMode={'cover'}
+         onError={e => console.log(e)}
          onLoad={load => console.log(load)}
-         onProgress={() => {}}
-         onEnd={() => { console.log('Done!'); }}
          repeat={true} />
-     </View>;
+     </View>);
   }
 
   renderImage(image) {
@@ -148,14 +171,14 @@ export default class App extends Component {
 
   renderAsset(image) {
     if (image.mime && image.mime.toLowerCase().indexOf('video/') !== -1) {
-      return this.renderVideo(image.uri);
+      return this.renderVideo(image);
     }
 
     return this.renderImage(image);
   }
 
   render() {
-    return <View style={styles.container}>
+    return (<View style={styles.container}>
       <ScrollView>
         {this.state.image ? this.renderAsset(this.state.image) : null}
         {this.state.images ? this.state.images.map(i => <View key={i.uri}>{this.renderAsset(i)}</View>) : null}
@@ -169,6 +192,9 @@ export default class App extends Component {
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.pickSingle(false)} style={styles.button}>
         <Text style={styles.text}>Select Single</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => this.cropLast()} style={styles.button}>
+        <Text style={styles.text}>Crop Last Selected Image</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => this.pickSingleBase64(false)} style={styles.button}>
         <Text style={styles.text}>Select Single Returning Base64</Text>
@@ -188,6 +214,6 @@ export default class App extends Component {
       <TouchableOpacity onPress={this.cleanupSingleImage.bind(this)} style={styles.button}>
         <Text style={styles.text}>Cleanup Single Image</Text>
       </TouchableOpacity>
-    </View>;
+    </View>);
   }
 }

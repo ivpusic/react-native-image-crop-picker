@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */; };
+		3408F5F11E0DE76F00E97159 /* Compression.m in Sources */ = {isa = PBXBuildFile; fileRef = 3408F5F01E0DE76F00E97159 /* Compression.m */; };
 		347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */; };
 		347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */ = {isa = PBXBuildFile; fileRef = 34963A931D6B919800F9CA2F /* UIImage+Resize.h */; };
 		34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 34963A941D6B919800F9CA2F /* UIImage+Resize.m */; };
@@ -36,8 +37,11 @@
 		3400A8081CEB54A6008A0BC7 /* libimageCropPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimageCropPicker.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCropPicker.h; sourceTree = "<group>"; };
 		3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCropPicker.m; sourceTree = "<group>"; };
+		3408F5EF1E0DE76F00E97159 /* Compression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compression.h; sourceTree = "<group>"; };
+		3408F5F01E0DE76F00E97159 /* Compression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Compression.m; sourceTree = "<group>"; };
 		34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QBImagePicker.xcodeproj; path = QBImagePicker/QBImagePicker.xcodeproj; sourceTree = "<group>"; };
 		34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RSKImageCropper.xcodeproj; path = RSKImageCropper/RSKImageCropper.xcodeproj; sourceTree = "<group>"; };
+		347ACA051E4B2B2F0068D500 /* libRCTImage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCTImage.a; path = "../../../../Library/Developer/Xcode/DerivedData/example-grvsvunjwoajzcfynrlckgmefufr/Build/Products/Debug-iphonesimulator/libRCTImage.a"; sourceTree = "<group>"; };
 		34963A931D6B919800F9CA2F /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Resize.h"; path = "UIImage-Resize/UIImage+Resize.h"; sourceTree = "<group>"; };
 		34963A941D6B919800F9CA2F /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Resize.m"; path = "UIImage-Resize/UIImage+Resize.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -59,11 +63,14 @@
 			isa = PBXGroup;
 			children = (
 				34434E251D6F5E5600BF5063 /* Libraries */,
+				3408F5EF1E0DE76F00E97159 /* Compression.h */,
+				3408F5F01E0DE76F00E97159 /* Compression.m */,
 				3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */,
 				3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */,
 				34963A931D6B919800F9CA2F /* UIImage+Resize.h */,
 				34963A941D6B919800F9CA2F /* UIImage+Resize.m */,
 				3400A8091CEB54A6008A0BC7 /* Products */,
+				347ACA041E4B2B2F0068D500 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -98,6 +105,14 @@
 				34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		347ACA041E4B2B2F0068D500 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				347ACA051E4B2B2F0068D500 /* libRCTImage.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -187,6 +202,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3408F5F11E0DE76F00E97159 /* Compression.m in Sources */,
 				347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */,
 				347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */,
 				34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */,
@@ -286,10 +302,8 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../example/node_modules/react-native/React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(SRCROOT)/../node_modules/react-native/React/**",
-					"$(SRCROOT)/QBImagePicker/**/**",
+					"$(SRCROOT)/../../react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
@@ -309,10 +323,8 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../example/node_modules/react-native/React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(SRCROOT)/../node_modules/react-native/React/**",
-					"$(SRCROOT)/QBImagePicker/**/**",
+					"$(SRCROOT)/../../react-native/Libraries/Image/**",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
