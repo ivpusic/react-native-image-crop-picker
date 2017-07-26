@@ -86,7 +86,7 @@ ImagePicker.clean().then(() => {
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
 | smartAlbums (ios only)                  | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
 | useFrontCamera (ios only)               |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
-| compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
+| compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression. Available value are:  `640x480` `960x540` `1280x720` `1920x1080`  `LowQuality`  `MediumQuality` `HighestQuality` `Original` |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
 | compressImageQuality                    |            number (default 1)            | Compress image with quality (from 0 to 1, where 1 is best quality) |
@@ -98,16 +98,16 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 #### Response Object
 
-| Property        |  Type  | Description                              |
-| --------------- | :----: | :--------------------------------------- |
-| path            | string | Selected image location                  |
-| localIdentifier | string | Selected images' localidentifier, used for PHAsset searching |
-| filename        | string | Selected images' filename                |
-| width           | number | Selected image width                     |
-| height          | number | Selected image height                    |
-| mime            | string | Selected image MIME type (image/jpeg, image/png) |
-| size            | number | Selected image size in bytes             |
-| data            | base64 | Optional base64 selected file representation |
+| Property                  |  Type  | Description                              |
+| ------------------------- | :----: | :--------------------------------------- |
+| path                      | string | Selected image tmp absoluted filepath, will not return if multiple mode is enabled and no cropping, no compression happened. This will boost the processing speed for large amount of photos and videos. |
+| localIdentifier(iOS only) | string | Selected images' localidentifier, used for PHAsset searching. [#388](https://github.com/ivpusic/react-native-image-crop-picker/issues/388) |
+| filename(iOS only)        | string | Selected images' filename                |
+| width                     | number | Selected image width                     |
+| height                    | number | Selected image height                    |
+| mime                      | string | Selected image MIME type (image/jpeg, image/png) |
+| size                      | number | Selected image size in bytes             |
+| data                      | base64 | Optional base64 selected file representation |
 
 ## Install
 

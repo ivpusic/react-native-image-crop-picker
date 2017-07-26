@@ -381,29 +381,45 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
          NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
          filePath = [filePath stringByAppendingString:@".mp4"];
          NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-
-         [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-             if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-                 AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                 AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-
-                 NSNumber *fileSizeValue = nil;
-                 [outputURL getResourceValue:&fileSizeValue
-                                      forKey:NSURLFileSizeKey
-                                       error:nil];
-
-                 completion([self createAttachmentResponse:[outputURL absoluteString]
-                                                 withLocalIdentifier: forAsset.localIdentifier
-                                                 withFilename: sourceURL.lastPathComponent
-                                                 withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                                  withMime:@"video/mp4"
-                                                  withSize:fileSizeValue
-                                                  withData:[NSNull null]]);
-             } else {
-                 completion(nil);
-             }
-         }];
+         
+         if ([self.options[@"compressVideoPreset"]  isEqual: @"Original"]) {
+             //if the compress video preset is set to be original, then do not compress the video
+             NSLog(@"video info: %@", info);
+             AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+             completion([self createAttachmentResponse:@""
+                                   withLocalIdentifier:forAsset.localIdentifier
+                                          withFilename:sourceURL.lastPathComponent
+                                             withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                            withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                              withMime:@"video/quicktime"
+                                              withSize:[NSNumber numberWithUnsignedInteger:[NSData dataWithContentsOfURL:sourceURL].length]
+                                              withData:[NSNull null]
+                         ]);
+         } else {
+             [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
+                 if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+                     AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                     AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+                     
+                     NSNumber *fileSizeValue = nil;
+                     [outputURL getResourceValue:&fileSizeValue
+                                          forKey:NSURLFileSizeKey
+                                           error:nil];
+                     
+                     completion([self createAttachmentResponse:[outputURL absoluteString]
+                                           withLocalIdentifier: forAsset.localIdentifier
+                                                  withFilename: sourceURL.lastPathComponent
+                                                     withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                                    withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                                      withMime:@"video/mp4"
+                                                      withSize:fileSizeValue
+                                                      withData:[NSNull null]]);
+                     
+                 } else {
+                     completion(nil);
+                 }
+             }];
+         }
      }];
 }
 
