@@ -44,6 +44,8 @@
 @property (nonatomic, strong) RCTPromiseRejectBlock reject;
 @property BOOL cropOnly;
 
++ (NSString*) contentTypeForImageData:(NSData*)data;
+
 @end
 
 #endif

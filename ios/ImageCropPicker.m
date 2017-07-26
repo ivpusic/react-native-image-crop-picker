@@ -69,6 +69,24 @@ RCT_EXPORT_MODULE();
     return self;
 }
 
++ (NSString*)contentTypeForImageData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+    
+    switch (c) {
+        case 0xFF:
+            return @"image/jpeg";
+        case 0x89:
+            return @"image/png";
+        case 0x47:
+            return @"image/gif";
+        case 0x49:
+        case 0x4D:
+            return @"image/tiff";
+    }
+    return @"";
+}
+
 - (void (^ __nullable)(void))waitAnimationEnd:(void (^ __nullable)(void))completion {
     if ([[self.options objectForKey:@"waitAnimationEnd"] boolValue]) {
         return completion;
@@ -458,31 +476,46 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                          
                          dispatch_async(dispatch_get_main_queue(), ^{
                              [lock lock];
+                             
                              @autoreleasepool {
                                  UIImage *imgT = [UIImage imageWithData:imageData];
                                  UIImage *imageT = [imgT fixOrientation];
                                  
-                                 ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
-                                 NSString *filePath = [self persistFile:imageResult.data];
-                                 
-                                 if (filePath == nil) {
-                                     [indicatorView stopAnimating];
-                                     [overlayView removeFromSuperview];
-                                     [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                                     }]];
-                                     return;
+                                 if ([self.options[@"compressImageMaxWidth"] integerValue] == 0 && [self.options[@"compressImageMaxHeight"] integerValue] == 0 && [self.options[@"compressImageQuality"] isEqualToNumber:@1]) {
+                                     
+                                     [selections addObject:[self createAttachmentResponse:@""
+                                                                      withLocalIdentifier:phAsset.localIdentifier
+                                                                             withFilename:sourceURL.lastPathComponent
+                                                                                withWidth:[NSNumber numberWithFloat:imageT.size.width]
+                                                                               withHeight:[NSNumber numberWithFloat:imageT.size.height]
+                                                                                 withMime:[ImageCropPicker contentTypeForImageData:imageData]
+                                                                                 withSize:[NSNumber numberWithUnsignedInteger:imageData.length]
+                                                                                 withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageData base64EncodedStringWithOptions:0] : [NSNull null]
+                                                            ]];
+                                 } else {
+                                     
+                                     ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
+                                     NSString *filePath = [self persistFile:imageResult.data];
+                                     
+                                     if (filePath == nil) {
+                                         [indicatorView stopAnimating];
+                                         [overlayView removeFromSuperview];
+                                         [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                         }]];
+                                         return;
+                                     }
+                                     
+                                     [selections addObject:[self createAttachmentResponse:filePath
+                                                                      withLocalIdentifier:phAsset.localIdentifier
+                                                                             withFilename:sourceURL.lastPathComponent
+                                                                                withWidth:imageResult.width
+                                                                               withHeight:imageResult.height
+                                                                                 withMime:imageResult.mime
+                                                                                 withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                                                 withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
+                                                            ]];
                                  }
-                                 
-                                 [selections addObject:[self createAttachmentResponse:filePath
-                                                                  withLocalIdentifier: phAsset.localIdentifier
-                                                                         withFilename: sourceURL.lastPathComponent
-                                                                            withWidth:imageResult.width
-                                                                           withHeight:imageResult.height
-                                                                             withMime:imageResult.mime
-                                                                             withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                                                             withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : [NSNull null]
-                                                        ]];
                              }
                              processed++;
                              [lock unlock];
