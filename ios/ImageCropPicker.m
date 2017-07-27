@@ -185,8 +185,10 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 }
 
 - (NSString*) getTmpDirectory {
-    NSString *TMP_DIRECTORY = @"react-native-image-crop-picker/";
-    NSString *tmpFullPath = [NSTemporaryDirectory() stringByAppendingString:TMP_DIRECTORY];
+    NSString *TMP_DIRECTORY = @"/react-native-image-crop-picker/";
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    NSString *applicationSupportDirectory = [paths firstObject];
+    NSString *tmpFullPath = [applicationSupportDirectory stringByAppendingString:TMP_DIRECTORY];
 
     BOOL isDir;
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:tmpFullPath isDirectory:&isDir];
