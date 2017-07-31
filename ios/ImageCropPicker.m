@@ -392,8 +392,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (NSDictionary*) createAttachmentResponse:(NSString*)filePath withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
     return @{
              @"path": filePath,
-             @"localIdentifier": localIdentifier,
-             @"filename": filename,
+             @"localIdentifier": (localIdentifier) ? localIdentifier : @"",
+             @"filename": (filename) ? filename : @"",
              @"width": width,
              @"height": height,
              @"mime": mime,
@@ -579,8 +579,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
             self.resolve([self createAttachmentResponse:filePath
-                                    withLocalIdentifier:(localIdentifier) ? localIdentifier : @""
-                                           withFilename:(filename) ? filename : @""
+                                    withLocalIdentifier:localIdentifier
+                                           withFilename:filename
                                               withWidth:imageResult.width
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
