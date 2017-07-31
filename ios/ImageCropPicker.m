@@ -579,8 +579,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
             self.resolve([self createAttachmentResponse:filePath
-                                              withLocalIdentifier: localIdentifier
-                                              withFilename: filename
+                                    withLocalIdentifier:(localIdentifier) ? localIdentifier : @""
+                                           withFilename:(filename) ? filename : @""
                                               withWidth:imageResult.width
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
