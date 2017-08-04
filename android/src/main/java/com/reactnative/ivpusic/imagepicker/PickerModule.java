@@ -328,7 +328,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                // galleryIntent.setType("video/*");
                 galleryIntent.setData(MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-                activity.startActivityForResult(chooserIntent, CAMERA_PICKER_REQUEST);
+                activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
             } else {
                 galleryIntent.setType("*/*");
                 String[] mimetypes = {"image/*", "video/*"};
