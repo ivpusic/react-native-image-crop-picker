@@ -395,7 +395,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (NSDictionary*) createAttachmentResponse:(NSString*)filePath withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data {
     return @{
              @"path": filePath,
-             @"sourceURL": sourceURL,
+             @"sourceURL": (sourceURL) ? sourceURL : @"",
              @"localIdentifier": (localIdentifier) ? localIdentifier : @"",
              @"filename": (filename) ? filename : @"",
              @"width": width,
