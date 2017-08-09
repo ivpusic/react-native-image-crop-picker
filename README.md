@@ -82,6 +82,7 @@ ImagePicker.clean().then(() => {
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
 | cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
+| minFiles (ios only)                     |            number (default 1)            | Min number of files to select when using `multiple` option |
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
 | smartAlbums (ios only)                  | array (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
@@ -98,16 +99,17 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 #### Response Object
 
-| Property        |  Type  | Description                              |
-| --------------- | :----: | :--------------------------------------- |
-| path            | string | Selected image location                  |
-| localIdentifier | string | Selected images' localidentifier, used for PHAsset searching |
-| filename        | string | Selected images' filename                |
-| width           | number | Selected image width                     |
-| height          | number | Selected image height                    |
-| mime            | string | Selected image MIME type (image/jpeg, image/png) |
-| size            | number | Selected image size in bytes             |
-| data            | base64 | Optional base64 selected file representation |
+| Property                  |  Type  | Description                              |
+| ------------------------- | :----: | :--------------------------------------- |
+| path                      | string | Selected image location                  |
+| localIdentifier(ios only) | string | Selected images' localidentifier, used for PHAsset searching |
+| sourceURL(ios only)       | string | Selected images' source path, do not have write access |
+| filename(ios only)        | string | Selected images' filename                |
+| width                     | number | Selected image width                     |
+| height                    | number | Selected image height                    |
+| mime                      | string | Selected image MIME type (image/jpeg, image/png) |
+| size                      | number | Selected image size in bytes             |
+| data                      | base64 | Optional base64 selected file representation |
 
 ## Install
 
