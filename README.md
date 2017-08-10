@@ -113,7 +113,7 @@ ImagePicker.clean().then(() => {
 
 ## Install
 
-### Install node package
+### Install package
 
 ```
 npm i react-native-image-crop-picker --save
