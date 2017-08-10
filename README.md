@@ -130,9 +130,9 @@ react-native link react-native-image-crop-picker
 
 ###### Cocoapods
 
+Add this line to your Podfile and run `pod install`
 ```
 pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker'
-
 ```
 
 #### Post-install steps
