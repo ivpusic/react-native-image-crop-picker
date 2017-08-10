@@ -122,7 +122,7 @@ npm i react-native-image-crop-picker --save
 You can link the package using react-native link or cocoapods.
 
 
-###### Manual
+###### RNPM
 
 ```
 react-native link react-native-image-crop-picker
@@ -187,11 +187,11 @@ android {
 
 ##### iOS
 
-###### cocoapods users
+###### Cocoapods
 
 - You are already done
 
-###### non-cocoapods users
+###### Manual
 
 If you are using pre-built frameworks from `ios/ImageCropPickerSDK`, then before deploying app to production you should strip off simulator ARCHs from these, or you can add frameworks from `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework` to Embedded Binaries instead of pre-built ones.
 Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/61.
