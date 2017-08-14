@@ -26,11 +26,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 @implementation NSIndexSet (Convenience)
 
-- (NSArray *)qb_indexPathsFromIndexesWithSection:(NSUInteger)section
+- (NSArray *)qb_indexPathsFromIndexesWithSection:(NSUInteger)section numberOfItems:(NSUInteger)numberOfItems
 {
     NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:self.count];
     [self enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-        [indexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:section]];
+        if (idx < numberOfItems) {
+            [indexPaths addObject:[NSIndexPath indexPathForItem:idx inSection:section]];
+        }
     }];
     return indexPaths;
 }
@@ -395,19 +397,21 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             } else {
                 // If we have incremental diffs, tell the collection view to animate insertions and deletions
                 [self.collectionView performBatchUpdates:^{
+                    NSUInteger section = 0;
+                    NSUInteger numberOfItems = [self.collectionView numberOfItemsInSection:section];
                     NSIndexSet *removedIndexes = [collectionChanges removedIndexes];
                     if ([removedIndexes count]) {
-                        [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                        [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:section numberOfItems:numberOfItems]];
                     }
 
                     NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
                     if ([insertedIndexes count]) {
-                        [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                        [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:section numberOfItems:numberOfItems]];
                     }
 
                     NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
                     if ([changedIndexes count]) {
-                        [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                        [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:section numberOfItems:numberOfItems]];
                     }
                 } completion:NULL];
             }
