@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.IntDef;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.reactnative.ivpusic.imagepicker.activity.CropImageActivity;
 import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
@@ -66,7 +67,7 @@ public class SImagePicker {
 
     public static PickerConfig getPickerConfig() {
         if (pickerConfig == null) {
-            throw new IllegalArgumentException("you must call init() first");
+            Log.e("imagePicker", "you must call init() first");
         }
         return pickerConfig;
     }
