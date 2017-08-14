@@ -7,16 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		28CF76321F41CF370024DF14 /* QBImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */; };
+		28CF76331F41CF370024DF14 /* RSKImageCropper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */; };
 		3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */; };
 		3408F5F11E0DE76F00E97159 /* Compression.m in Sources */ = {isa = PBXBuildFile; fileRef = 3408F5F01E0DE76F00E97159 /* Compression.m */; };
 		347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */; };
 		347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */ = {isa = PBXBuildFile; fileRef = 34963A931D6B919800F9CA2F /* UIImage+Resize.h */; };
 		34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 34963A941D6B919800F9CA2F /* UIImage+Resize.m */; };
-		34EC4AB51D78FEC6001E9E86 /* QBImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */; };
-		34EC4AB61D78FEC6001E9E86 /* RSKImageCropper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		28201CC71F41C5C900E00955 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE0E1ACDA079002A9710;
+			remoteInfo = QBImagePickerTests;
+		};
+		28201CC91F41C5C900E00955 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE271ACDA0CE002A9710;
+			remoteInfo = QBImagePickerDemo;
+		};
+		28201CCB1F41C5C900E00955 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AAA8FE3F1ACDA0CE002A9710;
+			remoteInfo = QBImagePickerDemoTests;
+		};
 		34434E2D1D6F5EA300BF5063 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
@@ -51,8 +72,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				34EC4AB51D78FEC6001E9E86 /* QBImagePicker.framework in Frameworks */,
-				34EC4AB61D78FEC6001E9E86 /* RSKImageCropper.framework in Frameworks */,
+				28CF76321F41CF370024DF14 /* QBImagePicker.framework in Frameworks */,
+				28CF76331F41CF370024DF14 /* RSKImageCropper.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +116,9 @@
 			isa = PBXGroup;
 			children = (
 				34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */,
+				28201CC81F41C5C900E00955 /* QBImagePickerTests.xctest */,
+				28201CCA1F41C5C900E00955 /* QBImagePickerDemo.app */,
+				28201CCC1F41C5C900E00955 /* QBImagePickerDemoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,6 +205,27 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		28201CC81F41C5C900E00955 /* QBImagePickerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = QBImagePickerTests.xctest;
+			remoteRef = 28201CC71F41C5C900E00955 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		28201CCA1F41C5C900E00955 /* QBImagePickerDemo.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = QBImagePickerDemo.app;
+			remoteRef = 28201CC91F41C5C900E00955 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		28201CCC1F41C5C900E00955 /* QBImagePickerDemoTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = QBImagePickerDemoTests.xctest;
+			remoteRef = 28201CCB1F41C5C900E00955 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -299,11 +344,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)/QBImagePicker/**",
+					"$(SRCROOT)/RSKImageCropper/**",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../example/node_modules/react-native/React/**",
 					"$(SRCROOT)/../example/node_modules/react-native/Libraries/Image/**",
+					"$(SRCROOT)/../../node_modules/react-native/React/**",
+					"$(SRCROOT)/../../node_modules/react-native/Libraries/Image/**",
+					"$(SRCROOT)/RSKImageCropper/RSKImageCropper/RSKImageCropper.h",
+					"$(SRCROOT)/QBImagePicker/QBImagePicker/QBImagePicker.h",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
@@ -320,11 +373,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RSKImageCropper/build/Debug-iphoneos";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)/QBImagePicker/**",
+					"$(SRCROOT)/RSKImageCropper/**",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../example/node_modules/react-native/React/**",
 					"$(SRCROOT)/../example/node_modules/react-native/Libraries/Image/**",
+					"$(SRCROOT)/../../node_modules/react-native/React/**",
+					"$(SRCROOT)/../../node_modules/react-native/Libraries/Image/**",
+					"$(SRCROOT)/RSKImageCropper/RSKImageCropper/RSKImageCropper.h",
+					"$(SRCROOT)/QBImagePicker/QBImagePicker/QBImagePicker.h",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
