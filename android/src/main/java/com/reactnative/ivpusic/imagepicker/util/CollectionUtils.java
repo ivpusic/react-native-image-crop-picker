@@ -8,24 +8,25 @@ import java.util.List;
  */
 public class CollectionUtils {
 
-  private CollectionUtils() {}
-
-  public static boolean isEmpty(Collection collection) {
-    return collection == null || collection.isEmpty();
-  }
-
-  public static void removeRange(List list, int start, int count) {
-    for (int i = start + count - 1; i >= start; i--) {
-      list.remove(i);
+    private CollectionUtils() {
     }
-  }
 
-  public static boolean containsAny(Collection all, Collection keys) {
-    for (Object key : keys) {
-      if (all.contains(key)) {
-        return true;
-      }
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
     }
-    return false;
-  }
+
+    public static void removeRange(List list, int start, int count) {
+        for (int i = start + count - 1; i >= start; i--) {
+            list.remove(i);
+        }
+    }
+
+    public static boolean containsAny(Collection all, Collection keys) {
+        for (Object key : keys) {
+            if (all.contains(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

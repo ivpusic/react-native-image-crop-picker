@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Point;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -99,35 +98,35 @@ public final class PhotoMetadataUtils {
         return uri.getPath();
     }
 
-//    public static IncapableCause isAcceptable(Context context, Item item) {
-//        if (!isSelectableType(context, item)) {
-//            return new IncapableCause(context.getString(R.string.error_file_type));
-//        }
-//
-//        if (SelectionSpec.getInstance().filters != null) {
-//            for (Filter filter : SelectionSpec.getInstance().filters) {
-//                IncapableCause IncapableCause = filter.filter(context, item);
-//                if (IncapableCause != null) {
-//                    return IncapableCause;
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private static boolean isSelectableType(Context context, Item item) {
-//        if (context == null) {
-//            return false;
-//        }
-//
-//        ContentResolver resolver = context.getContentResolver();
-//        for (MimeType type : SelectionSpec.getInstance().mimeTypeSet) {
-//            if (type.checkType(resolver, item.getContentUri())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    //    public static IncapableCause isAcceptable(Context context, Item item) {
+    //        if (!isSelectableType(context, item)) {
+    //            return new IncapableCause(context.getString(R.string.error_file_type));
+    //        }
+    //
+    //        if (SelectionSpec.getInstance().filters != null) {
+    //            for (Filter filter : SelectionSpec.getInstance().filters) {
+    //                IncapableCause IncapableCause = filter.filter(context, item);
+    //                if (IncapableCause != null) {
+    //                    return IncapableCause;
+    //                }
+    //            }
+    //        }
+    //        return null;
+    //    }
+    //
+    //    private static boolean isSelectableType(Context context, Item item) {
+    //        if (context == null) {
+    //            return false;
+    //        }
+    //
+    //        ContentResolver resolver = context.getContentResolver();
+    //        for (MimeType type : SelectionSpec.getInstance().mimeTypeSet) {
+    //            if (type.checkType(resolver, item.getContentUri())) {
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    }
 
     private static boolean shouldRotate(ContentResolver resolver, Uri uri) {
         ExifInterface exif;

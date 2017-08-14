@@ -13,9 +13,9 @@ public class MultiPreviewViewPager extends ViewPager {
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-//        if (v instanceof ImageViewTouch) {
-//            return ((ImageViewTouch) v).canScroll(dx) || super.canScroll(v, checkV, dx, x, y);
-//        }
+        //        if (v instanceof ImageViewTouch) {
+        //            return ((ImageViewTouch) v).canScroll(dx) || super.canScroll(v, checkV, dx, x, y);
+        //        }
         return super.canScroll(v, checkV, dx, x, y);
     }
 }

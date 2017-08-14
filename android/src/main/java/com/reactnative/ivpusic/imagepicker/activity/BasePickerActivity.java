@@ -12,24 +12,24 @@ import android.view.View;
  */
 
 public abstract class BasePickerActivity extends AppCompatActivity {
-  protected View contentView;
+    protected View contentView;
 
-  @Override
-  protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    if (getLayoutResId() != 0) {
-      contentView = inflater.inflate(getLayoutResId(), null, false);
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (getLayoutResId() != 0) {
+            contentView = inflater.inflate(getLayoutResId(), null, false);
+        }
+        if (contentView != null) {
+            setContentView(contentView);
+        }
     }
-    if (contentView != null) {
-      setContentView(contentView);
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
-  }
 
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-  }
-
-  protected abstract int getLayoutResId();
+    protected abstract int getLayoutResId();
 }

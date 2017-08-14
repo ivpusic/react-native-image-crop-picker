@@ -1,6 +1,5 @@
 package com.reactnative.ivpusic.imagepicker.fragment;
 
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -38,26 +37,26 @@ public class PreviewItemFragment extends Fragment {
             return;
         }
 
-//        ImageViewTouch image = (ImageViewTouch)view.findViewById(R.id.image_view);
-//        image.setDisplayType(ImageViewTouchBase.DisplayType.FIT_IF_BIGGER);
+        //        ImageViewTouch image = (ImageViewTouch)view.findViewById(R.id.image_view);
+        //        image.setDisplayType(ImageViewTouchBase.DisplayType.FIT_IF_BIGGER);
         SubsamplingScaleImageView imageView = (SubsamplingScaleImageView) view.findViewById(R.id.image_view);
         imageView.setImage(ImageSource.uri(uri));
-//
-//        try {
-//            Point size = PhotoMetadataUtils.getBitmapSize(Uri.parse(uri), getActivity());
-//            if (size != null)
-//                GlideUtil.loadImage(getContext(), size.x, size.y, image, Uri.parse(uri));
-//            else {
-//                GlideUtil.loadImage(getContext(), image, Uri.parse(uri));
-//            }
-//        } catch(NullPointerException e) {
-//            e.printStackTrace();
-//        }
+        //
+        //        try {
+        //            Point size = PhotoMetadataUtils.getBitmapSize(Uri.parse(uri), getActivity());
+        //            if (size != null)
+        //                GlideUtil.loadImage(getContext(), size.x, size.y, image, Uri.parse(uri));
+        //            else {
+        //                GlideUtil.loadImage(getContext(), image, Uri.parse(uri));
+        //            }
+        //        } catch(NullPointerException e) {
+        //            e.printStackTrace();
+        //        }
     }
 
-//    public void resetView() {
-//        if (getView() != null) {
-//            ((ImageViewTouch) getView().findViewById(R.id.image_view)).resetMatrix();
-//        }
-//    }
+    //    public void resetView() {
+    //        if (getView() != null) {
+    //            ((ImageViewTouch) getView().findViewById(R.id.image_view)).resetMatrix();
+    //        }
+    //    }
 }

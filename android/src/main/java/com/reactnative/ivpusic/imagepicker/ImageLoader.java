@@ -9,12 +9,12 @@ import android.widget.ImageView;
  */
 
 public interface ImageLoader {
-  void bindImage(ImageView imageView, Uri uri, int width, int height);
+    void bindImage(ImageView imageView, Uri uri, int width, int height);
 
-  void bindImage(ImageView imageView, Uri uri);
+    void bindImage(ImageView imageView, Uri uri);
 
 
-  ImageView createImageView(Context context);
+    ImageView createImageView(Context context);
 
-  ImageView createFakeImageView(Context context);
+    ImageView createFakeImageView(Context context);
 }
