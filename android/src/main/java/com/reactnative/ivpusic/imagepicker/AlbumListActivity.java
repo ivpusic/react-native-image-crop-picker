@@ -75,9 +75,7 @@ public class AlbumListActivity extends AppCompatActivity {
 
         SImagePicker.init(new PickerConfig.Builder().setAppContext(this)
                 .setImageLoader(new FrescoImageLoader())
-                //                .setToolbaseColor(getColor(R.color.colorPrimary))
                 .build());
-
         cancel = (TextView) findViewById(R.id.album_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -59,6 +59,4 @@ public class PickerConfig {
             return new PickerConfig(this);
         }
     }
-
-
 }

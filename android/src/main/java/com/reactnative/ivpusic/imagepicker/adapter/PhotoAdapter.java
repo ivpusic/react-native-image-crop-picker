@@ -15,6 +15,7 @@ import com.reactnative.ivpusic.imagepicker.PhotoLoadListener;
 import com.reactnative.ivpusic.imagepicker.PickerConfig;
 import com.reactnative.ivpusic.imagepicker.R;
 import com.reactnative.ivpusic.imagepicker.SImagePicker;
+import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
 import com.reactnative.ivpusic.imagepicker.model.Photo;
 import com.reactnative.ivpusic.imagepicker.util.SystemUtil;
 import com.reactnative.ivpusic.imagepicker.util.UriUtil;
@@ -64,12 +65,16 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
 
         final int position = cursor.getPosition();
         PickerConfig pickerConfig = SImagePicker.getPickerConfig();
-        if (pickerConfig != null) {
-            pickerConfig.getImageLoader().bindImage(holder.photoCell.photo,
-                    new Uri.Builder().scheme(UriUtil.LOCAL_FILE_SCHEME).path(photo.getFilePath()).build(),
-                    photoSize,
-                    photoSize);
+        if (pickerConfig == null) {
+            pickerConfig = new PickerConfig.Builder().setAppContext(this.mContext)
+                    .setImageLoader(new FrescoImageLoader())
+                    .build();
+            SImagePicker.init(pickerConfig);
         }
+        pickerConfig.getImageLoader().bindImage(holder.photoCell.photo,
+                new Uri.Builder().scheme(UriUtil.LOCAL_FILE_SCHEME).path(photo.getFilePath()).build(),
+                photoSize,
+                photoSize);
 
         holder.photoCell.photo.setOnClickListener(new View.OnClickListener() {
             @Override
