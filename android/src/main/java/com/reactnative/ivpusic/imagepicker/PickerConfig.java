@@ -9,55 +9,56 @@ import android.content.Context;
 
 public class PickerConfig {
 
-  private ImageLoader imageLoader;
-  private Context appContext;
-  private int toolbarColor;
-
-  private PickerConfig(Builder builder) {
-    this.imageLoader = builder.imageLoader;
-    this.appContext = builder.context;
-    this.toolbarColor = builder.toolbarColor;
-  }
-
-  public ImageLoader getImageLoader() {
-    return imageLoader;
-  }
-
-  public Context getAppContext() {
-    return appContext;
-  }
-
-  public int getToolbarColor() {
-    return toolbarColor;
-  }
-
-  public static class Builder {
-
     private ImageLoader imageLoader;
-    private Context context;
+    private Context appContext;
     private int toolbarColor;
 
-    public Builder() {}
-
-    public Builder setAppContext(Context context) {
-      this.context = context;
-      return this;
+    private PickerConfig(Builder builder) {
+        this.imageLoader = builder.imageLoader;
+        this.appContext = builder.context;
+        this.toolbarColor = builder.toolbarColor;
     }
 
-    public Builder setImageLoader(ImageLoader imageLoader) {
-      this.imageLoader = imageLoader;
-      return this;
+    public ImageLoader getImageLoader() {
+        return imageLoader;
     }
 
-    public Builder setToolbaseColor(int color) {
-      this.toolbarColor = color;
-      return this;
+    public Context getAppContext() {
+        return appContext;
     }
 
-    public PickerConfig build() {
-      return new PickerConfig(this);
+    public int getToolbarColor() {
+        return toolbarColor;
     }
-  }
+
+    public static class Builder {
+
+        private ImageLoader imageLoader;
+        private Context context;
+        private int toolbarColor;
+
+        public Builder() {
+        }
+
+        public Builder setAppContext(Context context) {
+            this.context = context;
+            return this;
+        }
+
+        public Builder setImageLoader(ImageLoader imageLoader) {
+            this.imageLoader = imageLoader;
+            return this;
+        }
+
+        public Builder setToolbaseColor(int color) {
+            this.toolbarColor = color;
+            return this;
+        }
+
+        public PickerConfig build() {
+            return new PickerConfig(this);
+        }
+    }
 
 
 }

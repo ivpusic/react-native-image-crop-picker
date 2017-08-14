@@ -10,22 +10,22 @@ import android.database.Cursor;
  */
 public abstract class BaseLoaderController implements LoaderManager.LoaderCallbacks<Cursor> {
 
-  protected static final int PHOTO_LOADER_ID = 1;
-  protected static final int ALBUM_LOADER_ID = 2;
+    protected static final int PHOTO_LOADER_ID = 1;
+    protected static final int ALBUM_LOADER_ID = 2;
 
-  protected Context context;
+    protected Context context;
 
-  protected LoaderManager loaderManager;
+    protected LoaderManager loaderManager;
 
-  protected void onCreate(Activity activity) {
-    context = activity;
-    loaderManager = activity.getLoaderManager();
-  }
+    protected void onCreate(Activity activity) {
+        context = activity;
+        loaderManager = activity.getLoaderManager();
+    }
 
-  public void onDestroy() {
-    loaderManager.destroyLoader(getLoaderId());
-  }
+    public void onDestroy() {
+        loaderManager.destroyLoader(getLoaderId());
+    }
 
-  protected abstract int getLoaderId();
+    protected abstract int getLoaderId();
 
 }

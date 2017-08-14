@@ -15,7 +15,7 @@ public class BitmapUtil {
         BitmapFactory.decodeFile(path, options);
         options.inSampleSize = calculateInSampleSize(options, width, height);
         options.inJustDecodeBounds = false;
-        Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         return bitmap;
     }
 
@@ -27,9 +27,9 @@ public class BitmapUtil {
 
         int inSampleSize = 1;
 
-        if(width > reqWidth || height > reqHeight) {
-            int widthRadio = Math.round(width * 1.0f/reqWidth);
-            int heightRadio = Math.round(height * 1.0f/reqHeight);
+        if (width > reqWidth || height > reqHeight) {
+            int widthRadio = Math.round(width * 1.0f / reqWidth);
+            int heightRadio = Math.round(height * 1.0f / reqHeight);
 
             inSampleSize = Math.max(widthRadio, heightRadio);
         }

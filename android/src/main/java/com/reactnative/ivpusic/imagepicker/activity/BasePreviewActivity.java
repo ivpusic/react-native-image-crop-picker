@@ -1,13 +1,11 @@
 package com.reactnative.ivpusic.imagepicker.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -17,7 +15,6 @@ import android.widget.Toast;
 
 import com.reactnative.ivpusic.imagepicker.R;
 import com.reactnative.ivpusic.imagepicker.adapter.PreviewPagerAdapter;
-import com.reactnative.ivpusic.imagepicker.fragment.PreviewItemFragment;
 import com.reactnative.ivpusic.imagepicker.widget.CheckBox;
 import com.reactnative.ivpusic.imagepicker.widget.MultiPreviewViewPager;
 
@@ -111,8 +108,7 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
                     selectedUris.remove(item);
                     mCheckView.setChecked(false, false);
                     updateApplyButton();
-                }
-                else {
+                } else {
                     if (isMax()) {
                         Toast.makeText(BasePreviewActivity.this, "最多选择9张图片", Toast.LENGTH_SHORT).show();
                     } else {
@@ -136,13 +132,12 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
     public void onPageSelected(int position) {
         PreviewPagerAdapter adapter = (PreviewPagerAdapter) mPager.getAdapter();
         if (mPreviousPos != -1 && mPreviousPos != position) {
-//            ((PreviewItemFragment) adapter.instantiateItem(mPager, mPreviousPos)).resetView();
-            Uri  item = adapter.getMediaItem(position);
+            //            ((PreviewItemFragment) adapter.instantiateItem(mPager, mPreviousPos)).resetView();
+            Uri item = adapter.getMediaItem(position);
             if (selectedUris.contains(item)) {
                 mCheckView.setChecked(true, false);
                 mCheckView.setText(String.valueOf(selectedUris.indexOf(item) + 1));
-            }
-            else {
+            } else {
                 mCheckView.setChecked(false, false);
             }
         }

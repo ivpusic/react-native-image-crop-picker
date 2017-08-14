@@ -16,9 +16,9 @@ limitations under the License.
 
 package com.reactnative.ivpusic.imagepicker.widget.subsamplingview;
 
-import java.io.Serializable;
-
 import android.graphics.PointF;
+
+import java.io.Serializable;
 
 /**
  * Wraps the scale, center and orientation of a displayed image for easy restoration on screen rotate.

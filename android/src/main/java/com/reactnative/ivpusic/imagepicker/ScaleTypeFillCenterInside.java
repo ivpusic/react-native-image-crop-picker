@@ -12,22 +12,22 @@ import com.facebook.drawee.drawable.ScalingUtils;
  */
 public class ScaleTypeFillCenterInside extends ScalingUtils.AbstractScaleType {
 
-  public static final ScalingUtils.ScaleType INSTANCE = new ScaleTypeFillCenterInside();
+    public static final ScalingUtils.ScaleType INSTANCE = new ScaleTypeFillCenterInside();
 
-  @Override
-  public void getTransformImpl(
-      Matrix outTransform,
-      Rect parentRect,
-      int childWidth,
-      int childHeight,
-      float focusX,
-      float focusY,
-      float scaleX,
-      float scaleY) {
-    float scale = Math.min(scaleX, scaleY);
-    float dx = parentRect.left + (parentRect.width() - childWidth * scale) * 0.5f;
-    float dy = parentRect.top + (parentRect.height() - childHeight * scale) * 0.5f;
-    outTransform.setScale(scale, scale);
-    outTransform.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-  }
+    @Override
+    public void getTransformImpl(
+            Matrix outTransform,
+            Rect parentRect,
+            int childWidth,
+            int childHeight,
+            float focusX,
+            float focusY,
+            float scaleX,
+            float scaleY) {
+        float scale = Math.min(scaleX, scaleY);
+        float dx = parentRect.left + (parentRect.width() - childWidth * scale) * 0.5f;
+        float dy = parentRect.top + (parentRect.height() - childHeight * scale) * 0.5f;
+        outTransform.setScale(scale, scale);
+        outTransform.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+    }
 }

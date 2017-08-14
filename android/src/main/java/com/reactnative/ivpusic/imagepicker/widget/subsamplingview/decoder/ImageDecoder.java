@@ -16,8 +16,9 @@ public interface ImageDecoder {
      * File: file:///scard/picture.jpg
      * Asset: file:///android_asset/picture.png
      * Resource: android.resource://com.example.app/drawable/picture
+     *
      * @param context Application context. A reference may be held, but must be cleared on recycle.
-     * @param uri URI of the image.
+     * @param uri     URI of the image.
      * @return Dimensions of the image.
      * @throws Exception if initialisation fails.
      */
