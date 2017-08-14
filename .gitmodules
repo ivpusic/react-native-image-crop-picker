@@ -1,0 +1,6 @@
+[submodule "QBImagePicker"]
+	path = ios/QBImagePicker
+	url = https://github.com/shimo-react-native/QBImagePicker.git
+[submodule "RSKImageCropper"]
+	path = ios/RSKImageCropper
+	url = https://github.com/shimo-react-native/RSKImageCropper.git
