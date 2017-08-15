@@ -89,6 +89,7 @@ public class AlbumListActivity extends AppCompatActivity {
         albumAdapter = new AlbumAdapter(albumList, AlbumListActivity.this);
 
         final Boolean multiple = this.getIntent().getBooleanExtra("multiple", true);
+        final int maxFiles = this.getIntent().getIntExtra("maxFiles", 9);
 
         listView = (ListView) findViewById(R.id.album_list);
         listView.setAdapter(albumAdapter);
@@ -101,7 +102,7 @@ public class AlbumListActivity extends AppCompatActivity {
                         .from(AlbumListActivity.this)
                         .albumName(album.getName())
                         .bucketId(album.getBucketId())
-                        .maxCount(multiple ? 9 : 1)
+                        .maxCount(multiple ? maxFiles : 1)
                         .rowCount(4)
                         .pickMode(SImagePicker.MODE_IMAGE)
                         .fileInterceptor(null)
