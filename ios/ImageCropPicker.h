@@ -18,8 +18,18 @@
 #import <React/RCTImageLoader.h>
 #endif
 
+#if __has_include("QBImagePicker.h")
+#import "QBImagePicker.h"
+#else
 #import <QBImagePicker/QBImagePicker.h>
+#endif
+
+#if __has_include("RSKImageCropper.h")
+#import "RSKImageCropper.h"
+#else
 #import <RSKImageCropper/RSKImageCropper.h>
+#endif
+
 #import "UIImage-Resize/UIImage+Resize.h"
 #import "Compression.h"
 #import <math.h>

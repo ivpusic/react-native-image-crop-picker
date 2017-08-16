@@ -38,6 +38,20 @@
 			remoteGlobalIDString = AAA8FE3F1ACDA0CE002A9710;
 			remoteInfo = QBImagePickerDemoTests;
 		};
+		28F01DA01F442C3D00C2367A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A5BE393C1B32B49D00ECDF88;
+			remoteInfo = RSKImageCropper;
+		};
+		28F01DA71F442C4000C2367A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = AAA8FE021ACDA079002A9710;
+			remoteInfo = QBImagePicker;
+		};
 		34434E2D1D6F5EA300BF5063 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */;
@@ -152,6 +166,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				28F01DA81F442C4000C2367A /* PBXTargetDependency */,
+				28F01DA11F442C3D00C2367A /* PBXTargetDependency */,
 			);
 			name = imageCropPicker;
 			productName = picker;
@@ -257,6 +273,19 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		28F01DA11F442C3D00C2367A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RSKImageCropper;
+			targetProxy = 28F01DA01F442C3D00C2367A /* PBXContainerItemProxy */;
+		};
+		28F01DA81F442C4000C2367A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = QBImagePicker;
+			targetProxy = 28F01DA71F442C4000C2367A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		3400A80F1CEB54A6008A0BC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -344,10 +373,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)/QBImagePicker/**",
-					"$(SRCROOT)/RSKImageCropper/**",
-				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -359,7 +384,6 @@
 					"$(SRCROOT)/QBImagePicker/QBImagePicker/QBImagePicker.h",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
-				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
@@ -373,10 +397,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)/QBImagePicker/**",
-					"$(SRCROOT)/RSKImageCropper/**",
-				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
