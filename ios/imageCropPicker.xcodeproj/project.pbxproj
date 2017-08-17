@@ -380,6 +380,7 @@
 					"$(SRCROOT)/QBImagePicker/QBImagePicker/QBImagePicker.h",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "";
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
