@@ -39,6 +39,8 @@ local.properties
 node_modules/
 npm-debug.log
 package-lock.json
+ios/RSKImageCropper/.npmignore
+ios/QBImagePicker/.npmignore
 
 # BUCK
 buck-out/

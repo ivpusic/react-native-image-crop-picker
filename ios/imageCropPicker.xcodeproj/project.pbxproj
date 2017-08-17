@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2809AA741F454D0900621BA0 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 34963A941D6B919800F9CA2F /* UIImage+Resize.m */; };
 		28CF76321F41CF370024DF14 /* QBImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */; };
 		28CF76331F41CF370024DF14 /* RSKImageCropper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E3A1D6F5EBB00BF5063 /* RSKImageCropper.framework */; };
 		3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */; };
 		3408F5F11E0DE76F00E97159 /* Compression.m in Sources */ = {isa = PBXBuildFile; fileRef = 3408F5F01E0DE76F00E97159 /* Compression.m */; };
-		347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */; };
-		347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */ = {isa = PBXBuildFile; fileRef = 34963A931D6B919800F9CA2F /* UIImage+Resize.h */; };
-		34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 34963A941D6B919800F9CA2F /* UIImage+Resize.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -263,10 +261,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2809AA741F454D0900621BA0 /* UIImage+Resize.m in Sources */,
 				3408F5F11E0DE76F00E97159 /* Compression.m in Sources */,
-				347CE16F1D6BB134002A8704 /* ImageCropPicker.h in Sources */,
-				347CE1701D6BB134002A8704 /* UIImage+Resize.h in Sources */,
-				34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */,
 				3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
