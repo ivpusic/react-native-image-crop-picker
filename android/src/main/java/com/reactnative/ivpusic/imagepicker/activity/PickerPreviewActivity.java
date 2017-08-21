@@ -31,8 +31,10 @@ import android.widget.TextView;
 
 import com.reactnative.ivpusic.imagepicker.FileChooseInterceptor;
 import com.reactnative.ivpusic.imagepicker.PickerAction;
+import com.reactnative.ivpusic.imagepicker.PickerConfig;
 import com.reactnative.ivpusic.imagepicker.R;
 import com.reactnative.ivpusic.imagepicker.SImagePicker;
+import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
 import com.reactnative.ivpusic.imagepicker.util.ImageUtil;
 import com.reactnative.ivpusic.imagepicker.util.SystemUtil;
 import com.reactnative.ivpusic.imagepicker.widget.CheckBox;
@@ -118,6 +120,13 @@ public class PickerPreviewActivity extends BasePickerActivity implements PickerA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PickerConfig pickerConfig = SImagePicker.getPickerConfig();
+        if (pickerConfig == null) {
+            pickerConfig = new PickerConfig.Builder().setAppContext(this)
+                    .setImageLoader(new FrescoImageLoader())
+                    .build();
+            SImagePicker.init(pickerConfig);
+        }
         initUI();
     }
 
