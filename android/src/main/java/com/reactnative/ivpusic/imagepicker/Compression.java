@@ -53,8 +53,12 @@ public class Compression {
             compressor.setMaxHeight(maxHeight);
         }
 
+        File image = new File(originalImagePath); 
+
+        String[] paths = image.getName().split("\\.(?=[^\\.]+$)");
+        String compressedFileName = paths[0] + "-compressed." + paths[1];
         return compressor
-                .compressToFile(new File(originalImagePath));
+                .compressToFile(image, compressedFileName);
     }
 
     public synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
