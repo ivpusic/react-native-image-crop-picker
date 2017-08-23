@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -230,31 +229,32 @@ public class PhotoListActivity extends AppCompatActivity {
         }
     }
 
-
-    public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws FileNotFoundException, IOException {
+    public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws IOException {
         InputStream input = ac.getContentResolver().openInputStream(uri);
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
         onlyBoundsOptions.inJustDecodeBounds = true;
         onlyBoundsOptions.inDither = true;//optional
         onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
         BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
-        input.close();
+        if (input != null) {
+            input.close();
+        }
         int originalWidth = onlyBoundsOptions.outWidth;
         int originalHeight = onlyBoundsOptions.outHeight;
-        if ((originalWidth == -1) || (originalHeight == -1))
+        if ((originalWidth == -1) || (originalHeight == -1)) {
             return null;
+        }
         //图片分辨率以480x800为标准
         float hh = 200f;//这里设置高度为800f
         float ww = 200f;//这里设置宽度为480f
         //缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
         int be = 1;//be=1表示不缩放
-        if (originalWidth > originalHeight && originalWidth > ww) {//如果宽度大的话根据宽度固定大小缩放
+        if (originalWidth > originalHeight && originalWidth > ww) { // 如果宽度大的话根据宽度固定大小缩放
             be = (int) (originalWidth / ww);
-        } else if (originalWidth < originalHeight && originalHeight > hh) {//如果高度高的话根据宽度固定大小缩放
+        } else if (originalWidth < originalHeight && originalHeight > hh) { // 如果高度高的话根据宽度固定大小缩放
             be = (int) (originalHeight / hh);
         }
-        if (be <= 0)
-            be = 1;
+        be = be <= 0 ? 1 : be;
         //比例压缩
         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
         bitmapOptions.inSampleSize = be;//设置缩放比例
@@ -262,13 +262,17 @@ public class PhotoListActivity extends AppCompatActivity {
         bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
         input = ac.getContentResolver().openInputStream(uri);
         Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
-        input.close();
+        if (input != null) {
+            input.close();
+        }
 
         return compressImage(bitmap);//再进行质量压缩
     }
 
     public static Bitmap compressImage(Bitmap image) {
-
+        if (image == null) {
+            return null;
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
         int options = 100;
@@ -279,8 +283,6 @@ public class PhotoListActivity extends AppCompatActivity {
             options -= 10;//每次都减少10
         }
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
-        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
-        return bitmap;
+        return BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
     }
-
 }
