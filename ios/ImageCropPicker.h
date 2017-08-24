@@ -21,8 +21,11 @@
 #if __has_include("QBImagePicker.h")
 #import "QBImagePicker.h"
 #import "RSKImageCropper.h"
-#else
+#elseif __has_include("QBImagePicker/QBImagePicker.h")
 #import "QBImagePicker/QBImagePicker.h"
+#import <RSKImageCropper/RSKImageCropper.h>
+#else
+#import "QBImagePicker/QBImagePickerController.h"
 #import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
@@ -31,10 +34,10 @@
 #import <math.h>
 
 @interface ImageCropPicker : NSObject<
-  RCTBridgeModule,
-  QBImagePickerControllerDelegate,
-  RSKImageCropViewControllerDelegate,
-  RSKImageCropViewControllerDataSource>
+RCTBridgeModule,
+QBImagePickerControllerDelegate,
+RSKImageCropViewControllerDelegate,
+RSKImageCropViewControllerDataSource>
 
 @property (nonatomic, strong) NSMutableDictionary *croppingFile;
 @property (nonatomic, strong) NSDictionary *defaultOptions;
