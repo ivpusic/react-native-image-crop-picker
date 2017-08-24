@@ -3,9 +3,11 @@ iOS/Android image picker with support for camera, configurable compression, mult
 
 ## Result
 
-<img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png">
+<p align="left">
+  <img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png">
 <img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_crop.png">
 <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick.png">
+</p>
 
 ## Usage
 
@@ -14,7 +16,7 @@ Import library
 import ImagePicker from 'react-native-image-crop-picker';
 ```
 
-#### Select from gallery
+### Select from gallery
 
 Call single image picker with cropping
 ```javascript
@@ -36,7 +38,7 @@ ImagePicker.openPicker({
 });
 ```
 
-#### Select from camera
+### Select from camera
 ```javascript
 ImagePicker.openCamera({
   width: 300,
@@ -47,7 +49,7 @@ ImagePicker.openCamera({
 });
 ```
 
-#### Crop picture
+### Crop picture
 ```javascript
 ImagePicker.openCropper({
   path: 'my-file-path.jpg',
@@ -58,7 +60,7 @@ ImagePicker.openCropper({
 });
 ```
 
-#### Optional cleanup
+### Optional cleanup
 Module is creating tmp images which are going to be cleaned up automatically somewhere in the future. If you want to force cleanup, you can use `clean` to clean all tmp files, or `cleanSingle(path)` to clean single tmp file.
 
 ```javascript
@@ -69,7 +71,7 @@ ImagePicker.clean().then(() => {
 });
 ```
 
-#### Request Object
+### Request Object
 
 | Property                                |                   Type                   | Description                              |
 | --------------------------------------- | :--------------------------------------: | :--------------------------------------- |
@@ -97,7 +99,7 @@ ImagePicker.clean().then(() => {
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
-#### Response Object
+### Response Object
 
 | Property                  |  Type  | Description                              |
 | ------------------------- | :----: | :--------------------------------------- |
@@ -111,48 +113,62 @@ ImagePicker.clean().then(() => {
 | size                      | number | Selected image size in bytes             |
 | data                      | base64 | Optional base64 selected file representation |
 
-## Install
+# Install
 
-### Install package
+## Install package
 
 ```
 npm i react-native-image-crop-picker --save
 ```
 
-You can link the package using react-native link or cocoapods.
-
-
-###### RNPM
+Link the package using react-native link:
 
 ```
 react-native link react-native-image-crop-picker
 ```
 
-###### Cocoapods
+## Post-install steps
 
-Add this line to your Podfile and run `pod install`
-```
-pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker'
-```
+### iOS
 
-#### Post-install steps
-
-##### iOS
+#### Step 1:
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why do you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
 
-###### Cocoapods
+#### Step 2:
 
-You are done.
+##### Cocoapods (Highly recommended)
 
-###### Manual
+```
+cd ios
+pod init
+```
+
+After this you have to add pod dependencies to `Podfile`. Open `Podfile` with your editor, and add or adjust example configuration:
+
+```
+platform :ios, '8.0'
+
+target '<your_project_name>' do
+    pod 'RSKImageCropper'
+    pod 'QBImagePickerController'
+end
+```
+
+After this run:
+
+```
+pod install
+```
+
+##### Manual
 
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
 
-##### Android
+### Android
 
 - Make sure you are using Gradle `2.2.x` (project build.gradle)
 ```gradle
@@ -183,15 +199,15 @@ android {
 - [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
-#### Production build
+## Production build
 
-##### iOS
+### iOS
 
-###### Cocoapods
+#### Cocoapods (Highly recommended)
 
 - You are already done
 
-###### Manual
+#### Manual
 
 If you are using pre-built frameworks from `ios/ImageCropPickerSDK`, then before deploying app to production you should strip off simulator ARCHs from these, or you can add frameworks from `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework` to Embedded Binaries instead of pre-built ones.
 Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/61.
