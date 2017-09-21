@@ -198,6 +198,16 @@ buildscript {
 }
 ```
 
+- Add the following to your `build.gradle`'s repositories section. (project build.gradle)
+```gradle
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+
 - Add `useSupportLibrary` (app build.gradle)
 ```gradle
 android {
