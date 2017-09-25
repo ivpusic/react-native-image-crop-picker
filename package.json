@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "rm -rf android/build"
+    "prepublish": "rm -rf android/build",
+    "postinstall": "opencollective postinstall"
   },
   "repository": {
     "type": "git",
@@ -30,5 +31,13 @@
   "homepage": "https://github.com/ivpusic/react-native-image-crop-picker#readme",
   "peerDependencies": {
     "react-native": ">=0.40.0"
+  },
+  "dependencies": {
+    "opencollective": "^1.0.3"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/react-native-image-crop-picker",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
   }
 }
