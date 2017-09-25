@@ -73,9 +73,9 @@
     if (compressQuality == nil) {
         compressQuality = [NSNumber numberWithFloat:1];
     }
-    
-    result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
-    result.mime = @"image/jpeg";
+
+    result.data = UIImagePNGRepresentation(result.image);
+    result.mime = @"image/png";
     
     return result;
 }
