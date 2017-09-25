@@ -1,6 +1,8 @@
 # react-native-image-crop-picker
 iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
 
+[![Backers on Open Collective](https://opencollective.com/react-native-image-crop-picker/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-image-crop-picker/sponsors/badge.svg)](#sponsors)
+
 ## Result
 
 <p align="left">
@@ -229,6 +231,36 @@ Details for second approach:
 1. Remove the pre-built frameworks from `Embedded Binaries`
 2. Build for Device
 3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
+<a href="graphs/contributors"><img src="https://opencollective.com/react-native-image-crop-picker/contributors.svg?width=890" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/react-native-image-crop-picker#backer)]
+
+<a href="https://opencollective.com/react-native-image-crop-picker#backers" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/react-native-image-crop-picker#sponsor)]
+
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/0/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/1/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/2/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/3/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/4/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/5/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/6/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/7/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/8/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/react-native-image-crop-picker/sponsor/9/website" target="_blank"><img src="https://opencollective.com/react-native-image-crop-picker/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 *MIT*
