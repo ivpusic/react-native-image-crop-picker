@@ -49,7 +49,7 @@ ImagePicker.openPicker({
 });
 ```
 
-**Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.** 
+**Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
 ### Select from camera
@@ -94,6 +94,7 @@ ImagePicker.clean().then(() => {
 | height                                  |                  number                  | Height of result image when used with `cropping` option |
 | multiple                                |           bool (default false)           | Enable or disable multiple image selection |
 | includeBase64                           |           bool (default false)           | Enable or disable returning base64 data with image |
+| includeExif                           |           bool (default false)           | Include image exif data in the response |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
@@ -126,6 +127,7 @@ ImagePicker.clean().then(() => {
 | mime                      | string | Selected image MIME type (image/jpeg, image/png) |
 | size                      | number | Selected image size in bytes             |
 | data                      | base64 | Optional base64 selected file representation |
+| exif                      | object | Extracted exif data from image. Response format is platform specific |
 
 # Install
 

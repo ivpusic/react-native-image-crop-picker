@@ -472,6 +472,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		3468219D1F7BAED90093F7F5 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				5B590311A8214ACA88447B83 /* libRCTVideo.a */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		34A9DDB71D7F43220012B1F5 /* ImageCropPickerSDK */ = {
 			isa = PBXGroup;
 			children = (
@@ -485,7 +493,7 @@
 			isa = PBXGroup;
 			children = (
 				34F74E351E0733E3001D9901 /* libRCTAnimation.a */,
-				34F74E371E0733E3001D9901 /* libRCTAnimation-tvOS.a */,
+				34F74E371E0733E3001D9901 /* libRCTAnimation.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -536,6 +544,7 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* exampleTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
+				3468219D1F7BAED90093F7F5 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -836,7 +845,7 @@
 			remoteRef = 34F74E341E0733E3001D9901 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		34F74E371E0733E3001D9901 /* libRCTAnimation-tvOS.a */ = {
+		34F74E371E0733E3001D9901 /* libRCTAnimation.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libRCTAnimation.a;
