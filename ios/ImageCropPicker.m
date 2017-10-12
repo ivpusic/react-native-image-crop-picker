@@ -71,6 +71,10 @@ RCT_EXPORT_MODULE();
     return self;
 }
 
++ (BOOL)requiresMainQueueSetup {
+    return YES;
+}
+
 - (void (^ __nullable)(void))waitAnimationEnd:(void (^ __nullable)(void))completion {
     if ([[self.options objectForKey:@"waitAnimationEnd"] boolValue]) {
         return completion;
