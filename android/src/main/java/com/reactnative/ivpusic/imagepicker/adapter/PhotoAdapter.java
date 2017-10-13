@@ -27,7 +27,6 @@ import java.util.ArrayList;
  * Created by Martin on 2017/1/17.
  */
 public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHolder> {
-    private Context mContext;
     private int maxCount = 1;
 
     private final LayoutInflater layoutInflater;
@@ -40,7 +39,6 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
 
     public PhotoAdapter(Context context, Cursor c, @SImagePicker.PickMode int mode, int rowCount) {
         super(context, c);
-        this.mContext = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.photoSize = SystemUtil.displaySize.x / rowCount;
         this.selectedPhoto = new ArrayList<>();
