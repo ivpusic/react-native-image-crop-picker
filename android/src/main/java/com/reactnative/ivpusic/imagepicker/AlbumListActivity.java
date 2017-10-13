@@ -74,7 +74,7 @@ public class AlbumListActivity extends AppCompatActivity {
         Fresco.initialize(this);
 
         SImagePicker.init(new PickerConfig.Builder().setAppContext(this)
-                .setImageLoader(new FrescoImageLoader())
+                .setImageLoader(new FrescoImageLoader(this))
                 .build());
         cancel = (TextView) findViewById(R.id.album_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {

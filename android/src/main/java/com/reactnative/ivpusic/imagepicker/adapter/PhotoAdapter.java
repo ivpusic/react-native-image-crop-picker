@@ -27,7 +27,6 @@ import java.util.ArrayList;
  * Created by Martin on 2017/1/17.
  */
 public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHolder> {
-
     private int maxCount = 1;
 
     private final LayoutInflater layoutInflater;
@@ -67,7 +66,7 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
         PickerConfig pickerConfig = SImagePicker.getPickerConfig();
         if (pickerConfig == null) {
             pickerConfig = new PickerConfig.Builder().setAppContext(this.mContext)
-                    .setImageLoader(new FrescoImageLoader())
+                    .setImageLoader(new FrescoImageLoader(this.mContext))
                     .build();
             SImagePicker.init(pickerConfig);
         }

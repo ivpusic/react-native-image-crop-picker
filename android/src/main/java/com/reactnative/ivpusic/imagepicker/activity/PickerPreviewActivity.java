@@ -123,7 +123,7 @@ public class PickerPreviewActivity extends BasePickerActivity implements PickerA
         PickerConfig pickerConfig = SImagePicker.getPickerConfig();
         if (pickerConfig == null) {
             pickerConfig = new PickerConfig.Builder().setAppContext(this)
-                    .setImageLoader(new FrescoImageLoader())
+                    .setImageLoader(new FrescoImageLoader(this))
                     .build();
             SImagePicker.init(pickerConfig);
         }

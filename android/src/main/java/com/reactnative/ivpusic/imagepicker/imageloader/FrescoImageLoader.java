@@ -14,7 +14,6 @@ import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
-import com.reactnative.ivpusic.imagepicker.AlbumListActivity;
 import com.reactnative.ivpusic.imagepicker.ImageLoader;
 import com.reactnative.ivpusic.imagepicker.ScaleTypeFillCenterInside;
 import com.reactnative.ivpusic.imagepicker.cache.CacheManager;
@@ -28,26 +27,25 @@ import okhttp3.OkHttpClient;
 
 public class FrescoImageLoader implements ImageLoader {
 
-    public FrescoImageLoader() {
-        init();
+    public FrescoImageLoader(Context context) {
+        init(context);
     }
 
-    private void init() {
+    private void init(Context context) {
         DiskCacheConfig diskCacheConfig =
                 DiskCacheConfig
-                        .newBuilder(AlbumListActivity.getAppContext())
+                        .newBuilder(context)
                         .setBaseDirectoryPath(
                                 CacheManager.getInstance().getImageCache()
                                         .getDirectory())
                         .build();
         ImagePipelineConfig config =
                 OkHttpImagePipelineConfigFactory
-                        .newBuilder(
-                                AlbumListActivity.getAppContext(),
+                        .newBuilder(context,
                                 new OkHttpClient.Builder().build())
                         .setDownsampleEnabled(true).setMainDiskCacheConfig(diskCacheConfig)
                         .build();
-        Fresco.initialize(AlbumListActivity.getAppContext(), config);
+        Fresco.initialize(context, config);
     }
 
     @Override
