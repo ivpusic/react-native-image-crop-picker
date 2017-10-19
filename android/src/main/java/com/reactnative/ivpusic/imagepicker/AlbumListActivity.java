@@ -71,8 +71,6 @@ public class AlbumListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_album_list);
         instance = this;
 
-        Fresco.initialize(this);
-
         SImagePicker.init(new PickerConfig.Builder().setAppContext(this)
                 .setImageLoader(new FrescoImageLoader(this))
                 .build());

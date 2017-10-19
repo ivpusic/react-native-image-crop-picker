@@ -7,7 +7,7 @@ def supportVersion = "23.0.+"
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         minSdkVersion 16
