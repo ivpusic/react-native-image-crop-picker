@@ -4,21 +4,15 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.ImageView;
 
-import com.facebook.cache.disk.DiskCacheConfig;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.DraweeView;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.backends.okhttp3.OkHttpImagePipelineConfigFactory;
 import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.reactnative.ivpusic.imagepicker.ImageLoader;
 import com.reactnative.ivpusic.imagepicker.ScaleTypeFillCenterInside;
-import com.reactnative.ivpusic.imagepicker.cache.CacheManager;
-
-import okhttp3.OkHttpClient;
 
 
 /**
@@ -28,24 +22,6 @@ import okhttp3.OkHttpClient;
 public class FrescoImageLoader implements ImageLoader {
 
     public FrescoImageLoader(Context context) {
-        init(context);
-    }
-
-    private void init(Context context) {
-        DiskCacheConfig diskCacheConfig =
-                DiskCacheConfig
-                        .newBuilder(context)
-                        .setBaseDirectoryPath(
-                                CacheManager.getInstance().getImageCache()
-                                        .getDirectory())
-                        .build();
-        ImagePipelineConfig config =
-                OkHttpImagePipelineConfigFactory
-                        .newBuilder(context,
-                                new OkHttpClient.Builder().build())
-                        .setDownsampleEnabled(true).setMainDiskCacheConfig(diskCacheConfig)
-                        .build();
-        Fresco.initialize(context, config);
     }
 
     @Override
