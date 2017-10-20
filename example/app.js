@@ -40,6 +40,7 @@ export default class App extends Component {
       cropping: cropping,
       width: 500,
       height: 500,
+      includeExif: true,
     }).then(image => {
       console.log('received image', image);
       this.setState({
@@ -54,7 +55,8 @@ export default class App extends Component {
       width: 300,
       height: 300,
       cropping: cropit,
-      includeBase64: true
+      includeBase64: true,
+      includeExif: true,
     }).then(image => {
       console.log('received base64 image');
       this.setState({
@@ -114,6 +116,7 @@ export default class App extends Component {
       compressImageMaxHeight: 480,
       compressImageQuality: 0.5,
       compressVideoPreset: 'MediumQuality',
+      includeExif: true,
     }).then(image => {
       console.log('received image', image);
       this.setState({
@@ -129,7 +132,8 @@ export default class App extends Component {
   pickMultiple() {
     ImagePicker.openPicker({
       multiple: true,
-      waitAnimationEnd: false
+      waitAnimationEnd: false,
+      includeExif: true,
     }).then(images => {
       this.setState({
         image: null,
