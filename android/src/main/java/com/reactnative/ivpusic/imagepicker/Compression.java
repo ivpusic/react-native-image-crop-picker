@@ -4,22 +4,20 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
-
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
+import id.zelory.compressor.Compressor;
 
 import java.io.File;
 import java.io.IOException;
-
-import id.zelory.compressor.Compressor;
 
 /**
  * Created by ipusic on 12/27/16.
  */
 
-public class Compression {
+class Compression {
 
-    public File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) throws IOException {
+    File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
@@ -65,7 +63,7 @@ public class Compression {
                 .compressToFile(image, compressedFileName);
     }
 
-    public synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
+    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
         // todo: video compression
         // failed attempt 1: ffmpeg => slow and licensing issues
         promise.resolve(originalVideo);
