@@ -137,7 +137,11 @@ ImagePicker.clean().then(() => {
 npm i react-native-image-crop-picker --save
 ```
 
-Link the package using react-native link:
+Linking using `Podfile` (**Highly recommended**, no need to do Post-install steps works)
+
+`pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'`
+
+or link the package using react-native link:
 
 ```
 react-native link react-native-image-crop-picker
@@ -153,7 +157,7 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 #### Step 2:
 
-##### Cocoapods (Highly recommended)
+##### Cocoapods (recommended)
 
 ```
 cd ios
