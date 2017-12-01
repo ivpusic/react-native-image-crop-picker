@@ -19,6 +19,7 @@
                                                                                  @"LowQuality": AVAssetExportPresetLowQuality,
                                                                                  @"MediumQuality": AVAssetExportPresetMediumQuality,
                                                                                  @"HighestQuality": AVAssetExportPresetHighestQuality,
+                                                                                 @"Passthrough": AVAssetExportPresetPassthrough,
                                                                                  }];
     NSOperatingSystemVersion systemVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     if (systemVersion.majorVersion >= 9) {
