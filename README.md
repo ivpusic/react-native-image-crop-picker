@@ -129,6 +129,8 @@ ImagePicker.clean().then(() => {
 | size                      | number | Selected image size in bytes             |
 | data                      | base64 | Optional base64 selected file representation |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
+| creationDate (ios only)   | string | UNIX timestamp when image was created    |
+| modificationDate          | string | UNIX timestamp when image was last modified |
 
 # Install
 

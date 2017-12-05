@@ -463,6 +463,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
                         try {
                             Bitmap bmp = validateVideo(videoPath);
+                            long modificationDate = new File(videoPath).lastModified();
 
                             WritableMap video = new WritableNativeMap();
                             video.putInt("width", bmp.getWidth());
@@ -470,6 +471,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putString("mime", mime);
                             video.putInt("size", (int) new File(videoPath).length());
                             video.putString("path", "file://" + videoPath);
+                            video.putString("modificationDate", String.valueOf(modificationDate));
 
                             resultCollector.notifySuccess(video);
                         } catch (Exception e) {
@@ -532,12 +534,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         File compressedImage = compression.compressImage(activity, options, path);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
+        long modificationDate = new File(path).lastModified();
 
         image.putString("path", "file://" + compressedImagePath);
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
         image.putInt("size", (int) new File(compressedImagePath).length());
+        image.putString("modificationDate", String.valueOf(modificationDate));
 
         if (includeBase64) {
             image.putString("data", getBase64StringFromFile(compressedImagePath));
@@ -581,7 +585,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setShowCropGrid(showCropGuidelines);
         options.setHideBottomControls(hideBottomControls);
         if (cropperToolbarTitle != null) {
-            options.setToolbarTitle(cropperToolbarTitle);    
+            options.setToolbarTitle(cropperToolbarTitle);
         }
         if (enableRotationGesture) {
             // UCropActivity.ALL = enable both rotation & scaling
