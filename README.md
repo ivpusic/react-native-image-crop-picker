@@ -239,8 +239,8 @@ Details for second approach:
 
 ## TO DO
 
-[ ] [Android] Multiple select
-[ ] [Android] Pick remote media
+- [ ] [Android] Multiple select
+- [ ] [Android] Pick remote media
 
 
 ## Contributors
