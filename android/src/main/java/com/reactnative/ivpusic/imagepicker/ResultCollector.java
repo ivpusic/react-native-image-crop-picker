@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by ipusic on 12/28/16.
  */
 
-public class ResultCollector {
+class ResultCollector {
     private Promise promise;
     private int waitCount;
     private boolean multiple;
@@ -21,7 +21,7 @@ public class ResultCollector {
     private WritableArray arrayResult;
     private boolean resultSent = false;
 
-    public ResultCollector(Promise promise, boolean multiple) {
+    ResultCollector(Promise promise, boolean multiple) {
         this.promise = promise;
         this.multiple = multiple;
 
@@ -32,12 +32,12 @@ public class ResultCollector {
 
     // if user has provided "multiple" option, we will wait for X number of result to come,
     // and also return result as an array
-    public void setWaitCount(int waitCount) {
+    void setWaitCount(int waitCount) {
         this.waitCount = waitCount;
         this.waitCounter = new AtomicInteger(0);
     }
 
-    public synchronized void notifySuccess(WritableMap result) {
+    synchronized void notifySuccess(WritableMap result) {
         if (resultSent) {
             Log.w("image-crop-picker", "Skipping result, already sent...");
         }
@@ -56,7 +56,7 @@ public class ResultCollector {
         }
     }
 
-    public synchronized void notifyProblem(String code, String message) {
+    synchronized void notifyProblem(String code, String message) {
         if (resultSent) {
             Log.w("image-crop-picker", "Skipping result, already sent...");
         }
@@ -66,7 +66,7 @@ public class ResultCollector {
         resultSent = true;
     }
 
-    public synchronized void notifyProblem(String code, Throwable throwable) {
+    synchronized void notifyProblem(String code, Throwable throwable) {
         if (resultSent) {
             Log.w("image-crop-picker", "Skipping result, already sent...");
         }

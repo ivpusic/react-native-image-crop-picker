@@ -6,6 +6,7 @@ declare module "react-native-image-crop-picker" {
         multiple?: boolean;
         path?: string;
         includeBase64?: boolean;
+        includeExif?: boolean;
         cropperTintColor?: string;
         cropperCircleOverlay?: boolean;
         maxFiles?: number;
@@ -31,10 +32,24 @@ declare module "react-native-image-crop-picker" {
         width: number;
         height: number;
         mime: string;
+        exif: null | object;
     }
 
     export function openPicker(options: Options): Promise<Image | Image[]>;
     export function openCamera(options: Options): Promise<Image | Image[]>;
     export function openCropper(options: Options): Promise<Image>;
-    export function clean(): Promise<void>
+    export function clean(): Promise<void>;
+    export function cleanSingle(path: string): Promise<void>;
+
+    export interface ImageCropPicker {
+        openPicker(options: Options): Promise<Image | Image[]>;
+        openCamera(options: Options): Promise<Image | Image[]>;
+        openCropper(options: Options): Promise<Image>;
+        clean(): Promise<void>;
+        cleanSingle(path: string): Promise<void>;
+    }
+
+    const ImageCropPicker: ImageCropPicker;
+
+    export default ImageCropPicker;
 }
