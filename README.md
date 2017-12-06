@@ -237,6 +237,12 @@ Details for second approach:
 2. Build for Device
 3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
 
+## TO DO
+
+- [ ] [Android] Standardize multiple select
+- [ ] [Android] Pick remote media
+
+
 ## Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
