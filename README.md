@@ -241,6 +241,7 @@ Details for second approach:
 
 - [ ] [Android] Standardize multiple select
 - [ ] [Android] Pick remote media
+- [ ] [Android] Video compression
 
 
 ## Contributors
