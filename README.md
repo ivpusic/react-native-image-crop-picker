@@ -239,7 +239,7 @@ Details for second approach:
 
 ## TO DO
 
-- [ ] [Android] Multiple select
+- [ ] [Android] Standardize multiple select
 - [ ] [Android] Pick remote media
 
 
