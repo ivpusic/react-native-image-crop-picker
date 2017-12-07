@@ -678,8 +678,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             final Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
                 try {
+                    WritableMap result = getSelection(activity, resultUri, false);
+                    result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
+
                     resultCollector.setWaitCount(1);
-                    resultCollector.notifySuccess(getSelection(activity, resultUri, false));
+                    resultCollector.notifySuccess(result);
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -728,5 +731,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return image;
 
+    }
+
+    private static WritableMap getCroppedRectMap(Intent data) {
+        final int DEFAULT_VALUE = -1;
+        final WritableMap map = new WritableNativeMap();
+
+        map.putInt("x", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, DEFAULT_VALUE));
+        map.putInt("y", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, DEFAULT_VALUE));
+        map.putInt("width", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, DEFAULT_VALUE));
+        map.putInt("height", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, DEFAULT_VALUE));
+
+        return map;
     }
 }
