@@ -190,6 +190,7 @@ pod install
 ### Android
 
 - Make sure you are using Gradle `2.2.x` (project build.gradle)
+
 ```gradle
 buildscript {
     ...
@@ -202,6 +203,7 @@ buildscript {
 ```
 
 - Add `useSupportLibrary` (app build.gradle)
+
 ```gradle
 android {
     ...
@@ -212,6 +214,18 @@ android {
         ...
     }
     ...
+}
+```
+
+- Add required repository
+
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+        ...
+    }
 }
 ```
 
