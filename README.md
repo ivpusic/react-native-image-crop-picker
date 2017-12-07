@@ -98,6 +98,7 @@ ImagePicker.clean().then(() => {
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
+| cropperToolbarTitle (android only)      |        string (default `Edit Photo`)     | When cropping image, determines the title of Toolbar. |
 | cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
 | minFiles (ios only)                     |            number (default 1)            | Min number of files to select when using `multiple` option |
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
@@ -128,6 +129,8 @@ ImagePicker.clean().then(() => {
 | size                      | number | Selected image size in bytes             |
 | data                      | base64 | Optional base64 selected file representation |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
+| creationDate (ios only)   | string | UNIX timestamp when image was created    |
+| modificationDate          | string | UNIX timestamp when image was last modified |
 
 # Install
 
@@ -187,6 +190,7 @@ pod install
 ### Android
 
 - Make sure you are using Gradle `2.2.x` (project build.gradle)
+
 ```gradle
 buildscript {
     ...
@@ -209,6 +213,7 @@ allprojects {
 ```
 
 - Add `useSupportLibrary` (app build.gradle)
+
 ```gradle
 android {
     ...
@@ -219,6 +224,18 @@ android {
         ...
     }
     ...
+}
+```
+
+- Add required repository
+
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+        ...
+    }
 }
 ```
 
@@ -243,6 +260,13 @@ Details for second approach:
 1. Remove the pre-built frameworks from `Embedded Binaries`
 2. Build for Device
 3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
+
+## TO DO
+
+- [ ] [Android] Standardize multiple select
+- [ ] [Android] Pick remote media
+- [ ] [Android] Video compression
+
 
 ## Contributors
 

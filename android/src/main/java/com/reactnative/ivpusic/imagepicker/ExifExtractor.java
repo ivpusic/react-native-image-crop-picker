@@ -13,9 +13,9 @@ import java.util.List;
 
 import static android.media.ExifInterface.*;
 
-public class ExifExtractor {
+class ExifExtractor {
 
-    public static WritableMap extract(String path) throws IOException {
+    static WritableMap extract(String path) throws IOException {
         WritableMap exifData = new WritableNativeMap();
 
         List<String> attributes = getBasicAttributes();

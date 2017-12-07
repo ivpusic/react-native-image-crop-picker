@@ -1,18 +1,18 @@
 package com.reactnative.ivpusic.imagepicker;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.content.ContentUris;
-import android.os.Environment;
-import android.support.annotation.RequiresApi;
+
 import java.io.File;
 
-public class RealPathUtil {
-  public static String getRealPathFromURI(final Context context, final Uri uri) {
+class RealPathUtil {
+  static String getRealPathFromURI(final Context context, final Uri uri) {
 
       final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
@@ -101,8 +101,8 @@ public class RealPathUtil {
    * @param selectionArgs (Optional) Selection arguments used in the query.
    * @return The value of the _data column, which is typically a file path.
    */
-  public static String getDataColumn(Context context, Uri uri, String selection,
-          String[] selectionArgs) {
+  private static String getDataColumn(Context context, Uri uri, String selection,
+                                      String[] selectionArgs) {
 
       Cursor cursor = null;
       final String column = "_data";
@@ -129,7 +129,7 @@ public class RealPathUtil {
    * @param uri The Uri to check.
    * @return Whether the Uri authority is ExternalStorageProvider.
    */
-  public static boolean isExternalStorageDocument(Uri uri) {
+  private static boolean isExternalStorageDocument(Uri uri) {
       return "com.android.externalstorage.documents".equals(uri.getAuthority());
   }
 
@@ -137,7 +137,7 @@ public class RealPathUtil {
    * @param uri The Uri to check.
    * @return Whether the Uri authority is DownloadsProvider.
    */
-  public static boolean isDownloadsDocument(Uri uri) {
+  private static boolean isDownloadsDocument(Uri uri) {
       return "com.android.providers.downloads.documents".equals(uri.getAuthority());
   }
 
@@ -145,7 +145,7 @@ public class RealPathUtil {
    * @param uri The Uri to check.
    * @return Whether the Uri authority is MediaProvider.
    */
-  public static boolean isMediaDocument(Uri uri) {
+  private static boolean isMediaDocument(Uri uri) {
       return "com.android.providers.media.documents".equals(uri.getAuthority());
   }
 
@@ -153,12 +153,11 @@ public class RealPathUtil {
    * @param uri The Uri to check.
    * @return Whether the Uri authority is Google Photos.
    */
-  public static boolean isGooglePhotosUri(Uri uri) {
+  private static boolean isGooglePhotosUri(Uri uri) {
       return "com.google.android.apps.photos.content".equals(uri.getAuthority());
   }
 
-  @RequiresApi(Build.VERSION_CODES.KITKAT)
-  public static String getPathToNonPrimaryVolume(Context context, String tag) {
+  private static String getPathToNonPrimaryVolume(Context context, String tag) {
       File[] volumes = context.getExternalCacheDirs();
       if (volumes != null) {
           for (File volume : volumes) {
