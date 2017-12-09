@@ -26,16 +26,18 @@ public class FrescoImageLoader implements ImageLoader {
 
     @Override
     public void bindImage(ImageView photoImageView, Uri uri, int width, int height) {
-        DraweeView draweeView = (DraweeView) photoImageView;
-        final ImageRequestBuilder requestBuilder = ImageRequestBuilder.newBuilderWithSource(uri);
-        if (width > 0 && height > 0) {
-            requestBuilder.setResizeOptions(new ResizeOptions(width, height));
+        if (Fresco.hasBeenInitialized()) {
+            DraweeView draweeView = (DraweeView) photoImageView;
+            final ImageRequestBuilder requestBuilder = ImageRequestBuilder.newBuilderWithSource(uri);
+            if (width > 0 && height > 0) {
+                requestBuilder.setResizeOptions(new ResizeOptions(width, height));
+            }
+            ImageRequest imageRequest = requestBuilder.build();
+            DraweeController controller = Fresco.newDraweeControllerBuilder()
+                    .setOldController(draweeView.getController())
+                    .setImageRequest(imageRequest).build();
+            draweeView.setController(controller);
         }
-        ImageRequest imageRequest = requestBuilder.build();
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
-                .setOldController(draweeView.getController())
-                .setImageRequest(imageRequest).build();
-        draweeView.setController(controller);
     }
 
     @Override
