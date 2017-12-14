@@ -29,6 +29,13 @@
 			remoteGlobalIDString = A5BE393D1B32B49D00ECDF88;
 			remoteInfo = RSKImageCropper;
 		};
+		D4A529261FE2A89E00F2C3A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34434E351D6F5EBB00BF5063 /* RSKImageCropper.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A5BE393C1B32B49D00ECDF88;
+			remoteInfo = RSKImageCropper;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -126,6 +133,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D4A529271FE2A89E00F2C3A5 /* PBXTargetDependency */,
 			);
 			name = imageCropPicker;
 			productName = picker;
@@ -207,6 +215,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D4A529271FE2A89E00F2C3A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RSKImageCropper;
+			targetProxy = D4A529261FE2A89E00F2C3A5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3400A80F1CEB54A6008A0BC7 /* Debug */ = {
