@@ -254,13 +254,21 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             
             if ([self.options objectForKey:@"smartAlbums"] != nil) {
                 NSDictionary *smartAlbums = @{
-                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
-                                              @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                                              @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
                                               @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
                                               @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                              @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                                              @"Timelapses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
+                                              @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
+                                              @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
                                               @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                              @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                              @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                                              @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                                              @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
                                               };
-                NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
+                NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:13];
                 for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
                     if ([smartAlbums objectForKey:album] != nil) {
                         [albumsToShow addObject:[smartAlbums objectForKey:album]];
@@ -424,7 +432,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"data": (data) ? data : [NSNull null],
              @"exif": (exif) ? exif : [NSNull null],
              @"cropRect": CGRectIsNull(cropRect) ? [NSNull null] : [ImageCropPicker cgRectToDictionary:cropRect],
-             @"creationDate:": (creationDate) ? [NSString stringWithFormat:@"%.0f", [creationDate timeIntervalSince1970]] : [NSNull null],
+             @"creationDate": (creationDate) ? [NSString stringWithFormat:@"%.0f", [creationDate timeIntervalSince1970]] : [NSNull null],
              @"modificationDate": (modificationDate) ? [NSString stringWithFormat:@"%.0f", [modificationDate timeIntervalSince1970]] : [NSNull null],
              };
 }
