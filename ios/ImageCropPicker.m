@@ -429,6 +429,25 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              };
 }
 
+// See https://stackoverflow.com/questions/4147311/finding-image-type-from-nsdata-or-uiimage
+- (NSString *)determineMimeTypeFromImageData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+
+    switch (c) {
+        case 0xFF:
+            return @"image/jpeg";
+        case 0x89:
+            return @"image/png";
+        case 0x47:
+            return @"image/gif";
+        case 0x49:
+        case 0x4D:
+            return @"image/tiff";
+    }
+    return @"";
+}
+
 - (void)qb_imagePickerController:
 (QBImagePickerController *)imagePickerController
           didFinishPickingAssets:(NSArray *)assets {
@@ -487,9 +506,28 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              [lock lock];
                              @autoreleasepool {
                                  UIImage *imgT = [UIImage imageWithData:imageData];
-                                 UIImage *imageT = [imgT fixOrientation];
-                                 
-                                 ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
+
+                                 NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
+                                 Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] == 1);
+
+                                 NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
+                                 Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
+
+                                 NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
+                                 Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+
+                                 ImageResult *imageResult = [[ImageResult alloc] init];
+                                 if (isLossless && useOriginalWidth && useOriginalHeight) {
+                                     // Use original, unmodified image
+                                     imageResult.data = imageData;
+                                     imageResult.width = @(imgT.size.width);
+                                     imageResult.height = @(imgT.size.height);
+                                     imageResult.mime = [self determineMimeTypeFromImageData:imageData];
+                                     imageResult.image = imgT;
+                                 } else {
+                                     imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
+                                 }
+
                                  NSString *filePath = [self persistFile:imageResult.data];
                                  
                                  if (filePath == nil) {
