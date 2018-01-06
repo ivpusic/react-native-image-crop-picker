@@ -20,38 +20,46 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <activity android:name=".AlbumListActivity" />
+        <activity android:name=".AlbumListActivity"
+            android:theme="@style/AppTheme.Picture" />
 
-        <activity android:name=".PhotoListActivity" />
+        <activity android:name=".PhotoListActivity"
+            android:theme="@style/AppTheme.Picture" />
+
+        <activity
+            android:name=".PickerModuleActivity"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".activity.PhotoPickerActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture" />
 
         <activity
             android:name=".activity.PickerPreviewActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Picture"/>
+            android:theme="@style/AppTheme.Picture" />
 
         <activity
             android:name=".activity.CaptureConfirmActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Picture"/>
+            android:theme="@style/AppTheme.Picture" />
 
         <activity
             android:name=".activity.CropImageActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Picture"/>
+            android:theme="@style/AppTheme.Picture" />
 
         <activity
             android:name=".activity.CaptureTempActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Picture"/>
+            android:theme="@style/AppTheme.Picture" />
 
 
         <activity
             android:name=".activity.SelectedPreviewActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Picture" />
 
     </application>
 

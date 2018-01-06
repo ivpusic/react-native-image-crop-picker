@@ -46,6 +46,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import static com.reactnative.ivpusic.imagepicker.PickerModuleActivity.IS_PICK_KEY;
+import static com.reactnative.ivpusic.imagepicker.PickerModuleActivity.REQUEST_CODE_KEY;
+import static com.reactnative.ivpusic.imagepicker.PickerModuleActivity.URI_KEY;
+
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
     private static final int IMAGE_PICKER_REQUEST = 61110;
@@ -89,10 +93,16 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector;
     private Compression compression = new Compression();
+    private static PickerModule modue;
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
+        modue = this;
+    }
+
+    public static PickerModule getModue() {
+        return modue;
     }
 
     private String getTmpDir(Activity activity) {
@@ -135,6 +145,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void clean(final Promise promise) {
+        //TODO 4.4
         final Activity activity = getCurrentActivity();
         final PickerModule module = this;
         if (activity == null) {
@@ -166,7 +177,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             promise.reject(E_ERROR_WHILE_CLEANING_FILES, "Cannot cleanup empty path");
             return;
         }
-
+        //TODO 4.4
         final Activity activity = getCurrentActivity();
         final PickerModule module = this;
 
@@ -202,6 +213,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openCamera(final ReadableMap options, final Promise promise) {
+        //TODO 4.4
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -228,6 +240,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
+        //TODO 4.4
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -249,6 +262,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openCropper(final ReadableMap options, final Promise promise) {
+        //TODO 4.4
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -308,7 +322,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiateCamera(Activity activity) {
         try {
             int requestCode = CAMERA_PICKER_REQUEST;
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             File imageFile = createImageFile();
 
@@ -319,12 +332,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                         activity.getApplicationContext().getPackageName() + ".provider",
                         imageFile);
             }
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
                 return;
             }
-            activity.startActivityForResult(cameraIntent, requestCode);
+            //TODO 4.4
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Intent intent = new Intent(activity, PickerModuleActivity.class);
+                intent.putExtra(URI_KEY,mCameraCaptureURI);
+                intent.putExtra(REQUEST_CODE_KEY, requestCode);
+                activity.startActivity(intent);
+            } else {
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+                activity.startActivityForResult(cameraIntent, requestCode);
+            }
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
         }
@@ -332,31 +354,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
-            //      final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
-
-            //      if (cropping || mediaType.equals("photo")) {
-            //        galleryIntent.setType("image/*");
-            //      } else if (mediaType.equals("video")) {
-            //        galleryIntent.setType("video/*");
-            //      } else {
-            //        galleryIntent.setType("*/*");
-            //        String[] mimetypes = {"image/*", "video/*"};
-            //        galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-            //      }
-            //
-            //      galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            //      galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            //      galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-
             Activity currentActivity = getCurrentActivity();
             if (null != currentActivity) {
-                final Intent albumIntent = new Intent(currentActivity, AlbumListActivity.class);
+                final Intent albumIntent = new Intent();
                 albumIntent.putExtra("multiple", multiple);
                 albumIntent.putExtra("maxFiles", maxFiles);
-                activity.startActivityForResult(albumIntent, IMAGE_PICKER_REQUEST);
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                    albumIntent.putExtra(IS_PICK_KEY, true);
+                    albumIntent.putExtra(REQUEST_CODE_KEY, IMAGE_PICKER_REQUEST);
+                    albumIntent.setClass(currentActivity, PickerModuleActivity.class);
+                    activity.startActivity(albumIntent);
+                } else {
+                    albumIntent.setClass(currentActivity, AlbumListActivity.class);
+                    activity.startActivityForResult(albumIntent, IMAGE_PICKER_REQUEST);
+                }
             }
-            //      final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            //      activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
@@ -632,6 +644,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
+        //TODO 4.4
         if (requestCode == IMAGE_PICKER_REQUEST) {
             imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {
@@ -667,5 +680,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return image;
 
+    }
+
+
+    public Activity getActivity() {
+        return getCurrentActivity();
     }
 }

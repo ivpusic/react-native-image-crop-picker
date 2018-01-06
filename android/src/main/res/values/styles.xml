@@ -32,9 +32,9 @@
     </style>
 
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="app_bar_no_shadow">
         <item name="elevation">0dp</item>
@@ -47,8 +47,8 @@
 
     <style name="AppTheme.Picture">
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
 
     <style name="AnimationStylePopup">
