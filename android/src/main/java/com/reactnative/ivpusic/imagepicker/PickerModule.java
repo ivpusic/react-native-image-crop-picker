@@ -145,7 +145,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void clean(final Promise promise) {
-        //TODO 4.4
         final Activity activity = getCurrentActivity();
         final PickerModule module = this;
         if (activity == null) {
@@ -177,7 +176,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             promise.reject(E_ERROR_WHILE_CLEANING_FILES, "Cannot cleanup empty path");
             return;
         }
-        //TODO 4.4
         final Activity activity = getCurrentActivity();
         final PickerModule module = this;
 
@@ -213,7 +211,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openCamera(final ReadableMap options, final Promise promise) {
-        //TODO 4.4
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -240,7 +237,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
-        //TODO 4.4
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -262,7 +258,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openCropper(final ReadableMap options, final Promise promise) {
-        //TODO 4.4
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -337,7 +332,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
                 return;
             }
-            //TODO 4.4
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Intent intent = new Intent(activity, PickerModuleActivity.class);
                 intent.putExtra(URI_KEY,mCameraCaptureURI);
@@ -644,7 +638,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
-        //TODO 4.4
         if (requestCode == IMAGE_PICKER_REQUEST) {
             imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {

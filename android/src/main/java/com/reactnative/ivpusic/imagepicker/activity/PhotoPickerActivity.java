@@ -263,10 +263,10 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
             return;
         }
         final ArrayList<String> selectedPhoto = photoController.getSelectedPhoto();
-        if (selectedPhoto == null) {
+        if (selectedPhoto == null || !selectedPhoto.isEmpty()) {
             return;
         }
-        if (!selectedPhoto.isEmpty()) {
+
             /**
              * 确定后 获取选中的photo的存储路径
              */
@@ -274,7 +274,7 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
                 Log.e("Photo", photo);
             }
             setResultAndFinish(selectedPhoto, AlbumListActivity.REQUEST_CODE_IMAGE);
-        }
+
     }
 
     private void setResultAndFinish(ArrayList<String> selected, int resultCode) {
