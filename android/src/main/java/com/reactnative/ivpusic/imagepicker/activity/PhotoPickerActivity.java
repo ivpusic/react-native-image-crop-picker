@@ -259,17 +259,22 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
     }
 
     private void commit() {
-        if (!photoController.getSelectedPhoto().isEmpty()) {
+        if (photoController == null) {
+            return;
+        }
+        final ArrayList<String> selectedPhoto = photoController.getSelectedPhoto();
+        if (selectedPhoto == null || !selectedPhoto.isEmpty()) {
+            return;
+        }
 
             /**
              * 确定后 获取选中的photo的存储路径
              */
-            List<String> photos = photoController.getSelectedPhoto();
-            for (String photo : photos) {
+            for (String photo : selectedPhoto) {
                 Log.e("Photo", photo);
             }
-            setResultAndFinish(photoController.getSelectedPhoto(), AlbumListActivity.REQUEST_CODE_IMAGE);
-        }
+            setResultAndFinish(selectedPhoto, AlbumListActivity.REQUEST_CODE_IMAGE);
+
     }
 
     private void setResultAndFinish(ArrayList<String> selected, int resultCode) {
