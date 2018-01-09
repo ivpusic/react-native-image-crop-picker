@@ -254,11 +254,26 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             
             if ([self.options objectForKey:@"smartAlbums"] != nil) {
                 NSDictionary *smartAlbums = @{
-                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                              //cloud albums
                                               @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+
+                                              //smart albums
+                                              @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
                                               @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
                                               @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                              @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                                              @"Timepalses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
+                                              @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
+                                              @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
                                               @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                              @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                              @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                                              @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                                              @"DepthEffect" : @(PHAssetCollectionSubtypeSmartAlbumDepthEffect),
+                                              @"LivePhotos" : @(PHAssetCollectionSubtypeSmartAlbumLivePhotos),
+                                              @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
+                                              @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
                                               };
                 NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
                 for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
