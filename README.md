@@ -93,7 +93,7 @@ ImagePicker.clean().then(() => {
 
 ### Request Object
 
-| Property                                |                   Type                   | Description                              |
+| Property                                |                   Type                   | Description                           |
 | --------------------------------------- | :--------------------------------------: | :--------------------------------------- |
 | cropping                                |           bool (default false)           | Enable or disable cropping               |
 | width                                   |                  number                  | Width of result image when used with `cropping` option |
@@ -109,7 +109,7 @@ ImagePicker.clean().then(() => {
 | minFiles (ios only)                     |            number (default 1)            | Min number of files to select when using `multiple` option |
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
-| smartAlbums (ios only)                  | array (supported values: ['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timepalses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']) (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
+| smartAlbums (ios only)                  | array (supported values: ) (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
 | useFrontCamera (ios only)               |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
@@ -121,6 +121,13 @@ ImagePicker.clean().then(() => {
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
+
+#### Smart Album Types (ios)
+
+```
+['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timepalses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']
+```
+
 ### Response Object
 
 | Property                  |  Type  | Description                              |
