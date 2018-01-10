@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.reactnative.ivpusic.imagepicker.activity.BasePickerActivity;
 import com.reactnative.ivpusic.imagepicker.activity.PhotoPickerActivity;
 import com.reactnative.ivpusic.imagepicker.imageloader.FrescoImageLoader;
 import com.reactnative.ivpusic.imagepicker.util.BitmapUtil;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  * 选择相册
  */
-public class AlbumListActivity extends AppCompatActivity {
+public class AlbumListActivity extends BasePickerActivity {
 
     private static Activity instance;
 
@@ -66,9 +67,13 @@ public class AlbumListActivity extends AppCompatActivity {
     }
 
     @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_album_list;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_album_list);
         instance = this;
 
         SImagePicker.init(new PickerConfig.Builder().setAppContext(this)

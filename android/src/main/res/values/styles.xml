@@ -11,12 +11,9 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
     </style>
 
     <style name="ActionBarStyleNoShadow" parent="Widget.AppCompat.ActionBar">
-        <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
     </style>
 
@@ -24,10 +21,8 @@
         <item name="android:background">@drawable/bg_toolbar_spinner</item>
         <item name="android:dropDownSelector">@drawable/bs_selectable</item>
         <item name="android:divider">@null</item>
-        <item name="android:overlapAnchor">true</item>
         <item name="android:dropDownVerticalOffset">10dip</item>
         <item name="android:dropDownHorizontalOffset">0dip</item>
-        <item name="android:popupElevation">0.1dp</item>
         <item name="android:popupBackground">@drawable/bg_spinner_default</item>
     </style>
 
@@ -49,6 +44,14 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:background">@android:color/white</item>
         <item name="android:windowBackground">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.White">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fitsSystemWindows">false</item>
     </style>
 
     <style name="AnimationStylePopup">

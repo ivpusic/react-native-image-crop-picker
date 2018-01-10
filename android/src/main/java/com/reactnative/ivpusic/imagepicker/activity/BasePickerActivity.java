@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import im.shi.statusbarmanager.RNStatusbarManagerModule;
+
 /**
  * Created by Martin on 2017/1/16.
  */
@@ -17,6 +19,7 @@ public abstract class BasePickerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        RNStatusbarManagerModule.translucentStatusBar(this, true);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (getLayoutResId() != 0) {
             contentView = inflater.inflate(getLayoutResId(), null, false);
@@ -24,6 +27,7 @@ public abstract class BasePickerActivity extends AppCompatActivity {
         if (contentView != null) {
             setContentView(contentView);
         }
+        RNStatusbarManagerModule.steepStatusbarView(this, contentView,true);
     }
 
     @Override

@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#CCffffff"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.reactnative.ivpusic.imagepicker.widget.MultiPreviewViewPager
@@ -25,6 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|center_vertical"
+            android:background="@android:color/transparent"
             android:layout_marginRight="12dp"
             android:textSize="16sp"/>
 
@@ -42,14 +44,16 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginLeft="16dp"
+            android:background="@android:color/transparent"
             android:scaleType="fitCenter"
             android:src="@mipmap/back_preview" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:background="@android:color/transparent"
             android:layout_weight="1"/>
-        
+
         <com.reactnative.ivpusic.imagepicker.widget.CheckBox
             android:id="@+id/check_view"
             android:layout_width="38dp"
