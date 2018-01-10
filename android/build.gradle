@@ -27,4 +27,5 @@ dependencies {
     compile 'com.facebook.fresco:fresco:0.12.0'
     compile "com.android.support:appcompat-v7:${supportVersion}"
     compile "com.android.support:recyclerview-v7:${supportVersion}"
+    compile project(path: ':react-native-statusbar-manager')
 }

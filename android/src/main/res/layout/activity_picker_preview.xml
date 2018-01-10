@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
@@ -15,16 +16,17 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <com.reactnative.ivpusic.imagepicker.widget.PreviewViewPager
                 android:id="@+id/viewpager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <com.reactnative.ivpusic.imagepicker.widget.PickerBottomLayout
                 android:id="@+id/picker_bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"/>
+                android:layout_gravity="bottom" />
         </FrameLayout>
 
 
@@ -36,25 +38,27 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
         android:layout_gravity="top"
-        android:background="?attr/colorPrimary"
+        android:background="@color/transparent_70_black"
         android:titleTextColor="@color/white">
 
         <ImageView
             android:id="@+id/nav_icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:background="@android:color/transparent"
             android:scaleType="center"
-            android:src="@drawable/ic_general_back"/>
+            android:src="@drawable/ic_general_back" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="30dp"
+            android:background="@android:color/transparent"
             android:gravity="center_vertical"
             android:textColor="@color/white"
             android:textSize="20dp"
-            tools:text="haha"/>
+            tools:text="haha" />
 
         <com.reactnative.ivpusic.imagepicker.widget.CheckBox
             android:id="@+id/checkbox"
@@ -62,9 +66,10 @@
             android:layout_height="24dp"
             android:layout_gravity="center_vertical|right"
             android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
             app:checkbox_color="@color/white"
             app:checkbox_size="24dp"
             app:checked_drawable="@drawable/ic_album_tick_blue"
-            app:unchecked_color="@color/transparent_70_white"/>
+            app:unchecked_color="@color/transparent_70_white" />
     </android.support.v7.widget.Toolbar>
 </FrameLayout>

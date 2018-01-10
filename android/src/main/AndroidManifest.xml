@@ -20,15 +20,18 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <activity android:name=".AlbumListActivity"
+        <activity
+            android:name=".AlbumListActivity"
             android:theme="@style/AppTheme.Picture" />
 
-        <activity android:name=".PhotoListActivity"
+        <activity
+            android:name=".PhotoListActivity"
             android:theme="@style/AppTheme.Picture" />
 
         <activity
             android:name=".PickerModuleActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.White" />
 
         <activity
             android:name=".activity.PhotoPickerActivity"
