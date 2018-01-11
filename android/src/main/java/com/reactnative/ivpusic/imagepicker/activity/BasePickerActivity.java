@@ -7,7 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import im.shi.statusbarmanager.RNStatusbarManagerModule;
+import im.shimo.statusbarmanager.RNStatusbarManagerModule;
+
 
 /**
  * Created by Martin on 2017/1/16.

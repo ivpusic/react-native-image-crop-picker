@@ -19,7 +19,8 @@ import com.reactnative.ivpusic.imagepicker.widget.MultiPreviewViewPager;
 
 import java.util.ArrayList;
 
-import im.shi.statusbarmanager.RNStatusbarManagerModule;
+import im.shimo.statusbarmanager.RNStatusbarManagerModule;
+
 
 /**
  * Created by jack on 2017/5/8.
