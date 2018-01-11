@@ -6,9 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +18,8 @@ import com.reactnative.ivpusic.imagepicker.widget.CheckBox;
 import com.reactnative.ivpusic.imagepicker.widget.MultiPreviewViewPager;
 
 import java.util.ArrayList;
+
+import im.shi.statusbarmanager.RNStatusbarManagerModule;
 
 /**
  * Created by jack on 2017/5/8.
@@ -60,12 +61,10 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);//隐藏标题
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); // 隐藏状态栏
-        setContentView(R.layout.activity_media_preview);
-
+        RNStatusbarManagerModule.translucentStatusBar(this, true);
+        View content = LayoutInflater.from(this).inflate(R.layout.activity_media_preview, null);
+        setContentView(content);
+        RNStatusbarManagerModule.steepStatusbarView(this, content,false);
         selectedUris = new ArrayList<>();
         allUris = new ArrayList<>();
         firstUri = Uri.parse("");
