@@ -33,5 +33,5 @@
   },
   "dependencies": {
     "react-native-statusbar-manager": "^0.4.1"
-  },
+  }
 }
