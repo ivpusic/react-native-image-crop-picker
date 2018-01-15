@@ -220,6 +220,7 @@ public class PhotoListActivity extends AppCompatActivity {
             view.setPadding(3, 3, 0, 0);
             Photo photo = getItem(position);
             ImageView cover = (ImageView) view.findViewById(R.id.photo_cover);
+            cover.setClickable(true);
             try {
                 cover.setImageBitmap(getBitmapFormUri(activity, Uri.parse(photo.getCover())));
             } catch (IOException e) {

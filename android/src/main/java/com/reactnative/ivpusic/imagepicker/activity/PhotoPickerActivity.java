@@ -180,8 +180,13 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
         tvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                photoController.cancelSelectedPhoto();
-                updateBottomBar();
+                //添加返回事件
+                if (photoController.getSelectedPhoto().isEmpty()) {
+                    onBackPressed();
+                } else {
+                    photoController.cancelSelectedPhoto();
+                    updateBottomBar();
+                }
             }
         });
 
@@ -220,7 +225,6 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
                 commit();
             }
         });
-
         bottomLayout.preview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -263,17 +267,17 @@ public class PhotoPickerActivity extends BasePickerActivity implements PickerAct
             return;
         }
         final ArrayList<String> selectedPhoto = photoController.getSelectedPhoto();
-        if (selectedPhoto == null || !selectedPhoto.isEmpty()) {
+        if (selectedPhoto == null || selectedPhoto.isEmpty()) {
             return;
         }
 
-            /**
-             * 确定后 获取选中的photo的存储路径
-             */
-            for (String photo : selectedPhoto) {
-                Log.e("Photo", photo);
-            }
-            setResultAndFinish(selectedPhoto, AlbumListActivity.REQUEST_CODE_IMAGE);
+        /**
+         * 确定后 获取选中的photo的存储路径
+         */
+        for (String photo : selectedPhoto) {
+            Log.e("Photo", photo);
+        }
+        setResultAndFinish(selectedPhoto, AlbumListActivity.REQUEST_CODE_IMAGE);
 
     }
 
