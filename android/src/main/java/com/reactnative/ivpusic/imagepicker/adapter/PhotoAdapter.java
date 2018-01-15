@@ -131,6 +131,7 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
             super(itemView);
             photoCell = (SquareRelativeLayout) itemView.findViewById(R.id.photo_cell);
             coverView = itemView.findViewById(R.id.photo_cover);
+            coverView.setClickable(true);
         }
     }
 
