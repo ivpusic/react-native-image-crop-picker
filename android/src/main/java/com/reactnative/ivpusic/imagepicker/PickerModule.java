@@ -75,6 +75,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private ReadableMap options;
 
+    private long openPickerTime = 0;
 
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
@@ -315,6 +316,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
+            openPickerTime = System.currentTimeMillis();
             final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
 
             if (cropping || mediaType.equals("photo")) {
@@ -350,13 +352,16 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector = new ResultCollector(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                initiatePicker(activity);
-                return null;
-            }
-        });
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - openPickerTime > 500) {
+                permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        initiatePicker(activity);
+                        return null;
+                    }
+                });
+        }
     }
 
     @ReactMethod
