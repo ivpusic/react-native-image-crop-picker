@@ -16,10 +16,12 @@ import im.shimo.statusbarmanager.RNStatusbarManagerModule;
 
 public abstract class BasePickerActivity extends AppCompatActivity {
     protected View contentView;
+    private static Context mApplicationContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mApplicationContext = getApplicationContext();
         RNStatusbarManagerModule.translucentStatusBar(this, true);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (getLayoutResId() != 0) {
@@ -28,7 +30,7 @@ public abstract class BasePickerActivity extends AppCompatActivity {
         if (contentView != null) {
             setContentView(contentView);
         }
-        RNStatusbarManagerModule.steepStatusbarView(this, contentView,true);
+        RNStatusbarManagerModule.steepStatusbarView(this, contentView, true);
     }
 
     @Override
@@ -37,4 +39,8 @@ public abstract class BasePickerActivity extends AppCompatActivity {
     }
 
     protected abstract int getLayoutResId();
+
+    public static Context getAppContext() {
+        return mApplicationContext;
+    }
 }

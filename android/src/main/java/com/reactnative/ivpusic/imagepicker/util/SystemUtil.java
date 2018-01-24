@@ -8,8 +8,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.WindowManager;
 
 import java.io.File;
 
@@ -22,16 +20,17 @@ public class SystemUtil {
     public static float density = 1;
     public static Point displaySize = new Point();
     public static DisplayMetrics displayMetrics = new DisplayMetrics();
-    public static final Handler uiHandler = new Handler(Looper.getMainLooper());
     public static int statusBarHeight = 0;
 
     private SystemUtil() {
     }
 
 
-    public static void init(Context context) {
-        density = context.getResources().getDisplayMetrics().density;
-        checkDisplaySize(context);
+    public static void init(float density, DisplayMetrics displayMetrics, Point point) {
+        SystemUtil.density = density;
+        SystemUtil.displayMetrics = displayMetrics;
+        SystemUtil.displaySize = point;
+        checkDisplaySize();
         statusBarHeight = getStatusBarHeight();
     }
 
@@ -60,19 +59,7 @@ public class SystemUtil {
         return (int) Math.ceil(density * value);
     }
 
-    public static void checkDisplaySize(Context context) {
-        try {
-            WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            if (manager != null) {
-                Display display = manager.getDefaultDisplay();
-                if (display != null) {
-                    display.getMetrics(displayMetrics);
-                    display.getSize(displaySize);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static void checkDisplaySize() {
         if (displayMetrics != null && displayMetrics.heightPixels < displayMetrics.widthPixels) {
             final int tmp = displayMetrics.heightPixels;
             displayMetrics.heightPixels = displayMetrics.widthPixels;
@@ -82,15 +69,6 @@ public class SystemUtil {
             final int tmp = displaySize.y;
             displaySize.y = displaySize.x;
             displaySize.x = tmp;
-        }
-    }
-
-    public static String getSdkVersion() {
-        try {
-            return Build.VERSION.SDK;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return String.valueOf(getSdkVersionInt());
         }
     }
 
@@ -108,6 +86,7 @@ public class SystemUtil {
     }
 
     public static void runOnUIThread(Runnable runnable, long delay) {
+        final Handler uiHandler = new Handler(Looper.getMainLooper());
         if (delay == 0) {
             uiHandler.post(runnable);
         } else {
@@ -116,6 +95,7 @@ public class SystemUtil {
     }
 
     public static void cancelTask(Runnable runnable) {
+        final Handler uiHandler = new Handler(Looper.getMainLooper());
         if (runnable != null) {
             uiHandler.removeCallbacks(runnable);
         }

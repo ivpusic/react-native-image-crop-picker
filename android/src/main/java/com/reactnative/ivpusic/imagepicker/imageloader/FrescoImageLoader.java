@@ -21,7 +21,7 @@ import com.reactnative.ivpusic.imagepicker.ScaleTypeFillCenterInside;
 
 public class FrescoImageLoader implements ImageLoader {
 
-    public FrescoImageLoader(Context context) {
+    public FrescoImageLoader() {
     }
 
     @Override

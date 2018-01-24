@@ -62,7 +62,7 @@ public class SImagePicker {
 
     public static void init(PickerConfig config) {
         pickerConfig = config;
-        SystemUtil.init(config.getAppContext());
+        SystemUtil.init(config.getDensity(), config.getDisplayMetrics(), config.getDisplaySize());
     }
 
     public static PickerConfig getPickerConfig() {

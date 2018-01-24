@@ -66,7 +66,7 @@ public class PhotoAdapter extends BaseRecycleCursorAdapter<RecyclerView.ViewHold
         PickerConfig pickerConfig = SImagePicker.getPickerConfig();
         if (pickerConfig == null) {
             pickerConfig = new PickerConfig.Builder().setAppContext(this.mContext)
-                    .setImageLoader(new FrescoImageLoader(this.mContext))
+                    .setImageLoader(new FrescoImageLoader())
                     .build();
             SImagePicker.init(pickerConfig);
         }
