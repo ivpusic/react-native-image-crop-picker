@@ -162,6 +162,7 @@
 				en,
 				de,
 				es,
+				fr,
 				ja,
 				pl,
 				"zh-Hans",
