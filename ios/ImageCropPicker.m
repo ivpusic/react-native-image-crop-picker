@@ -357,7 +357,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     imageCropVC.delegate = self;
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     });
