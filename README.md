@@ -216,13 +216,17 @@ buildscript {
 }
 ```
 
-- Add the following to your `build.gradle`'s repositories section. (project build.gradle)
+- **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
 
 ```gradle
 allprojects {
     repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
+      mavenLocal()
+      jcenter()
+      maven { url "$rootDir/../node_modules/react-native/android" }
+
+      // jitpack repo is necessary to fetch ucrop dependency
+      maven { url "https://jitpack.io" }
     }
 }
 ```
