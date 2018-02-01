@@ -37,6 +37,28 @@
 @implementation ImageResult
 @end
 
+@interface LabeledCropView : RSKImageCropViewController {
+}
+@property NSString *toolbarTitle;
+- (UILabel *)moveAndScaleLabel;
+@end
+
+UILabel *_moveAndScaleLabel;
+@implementation LabeledCropView
+    - (UILabel *)moveAndScaleLabel
+{
+    if (!_moveAndScaleLabel) {
+        _moveAndScaleLabel = [[UILabel alloc] init];
+        _moveAndScaleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _moveAndScaleLabel.backgroundColor = [UIColor clearColor];
+        _moveAndScaleLabel.textColor = [UIColor whiteColor];
+        _moveAndScaleLabel.opaque = NO;
+    }
+    _moveAndScaleLabel.text = self.toolbarTitle;
+    return _moveAndScaleLabel;
+}
+@end
+
 @implementation ImageCropPicker
 
 RCT_EXPORT_MODULE();
@@ -323,18 +345,19 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 - (void)startCropping:(UIImage *)image {
-    RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image];
+    LabeledCropView *imageCropVC = [[LabeledCropView alloc] initWithImage:image];
     if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
         imageCropVC.cropMode = RSKImageCropModeCircle;
     } else {
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
+    imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
     imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     });
