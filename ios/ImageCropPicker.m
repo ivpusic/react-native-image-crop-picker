@@ -50,6 +50,7 @@ RCT_EXPORT_MODULE();
                                 @"multiple": @NO,
                                 @"cropping": @NO,
                                 @"cropperCircleOverlay": @NO,
+                                @"writeTempFile": @YES,
                                 @"includeBase64": @NO,
                                 @"includeExif": @NO,
                                 @"compressVideo": @YES,
@@ -428,7 +429,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
 - (NSDictionary*) createAttachmentResponse:(NSString*)filePath withExif:(NSDictionary*) exif withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withRect:(CGRect)cropRect withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
     return @{
-             @"path": filePath,
+             @"path": (filePath && ![filePath isEqualToString:(@"")]) ? filePath : [NSNull null],
              @"sourceURL": (sourceURL) ? sourceURL : [NSNull null],
              @"localIdentifier": (localIdentifier) ? localIdentifier : [NSNull null],
              @"filename": (filename) ? filename : [NSNull null],
@@ -543,15 +544,19 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                      imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
                                  }
 
-                                 NSString *filePath = [self persistFile:imageResult.data];
-                                 
-                                 if (filePath == nil) {
-                                     [indicatorView stopAnimating];
-                                     [overlayView removeFromSuperview];
-                                     [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                                     }]];
-                                     return;
+                                 NSString *filePath = @"";
+                                 if([[self.options objectForKey:@"writeTempFile"] boolValue]) {
+
+                                     filePath = [self persistFile:imageResult.data];
+
+                                     if (filePath == nil) {
+                                         [indicatorView stopAnimating];
+                                         [overlayView removeFromSuperview];
+                                         [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                         }]];
+                                         return;
+                                     }
                                  }
                                  
                                  NSDictionary* exif = nil;
