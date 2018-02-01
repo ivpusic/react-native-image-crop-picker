@@ -40,22 +40,22 @@
 @interface LabeledCropView : RSKImageCropViewController {
 }
 @property NSString *toolbarTitle;
+@property UILabel *_moveAndScaleLabel;
 - (UILabel *)moveAndScaleLabel;
 @end
 
-UILabel *_moveAndScaleLabel;
 @implementation LabeledCropView
     - (UILabel *)moveAndScaleLabel
 {
-    if (!_moveAndScaleLabel) {
-        _moveAndScaleLabel = [[UILabel alloc] init];
-        _moveAndScaleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _moveAndScaleLabel.backgroundColor = [UIColor clearColor];
-        _moveAndScaleLabel.textColor = [UIColor whiteColor];
-        _moveAndScaleLabel.opaque = NO;
+    if (!self._moveAndScaleLabel) {
+        self._moveAndScaleLabel = [[UILabel alloc] init];
+        self._moveAndScaleLabel.backgroundColor = [UIColor clearColor];
+        self._moveAndScaleLabel.text = self.toolbarTitle;
+        self._moveAndScaleLabel.textColor = [UIColor whiteColor];
+        self._moveAndScaleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        self._moveAndScaleLabel.opaque = NO;
     }
-    _moveAndScaleLabel.text = self.toolbarTitle;
-    return _moveAndScaleLabel;
+    return self._moveAndScaleLabel;
 }
 @end
 
