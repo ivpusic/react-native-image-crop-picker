@@ -203,7 +203,7 @@ pod install
 
 ### Android
 
-- Make sure you are using Gradle `2.2.x` (project build.gradle)
+- Make sure you are using Gradle `2.2.x` (android/build.gradle)
 
 ```gradle
 buildscript {
@@ -231,7 +231,7 @@ allprojects {
 }
 ```
 
-- Add `useSupportLibrary` (app build.gradle)
+- Add `useSupportLibrary` (android/app/build.gradle)
 
 ```gradle
 android {
