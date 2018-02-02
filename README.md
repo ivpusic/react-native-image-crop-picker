@@ -99,6 +99,7 @@ ImagePicker.clean().then(() => {
 | width                                   |                  number                  | Width of result image when used with `cropping` option |
 | height                                  |                  number                  | Height of result image when used with `cropping` option |
 | multiple                                |           bool (default false)           | Enable or disable multiple image selection |
+| writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | Enable or disable returning base64 data with image |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
@@ -132,7 +133,7 @@ ImagePicker.clean().then(() => {
 
 | Property                  |  Type  | Description                              |
 | ------------------------- | :----: | :--------------------------------------- |
-| path                      | string | Selected image location                  |
+| path                      | string | Selected image location. This is null when the `writeTempFile` option is set to false. |
 | localIdentifier(ios only) | string | Selected images' localidentifier, used for PHAsset searching |
 | sourceURL(ios only)       | string | Selected images' source path, do not have write access |
 | filename(ios only)        | string | Selected images' filename                |
