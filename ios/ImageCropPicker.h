@@ -18,11 +18,15 @@
 #import "RCTImageLoader.h"
 #endif
 
+
 #if __has_include("QBImagePicker.h")
 #import "QBImagePicker.h"
 #import "RSKImageCropper.h"
-#else
+#elif __has_include("QBImagePicker/QBImagePicker.h")
 #import "QBImagePicker/QBImagePicker.h"
+#import <RSKImageCropper/RSKImageCropper.h>
+#else
+#import "QBImagePickerController/QBImagePickerController.h"
 #import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
