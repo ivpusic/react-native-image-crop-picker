@@ -126,7 +126,7 @@ ImagePicker.clean().then(() => {
 #### Smart Album Types (ios)
 
 ```
-['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timepalses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']
+['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timelapses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']
 ```
 
 ### Response Object
