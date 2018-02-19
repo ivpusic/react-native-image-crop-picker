@@ -87,8 +87,8 @@ RCT_EXPORT_MODULE();
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
                                 @"showsSelectedCount": @YES,
-                                @"cancel": @"Cancel",
-                                @"choose": @"Choose"
+                                @"cancelText": @"Cancel",
+                                @"chooseText": @"Choose"
                                 };
         self.compression = [[Compression alloc] init];
     }
