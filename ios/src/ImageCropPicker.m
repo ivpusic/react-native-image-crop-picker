@@ -86,7 +86,9 @@ RCT_EXPORT_MODULE();
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
-                                @"showsSelectedCount": @YES
+                                @"showsSelectedCount": @YES,
+                                @"cancel": @"Cancel",
+                                @"choose": @"Choose"
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -364,8 +366,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
+    NSString *cancel = [self.options objectForKey:@"cancel"];
+    NSString *choose = [self.options objectForKey:@"choose"];
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
+    [imageCropVC.cancelButton setTitle:cancel forState:UIControlStateNormal];
+    [imageCropVC.chooseButton setTitle:choose forState:UIControlStateNormal];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     });
