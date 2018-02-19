@@ -127,8 +127,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
-        cancel = options.hasKey("cancel") ? options.getString("cancel") : cancel;
-        choose = options.hasKey("choose") ? options.getString("choose") : choose;
+        cancel = options.hasKey("cancelText") ? options.getString("cancelText") : cancel;
+        choose = options.hasKey("chooseText") ? options.getString("chooseText") : choose;
        this.options = options;
     }
 

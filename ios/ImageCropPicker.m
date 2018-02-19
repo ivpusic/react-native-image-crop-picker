@@ -358,8 +358,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
-    NSString *cancel = [self.options objectForKey:@"cancel"];
-    NSString *choose = [self.options objectForKey:@"choose"];
+    NSString *cancel = [self.options objectForKey:@"cancelText"];
+    NSString *choose = [self.options objectForKey:@"chooseText"];
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
     [imageCropVC.cancelButton setTitle:cancel forState:UIControlStateNormal];
