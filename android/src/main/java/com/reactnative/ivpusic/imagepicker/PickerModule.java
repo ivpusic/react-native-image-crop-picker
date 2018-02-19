@@ -74,7 +74,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private ReadableMap options;
-
+    private String cancel = "Cancel";
+    private String choose = "Choose";
 
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
@@ -126,7 +127,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
-        this.options = options;
+        cancel = options.hasKey("cancel") ? options.getString("cancel") : cancel;
+        choose = options.hasKey("choose") ? options.getString("choose") : choose;
+       this.options = options;
     }
 
     private void deleteRecursive(File fileOrDirectory) {
