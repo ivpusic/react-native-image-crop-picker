@@ -247,7 +247,7 @@ android {
 }
 ```
 
-- [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
+- [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
 ## Production build
