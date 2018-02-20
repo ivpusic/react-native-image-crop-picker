@@ -77,8 +77,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private ReadableMap options;
-    private String cancel = "Cancel";
-    private String choose = "Choose";
 
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
