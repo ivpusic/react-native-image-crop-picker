@@ -87,8 +87,8 @@ RCT_EXPORT_MODULE();
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
                                 @"showsSelectedCount": @YES,
-                                @"cancelText": @"Cancel",
-                                @"chooseText": @"Choose"
+                                @"cropperCancelText": @"Cancel",
+                                @"cropperChooseText": @"Choose"
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -358,12 +358,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
-    NSString *cancel = [self.options objectForKey:@"cancelText"];
-    NSString *choose = [self.options objectForKey:@"chooseText"];
+    NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
+    NSString *cropperChooseText = [self.options objectForKey:@"cropperChooseText"];
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-    [imageCropVC.cancelButton setTitle:cancel forState:UIControlStateNormal];
-    [imageCropVC.chooseButton setTitle:choose forState:UIControlStateNormal];
+    [imageCropVC.cancelButton setTitle:cropperCancelText forState:UIControlStateNormal];
+    [imageCropVC.chooseButton setTitle:cropperChooseText forState:UIControlStateNormal];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     });
