@@ -353,7 +353,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
     imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
-    imageCropVC.avoidEmptySpaceAroundImage = YES;
+    imageCropVC.avoidEmptySpaceAroundImage = NO;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
