@@ -406,9 +406,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     NSString *loadingLabelTextTemp = [self.options objectForKey:@"loadingLabelText"];
     PHImageManager *manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.version = PHVideoRequestOptionsVersionOriginal;
+    options.version = PHVideoRequestOptionsVersionCurrent;
     // This is for videos stored in iCloud
     options.networkAccessAllowed = YES;
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeFastFormat;
     // Only dispatched when asset is in iCloud
     options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info){
         dispatch_async(dispatch_get_main_queue(), ^{
