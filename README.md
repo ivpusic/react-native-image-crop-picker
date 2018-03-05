@@ -150,43 +150,55 @@ ImagePicker.clean().then(() => {
 
 # Install
 
-## Install package
+## Step 1
 
 ```bash
 npm i react-native-image-crop-picker --save
 ```
 
-Link the package using react-native link:
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-## Post-install steps
+## Step 2
 
 ### iOS
 
-#### Step 1:
-
-In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-
-#### Step 2:
-
-##### Cocoapods (Highly recommended)
+#### - If you use Cocoapods which is highly recommended:
 
 ```bash
 cd ios
 pod init
 ```
 
-After this you have to add pod dependencies to `Podfile`. Open `Podfile` with your editor, and add or adjust example configuration:
+After this edit Podfile. Example content is following:
 
 ```bash
 platform :ios, '8.0'
 
-target '<your_project_name>' do
-    pod 'RSKImageCropper'
-    pod 'QBImagePickerController'
+target 'example' do
+  rn_path = '../node_modules/react-native'
+
+  pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
+  pod 'React', path: rn_path, subspecs: [
+    'Core',
+    'RCTActionSheet',
+    'RCTAnimation',
+    'RCTGeolocation',
+    'RCTImage',
+    'RCTLinkingIOS',
+    'RCTNetwork',
+    'RCTSettings',
+    'RCTText',
+    'RCTVibration',
+    'RCTWebSocket'
+  ]
+
+  pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == "React"
+      target.remove_from_project
+    end
+  end
 end
 ```
 
@@ -196,7 +208,31 @@ After this run:
 pod install
 ```
 
-##### Manual
+After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
+
+#### - If you are not using Cocoapods which is not recommended:
+
+```bash
+react-native link react-native-image-crop-picker
+```
+
+### Android
+
+```bash
+react-native link react-native-image-crop-picker
+```
+
+## Post-install steps
+
+### iOS
+
+#### Step 1
+
+In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
+
+#### Step 2
+
+##### Only if you are not using Cocoapods
 
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
