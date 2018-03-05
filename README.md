@@ -172,7 +172,7 @@ After this edit Podfile. Example content is following:
 ```bash
 platform :ios, '8.0'
 
-target 'example' do
+target '<project_name>' do
   rn_path = '../node_modules/react-native'
 
   pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
