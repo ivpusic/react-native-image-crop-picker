@@ -173,8 +173,8 @@ After this edit Podfile. Example content is following:
 platform :ios, '8.0'
 
 target '<project_name>' do
+  # this is very important to have!
   rn_path = '../node_modules/react-native'
-
   pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
   pod 'React', path: rn_path, subspecs: [
     'Core',
@@ -193,6 +193,8 @@ target '<project_name>' do
   pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
 end
 
+# very important to have, unless you removed React dependencies for Libraries 
+# and you rely on Cocoapods to manage it
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     if target.name == "React"
