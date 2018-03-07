@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "react": "16.2.0",
-    "react-native": "0.50.4",
+    "react-native": "0.54.0",
     "react-native-image-crop-picker": "../",
     "react-native-video": "git://github.com/react-native-community/react-native-video.git"
   }

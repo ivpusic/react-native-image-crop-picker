@@ -1,0 +1,69 @@
+PODS:
+  - QBImagePickerController (3.4.0)
+  - React/Core (0.54.0):
+    - yoga (= 0.54.0.React)
+  - React/fishhook (0.54.0)
+  - React/RCTActionSheet (0.54.0):
+    - React/Core
+  - React/RCTAnimation (0.54.0):
+    - React/Core
+  - React/RCTBlob (0.54.0):
+    - React/Core
+  - React/RCTGeolocation (0.54.0):
+    - React/Core
+  - React/RCTImage (0.54.0):
+    - React/Core
+    - React/RCTNetwork
+  - React/RCTLinkingIOS (0.54.0):
+    - React/Core
+  - React/RCTNetwork (0.54.0):
+    - React/Core
+  - React/RCTSettings (0.54.0):
+    - React/Core
+  - React/RCTText (0.54.0):
+    - React/Core
+  - React/RCTVibration (0.54.0):
+    - React/Core
+  - React/RCTWebSocket (0.54.0):
+    - React/Core
+    - React/fishhook
+    - React/RCTBlob
+  - RNImageCropPicker (0.19.3):
+    - QBImagePickerController
+    - RSKImageCropper
+  - RSKImageCropper (2.0.0)
+  - yoga (0.54.0.React)
+
+DEPENDENCIES:
+  - React/Core (from `../node_modules/react-native`)
+  - React/RCTActionSheet (from `../node_modules/react-native`)
+  - React/RCTAnimation (from `../node_modules/react-native`)
+  - React/RCTGeolocation (from `../node_modules/react-native`)
+  - React/RCTImage (from `../node_modules/react-native`)
+  - React/RCTLinkingIOS (from `../node_modules/react-native`)
+  - React/RCTNetwork (from `../node_modules/react-native`)
+  - React/RCTSettings (from `../node_modules/react-native`)
+  - React/RCTText (from `../node_modules/react-native`)
+  - React/RCTVibration (from `../node_modules/react-native`)
+  - React/RCTWebSocket (from `../node_modules/react-native`)
+  - RNImageCropPicker (from `../..`)
+  - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
+
+EXTERNAL SOURCES:
+  React:
+    :path: ../node_modules/react-native
+  RNImageCropPicker:
+    :path: ../..
+  yoga:
+    :path: ../node_modules/react-native/ReactCommon/yoga/yoga.podspec
+
+SPEC CHECKSUMS:
+  QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
+  React: c237e42de9c70e5cac6eeb52b4cfd3a0910c1f00
+  RNImageCropPicker: a637beb8f4c76bf9fe8a89d404ad65a33c4215ac
+  RSKImageCropper: d9a1acbc0600bf8decc8f0d21895872c99a9e4cf
+  yoga: 55da126afc384965b96bff46652464373b330add
+
+PODFILE CHECKSUM: b75025773b0aeae55b2be89eb9a053b9ad2f70ae
+
+COCOAPODS: 1.4.0

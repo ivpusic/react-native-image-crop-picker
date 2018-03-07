@@ -37,6 +37,28 @@
 @implementation ImageResult
 @end
 
+@interface LabeledCropView : RSKImageCropViewController {
+}
+@property NSString *toolbarTitle;
+@property UILabel *_moveAndScaleLabel;
+- (UILabel *)moveAndScaleLabel;
+@end
+
+@implementation LabeledCropView
+    - (UILabel *)moveAndScaleLabel
+{
+    if (!self._moveAndScaleLabel) {
+        self._moveAndScaleLabel = [[UILabel alloc] init];
+        self._moveAndScaleLabel.backgroundColor = [UIColor clearColor];
+        self._moveAndScaleLabel.text = self.toolbarTitle;
+        self._moveAndScaleLabel.textColor = [UIColor whiteColor];
+        self._moveAndScaleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        self._moveAndScaleLabel.opaque = NO;
+    }
+    return self._moveAndScaleLabel;
+}
+@end
+
 @implementation ImageCropPicker
 
 RCT_EXPORT_MODULE();
@@ -50,6 +72,7 @@ RCT_EXPORT_MODULE();
                                 @"multiple": @NO,
                                 @"cropping": @NO,
                                 @"cropperCircleOverlay": @NO,
+                                @"writeTempFile": @YES,
                                 @"includeBase64": @NO,
                                 @"includeExif": @NO,
                                 @"compressVideo": @YES,
@@ -254,11 +277,26 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 
             if ([self.options objectForKey:@"smartAlbums"] != nil) {
                 NSDictionary *smartAlbums = @{
-                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                              //cloud albums
                                               @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+
+                                              //smart albums
+                                              @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
                                               @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
                                               @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                              @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                                              @"Timelapses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
+                                              @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
+                                              @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
                                               @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                              @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                              @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                                              @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                                              @"DepthEffect" : @(PHAssetCollectionSubtypeSmartAlbumDepthEffect),
+                                              @"LivePhotos" : @(PHAssetCollectionSubtypeSmartAlbumLivePhotos),
+                                              @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
+                                              @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
                                               };
                 NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
                 for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
@@ -308,18 +346,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 - (void)startCropping:(UIImage *)image {
-    RSKImageCropViewController *imageCropVC = [[RSKImageCropViewController alloc] initWithImage:image];
+    LabeledCropView *imageCropVC = [[LabeledCropView alloc] initWithImage:image];
     if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
         imageCropVC.cropMode = RSKImageCropModeCircle;
     } else {
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
+    imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
     imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     });
@@ -400,6 +438,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                   withMime:@"video/mp4"
                                                   withSize:fileSizeValue
                                                   withData:nil
+                                                  withRect:CGRectNull
                                           withCreationDate:forAsset.creationDate
                                       withModificationDate:forAsset.modificationDate
                              ]);
@@ -410,10 +449,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      }];
 }
 
-- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withExif:(NSDictionary*) exif withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate
-{
+- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withExif:(NSDictionary*) exif withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withRect:(CGRect)cropRect withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
     return @{
-             @"path": filePath,
+             @"path": (filePath && ![filePath isEqualToString:(@"")]) ? filePath : [NSNull null],
              @"sourceURL": (sourceURL) ? sourceURL : [NSNull null],
              @"localIdentifier": (localIdentifier) ? localIdentifier : [NSNull null],
              @"filename": (filename) ? filename : [NSNull null],
@@ -423,9 +461,29 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"size": size,
              @"data": (data) ? data : [NSNull null],
              @"exif": (exif) ? exif : [NSNull null],
-             @"creationDate:": (creationDate) ? [NSString stringWithFormat:@"%.0f", [creationDate timeIntervalSince1970]] : [NSNull null],
+             @"cropRect": CGRectIsNull(cropRect) ? [NSNull null] : [ImageCropPicker cgRectToDictionary:cropRect],
+             @"creationDate": (creationDate) ? [NSString stringWithFormat:@"%.0f", [creationDate timeIntervalSince1970]] : [NSNull null],
              @"modificationDate": (modificationDate) ? [NSString stringWithFormat:@"%.0f", [modificationDate timeIntervalSince1970]] : [NSNull null],
              };
+}
+
+// See https://stackoverflow.com/questions/4147311/finding-image-type-from-nsdata-or-uiimage
+- (NSString *)determineMimeTypeFromImageData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+
+    switch (c) {
+        case 0xFF:
+            return @"image/jpeg";
+        case 0x89:
+            return @"image/png";
+        case 0x47:
+            return @"image/gif";
+        case 0x49:
+        case 0x4D:
+            return @"image/tiff";
+    }
+    return @"";
 }
 
 - (void)qb_imagePickerController:
@@ -486,18 +544,41 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              [lock lock];
                              @autoreleasepool {
                                  UIImage *imgT = [UIImage imageWithData:imageData];
-                                 UIImage *imageT = [imgT fixOrientation];
 
-                                 ImageResult *imageResult = [self.compression compressImage:imageT withOptions:self.options];
-                                 NSString *filePath = [self persistFile:imageResult.data];
+                                 NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
+                                 Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] == 1);
 
-                                 if (filePath == nil) {
-                                     [indicatorView stopAnimating];
-                                     [overlayView removeFromSuperview];
-                                     [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                         self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-                                     }]];
-                                     return;
+                                 NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
+                                 Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
+
+                                 NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
+                                 Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+
+                                 ImageResult *imageResult = [[ImageResult alloc] init];
+                                 if (isLossless && useOriginalWidth && useOriginalHeight) {
+                                     // Use original, unmodified image
+                                     imageResult.data = imageData;
+                                     imageResult.width = @(imgT.size.width);
+                                     imageResult.height = @(imgT.size.height);
+                                     imageResult.mime = [self determineMimeTypeFromImageData:imageData];
+                                     imageResult.image = imgT;
+                                 } else {
+                                     imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
+                                 }
+
+                                 NSString *filePath = @"";
+                                 if([[self.options objectForKey:@"writeTempFile"] boolValue]) {
+
+                                     filePath = [self persistFile:imageResult.data];
+
+                                     if (filePath == nil) {
+                                         [indicatorView stopAnimating];
+                                         [overlayView removeFromSuperview];
+                                         [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                             self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                         }]];
+                                         return;
+                                     }
                                  }
 
                                  NSDictionary* exif = nil;
@@ -515,6 +596,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                                              withMime:imageResult.mime
                                                                              withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                                                              withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0]: nil
+                                                                             withRect:CGRectNull
                                                                      withCreationDate:phAsset.creationDate
                                                                  withModificationDate:phAsset.modificationDate
                                                         ]];
@@ -638,9 +720,11 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
                                                withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ?  [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                               withRect:CGRectNull
                                        withCreationDate:creationDate
-                                   withModificationDate:modificationDate]);
+                                   withModificationDate:modificationDate
+                          ]);
         }]];
     }
 }
@@ -763,8 +847,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                            withMime:imageResult.mime
                                            withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                            withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                           withRect:cropRect
                                    withCreationDate:self.croppingFile[@"creationDate"]
-                               withModificationDate:self.croppingFile[@"modificationDate"]]);
+                               withModificationDate:self.croppingFile[@"modificationDate"]
+                      ]);
     }]];
 }
 
@@ -792,6 +878,17 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                   usingCropRect:(CGRect)cropRect
                   rotationAngle:(CGFloat)rotationAngle {
     [self imageCropViewController:controller didCropImage:croppedImage usingCropRect:cropRect];
+}
+
+
+
++ (NSDictionary *)cgRectToDictionary:(CGRect)rect {
+    return @{
+             @"x": [NSNumber numberWithFloat: rect.origin.x],
+             @"y": [NSNumber numberWithFloat: rect.origin.y],
+             @"width": [NSNumber numberWithFloat: CGRectGetWidth(rect)],
+             @"height": [NSNumber numberWithFloat: CGRectGetHeight(rect)]
+             };
 }
 
 @end
