@@ -16,7 +16,6 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.facebook.react.bridge.ActivityEventListener;
@@ -327,14 +326,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else {
                 galleryIntent.setType("video/*");
                 galleryIntent.setType("image/*");
-                //String[] mimetypes = {"image/*", "video/*"};
-                //galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
 
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            //galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            //galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
@@ -428,7 +423,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
-        Log.d("CROP_PICKER", uri.toString());
         String path = resolveRealPath(activity, uri, isCamera);
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
@@ -623,7 +617,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     // only one image selected
                     if (clipData == null) {
                         resultCollector.setWaitCount(1);
-                        Log.d("CROP_PICKER", data.toString());
                         getAsyncSelection(activity, data.getData(), false);
                     } else {
                         resultCollector.setWaitCount(clipData.getItemCount());

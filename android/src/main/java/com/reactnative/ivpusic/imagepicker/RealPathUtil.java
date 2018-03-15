@@ -8,8 +8,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,7 +21,6 @@ class RealPathUtil {
 
         // DocumentProvider
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            Log.d("CROP_PICKER", "kitkat");
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -50,7 +47,6 @@ class RealPathUtil {
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
-                Log.d("CROP_PICKER", "isDownloadsDocument");
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
@@ -59,7 +55,6 @@ class RealPathUtil {
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
-                Log.d("CROP_PICKER", "isMediaDocument");
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
@@ -83,7 +78,6 @@ class RealPathUtil {
         }
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            Log.d("CROP_PICKER", "MediaStore");
             // Return the remote address
             if (isGooglePhotosUri(uri))
                 return uri.getLastPathSegment();
@@ -91,7 +85,6 @@ class RealPathUtil {
         }
         // File
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            Log.d("CROP_PICKER", "file");
             return uri.getPath();
         }
 
@@ -146,31 +139,20 @@ class RealPathUtil {
         final String[] projection = {
                 MediaStore.MediaColumns.DATA,
                 MediaStore.MediaColumns.DISPLAY_NAME,
-                //MediaStore.MediaColumns.MIME_TYPE
         };
 
         try {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                     null);
-            Log.d("CROP_PICKER", cursor.toString());
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                Log.d("CROP_PICKER", String.valueOf(index));
-                Log.d("CROP_PICKER", "VALUE -> " + cursor.getString(index));
                 String path = cursor.getString(index);
-
                 if (path != null) {
                     return cursor.getString(index);
                 } else {
-                    final MimeTypeMap mime = MimeTypeMap.getSingleton();
                     final int indexDisplayName = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
-                    //final int indexMimeType = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
                     String fileName = cursor.getString(indexDisplayName);
-                    //String extension = mime.getExtensionFromMimeType(cursor.getString(indexMimeType));
-                    Log.d("CROP_PICKER", "File name: " + fileName);
-                    //Log.d("CROP_PICKER", "File extension: " + extension);
                     File fileWritten = writeToFile(context, fileName, uri);
-                    Log.d("CROP_PICKER", "File path: " + fileWritten.getAbsolutePath());
                     return fileWritten.getAbsolutePath();
                 }
             }
