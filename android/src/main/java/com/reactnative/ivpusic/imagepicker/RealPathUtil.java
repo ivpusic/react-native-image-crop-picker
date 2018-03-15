@@ -146,7 +146,7 @@ class RealPathUtil {
         final String[] projection = {
                 MediaStore.MediaColumns.DATA,
                 MediaStore.MediaColumns.DISPLAY_NAME,
-                MediaStore.MediaColumns.MIME_TYPE
+                //MediaStore.MediaColumns.MIME_TYPE
         };
 
         try {
@@ -164,12 +164,12 @@ class RealPathUtil {
                 } else {
                     final MimeTypeMap mime = MimeTypeMap.getSingleton();
                     final int indexDisplayName = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
-                    final int indexMimeType = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
+                    //final int indexMimeType = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
                     String fileName = cursor.getString(indexDisplayName);
-                    String extension = mime.getExtensionFromMimeType(cursor.getString(indexMimeType));
+                    //String extension = mime.getExtensionFromMimeType(cursor.getString(indexMimeType));
                     Log.d("CROP_PICKER", "File name: " + fileName);
-                    Log.d("CROP_PICKER", "File extension: " + extension);
-                    File fileWritten = writeToFile(context, fileName + "." + extension, uri);
+                    //Log.d("CROP_PICKER", "File extension: " + extension);
+                    File fileWritten = writeToFile(context, fileName, uri);
                     Log.d("CROP_PICKER", "File path: " + fileWritten.getAbsolutePath());
                     return fileWritten.getAbsolutePath();
                 }
