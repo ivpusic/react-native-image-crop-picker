@@ -324,8 +324,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
             } else {
-                galleryIntent.setType("video/*");
-                galleryIntent.setType("image/*");
+                galleryIntent.setType("*/*");
+                String[] mimetypes = {"image/*", "video/*"};
+                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
 
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
