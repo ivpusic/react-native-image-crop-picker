@@ -36,6 +36,7 @@
 @interface ImageCropPicker : NSObject<
 UIImagePickerControllerDelegate,
 UINavigationControllerDelegate,
+UIDocumentPickerDelegate,
 RCTBridgeModule,
 QBImagePickerControllerDelegate,
 RSKImageCropViewControllerDelegate,

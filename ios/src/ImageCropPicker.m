@@ -899,5 +899,130 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"height": [NSNumber numberWithFloat: CGRectGetHeight(rect)]
              };
 }
-
+RCT_EXPORT_METHOD(openFilePicker:(NSDictionary *)options
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    [self setConfiguration:options resolver:resolve rejecter:reject];
+    self.currentSelectionMode = PICKER;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *mediaType = [self.options objectForKey:@"mediaType"];
+        NSArray *allowedUTIs;
+        
+        if ([mediaType isEqualToString:@"any"]) {
+            allowedUTIs = [NSArray arrayWithObjects:@"public.image",@"public.movie",nil];
+        } else if ([mediaType isEqualToString:@"photo"]) {
+            allowedUTIs = [NSArray arrayWithObjects:@"public.image",nil];
+        } else {
+            allowedUTIs = [NSArray arrayWithObjects:@"public.movie",nil];
+        }
+        
+        UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:(NSArray *)allowedUTIs inMode:UIDocumentPickerModeImport];
+        documentPicker.delegate = self;
+        documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
+        
+        [[self getRootVC] presentViewController:documentPicker animated:YES completion:nil];
+    });
+}
+    
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url {
+    if (controller.documentPickerMode == UIDocumentPickerModeImport) {
+        [url startAccessingSecurityScopedResource];
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] init];
+        __block NSError *fileError;
+        
+        [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingResolvesSymbolicLink error:&fileError byAccessor:^(NSURL *newURL) {
+            
+            if (!fileError) {
+                if ( newURL.pathExtension != nil ) {
+                    CFStringRef extension = (__bridge CFStringRef)[newURL pathExtension];
+                    CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, extension, NULL);
+                    CFStringRef mimeType = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType);
+                    CFRelease(uti);
+                    
+                    NSString *mimeTypeString = (__bridge_transfer NSString *)mimeType;
+                    NSError *attributesError = nil;
+                    NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:newURL.path error:&attributesError];
+                    if(!attributesError) {
+                        if ([mimeTypeString containsString:@"image"]) {
+                            NSLog(@"This is an image");
+                            NSDictionary* exif;
+                            NSData *data = [NSData dataWithContentsOfURL:url];
+                            if([[self.options objectForKey:@"includeExif"] boolValue]) {
+                                exif = [[CIImage imageWithData:data] properties];
+                            }
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self processSingleImagePick:[UIImage imageWithData:data]
+                                          withExif: exif
+                                          withViewController:controller
+                                          withSourceURL:[url absoluteString]
+                                          withLocalIdentifier:nil // TODO: Find how to get localIdentifier (Do not really know what is it for)
+                                          withFilename:[newURL lastPathComponent]
+                                          withCreationDate:[fileAttributes objectForKey:NSFileCreationDate]
+                                          withModificationDate:[fileAttributes objectForKey:NSFileModificationDate]
+                                 ];
+                            });
+                        } else {
+                            NSLog(@"This is a video");
+                            
+                            // create temp file
+                            NSString *tmpDirFullPath = [self getTmpDirectory];
+                            NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
+                            filePath = [filePath stringByAppendingString:@".mp4"];
+                            NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+                            
+                            [self.compression compressVideo:newURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
+                                if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+                                    NSLog(@"After AVAssetExportSessionStatusCompleted");
+                                    AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                                    AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+                                    
+                                    NSNumber *fileSizeValue = nil;
+                                    [outputURL getResourceValue:&fileSizeValue
+                                                         forKey:NSURLFileSizeKey
+                                                          error:nil];
+                                    
+                                    [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                        self.resolve([self createAttachmentResponse:[outputURL absoluteString]
+                                                         withExif:nil
+                                                         withSourceURL:[newURL absoluteString]
+                                                         withLocalIdentifier: nil
+                                                         withFilename:[newURL lastPathComponent]
+                                                         withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                                         withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                                         withMime:@"video/mp4"
+                                                         withSize:fileSizeValue
+                                                         withData:nil
+                                                         withRect:CGRectNull
+                                                         withCreationDate:[fileAttributes objectForKey:NSFileCreationDate]
+                                                         withModificationDate:[fileAttributes objectForKey:NSFileModificationDate]
+                                                      ]);
+                                    }]];
+                                } else {
+                                    NSLog(@"ERROR AVAssetExportSessionStatusCompleted");
+                                    [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                        self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                                    }]];
+                                }
+                            }];
+                        }
+                    } else {
+                        [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                            self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
+                        }]];
+                        NSLog(@"%@", attributesError);
+                    }
+                }
+            }
+        }];
+        
+        [url stopAccessingSecurityScopedResource];
+    }
+}
+    
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+    [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+    }]];
+}
 @end
