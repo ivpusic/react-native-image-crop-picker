@@ -254,6 +254,13 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
 
+#### Step 3
+
+##### Only if you want to use `openFile()` (access iCloud)
+
+- Add iCloud capability in Xcode.
+- `Key-value storage` and `iCloud Documents` must be checked.
+
 ### Android
 
 - Make sure you are using Gradle `2.2.x` (android/build.gradle)
