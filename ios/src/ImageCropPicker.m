@@ -972,7 +972,6 @@ RCT_EXPORT_METHOD(openFile:(NSDictionary *)options
                     NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:newURL.path error:&attributesError];
                     if(!attributesError) {
                         if ([mimeTypeString containsString:@"image"]) {
-                            NSLog(@"This is an image");
                             NSDictionary* exif;
                             NSData *data = [NSData dataWithContentsOfURL:url];
                             if([[self.options objectForKey:@"includeExif"] boolValue]) {
@@ -990,7 +989,6 @@ RCT_EXPORT_METHOD(openFile:(NSDictionary *)options
                             });
                         } else {
                             [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
-                                NSLog(@"This is a video");
                                 // create temp file
                                 NSString *tmpDirFullPath = [self getTmpDirectory];
                                 NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
@@ -1046,9 +1044,7 @@ RCT_EXPORT_METHOD(openFile:(NSDictionary *)options
     
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
 {
-    [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    }]];
+    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
 }
 
 @end
