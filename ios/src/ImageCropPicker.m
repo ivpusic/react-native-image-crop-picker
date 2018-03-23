@@ -7,6 +7,8 @@
 
 #import "ImageCropPicker.h"
 
+#import <MobileCoreServices/MobileCoreServices.h>
+
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG @"Cannot run camera on simulator"
 
@@ -34,6 +36,9 @@
 #define ERROR_CANNOT_PROCESS_VIDEO_KEY @"E_CANNOT_PROCESS_VIDEO"
 #define ERROR_CANNOT_PROCESS_VIDEO_MSG @"Cannot process video data"
 
+static NSString *const E_DOCUMENT_PICKER_CANCELED = @"DOCUMENT_PICKER_CANCELED";
+static NSString *const E_INVALID_DATA_RETURNED = @"INVALID_DATA_RETURNED";
+    
 @implementation ImageResult
 @end
 
@@ -686,12 +691,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // when user selected single image, with camera or from photo gallery,
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
+// **************
+// UIDocumentPickerViewController dismiss by itself so need to check if viewController still visible or not:
+// --> [viewController isViewLoaded] && viewController.view.window <-- check if the viewController is visible
+// If not, should not call dismissViewControllerAnimated (because completion callback will never be called)
 - (void) processSingleImagePick:(UIImage*)image withExif:(NSDictionary*) exif withViewController:(UIViewController*)viewController withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
-
+    NSLog(@"%@", image);
     if (image == nil) {
-        [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+        
+        if ([viewController isViewLoaded] && viewController.view.window) {
+            [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
+            }]];
+        } else {
             self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
-        }]];
+        }
         return;
     }
 
@@ -711,30 +725,40 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options];
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
-            [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+            if ([viewController isViewLoaded] && viewController.view.window) {
+                [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                    self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                }]];
+            } else {
                 self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-            }]];
+            }
             return;
         }
 
-        // Wait for viewController to dismiss before resolving, or we lose the ability to display
-        // Alert.alert in the .then() handler.
-        [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-            self.resolve([self createAttachmentResponse:filePath
-                                               withExif:exif
-                                          withSourceURL:sourceURL
-                                    withLocalIdentifier:localIdentifier
-                                           withFilename:filename
-                                              withWidth:imageResult.width
-                                             withHeight:imageResult.height
-                                               withMime:imageResult.mime
-                                               withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
-                                               withRect:CGRectNull
-                                       withCreationDate:creationDate
-                                   withModificationDate:modificationDate
-                          ]);
-        }]];
+        NSDictionary *file = [self createAttachmentResponse:filePath
+                                                   withExif:exif
+                                              withSourceURL:sourceURL
+                                        withLocalIdentifier:localIdentifier
+                                               withFilename:filename
+                                                  withWidth:imageResult.width
+                                                 withHeight:imageResult.height
+                                                   withMime:imageResult.mime
+                                                   withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                   withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                                   withRect:CGRectNull
+                                           withCreationDate:creationDate
+                                       withModificationDate:modificationDate];
+
+
+        if ([viewController isViewLoaded] && viewController.view.window) {
+            // Wait for viewController to dismiss before resolving, or we lose the ability to display
+            // Alert.alert in the .then() handler.
+            [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                self.resolve(file);
+            }]];
+        } else {
+            self.resolve(file);
+        }
     }
 }
 
@@ -899,12 +923,14 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"height": [NSNumber numberWithFloat: CGRectGetHeight(rect)]
              };
 }
-RCT_EXPORT_METHOD(openFilePicker:(NSDictionary *)options
+    
+RCT_EXPORT_METHOD(openFile:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *mediaType = [self.options objectForKey:@"mediaType"];
         NSArray *allowedUTIs;
@@ -916,16 +942,17 @@ RCT_EXPORT_METHOD(openFilePicker:(NSDictionary *)options
         } else {
             allowedUTIs = [NSArray arrayWithObjects:@"public.movie",nil];
         }
-        
+
         UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:(NSArray *)allowedUTIs inMode:UIDocumentPickerModeImport];
         documentPicker.delegate = self;
         documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
-        
+
         [[self getRootVC] presentViewController:documentPicker animated:YES completion:nil];
     });
 }
     
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url {
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
+{
     if (controller.documentPickerMode == UIDocumentPickerModeImport) {
         [url startAccessingSecurityScopedResource];
         NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] init];
@@ -953,64 +980,61 @@ RCT_EXPORT_METHOD(openFilePicker:(NSDictionary *)options
                             }
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [self processSingleImagePick:[UIImage imageWithData:data]
-                                          withExif: exif
-                                          withViewController:controller
-                                          withSourceURL:[url absoluteString]
-                                          withLocalIdentifier:nil // TODO: Find how to get localIdentifier (Do not really know what is it for)
-                                          withFilename:[newURL lastPathComponent]
-                                          withCreationDate:[fileAttributes objectForKey:NSFileCreationDate]
-                                          withModificationDate:[fileAttributes objectForKey:NSFileModificationDate]
-                                 ];
+                                    withExif: exif
+                                    withViewController:controller
+                                    withSourceURL:[url absoluteString]
+                                    withLocalIdentifier:nil // TODO: Find how to get localIdentifier (Do not really know what is it for)
+                                    withFilename:[newURL lastPathComponent]
+                                    withCreationDate:[fileAttributes objectForKey:NSFileCreationDate]
+                                    withModificationDate:[fileAttributes objectForKey:NSFileModificationDate]];
                             });
                         } else {
-                            NSLog(@"This is a video");
-                            
-                            // create temp file
-                            NSString *tmpDirFullPath = [self getTmpDirectory];
-                            NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-                            filePath = [filePath stringByAppendingString:@".mp4"];
-                            NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-                            
-                            [self.compression compressVideo:newURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-                                if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-                                    NSLog(@"After AVAssetExportSessionStatusCompleted");
-                                    AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                                    AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-                                    
-                                    NSNumber *fileSizeValue = nil;
-                                    [outputURL getResourceValue:&fileSizeValue
-                                                         forKey:NSURLFileSizeKey
-                                                          error:nil];
-                                    
-                                    [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                                        self.resolve([self createAttachmentResponse:[outputURL absoluteString]
-                                                         withExif:nil
-                                                         withSourceURL:[newURL absoluteString]
-                                                         withLocalIdentifier: nil
-                                                         withFilename:[newURL lastPathComponent]
-                                                         withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                         withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                                         withMime:@"video/mp4"
-                                                         withSize:fileSizeValue
-                                                         withData:nil
-                                                         withRect:CGRectNull
-                                                         withCreationDate:[fileAttributes objectForKey:NSFileCreationDate]
-                                                         withModificationDate:[fileAttributes objectForKey:NSFileModificationDate]
-                                                      ]);
-                                    }]];
-                                } else {
-                                    NSLog(@"ERROR AVAssetExportSessionStatusCompleted");
-                                    [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                            [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
+                                NSLog(@"This is a video");
+                                // create temp file
+                                NSString *tmpDirFullPath = [self getTmpDirectory];
+                                NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
+                                filePath = [filePath stringByAppendingString:@".mp4"];
+                                NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+                                
+                                [self.compression compressVideo:newURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
+                                    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+                                        NSLog(@"After AVAssetExportSessionStatusCompleted");
+                                        AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                                        AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+                                        
+                                        NSNumber *fileSizeValue = nil;
+                                        [outputURL getResourceValue:&fileSizeValue
+                                                             forKey:NSURLFileSizeKey
+                                                              error:nil];
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                            [indicatorView stopAnimating];
+                                            [overlayView removeFromSuperview];
+                                            self.resolve([self createAttachmentResponse:[outputURL absoluteString]
+                                                        withExif:nil
+                                                        withSourceURL:[newURL absoluteString]
+                                                        withLocalIdentifier: nil
+                                                        withFilename:[newURL lastPathComponent]
+                                                        withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                                        withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                                        withMime:@"video/mp4"
+                                                        withSize:fileSizeValue
+                                                        withData:nil
+                                                        withRect:CGRectNull
+                                                        withCreationDate:[fileAttributes objectForKey:NSFileCreationDate]
+                                                        withModificationDate:[fileAttributes objectForKey:NSFileModificationDate]
+                                             ]);
+                                        });
+                                    } else {
+                                        NSLog(@"ERROR AVAssetExportSessionStatusCompleted");
                                         self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
-                                    }]];
-                                }
+                                    }
+                                }];
                             }];
                         }
                     } else {
-                        [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                            self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
-                        }]];
                         NSLog(@"%@", attributesError);
+                        self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
                     }
                 }
             }
@@ -1020,9 +1044,11 @@ RCT_EXPORT_METHOD(openFilePicker:(NSDictionary *)options
     }
 }
     
-- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
+{
     [controller dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
         self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
     }]];
 }
+
 @end
