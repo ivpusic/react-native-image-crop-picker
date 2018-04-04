@@ -105,8 +105,10 @@ ImagePicker.clean().then(() => {
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
+| freeStyleCropEnabled (android only)      |        bool (default false)        | Enables user to apply custom rectangle area for cropping |
 | cropperToolbarTitle                     |        string (default `Edit Photo`)     | When cropping image, determines the title of Toolbar. |
 | cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
+| disableCropperColorSetters (android only)|           bool (default false)           | When cropping image, disables the color setters for cropping library. |
 | minFiles (ios only)                     |            number (default 1)            | Min number of files to select when using `multiple` option |
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
@@ -149,43 +151,57 @@ ImagePicker.clean().then(() => {
 
 # Install
 
-## Install package
+## Step 1
 
 ```bash
 npm i react-native-image-crop-picker --save
 ```
 
-Link the package using react-native link:
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-## Post-install steps
+## Step 2
 
 ### iOS
 
-#### Step 1:
-
-In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-
-#### Step 2:
-
-##### Cocoapods (Highly recommended)
+#### - If you use Cocoapods which is highly recommended:
 
 ```bash
 cd ios
 pod init
 ```
 
-After this you have to add pod dependencies to `Podfile`. Open `Podfile` with your editor, and add or adjust example configuration:
+After this edit Podfile. Example content is following:
 
 ```bash
 platform :ios, '8.0'
 
-target '<your_project_name>' do
-    pod 'RSKImageCropper'
-    pod 'QBImagePickerController'
+target '<project_name>' do
+  # this is very important to have!
+  rn_path = '../node_modules/react-native'
+  pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
+  pod 'React', path: rn_path, subspecs: [
+    'Core',
+    'RCTActionSheet',
+    'RCTAnimation',
+    'RCTGeolocation',
+    'RCTImage',
+    'RCTLinkingIOS',
+    'RCTNetwork',
+    'RCTSettings',
+    'RCTText',
+    'RCTVibration',
+    'RCTWebSocket'
+  ]
+
+  pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
+end
+
+# very important to have, unless you removed React dependencies for Libraries 
+# and you rely on Cocoapods to manage it
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == "React"
+      target.remove_from_project
+    end
+  end
 end
 ```
 
@@ -195,7 +211,31 @@ After this run:
 pod install
 ```
 
-##### Manual
+After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
+
+#### - If you are not using Cocoapods which is not recommended:
+
+```bash
+react-native link react-native-image-crop-picker
+```
+
+### Android
+
+```bash
+react-native link react-native-image-crop-picker
+```
+
+## Post-install steps
+
+### iOS
+
+#### Step 1
+
+In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
+
+#### Step 2
+
+##### Only if you are not using Cocoapods
 
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab

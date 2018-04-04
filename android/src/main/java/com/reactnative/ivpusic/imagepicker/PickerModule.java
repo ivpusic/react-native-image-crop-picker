@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+import android.content.ContentResolver;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -70,9 +71,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean includeExif = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
+    private boolean freeStyleCropEnabled = false;
     private boolean showCropGuidelines = true;
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
+    private boolean disableCropperColorSetters = false;
     private ReadableMap options;
 
 
@@ -92,10 +95,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector;
     private Compression compression = new Compression();
+    private ReactApplicationContext reactContext = null;
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
+        this.reactContext = reactContext;
     }
 
     private String getTmpDir(Activity activity) {
@@ -123,9 +128,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : cropperToolbarColor;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : freeStyleCropEnabled;
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : disableCropperColorSetters;
         this.options = options;
     }
 
@@ -326,7 +333,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 String[] mimetypes = {"image/*", "video/*"};
                 galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
-            
+
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
@@ -403,14 +410,20 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return Base64.encodeToString(bytes, Base64.NO_WRAP);
     }
 
-    private static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-
-        return type;
+    private String getMimeType(String url) {
+      String mimeType = null;
+      Uri uri = Uri.fromFile(new File(url));
+      if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+          ContentResolver cr = this.reactContext.getContentResolver();
+          mimeType = cr.getType(uri);
+      } else {
+          String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                  .toString());
+          if (fileExtension != null) {
+              mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+          }
+      }
+      return mimeType;
     }
 
     private WritableMap getSelection(Activity activity, Uri uri, boolean isCamera) throws Exception {
@@ -587,6 +600,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
+        options.setFreeStyleCropEnabled(freeStyleCropEnabled);
         options.setShowCropGrid(showCropGuidelines);
         options.setHideBottomControls(hideBottomControls);
         if (cropperToolbarTitle != null) {
@@ -600,7 +614,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
-        configureCropperColors(options);
+        if (!disableCropperColorSetters) {
+            configureCropperColors(options);
+        }
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
                 .withMaxResultSize(width, height)
