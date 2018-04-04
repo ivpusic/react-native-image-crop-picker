@@ -477,17 +477,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
                         try {
                             Bitmap bmp = validateVideo(videoPath);
-                            IContainer cont = IContainer.make();
-                            int result = cont.open(videoPath, IContainer.Type.Read, null);
-                            long duration = cont.getDuration();
-                            long fileSize = cont.getFileSize();
-                            long modificationDate = result.lastModified();
+                            long modificationDate = new File(videoPath).lastModified();
 
                             WritableMap video = new WritableNativeMap();
                             video.putInt("width", bmp.getWidth());
                             video.putInt("height", bmp.getHeight());
                             video.putString("mime", mime);
-                            video.putInt("size", (int) fileSize);
+                            video.putInt("size", (int) new File(videoPath).length());
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
