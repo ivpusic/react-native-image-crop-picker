@@ -506,7 +506,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }).run();
     }
 
-    private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) {
+    private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
         String path;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
