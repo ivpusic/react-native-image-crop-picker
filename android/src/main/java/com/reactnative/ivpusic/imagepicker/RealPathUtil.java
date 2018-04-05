@@ -12,6 +12,9 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 class RealPathUtil {
   static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
