@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Alert,
   Image, TouchableOpacity, NativeModules, Dimensions
@@ -31,7 +31,8 @@ export default class App extends Component {
     super();
     this.state = {
       image: null,
-      images: null
+      images: null, 
+      data: null,
     };
   }
 
@@ -44,7 +45,7 @@ export default class App extends Component {
     }).then(image => {
       console.log('received image', image);
       this.setState({
-        image: {uri: image.path, width: image.width, height: image.height},
+        image: { uri: image.path, width: image.width, height: image.height },
         images: null
       });
     }).catch(e => alert(e));
@@ -60,7 +61,7 @@ export default class App extends Component {
     }).then(image => {
       console.log('received base64 image');
       this.setState({
-        image: {uri: `data:${image.mime};base64,`+ image.data, width: image.width, height: image.height},
+        image: { uri: `data:${image.mime};base64,` + image.data, width: image.width, height: image.height },
         images: null
       });
     }).catch(e => alert(e));
@@ -97,7 +98,7 @@ export default class App extends Component {
     }).then(image => {
       console.log('received cropped image', image);
       this.setState({
-        image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
+        image: { uri: image.path, width: image.width, height: image.height, mime: image.mime },
         images: null
       });
     }).catch(e => {
@@ -106,7 +107,7 @@ export default class App extends Component {
     });
   }
 
-  pickSingle(cropit, circular=false) {
+  pickSingle(cropit, circular = false) {
     ImagePicker.openPicker({
       width: 300,
       height: 300,
@@ -120,7 +121,7 @@ export default class App extends Component {
     }).then(image => {
       console.log('received image', image);
       this.setState({
-        image: {uri: image.path, width: image.width, height: image.height, mime: image.mime},
+        image: { uri: image.path, width: image.width, height: image.height, mime: image.mime },
         images: null
       });
     }).catch(e => {
@@ -139,8 +140,29 @@ export default class App extends Component {
         image: null,
         images: images.map(i => {
           console.log('received image', i);
-          return {uri: i.path, width: i.width, height: i.height, mime: i.mime};
+          return { uri: i.path, width: i.width, height: i.height, mime: i.mime };
         })
+      });
+    }).catch(e => alert(e));
+  }
+
+  pickMultipleBase64() {
+    ImagePicker.openPicker({
+      multiple: true,
+      waitAnimationEnd: false,
+      includeExif: true,
+      includeBase64: true,
+    }).then(images => {
+      this.setState({
+        image: null,
+        images: images.map(i => {
+          console.log('received image', i);
+          return { uri: i.path, width: i.width, height: i.height, mime: i.mime };
+        }),
+        data: images.map(i => {
+          console.log('recive data', this.state.data);
+          return { data: i.data };
+        }),
       });
     }).catch(e => alert(e));
   }
@@ -150,27 +172,28 @@ export default class App extends Component {
   }
 
   renderVideo(video) {
-    return (<View style={{height: 300, width: 300}}>
-      <Video source={{uri: video.uri, type: video.mime}}
-         style={{position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            right: 0
-          }}
-         rate={1}
-         paused={false}
-         volume={1}
-         muted={false}
-         resizeMode={'cover'}
-         onError={e => console.log(e)}
-         onLoad={load => console.log(load)}
-         repeat={true} />
-     </View>);
+    return (<View style={{ height: 300, width: 300 }}>
+      <Video source={{ uri: video.uri, type: video.mime }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0
+        }}
+        rate={1}
+        paused={false}
+        volume={1}
+        muted={false}
+        resizeMode={'cover'}
+        onError={e => console.log(e)}
+        onLoad={load => console.log(load)}
+        repeat={true} />
+    </View>);
   }
 
   renderImage(image) {
-    return <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image} />
+    return <Image style={{ width: 300, height: 300, resizeMode: 'contain' }} source={image} />
   }
 
   renderAsset(image) {
@@ -211,6 +234,9 @@ export default class App extends Component {
       </TouchableOpacity>
       <TouchableOpacity onPress={this.pickMultiple.bind(this)} style={styles.button}>
         <Text style={styles.text}>Select Multiple</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => this.pickMultipleBase64} style={styles.button}>
+        <Text style={styles.text}>Select Multiple Returning Base64</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={this.cleanupImages.bind(this)} style={styles.button}>
         <Text style={styles.text}>Cleanup All Images</Text>
