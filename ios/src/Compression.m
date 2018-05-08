@@ -81,31 +81,4 @@
     return result;
 }
 
-- (void)compressVideo:(NSURL*)inputURL
-            outputURL:(NSURL*)outputURL
-          withOptions:(NSDictionary*)options
-              handler:(void (^)(AVAssetExportSession*))handler {
-    
-    NSString *presetKey = [options valueForKey:@"compressVideoPreset"];
-    if (presetKey == nil) {
-        presetKey = @"MediumQuality";
-    }
-    
-    NSString *preset = [self.exportPresets valueForKey:presetKey];
-    if (preset == nil) {
-        preset = AVAssetExportPresetMediumQuality;
-    }
-    
-    [[NSFileManager defaultManager] removeItemAtURL:outputURL error:nil];
-    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:inputURL options:nil];
-    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:preset];
-    exportSession.shouldOptimizeForNetworkUse = YES;
-    exportSession.outputURL = outputURL;
-    exportSession.outputFileType = AVFileTypeMPEG4;
-    
-    [exportSession exportAsynchronouslyWithCompletionHandler:^(void) {
-        handler(exportSession);
-    }];
-}
-
 @end

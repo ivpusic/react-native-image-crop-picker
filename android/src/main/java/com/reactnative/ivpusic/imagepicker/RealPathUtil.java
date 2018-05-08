@@ -8,13 +8,18 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 class RealPathUtil {
-  static String getRealPathFromURI(final Context context, final Uri uri) {
+  static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
 
-      final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+      final boolean isKitKat = Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT;
 
       // DocumentProvider
       if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
@@ -91,6 +96,37 @@ class RealPathUtil {
       return null;
   }
 
+    /**
+     * If an image/video has been selected from a cloud storage, this method
+     * should be call to download the file in the cache folder.
+     *
+     * @param context The context
+     * @param fileName donwloaded file's name
+     * @param uri file's URI
+     * @return file that has been written
+     */
+    private static File writeToFile(Context context, String fileName, Uri uri) {
+        String tmpDir = context.getCacheDir() + "/react-native-image-crop-picker";
+        Boolean created = new File(tmpDir).mkdir();
+        File path = new File(tmpDir);
+        File file = new File(path, fileName);
+        try {
+            FileOutputStream oos = new FileOutputStream(file);
+            byte[] buf = new byte[8192];
+            InputStream is = context.getContentResolver().openInputStream(uri);
+            int c = 0;
+            while ((c = is.read(buf, 0, buf.length)) > 0) {
+                oos.write(buf, 0, c);
+                oos.flush();
+            }
+            oos.close();
+            is.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
   /**
    * Get the value of the data column for this Uri. This is useful for
    * MediaStore Uris, and other file-based ContentProviders.
@@ -105,17 +141,35 @@ class RealPathUtil {
                                       String[] selectionArgs) {
 
       Cursor cursor = null;
-      final String column = "_data";
       final String[] projection = {
-              column
+          MediaStore.MediaColumns.DATA,
+          MediaStore.MediaColumns.DISPLAY_NAME,
+          MediaStore.MediaColumns.MIME_TYPE
       };
 
       try {
           cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                   null);
           if (cursor != null && cursor.moveToFirst()) {
-              final int index = cursor.getColumnIndexOrThrow(column);
-              return cursor.getString(index);
+            final int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+            Log.d("CROP_PICKER", String.valueOf(index));
+            Log.d("CROP_PICKER", "VALUE -> " + cursor.getString(index));
+            String path = cursor.getString(index);
+            
+            if (path != null) {
+                return cursor.getString(index);
+            } else {
+                    final MimeTypeMap mime = MimeTypeMap.getSingleton();
+                    final int indexDisplayName = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
+                    final int indexMimeType = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
+                    String fileName = cursor.getString(indexDisplayName);
+                    String extension = mime.getExtensionFromMimeType(cursor.getString(indexMimeType));
+                    Log.d("CROP_PICKER", "File name: " + fileName);
+                    Log.d("CROP_PICKER", "File extension: " + extension);
+                    File fileWritten = writeToFile(context, fileName + "." + extension, uri);
+                    Log.d("CROP_PICKER", "File path: " + fileWritten.getAbsolutePath());
+                    return fileWritten.getAbsolutePath();
+            }
           }
       } finally {
           if (cursor != null)

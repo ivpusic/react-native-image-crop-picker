@@ -387,17 +387,19 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         [loadingView addSubview:activityView];
 
         // create message
-        UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
-        loadingLabel.backgroundColor = [UIColor clearColor];
-        loadingLabel.textColor = [UIColor whiteColor];
-        loadingLabel.adjustsFontSizeToFitWidth = YES;
-        CGPoint loadingLabelLocation = loadingView.center;
-        loadingLabelLocation.y += [activityView bounds].size.height;
-        loadingLabel.center = loadingLabelLocation;
-        loadingLabel.textAlignment = NSTextAlignmentCenter;
-        loadingLabel.text = [self.options objectForKey:@"loadingLabelText"];
-        [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
-        [loadingView addSubview:loadingLabel];
+        if (self.loadingLabel == nil) {
+            self.loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
+            self.loadingLabel.backgroundColor = [UIColor clearColor];
+            self.loadingLabel.textColor = [UIColor whiteColor];
+            self.loadingLabel.adjustsFontSizeToFitWidth = YES;
+            CGPoint loadingLabelLocation = loadingView.center;
+            loadingLabelLocation.y += [activityView bounds].size.height;
+            self.loadingLabel.center = loadingLabelLocation;
+            self.loadingLabel.textAlignment = NSTextAlignmentCenter;
+        }
+        self.loadingLabel.text = [self.options objectForKey:@"loadingLabelText"];
+        [self.loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
+        [loadingView addSubview:self.loadingLabel];
 
         // show all
         [mainView addSubview:loadingView];
@@ -408,53 +410,65 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 
-- (void) getVideoAsset:(PHAsset*)forAsset completion:(void (^)(NSDictionary* image))completion {
+- (void) getVideoAsset:(PHAsset*)forAsset completion:(void (^)(NSDictionary* image))completion {   
+    NSString *loadingLabelTextTemp = [self.options objectForKey:@"loadingLabelText"];
     PHImageManager *manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.version = PHVideoRequestOptionsVersionOriginal;
-
-    [manager
-     requestAVAssetForVideo:forAsset
-     options:options
-     resultHandler:^(AVAsset * asset, AVAudioMix * audioMix,
-                     NSDictionary *info) {
-         NSURL *sourceURL = [(AVURLAsset *)asset URL];
-
-         // create temp file
-         NSString *tmpDirFullPath = [self getTmpDirectory];
-         NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-         filePath = [filePath stringByAppendingString:@".mp4"];
-         NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-
-         [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-             if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-                 AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                 AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-
-                 NSNumber *fileSizeValue = nil;
-                 [outputURL getResourceValue:&fileSizeValue
-                                      forKey:NSURLFileSizeKey
-                                       error:nil];
-
-                 completion([self createAttachmentResponse:[outputURL absoluteString]
-                                                  withExif:nil
-                                             withSourceURL:[sourceURL absoluteString]
-                                       withLocalIdentifier: forAsset.localIdentifier
-                                              withFilename:[forAsset valueForKey:@"filename"]
-                                                 withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                                  withMime:@"video/mp4"
-                                                  withSize:fileSizeValue
-                                                  withData:nil
-                                                  withRect:CGRectNull
-                                          withCreationDate:forAsset.creationDate
-                                      withModificationDate:forAsset.modificationDate
-                             ]);
-             } else {
-                 completion(nil);
-             }
-         }];
-     }];
+    options.version = PHVideoRequestOptionsVersionCurrent;
+    // This is for videos stored in iCloud
+    options.networkAccessAllowed = YES;
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeFastFormat;
+    // Only dispatched when asset is in iCloud
+    options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.loadingLabel setText:@"Downloading from iCloud..."];
+        });
+    };
+    // Create temp file
+    NSString *filePath = [[[self getTmpDirectory] stringByAppendingString:[[NSUUID UUID] UUIDString]] stringByAppendingString:@".mp4"];
+    NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+    // Get compression presets
+    NSString *presetKey = [self.options valueForKey:@"compressVideoPreset"];
+    if (presetKey == nil) {
+        presetKey = @"MediumQuality";
+    }
+    NSString *preset = [[self.compression exportPresets] valueForKey:presetKey];
+    if (preset == nil) {
+        preset = AVAssetExportPresetMediumQuality;
+    }
+    [manager requestExportSessionForVideo:forAsset
+                                  options:options
+                             exportPreset:preset
+                            resultHandler:^(AVAssetExportSession * _Nullable exportSession, NSDictionary * _Nullable info) {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    [self.loadingLabel setText:loadingLabelTextTemp];
+                                });
+                                exportSession.shouldOptimizeForNetworkUse = YES;
+                                exportSession.outputURL = outputURL;
+                                exportSession.outputFileType = AVFileTypeMPEG4;
+                                [exportSession exportAsynchronouslyWithCompletionHandler:^{
+                                    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+                                        AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                                        AVAssetTrack *videoTrack = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+                                        NSNumber *filesize = nil;
+                                        [outputURL getResourceValue:&filesize forKey:NSURLFileSizeKey error:nil];
+                                        NSDictionary *video = [self createAttachmentResponse:[outputURL absoluteString]
+                                                                                    withExif:nil
+                                                                               withSourceURL:nil
+                                                                         withLocalIdentifier:forAsset.localIdentifier
+                                                                                withFilename:[forAsset valueForKey:@"filename"]
+                                                                                   withWidth:[NSNumber numberWithFloat:videoTrack.naturalSize.width]
+                                                                                  withHeight:[NSNumber numberWithFloat:videoTrack.naturalSize.height]
+                                                                                    withMime:@"video/mp4"
+                                                                                    withSize:filesize
+                                                                                    withData:nil
+                                                                                    withRect:CGRectNull
+                                                                            withCreationDate:forAsset.creationDate
+                                                                        withModificationDate:forAsset.modificationDate];
+                                        completion(video);
+                                    }
+                                }];
+                            }];
 }
 
 - (NSDictionary*) createAttachmentResponse:(NSString*)filePath withExif:(NSDictionary*) exif withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withRect:(CGRect)cropRect withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
