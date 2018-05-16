@@ -321,7 +321,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
+            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
 
             if (cropping || mediaType.equals("photo")) {
                 galleryIntent.setType("image/*");
@@ -335,8 +335,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
             activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
@@ -502,7 +501,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }).run();
     }
 
-    private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) {
+    private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
         String path;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
