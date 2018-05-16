@@ -92,9 +92,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
-    private ResultCollector resultCollector;
+    private ResultCollector resultCollector = new ResultCollector();
     private Compression compression = new Compression();
-    private ReactApplicationContext reactContext = null;
+    private ReactApplicationContext reactContext;
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -104,7 +104,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private String getTmpDir(Activity activity) {
         String tmpDir = activity.getCacheDir() + "/react-native-image-crop-picker";
-        Boolean created = new File(tmpDir).mkdir();
+        new File(tmpDir).mkdir();
 
         return tmpDir;
     }
@@ -278,7 +278,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector = new ResultCollector(promise, multiple);
+        resultCollector.setup(promise, multiple);
 
         permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
@@ -352,7 +352,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector = new ResultCollector(promise, multiple);
+        resultCollector.setup(promise, multiple);
 
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
@@ -373,7 +373,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector = new ResultCollector(promise, false);
+        resultCollector.setup(promise, false);
 
         Uri uri = Uri.parse(options.getString("path"));
         startCropping(activity, uri);
