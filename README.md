@@ -124,6 +124,8 @@ ImagePicker.clean().then(() => {
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
+| cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
 
 #### Smart Album Types (ios)
 

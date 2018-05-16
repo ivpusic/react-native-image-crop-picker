@@ -78,7 +78,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean disableCropperColorSetters = false;
     private ReadableMap options;
 
-
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
     private String cropperActiveWidgetColor = DEFAULT_TINT;
@@ -133,7 +132,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : disableCropperColorSetters;
-        this.options = options;
+       this.options = options;
     }
 
     private void deleteRecursive(File fileOrDirectory) {
