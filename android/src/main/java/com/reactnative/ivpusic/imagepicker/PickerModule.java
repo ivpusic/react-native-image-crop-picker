@@ -132,7 +132,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : disableCropperColorSetters;
-       this.options = options;
+        this.options = options;
     }
 
     private void deleteRecursive(File fileOrDirectory) {
@@ -156,9 +156,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 try {
                     File file = new File(module.getTmpDir(activity));
                     if (!file.exists()) throw new Exception("File does not exist");
@@ -190,7 +190,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 try {
@@ -282,7 +282,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 initiateCamera(activity);
                 return null;
             }
@@ -292,9 +292,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiateCamera(Activity activity) {
 
         try {
-            int requestCode = CAMERA_PICKER_REQUEST;
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
             File imageFile = createImageFile();
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -312,7 +310,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 return;
             }
 
-            activity.startActivityForResult(cameraIntent, requestCode);
+            activity.startActivityForResult(cameraIntent, CAMERA_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
         }
@@ -358,7 +356,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 initiatePicker(activity);
                 return null;
             }
@@ -409,19 +407,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private String getMimeType(String url) {
-      String mimeType = null;
-      Uri uri = Uri.fromFile(new File(url));
-      if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-          ContentResolver cr = this.reactContext.getContentResolver();
-          mimeType = cr.getType(uri);
-      } else {
-          String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
-                  .toString());
-          if (fileExtension != null) {
-              mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
-          }
-      }
-      return mimeType;
+        String mimeType = null;
+        Uri uri = Uri.fromFile(new File(url));
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver cr = this.reactContext.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            if (fileExtension != null) {
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+            }
+        }
+        return mimeType;
     }
 
     private WritableMap getSelection(Activity activity, Uri uri, boolean isCamera) throws Exception {
