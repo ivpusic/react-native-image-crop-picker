@@ -246,7 +246,7 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 ### Android
 
-- Make sure you are using Gradle `2.2.x` (android/build.gradle)
+- Make sure you are using Gradle >= `2.2.x` (android/build.gradle)
 
 ```gradle
 buildscript {
@@ -284,6 +284,25 @@ android {
         ...
         vectorDrawables.useSupportLibrary = true
         ...
+    }
+    ...
+}
+```
+
+- Use Android SDK >= 26 (android/app/build.gradle)
+
+```gradle
+...
+android {
+    ...
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+    ...
+    
+    defaultConfig {
+      ...
+      targetSdkVersion 27
+      ...
     }
     ...
 }
