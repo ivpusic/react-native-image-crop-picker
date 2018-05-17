@@ -6,6 +6,9 @@
 //
 
 #import "ImageCropPicker.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+
+@import MobileCoreServices;
 
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG @"Cannot run camera on simulator"
@@ -174,6 +177,16 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
         }
 
+        NSString *mediaType = [self.options objectForKey:@"mediaType"];
+
+        if ([mediaType isEqualToString:@"any"]) {
+            picker.mediaTypes = @[(NSString *)kUTTypeMovie, (NSString *)kUTTypeImage];
+        } else if ([mediaType isEqualToString:@"photo"]) {
+            picker.mediaTypes = @[(NSString *)kUTTypeImage];
+        } else {
+            picker.mediaTypes = @[(NSString *)kUTTypeMovie];
+        }
+
         dispatch_async(dispatch_get_main_queue(), ^{
             [[self getRootVC] presentViewController:picker animated:YES completion:nil];
         });
@@ -186,14 +199,44 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
 
-    NSDictionary *exif;
-    if([[self.options objectForKey:@"includeExif"] boolValue]) {
-        exif = [info objectForKey:UIImagePickerControllerMediaMetadata];
+    if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
+        UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+
+        NSDictionary *exif;
+        if([[self.options objectForKey:@"includeExif"] boolValue]) {
+            exif = [info objectForKey:UIImagePickerControllerMediaMetadata];
+        }
+
+        [self processSingleImagePick:chosenImage withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"] withCreationDate:self.croppingFile[@"creationDate"] withModificationDate:self.croppingFile[@"modificationDate"]];
+    } else {
+        NSURL *videoURL = info[UIImagePickerControllerMediaURL];
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        [library writeVideoAtPathToSavedPhotosAlbum:videoURL completionBlock:^(NSURL *assetURL, NSError *error) {
+            if (error) {
+                self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                return;
+            } else {
+                PHAsset *capturedAsset = [PHAsset fetchAssetsWithALAssetURLs:@[assetURL] options:nil].lastObject;
+                [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
+                    [self getVideoAsset:capturedAsset completion:^(NSDictionary* video) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [indicatorView stopAnimating];
+                            [overlayView removeFromSuperview];
+                            [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                if (video != nil) {
+                                    self.resolve(video);
+                                } else {
+                                    self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                                }
+                            }]];
+                        });
+                    }];
+                }];
+            }
+        }];
     }
-
-    [self processSingleImagePick:chosenImage withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"] withCreationDate:self.croppingFile[@"creationDate"] withModificationDate:self.croppingFile[@"modificationDate"]];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -437,6 +480,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                  AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
                  AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
 
+                 CGSize size = CGSizeApplyAffineTransform(track.naturalSize, track.preferredTransform);
                  NSNumber *fileSizeValue = nil;
                  [outputURL getResourceValue:&fileSizeValue
                                       forKey:NSURLFileSizeKey
@@ -447,8 +491,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                              withSourceURL:[sourceURL absoluteString]
                                        withLocalIdentifier: forAsset.localIdentifier
                                               withFilename:[forAsset valueForKey:@"filename"]
-                                                 withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                                 withWidth:[NSNumber numberWithFloat:fabs(size.width)]
+                                                withHeight:[NSNumber numberWithFloat:fabs(size.height)]
                                                   withMime:@"video/mp4"
                                                   withSize:fileSizeValue
                                                   withData:nil

@@ -292,15 +292,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiateCamera(Activity activity) {
 
         try {
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File imageFile = createImageFile();
+            Intent cameraIntent;
+            File mediaFile;
+
+            if (mediaType.equals("video") && !cropping) {
+                cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                mediaFile = createVideoFile();
+            } else {
+                cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                mediaFile = createImageFile();
+            }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mCameraCaptureURI = Uri.fromFile(imageFile);
+                mCameraCaptureURI = Uri.fromFile(mediaFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
                         activity.getApplicationContext().getPackageName() + ".provider",
-                        imageFile);
+                        mediaFile);
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
@@ -407,19 +415,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private String getMimeType(String url) {
-        String mimeType = null;
-        Uri uri = Uri.fromFile(new File(url));
-        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-            ContentResolver cr = this.reactContext.getContentResolver();
-            mimeType = cr.getType(uri);
-        } else {
-            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
-                    .toString());
-            if (fileExtension != null) {
-                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
-            }
-        }
-        return mimeType;
+      String mimeType = null;
+      Uri uri = Uri.fromFile(new File(url));
+      if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+          ContentResolver cr = this.reactContext.getContentResolver();
+          mimeType = cr.getType(uri);
+      } else {
+          String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                  .toString());
+          if (fileExtension != null) {
+              mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+          }
+      }
+      return mimeType;
     }
 
     private WritableMap getSelection(Activity activity, Uri uri, boolean isCamera) throws Exception {
@@ -678,7 +686,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else {
                 try {
                     resultCollector.setWaitCount(1);
-                    resultCollector.notifySuccess(getSelection(activity, uri, true));
+                    getAsyncSelection(activity, uri, true);
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -744,6 +752,24 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return image;
 
+    }
+
+    private File createVideoFile() throws IOException {
+
+        String fileName = "video-" + UUID.randomUUID().toString();
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
+        File video = File.createTempFile(fileName, ".mp4", path);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + video.getAbsolutePath();
+
+        return video;
     }
 
     private static WritableMap getCroppedRectMap(Intent data) {
