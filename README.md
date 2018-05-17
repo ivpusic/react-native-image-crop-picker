@@ -292,9 +292,7 @@ android {
 - Use Android SDK >= 26 (android/app/build.gradle)
 
 ```gradle
-...
 android {
-    ...
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     ...
