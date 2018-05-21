@@ -746,7 +746,7 @@ static ImageResult * getResizedCompressedImageIfNeedded(ImageCropPicker *object,
     } else {
         
         ImageResult * imageResult = getResizedCompressedImageIfNeedded(self, imageData);
-        //ImageResult *imageResult = [self.compression compressImage:[image fixOrientation]  withOptions:self.options];
+
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
             [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
