@@ -268,7 +268,10 @@ allprojects {
       jcenter()
       maven { url "$rootDir/../node_modules/react-native/android" }
 
-      // jitpack repo is necessary to fetch ucrop dependency
+      // ADD THIS
+      maven { url 'https://maven.google.com' }
+
+      // ADD THIS
       maven { url "https://jitpack.io" }
     }
 }
