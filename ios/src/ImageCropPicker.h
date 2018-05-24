@@ -41,12 +41,13 @@ QBImagePickerControllerDelegate,
 RSKImageCropViewControllerDelegate,
 RSKImageCropViewControllerDataSource>
 
+
 typedef enum selectionMode {
     CAMERA,
     CROPPING,
     PICKER
 } SelectionMode;
-
+@property (nonatomic,strong)PHImageManager *manager;
 @property (nonatomic, strong) NSMutableDictionary *croppingFile;
 @property (nonatomic, strong) NSDictionary *defaultOptions;
 @property (nonatomic, strong) Compression *compression;
@@ -54,6 +55,9 @@ typedef enum selectionMode {
 @property (nonatomic, strong) RCTPromiseResolveBlock resolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock reject;
 @property (nonatomic, strong) UILabel *loadingLabel;
+@property (nonatomic, strong) UIButton *btnCancel;
+@property (nonatomic,strong) NSMutableArray *arrImageProcessId;
+@property (nonatomic,strong) NSArray *arrQuality;
 @property SelectionMode currentSelectionMode;
 
 @end
