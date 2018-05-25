@@ -337,8 +337,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            // galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            // galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
