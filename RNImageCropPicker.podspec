@@ -14,4 +14,5 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "8.0"
   s.dependency 'RSKImageCropper'
   s.dependency 'QBImagePickerController'
+  s.dependency 'React/Core'
 end

@@ -124,6 +124,8 @@ ImagePicker.clean().then(() => {
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
+| cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
 
 #### Smart Album Types (ios)
 
@@ -244,7 +246,7 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 ### Android
 
-- Make sure you are using Gradle `2.2.x` (android/build.gradle)
+- Make sure you are using Gradle >= `2.2.x` (android/build.gradle)
 
 ```gradle
 buildscript {
@@ -266,7 +268,10 @@ allprojects {
       jcenter()
       maven { url "$rootDir/../node_modules/react-native/android" }
 
-      // jitpack repo is necessary to fetch ucrop dependency
+      // ADD THIS
+      maven { url 'https://maven.google.com' }
+
+      // ADD THIS
       maven { url "https://jitpack.io" }
     }
 }
@@ -282,6 +287,23 @@ android {
         ...
         vectorDrawables.useSupportLibrary = true
         ...
+    }
+    ...
+}
+```
+
+- Use Android SDK >= 26 (android/app/build.gradle)
+
+```gradle
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+    ...
+    
+    defaultConfig {
+      ...
+      targetSdkVersion 27
+      ...
     }
     ...
 }
