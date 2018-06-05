@@ -463,12 +463,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         [self.loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
         [loadingView addSubview:self.loadingLabel];
         
-        // PS :- Created Cancel Button
+        // create Cancel Button
         
         self.btnCancel = [[UIButton alloc]initWithFrame:CGRectMake(0, loadingView.frame.size.height-50, loadingView.frame.size.width, 50)];
-        
         [self.btnCancel addTarget:self action:@selector(btnCancelAction:) forControlEvents:UIControlEventTouchUpInside];
-        
         [self.btnCancel setTitle:@"Cancel" forState:UIControlStateNormal];
         [self.btnCancel setTitle:@"Cancel" forState:UIControlStateSelected];
         [self.btnCancel setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -510,23 +508,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         if ([compatiblePresets containsObject:AVAssetExportPresetLowQuality])
         {
             AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset presetName:AVAssetExportPresetPassthrough];
-            // save to temp directory
-            
             NSString *strFileName = [[[NSUUID UUID] UUIDString] stringByAppendingString:[NSString stringWithFormat:@".%@",fileExtension]];
             NSString *filePath = [[self getTmpDirectory] stringByAppendingString:strFileName];
-            
-            
             NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-            
             exportSession.outputURL = outputURL;
-            NSLog(@"videopath of your  file = %@",filePath);  // PATH OF YOUR FILE
             exportSession.outputFileType = AVFileTypeMPEG4;
-            
             [exportSession exportAsynchronouslyWithCompletionHandler:^{
                 
                 if ([exportSession status] == AVAssetExportSessionStatusCompleted) {
                     AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                    
                     AVAssetTrack *videoTrack = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
                     NSNumber *filesize = nil;
                     [outputURL getResourceValue:&filesize forKey:NSURLFileSizeKey error:nil];
@@ -545,9 +535,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                     withModificationDate:[NSDate date]];
                     completion(video);
                 }
-                
             }];
-            
         }
     } @catch(NSException *e) {
         
@@ -569,27 +557,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         });
     };
     
-    
-    // PS :- get Video File Name with Extension and Mime Type from PHAsset Object
     NSString *mimeType = @"";
     NSString *filename = [forAsset valueForKey:@"filename"];
     NSString *fileExtension = [filename pathExtension];
-    
     NSString *strFileName = filename;
-    //NSString *strFileName = [[[NSUUID UUID] UUIDString] stringByAppendingString:[NSString stringWithFormat:@".%@",fileExtension]];
-    
     CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[filename pathExtension], NULL);
     CFStringRef MIMETYPE = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
-    
     CFRelease(UTI);
     if (MIMETYPE) {
         mimeType = (NSString *)CFBridgingRelease(MIMETYPE);
     }
-    
-    //NSString *strFileName = filename;
     NSString *filePath = [[self getTmpDirectory] stringByAppendingString:strFileName];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    
     
     if ([fileManager fileExistsAtPath:filePath]){
         NSError *error;
@@ -599,7 +578,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             filePath = [[self getTmpDirectory] stringByAppendingString:strFileName];
         }
     }
-    
     
     NSURL *outputURL = [NSURL fileURLWithPath:filePath];
     // Get compression presets
@@ -611,7 +589,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     if (preset == nil) {
         preset = AVAssetExportPresetMediumQuality;
     }
-    
     
     PHImageRequestID imageRequest = [self.manager requestExportSessionForVideo:forAsset
                                                                        options:options
@@ -645,8 +622,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                                          }
                                                                          else{
                                                                              completion(nil);
-                                                                             NSLog(@"Padam");
-                                                                             NSLog(exportSession.error.localizedDescription);
                                                                          }
                                                                      }];
                                                                  }];
