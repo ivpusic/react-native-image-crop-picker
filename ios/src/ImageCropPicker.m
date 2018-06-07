@@ -465,7 +465,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         
         // create Cancel Button
         
-        self.btnCancel = [[UIButton alloc]initWithFrame:CGRectMake(0, loadingView.frame.size.height-50, loadingView.frame.size.width, 50)];
+        float heightButton = loadingView.frame.size.height * 10 / 100;
+        self.btnCancel = [[UIButton alloc]initWithFrame:CGRectMake(0, loadingView.frame.size.height-heightButton, loadingView.frame.size.width, heightButton)];
         [self.btnCancel addTarget:self action:@selector(btnCancelAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.btnCancel setTitle:@"Cancel" forState:UIControlStateNormal];
         [self.btnCancel setTitle:@"Cancel" forState:UIControlStateSelected];
