@@ -91,7 +91,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private int height = 0;
 
     private Uri mCameraCaptureURI;
-    private String mCurrentPhotoPath;
+    private String mCurrentMediaPath;
     private ResultCollector resultCollector = new ResultCollector();
     private Compression compression = new Compression();
     private ReactApplicationContext reactContext;
@@ -292,15 +292,25 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiateCamera(Activity activity) {
 
         try {
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File imageFile = createImageFile();
+            String intent;
+            File dataFile;
+
+            if (mediaType.equals("video")) {
+                intent = MediaStore.ACTION_VIDEO_CAPTURE;
+                dataFile = createVideoFile();
+            } else {
+                intent = MediaStore.ACTION_IMAGE_CAPTURE;
+                dataFile = createImageFile();
+            }
+
+            Intent cameraIntent = new Intent(intent);
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mCameraCaptureURI = Uri.fromFile(imageFile);
+                mCameraCaptureURI = Uri.fromFile(dataFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
                         activity.getApplicationContext().getPackageName() + ".provider",
-                        imageFile);
+                        dataFile);
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
@@ -428,6 +438,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             throw new Exception("Cannot resolve asset path.");
         }
 
+        String mime = getMimeType(path);
+        if (mime != null && mime.startsWith("video/")) {
+            getVideo(activity, path, mime);
+            return null;
+        }
+
         return getImage(activity, path);
     }
 
@@ -506,8 +522,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             path = RealPathUtil.getRealPathFromURI(activity, uri);
         } else {
             if (isCamera) {
-                Uri imageUri = Uri.parse(mCurrentPhotoPath);
-                path = imageUri.getPath();
+                Uri mediaUri = Uri.parse(mCurrentMediaPath);
+                path = mediaUri.getPath();
             } else {
                 path = RealPathUtil.getRealPathFromURI(activity, uri);
             }
@@ -682,7 +698,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else {
                 try {
                     resultCollector.setWaitCount(1);
-                    resultCollector.notifySuccess(getSelection(activity, uri, true));
+                    WritableMap result = getSelection(activity, uri, true);
+
+                    // If recording a video getSelection handles resultCollector part itself and returns null
+                    if (result != null) {
+                        resultCollector.notifySuccess(result);
+                    }
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -696,10 +717,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     WritableMap result = getSelection(activity, resultUri, false);
-                    result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
 
-                    resultCollector.setWaitCount(1);
-                    resultCollector.notifySuccess(result);
+                    if (result != null) {
+                        result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
+
+                        resultCollector.setWaitCount(1);
+                        resultCollector.notifySuccess(result);
+                    } else {
+                        throw new Exception("Cannot crop video files");
+                    }
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -744,9 +770,28 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         File image = File.createTempFile(imageFileName, ".jpg", path);
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentMediaPath = "file:" + image.getAbsolutePath();
 
         return image;
+
+    }
+
+    private File createVideoFile() throws IOException {
+
+        String videoFileName = "video-" + UUID.randomUUID().toString();
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
+        File video = File.createTempFile(videoFileName, ".mp4", path);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentMediaPath = "file:" + video.getAbsolutePath();
+
+        return video;
 
     }
 
