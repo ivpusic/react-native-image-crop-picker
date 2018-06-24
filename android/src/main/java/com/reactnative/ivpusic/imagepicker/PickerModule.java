@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+import android.content.ContentResolver;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -70,11 +71,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean includeExif = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
+    private boolean freeStyleCropEnabled = false;
     private boolean showCropGuidelines = true;
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
+    private boolean disableCropperColorSetters = false;
     private ReadableMap options;
-
 
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
@@ -90,17 +92,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
-    private ResultCollector resultCollector;
+    private ResultCollector resultCollector = new ResultCollector();
     private Compression compression = new Compression();
+    private ReactApplicationContext reactContext;
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addActivityEventListener(this);
+        this.reactContext = reactContext;
     }
 
     private String getTmpDir(Activity activity) {
         String tmpDir = activity.getCacheDir() + "/react-native-image-crop-picker";
-        Boolean created = new File(tmpDir).mkdir();
+        new File(tmpDir).mkdir();
 
         return tmpDir;
     }
@@ -123,9 +127,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : cropperToolbarColor;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : freeStyleCropEnabled;
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : disableCropperColorSetters;
         this.options = options;
     }
 
@@ -150,9 +156,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 try {
                     File file = new File(module.getTmpDir(activity));
                     if (!file.exists()) throw new Exception("File does not exist");
@@ -184,7 +190,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 try {
@@ -272,11 +278,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector = new ResultCollector(promise, multiple);
+        resultCollector.setup(promise, multiple);
 
         permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 initiateCamera(activity);
                 return null;
             }
@@ -286,9 +292,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiateCamera(Activity activity) {
 
         try {
-            int requestCode = CAMERA_PICKER_REQUEST;
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
             File imageFile = createImageFile();
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -306,7 +310,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 return;
             }
 
-            activity.startActivityForResult(cameraIntent, requestCode);
+            activity.startActivityForResult(cameraIntent, CAMERA_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
         }
@@ -315,7 +319,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
+            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
 
             if (cropping || mediaType.equals("photo")) {
                 galleryIntent.setType("image/*");
@@ -326,11 +330,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 String[] mimetypes = {"image/*", "video/*"};
                 galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
-            
+
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
             activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
@@ -349,11 +352,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector = new ResultCollector(promise, multiple);
+        resultCollector.setup(promise, multiple);
 
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 initiatePicker(activity);
                 return null;
             }
@@ -370,7 +373,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector = new ResultCollector(promise, false);
+        resultCollector.setup(promise, false);
 
         Uri uri = Uri.parse(options.getString("path"));
         startCropping(activity, uri);
@@ -403,14 +406,20 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return Base64.encodeToString(bytes, Base64.NO_WRAP);
     }
 
-    private static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+    private String getMimeType(String url) {
+        String mimeType = null;
+        Uri uri = Uri.fromFile(new File(url));
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver cr = this.reactContext.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            if (fileExtension != null) {
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+            }
         }
-
-        return type;
+        return mimeType;
     }
 
     private WritableMap getSelection(Activity activity, Uri uri, boolean isCamera) throws Exception {
@@ -490,7 +499,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }).run();
     }
 
-    private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) {
+    private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
         String path;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -583,6 +592,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
+        options.setFreeStyleCropEnabled(freeStyleCropEnabled);
         options.setShowCropGrid(showCropGuidelines);
         options.setHideBottomControls(hideBottomControls);
         if (cropperToolbarTitle != null) {
@@ -596,7 +606,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
-        configureCropperColors(options);
+        if (!disableCropperColorSetters) {
+            configureCropperColors(options);
+        }
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
                 .withMaxResultSize(width, height)

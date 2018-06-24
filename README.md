@@ -99,13 +99,16 @@ ImagePicker.clean().then(() => {
 | width                                   |                  number                  | Width of result image when used with `cropping` option |
 | height                                  |                  number                  | Height of result image when used with `cropping` option |
 | multiple                                |           bool (default false)           | Enable or disable multiple image selection |
+| writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | Enable or disable returning base64 data with image |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
-| cropperToolbarTitle (android only)      |        string (default `Edit Photo`)     | When cropping image, determines the title of Toolbar. |
+| freeStyleCropEnabled (android only)      |        bool (default false)        | Enables user to apply custom rectangle area for cropping |
+| cropperToolbarTitle                     |        string (default `Edit Photo`)     | When cropping image, determines the title of Toolbar. |
 | cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
+| disableCropperColorSetters (android only)|           bool (default false)           | When cropping image, disables the color setters for cropping library. |
 | minFiles (ios only)                     |            number (default 1)            | Min number of files to select when using `multiple` option |
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
@@ -121,18 +124,20 @@ ImagePicker.clean().then(() => {
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
+| cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
 
 #### Smart Album Types (ios)
 
 ```
-['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timepalses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']
+['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timelapses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']
 ```
 
 ### Response Object
 
 | Property                  |  Type  | Description                              |
 | ------------------------- | :----: | :--------------------------------------- |
-| path                      | string | Selected image location                  |
+| path                      | string | Selected image location. This is null when the `writeTempFile` option is set to false. |
 | localIdentifier(ios only) | string | Selected images' localidentifier, used for PHAsset searching |
 | sourceURL(ios only)       | string | Selected images' source path, do not have write access |
 | filename(ios only)        | string | Selected images' filename                |
@@ -148,43 +153,57 @@ ImagePicker.clean().then(() => {
 
 # Install
 
-## Install package
+## Step 1
 
 ```bash
 npm i react-native-image-crop-picker --save
 ```
 
-Link the package using react-native link:
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-## Post-install steps
+## Step 2
 
 ### iOS
 
-#### Step 1:
-
-In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-
-#### Step 2:
-
-##### Cocoapods (Highly recommended)
+#### - If you use Cocoapods which is highly recommended:
 
 ```bash
 cd ios
 pod init
 ```
 
-After this you have to add pod dependencies to `Podfile`. Open `Podfile` with your editor, and add or adjust example configuration:
+After this edit Podfile. Example content is following:
 
 ```bash
 platform :ios, '8.0'
 
-target '<your_project_name>' do
-    pod 'RSKImageCropper'
-    pod 'QBImagePickerController'
+target '<project_name>' do
+  # this is very important to have!
+  rn_path = '../node_modules/react-native'
+  pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
+  pod 'React', path: rn_path, subspecs: [
+    'Core',
+    'RCTActionSheet',
+    'RCTAnimation',
+    'RCTGeolocation',
+    'RCTImage',
+    'RCTLinkingIOS',
+    'RCTNetwork',
+    'RCTSettings',
+    'RCTText',
+    'RCTVibration',
+    'RCTWebSocket'
+  ]
+
+  pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
+end
+
+# very important to have, unless you removed React dependencies for Libraries 
+# and you rely on Cocoapods to manage it
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == "React"
+      target.remove_from_project
+    end
+  end
 end
 ```
 
@@ -194,7 +213,31 @@ After this run:
 pod install
 ```
 
-##### Manual
+After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
+
+#### - If you are not using Cocoapods which is not recommended:
+
+```bash
+react-native link react-native-image-crop-picker
+```
+
+### Android
+
+```bash
+react-native link react-native-image-crop-picker
+```
+
+## Post-install steps
+
+### iOS
+
+#### Step 1
+
+In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
+
+#### Step 2
+
+##### Only if you are not using Cocoapods
 
 - Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
@@ -203,7 +246,7 @@ pod install
 
 ### Android
 
-- Make sure you are using Gradle `2.2.x` (android/build.gradle)
+- Make sure you are using Gradle >= `2.2.x` (android/build.gradle)
 
 ```gradle
 buildscript {
@@ -225,7 +268,10 @@ allprojects {
       jcenter()
       maven { url "$rootDir/../node_modules/react-native/android" }
 
-      // jitpack repo is necessary to fetch ucrop dependency
+      // ADD THIS
+      maven { url 'https://maven.google.com' }
+
+      // ADD THIS
       maven { url "https://jitpack.io" }
     }
 }
@@ -246,7 +292,24 @@ android {
 }
 ```
 
-- [Optional] If you want to use camera picker in your project, add following to `AndroidManifest.xml`
+- Use Android SDK >= 26 (android/app/build.gradle)
+
+```gradle
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+    ...
+    
+    defaultConfig {
+      ...
+      targetSdkVersion 27
+      ...
+    }
+    ...
+}
+```
+
+- [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
 ## Production build

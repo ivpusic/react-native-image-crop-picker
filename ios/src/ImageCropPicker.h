@@ -21,12 +21,15 @@
 #if __has_include("QBImagePicker.h")
 #import "QBImagePicker.h"
 #import "RSKImageCropper.h"
+#elif __has_include(<QBImagePickerController/QBImagePickerController.h>)
+#import <QBImagePickerController/QBImagePickerController.h>
+#import <RSKImageCropper/RSKImageCropper.h>
 #else
 #import "QBImagePicker/QBImagePicker.h"
 #import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
-#import "UIImage-Resize/UIImage+Resize.h"
+#import "UIImage+Resize.h"
 #import "Compression.h"
 #import <math.h>
 
