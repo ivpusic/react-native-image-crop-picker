@@ -568,13 +568,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
                                  Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
 
+                                 NSString *mimeType = [self determineMimeTypeFromImageData:imageData];
+                                 Boolean isKnownMimeType = [mimeType length] > 0;
+
                                  ImageResult *imageResult = [[ImageResult alloc] init];
-                                 if (isLossless && useOriginalWidth && useOriginalHeight) {
+                                 if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType) {
                                      // Use original, unmodified image
                                      imageResult.data = imageData;
                                      imageResult.width = @(imgT.size.width);
                                      imageResult.height = @(imgT.size.height);
-                                     imageResult.mime = [self determineMimeTypeFromImageData:imageData];
+                                     imageResult.mime = mimeType;
                                      imageResult.image = imgT;
                                  } else {
                                      imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
