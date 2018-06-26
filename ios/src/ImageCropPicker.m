@@ -82,7 +82,7 @@ RCT_EXPORT_MODULE();
                                 @"waitAnimationEnd": @YES,
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
-                                @"compressImageQuality": @1,
+                                @"compressImageQuality": @0.8,
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
@@ -560,7 +560,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  UIImage *imgT = [UIImage imageWithData:imageData];
 
                                  NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
-                                 Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] == 1);
+                                 Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
 
                                  NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
                                  Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
