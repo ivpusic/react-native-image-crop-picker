@@ -83,6 +83,7 @@ RCT_EXPORT_MODULE();
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
                                 @"compressImageQuality": @0.8,
+                                @"compressGIF": @NO,
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
@@ -483,21 +484,47 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
 // See https://stackoverflow.com/questions/4147311/finding-image-type-from-nsdata-or-uiimage
 - (NSString *)determineMimeTypeFromImageData:(NSData *)data {
-    uint8_t c;
-    [data getBytes:&c length:1];
+    char bytes[12] = {0};
+    [data getBytes:&bytes length:12];
 
-    switch (c) {
-        case 0xFF:
-            return @"image/jpeg";
-        case 0x89:
-            return @"image/png";
-        case 0x47:
-            return @"image/gif";
-        case 0x49:
-        case 0x4D:
-            return @"image/tiff";
+    const char bmp[2] = {'B', 'M'};
+    const char gif[3] = {'G', 'I', 'F'};
+    const char swf[3] = {'F', 'W', 'S'};
+    const char swc[3] = {'C', 'W', 'S'};
+    const char jpg[3] = {0xff, 0xd8, 0xff};
+    const char psd[4] = {'8', 'B', 'P', 'S'};
+    const char iff[4] = {'F', 'O', 'R', 'M'};
+    const char webp[4] = {'R', 'I', 'F', 'F'};
+    const char ico[4] = {0x00, 0x00, 0x01, 0x00};
+    const char tif_ii[4] = {'I','I', 0x2A, 0x00};
+    const char tif_mm[4] = {'M','M', 0x00, 0x2A};
+    const char png[8] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
+    const char jp2[12] = {0x00, 0x00, 0x00, 0x0c, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a};
+
+
+    if (!memcmp(bytes, bmp, 2)) {
+        return @"image/x-ms-bmp";
+    } else if (!memcmp(bytes, gif, 3)) {
+        return @"image/gif";
+    } else if (!memcmp(bytes, jpg, 3)) {
+        return @"image/jpeg";
+    } else if (!memcmp(bytes, psd, 4)) {
+        return @"image/psd";
+    } else if (!memcmp(bytes, iff, 4)) {
+        return @"image/iff";
+    } else if (!memcmp(bytes, webp, 4)) {
+        return @"image/webp";
+    } else if (!memcmp(bytes, ico, 4)) {
+        return @"image/vnd.microsoft.icon";
+    } else if (!memcmp(bytes, tif_ii, 4) || !memcmp(bytes, tif_mm, 4)) {
+        return @"image/tiff";
+    } else if (!memcmp(bytes, png, 8)) {
+        return @"image/png";
+    } else if (!memcmp(bytes, jp2, 12)) {
+        return @"image/jp2";
     }
-    return @"";
+
+    return @"application/octet-stream"; // default type
 }
 
 - (void)qb_imagePickerController:
@@ -567,14 +594,20 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                                  NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
                                  Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+  
+                                 NSString *imageMime = [self determineMimeTypeFromImageData:imageData];
+                                 Boolean compressGIF = [[self.options valueForKey:@"compressGIF"] boolValue];
 
+                                  // Skip compress if compressGIF = false and mime = GIF
+                                 Boolean skipCompression = (!compressGIF && [imageMime isEqualToString:@"image/gif"]);
+            
                                  ImageResult *imageResult = [[ImageResult alloc] init];
-                                 if (isLossless && useOriginalWidth && useOriginalHeight) {
+                                 if (skipCompression || (isLossless && useOriginalWidth && useOriginalHeight)) {
                                      // Use original, unmodified image
                                      imageResult.data = imageData;
                                      imageResult.width = @(imgT.size.width);
                                      imageResult.height = @(imgT.size.height);
-                                     imageResult.mime = [self determineMimeTypeFromImageData:imageData];
+                                     imageResult.mime = imageMime;
                                      imageResult.image = imgT;
                                  } else {
                                      imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];

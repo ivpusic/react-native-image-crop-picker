@@ -45,6 +45,14 @@
         result.image = image;
         return result;
     }
+
+    // If both width and height are within the limits just return them
+    if ([maxWidth floatValue] >= image.size.width && [maxHeight floatValue] >= image.size.height) {
+        result.width = [NSNumber numberWithFloat:image.size.width];
+        result.height = [NSNumber numberWithFloat:image.size.height];
+        result.image = image;
+        return result;
+    }
     
     CGFloat oldWidth = image.size.width;
     CGFloat oldHeight = image.size.height;

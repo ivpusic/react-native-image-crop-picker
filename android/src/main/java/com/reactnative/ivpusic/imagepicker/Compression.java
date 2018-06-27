@@ -17,12 +17,14 @@ import java.io.IOException;
 
 class Compression {
 
-    File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) throws IOException {
+    File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath, final String mimeType) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
+        Boolean compressGIF = options.hasKey("compressGIF") ? options.getBoolean("compressGIF") : false;
+        Boolean skipCompression = !compressGIF && mimeType.equalsIgnoreCase("image/gif");
 
-        if (maxWidth == null && maxHeight == null && quality == null) {
+        if (skipCompression || (maxWidth == null && maxHeight == null && quality == null)) {
             Log.d("image-crop-picker", "Skipping image compression");
             return new File(originalImagePath);
         }
