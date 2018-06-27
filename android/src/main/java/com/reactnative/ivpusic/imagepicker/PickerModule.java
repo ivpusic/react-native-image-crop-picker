@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.content.ContentResolver;
 
@@ -432,6 +433,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
+        Log.d("CROP_PICKER", uri.toString());
         String path = resolveRealPath(activity, uri, isCamera);
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
