@@ -72,7 +72,7 @@
     
     NSNumber *compressQuality = [options valueForKey:@"compressImageQuality"];
     if (compressQuality == nil) {
-        compressQuality = [NSNumber numberWithFloat:1];
+        compressQuality = [NSNumber numberWithFloat:0.8];
     }
     
     result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);

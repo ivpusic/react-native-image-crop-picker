@@ -100,7 +100,7 @@ ImagePicker.clean().then(() => {
 | height                                  |                  number                  | Height of result image when used with `cropping` option |
 | multiple                                |           bool (default false)           | Enable or disable multiple image selection |
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
-| includeBase64                           |           bool (default false)           | Enable or disable returning base64 data with image |
+| includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${(new Buffer(image.data)).toString('base64')}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
@@ -117,13 +117,15 @@ ImagePicker.clean().then(() => {
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
-| compressImageQuality                    |            number (default 1)            | Compress image with quality (from 0 to 1, where 1 is best quality) |
+| compressImageQuality                    |            number (default 1 (Android)/0.8 (iOS))            | Compress image with quality (from 0 to 1, where 1 is best quality). On iOS, values larger than 0.8 don't produce a noticable quality increase in most images, while a value of 0.8 will reduce the file size by about half or less compared to a value of 1. |
 | loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
 | mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only)           |           bool (default true)            | Whether to show the number of selected assets |
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
+| cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
 
 #### Smart Album Types (ios)
 
@@ -244,7 +246,7 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 ### Android
 
-- Make sure you are using Gradle `2.2.x` (android/build.gradle)
+- Make sure you are using Gradle >= `2.2.x` (android/build.gradle)
 
 ```gradle
 buildscript {
@@ -266,7 +268,10 @@ allprojects {
       jcenter()
       maven { url "$rootDir/../node_modules/react-native/android" }
 
-      // jitpack repo is necessary to fetch ucrop dependency
+      // ADD THIS
+      maven { url 'https://maven.google.com' }
+
+      // ADD THIS
       maven { url "https://jitpack.io" }
     }
 }
@@ -282,6 +287,23 @@ android {
         ...
         vectorDrawables.useSupportLibrary = true
         ...
+    }
+    ...
+}
+```
+
+- Use Android SDK >= 26 (android/app/build.gradle)
+
+```gradle
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+    ...
+    
+    defaultConfig {
+      ...
+      targetSdkVersion 27
+      ...
     }
     ...
 }
