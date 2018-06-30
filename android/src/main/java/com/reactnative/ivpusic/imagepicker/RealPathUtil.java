@@ -17,7 +17,7 @@ import java.io.InputStream;
 class RealPathUtil {
     static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT;
+        final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
