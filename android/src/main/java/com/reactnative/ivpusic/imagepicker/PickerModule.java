@@ -3,6 +3,7 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,7 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
-import android.content.ContentResolver;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -51,6 +51,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private static final int IMAGE_PICKER_REQUEST = 61110;
     private static final int CAMERA_PICKER_REQUEST = 61111;
+    private static final int VIDEO_RECORD_REQUEST = 61112;
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
 
     private static final String E_PICKER_CANCELLED_KEY = "E_PICKER_CANCELLED";
@@ -64,6 +65,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
     private static final String E_PERMISSIONS_MISSING = "E_PERMISSION_MISSING";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
+    //Grey 800
+    private final String DEFAULT_TINT = "#424242";
+    //Light Blue 500
+    private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
 
     private String mediaType = "any";
     private boolean multiple = false;
@@ -77,19 +82,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private ReadableMap options;
-
-    //Grey 800
-    private final String DEFAULT_TINT = "#424242";
     private String cropperActiveWidgetColor = DEFAULT_TINT;
     private String cropperStatusBarColor = DEFAULT_TINT;
     private String cropperToolbarColor = DEFAULT_TINT;
     private String cropperToolbarTitle = null;
-
-    //Light Blue 500
-    private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
     private int width = 200;
     private int height = 200;
-
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector = new ResultCollector();
@@ -100,6 +98,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         super(reactContext);
         reactContext.addActivityEventListener(this);
         this.reactContext = reactContext;
+    }
+
+    private static WritableMap getCroppedRectMap(Intent data) {
+        final int DEFAULT_VALUE = -1;
+        final WritableMap map = new WritableNativeMap();
+
+        map.putInt("x", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, DEFAULT_VALUE));
+        map.putInt("y", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, DEFAULT_VALUE));
+        map.putInt("width", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, DEFAULT_VALUE));
+        map.putInt("height", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, DEFAULT_VALUE));
+
+        return map;
     }
 
     private String getTmpDir(Activity activity) {
@@ -290,7 +300,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void initiateCamera(Activity activity) {
+        switch (mediaType) {
+            case "video":
+                initVideoCapture(activity);
+                break;
+            default:
+                initImageCapture(activity);
+                break;
+        }
+    }
 
+    private void initImageCapture(Activity activity) {
         try {
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File imageFile = createImageFile();
@@ -299,8 +319,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 mCameraCaptureURI = Uri.fromFile(imageFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
-                        activity.getApplicationContext().getPackageName() + ".provider",
-                        imageFile);
+                                                               activity.getApplicationContext().getPackageName() + ".provider",
+                                                               imageFile);
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
@@ -314,7 +334,35 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
         }
+    }
 
+    private void initVideoCapture(Activity activity) {
+        try {
+            int requestCode = VIDEO_RECORD_REQUEST;
+            Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+
+
+            File videoFile = createVideoFile();
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                mCameraCaptureURI = Uri.fromFile(videoFile);
+            } else {
+                mCameraCaptureURI = FileProvider.getUriForFile(activity,
+                                                               activity.getApplicationContext().getPackageName() + ".provider",
+                                                               videoFile);
+            }
+
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+
+            if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
+                resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
+                return;
+            }
+
+            activity.startActivityForResult(cameraIntent, requestCode);
+        } catch (Exception e) {
+            resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
+        }
     }
 
     private void initiatePicker(final Activity activity) {
@@ -334,6 +382,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
             galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+            galleryIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
             activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
@@ -413,12 +464,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             ContentResolver cr = this.reactContext.getContentResolver();
             mimeType = cr.getType(uri);
         } else {
-            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
-                    .toString());
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
             if (fileExtension != null) {
                 mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
             }
         }
+
         return mimeType;
     }
 
@@ -501,7 +552,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
         String path;
-
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             path = RealPathUtil.getRealPathFromURI(activity, uri);
         } else {
@@ -577,9 +627,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setStatusBarColor(statusBarColor);
         if (activeWidgetColor == Color.parseColor(DEFAULT_TINT)) {
             /*
-            Default tint is grey => use a more flashy color that stands out more as the call to action
-            Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
-            */
+             Default tint is grey => use a more flashy color that stands out more as the call to action
+             Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
+             */
             options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
         } else {
             //If they pass a custom tint color in, we use this for everything
@@ -601,20 +651,20 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (enableRotationGesture) {
             // UCropActivity.ALL = enable both rotation & scaling
             options.setAllowedGestures(
-                    UCropActivity.ALL, // When 'scale'-tab active
-                    UCropActivity.ALL, // When 'rotate'-tab active
-                    UCropActivity.ALL  // When 'aspect ratio'-tab active
-            );
+                                       UCropActivity.ALL, // When 'scale'-tab active
+                                       UCropActivity.ALL, // When 'rotate'-tab active
+                                       UCropActivity.ALL  // When 'aspect ratio'-tab active
+                                       );
         }
         if (!disableCropperColorSetters) {
             configureCropperColors(options);
         }
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
-                .withOptions(options)
-                .start(activity);
+        .withMaxResultSize(width, height)
+        .withAspectRatio(width, height)
+        .withOptions(options)
+        .start(activity);
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
@@ -686,6 +736,26 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
+    private void videoPickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
+        if (resultCode == Activity.RESULT_CANCELED) {
+            resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
+        } else if (resultCode == Activity.RESULT_OK) {
+            Uri uri = mCameraCaptureURI;
+
+            if (uri == null) {
+                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve image url");
+                return;
+            }
+
+            try {
+                resultCollector.setWaitCount(1);
+                getAsyncSelection(activity, uri, true);
+            } catch (Exception ex) {
+                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
+            }
+        }
+    }
+
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (data != null) {
             final Uri resultUri = UCrop.getOutput(data);
@@ -709,12 +779,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == IMAGE_PICKER_REQUEST) {
-            imagePickerResult(activity, requestCode, resultCode, data);
-        } else if (requestCode == CAMERA_PICKER_REQUEST) {
-            cameraPickerResult(activity, requestCode, resultCode, data);
-        } else if (requestCode == UCrop.REQUEST_CROP) {
-            croppingResult(activity, requestCode, resultCode, data);
+        switch (requestCode) {
+            case IMAGE_PICKER_REQUEST:
+                imagePickerResult(activity, requestCode, resultCode, data);
+                break;
+            case CAMERA_PICKER_REQUEST:
+                cameraPickerResult(activity, requestCode, resultCode, data);
+                break;
+            case VIDEO_RECORD_REQUEST:
+                videoPickerResult(activity, requestCode, resultCode, data);
+                break;
+            case UCrop.REQUEST_CROP:
+                croppingResult(activity, requestCode, resultCode, data);
+                break;
         }
     }
 
@@ -724,14 +801,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private boolean isCameraAvailable(Activity activity) {
         return activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)
-                || activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
+        || activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
     }
 
     private File createImageFile() throws IOException {
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+                                                                  Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -743,18 +820,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
 
         return image;
-
     }
 
-    private static WritableMap getCroppedRectMap(Intent data) {
-        final int DEFAULT_VALUE = -1;
-        final WritableMap map = new WritableNativeMap();
+    private File createVideoFile() throws IOException {
 
-        map.putInt("x", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, DEFAULT_VALUE));
-        map.putInt("y", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, DEFAULT_VALUE));
-        map.putInt("width", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, DEFAULT_VALUE));
-        map.putInt("height", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, DEFAULT_VALUE));
+        String videoFileName = "vid-" + UUID.randomUUID().toString();
+        File path = Environment.getExternalStoragePublicDirectory(
+                                                                  Environment.DIRECTORY_MOVIES);
 
-        return map;
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
+        File video = File.createTempFile(videoFileName, ".mp4", path);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + video.getAbsolutePath();
+
+        return video;
     }
 }

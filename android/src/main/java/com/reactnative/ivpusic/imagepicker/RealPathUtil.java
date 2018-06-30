@@ -8,6 +8,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileOutputStream;

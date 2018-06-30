@@ -6,7 +6,9 @@
 //
 
 #import "ImageCropPicker.h"
-
+#import <AVFoundation/AVFoundation.h>
+#import <AVFoundation/AVAsset.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG @"Cannot run camera on simulator"
 
@@ -45,7 +47,7 @@
 @end
 
 @implementation LabeledCropView
-    - (UILabel *)moveAndScaleLabel
+- (UILabel *)moveAndScaleLabel
 {
     if (!self._moveAndScaleLabel) {
         self._moveAndScaleLabel = [[UILabel alloc] init];
@@ -68,6 +70,8 @@ RCT_EXPORT_MODULE();
 - (instancetype)init
 {
     if (self = [super init]) {
+        self.arrImageProcessId = [NSMutableArray array];
+        self.arrQuality  = @[@"HighQuality", @"MediumQuality", @"LowQuality"];
         self.defaultOptions = @{
                                 @"multiple": @NO,
                                 @"cropping": @NO,
@@ -170,8 +174,36 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         picker.delegate = self;
         picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+
+        NSString *mediaType = [self.options objectForKey:@"mediaType"];
         if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
             picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+        }
+
+        if ([mediaType isEqualToString:@"video"]) {
+
+
+            NSString *presetKey = [self.options valueForKey:@"compressVideoPreset"];
+            if (!presetKey) {
+                presetKey = @"MediumQuality";
+            }
+
+            int item = [self.arrQuality indexOfObject:presetKey];
+            switch (item) {
+                case 0:
+                    picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
+                    break;
+                case 1:
+                    picker.videoQuality = UIImagePickerControllerQualityTypeMedium;
+                    break;
+                case 2:
+                    picker.videoQuality = UIImagePickerControllerQualityTypeLow;
+                    break;
+                default:
+                    picker.videoQuality = UIImagePickerControllerQualityTypeMedium;
+                    break;
+            }
+            picker.mediaTypes = @[(NSString *)kUTTypeMovie];
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -193,7 +225,37 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         exif = [info objectForKey:UIImagePickerControllerMediaMetadata];
     }
 
-    [self processSingleImagePick:chosenImage withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"] withCreationDate:self.croppingFile[@"creationDate"] withModificationDate:self.croppingFile[@"modificationDate"]];
+    NSURL *fileURL = info[UIImagePickerControllerMediaURL];
+    NSString *mediaType = [self.options objectForKey:@"mediaType"];
+    if ([mediaType isEqualToString:@"video"]) {
+        NSString *fileExtension = [fileURL pathExtension];
+        NSString *UTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtension, NULL);
+        NSString *contentType = (__bridge_transfer NSString *)UTTypeCopyPreferredTagWithClass((__bridge CFStringRef)UTI, kUTTagClassMIMEType);
+        AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:fileURL options:nil];
+        NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+        [self getVideoAssetFromCamera:avAsset fileExtension:fileExtension mimeType:contentType  completion:^(NSDictionary* video) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+
+                [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                    if (video != nil) {
+                        self.resolve(video);
+                    } else {
+                        self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                    }
+                }]];
+            });
+        }];
+
+
+    }
+    else {
+        if([[self.options objectForKey:@"includeExif"] boolValue]) {
+            exif = [info objectForKey:UIImagePickerControllerMediaMetadata];
+        }
+        NSData* imageData = UIImageJPEGRepresentation(chosenImage, 1);
+        [self processSingleImagePick:imageData withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"] withCreationDate:self.croppingFile[@"creationDate"] withModificationDate:self.croppingFile[@"modificationDate"]];
+    }
+
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -393,17 +455,30 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         [loadingView addSubview:activityView];
 
         // create message
-        UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
-        loadingLabel.backgroundColor = [UIColor clearColor];
-        loadingLabel.textColor = [UIColor whiteColor];
-        loadingLabel.adjustsFontSizeToFitWidth = YES;
-        CGPoint loadingLabelLocation = loadingView.center;
-        loadingLabelLocation.y += [activityView bounds].size.height;
-        loadingLabel.center = loadingLabelLocation;
-        loadingLabel.textAlignment = NSTextAlignmentCenter;
-        loadingLabel.text = [self.options objectForKey:@"loadingLabelText"];
-        [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
-        [loadingView addSubview:loadingLabel];
+        if (self.loadingLabel == nil) {
+            self.loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
+            self.loadingLabel.backgroundColor = [UIColor clearColor];
+            self.loadingLabel.textColor = [UIColor whiteColor];
+            self.loadingLabel.adjustsFontSizeToFitWidth = YES;
+            CGPoint loadingLabelLocation = loadingView.center;
+            loadingLabelLocation.y += [activityView bounds].size.height;
+            self.loadingLabel.center = loadingLabelLocation;
+            self.loadingLabel.textAlignment = NSTextAlignmentCenter;
+        }
+        self.loadingLabel.text = [self.options objectForKey:@"loadingLabelText"];
+        [self.loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
+        [loadingView addSubview:self.loadingLabel];
+
+        // create Cancel Button
+
+        float heightButton = loadingView.frame.size.height * 10 / 100;
+        self.btnCancel = [[UIButton alloc]initWithFrame:CGRectMake(0, loadingView.frame.size.height-heightButton, loadingView.frame.size.width, heightButton)];
+        [self.btnCancel addTarget:self action:@selector(btnCancelAction:) forControlEvents:UIControlEventTouchUpInside];
+        [self.btnCancel setTitle:@"Cancel" forState:UIControlStateNormal];
+        [self.btnCancel setTitle:@"Cancel" forState:UIControlStateSelected];
+        [self.btnCancel setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        self.btnCancel.backgroundColor = [UIColor whiteColor];
+        [loadingView addSubview:self.btnCancel];
 
         // show all
         [mainView addSubview:loadingView];
@@ -414,53 +489,150 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 
+
+-(IBAction)btnCancelAction:(id)sender{
+    for (NSNumber *num in self.arrImageProcessId) {
+        [self.manager cancelImageRequest:[num integerValue]];
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *vc =   [self getRootVC] ;
+        [vc dismissViewControllerAnimated:true completion:^{
+            self.manager = nil;
+            [self.arrImageProcessId removeAllObjects];
+            self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+        }];
+    });
+
+}
+
+
+- (void) getVideoAssetFromCamera:(AVURLAsset*)avAsset fileExtension:(NSString *)fileExtension mimeType:(NSString *)mimetype completion:(void (^)(NSDictionary* image))completion {
+    @try {
+
+
+        NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+
+        if ([compatiblePresets containsObject:AVAssetExportPresetLowQuality])
+        {
+            AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset presetName:AVAssetExportPresetPassthrough];
+            NSString *strFileName = [[[NSUUID UUID] UUIDString] stringByAppendingString:[NSString stringWithFormat:@".%@",fileExtension]];
+            NSString *filePath = [[self getTmpDirectory] stringByAppendingString:strFileName];
+            NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+            exportSession.outputURL = outputURL;
+            exportSession.outputFileType = AVFileTypeMPEG4;
+            [exportSession exportAsynchronouslyWithCompletionHandler:^{
+
+                if ([exportSession status] == AVAssetExportSessionStatusCompleted) {
+                    AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                    AVAssetTrack *videoTrack = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+                    NSNumber *filesize = nil;
+                    [outputURL getResourceValue:&filesize forKey:NSURLFileSizeKey error:nil];
+                    NSDictionary *video = [self createAttachmentResponse:[outputURL absoluteString]
+                                                                withExif:nil
+                                                           withSourceURL:nil
+                                                     withLocalIdentifier:@""
+                                                            withFilename:strFileName
+                                                               withWidth:[NSNumber numberWithFloat:videoTrack.naturalSize.width]
+                                                              withHeight:[NSNumber numberWithFloat:videoTrack.naturalSize.height]
+                                                                withMime:mimetype
+                                                                withSize:filesize
+                                                                withData:nil
+                                                                withRect:CGRectNull
+                                                        withCreationDate:[NSDate date]
+                                                    withModificationDate:[NSDate date]];
+                    completion(video);
+                }
+            }];
+        }
+    } @catch(NSException *e) {
+
+    }
+}
+
 - (void) getVideoAsset:(PHAsset*)forAsset completion:(void (^)(NSDictionary* image))completion {
-    PHImageManager *manager = [PHImageManager defaultManager];
+    NSString *loadingLabelTextTemp = [self.options objectForKey:@"loadingLabelText"];
+    self.manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.version = PHVideoRequestOptionsVersionOriginal;
+    options.version = PHVideoRequestOptionsVersionCurrent;
+    // This is for videos stored in iCloud
+    options.networkAccessAllowed = YES;
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeFastFormat;
+    // Only dispatched when asset is in iCloud
+    options.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.loadingLabel setText:@"Downloading from iCloud..."];
+        });
+    };
 
-    [manager
-     requestAVAssetForVideo:forAsset
-     options:options
-     resultHandler:^(AVAsset * asset, AVAudioMix * audioMix,
-                     NSDictionary *info) {
-         NSURL *sourceURL = [(AVURLAsset *)asset URL];
+    NSString *mimeType = @"";
+    NSString *filename = [forAsset valueForKey:@"filename"];
+    NSString *fileExtension = [filename pathExtension];
+    NSString *strFileName = filename;
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[filename pathExtension], NULL);
+    CFStringRef MIMETYPE = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
+    CFRelease(UTI);
+    if (MIMETYPE) {
+        mimeType = (NSString *)CFBridgingRelease(MIMETYPE);
+    }
+    NSString *filePath = [[self getTmpDirectory] stringByAppendingString:strFileName];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
 
-         // create temp file
-         NSString *tmpDirFullPath = [self getTmpDirectory];
-         NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-         filePath = [filePath stringByAppendingString:@".mp4"];
-         NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+    if ([fileManager fileExistsAtPath:filePath]){
+        NSError *error;
+        BOOL success = [fileManager removeItemAtPath:filePath error:&error];
+        if(!success){
+            strFileName = [[[NSUUID UUID] UUIDString] stringByAppendingString:[NSString stringWithFormat:@".%@",fileExtension]];
+            filePath = [[self getTmpDirectory] stringByAppendingString:strFileName];
+        }
+    }
 
-         [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-             if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-                 AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                 AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+    // Get compression presets
+    NSString *presetKey = [self.options valueForKey:@"compressVideoPreset"];
+    if (presetKey == nil) {
+        presetKey = @"MediumQuality";
+    }
+    NSString *preset = [[self.compression exportPresets] valueForKey:presetKey];
+    if (preset == nil) {
+        preset = AVAssetExportPresetMediumQuality;
+    }
 
-                 NSNumber *fileSizeValue = nil;
-                 [outputURL getResourceValue:&fileSizeValue
-                                      forKey:NSURLFileSizeKey
-                                       error:nil];
-
-                 completion([self createAttachmentResponse:[outputURL absoluteString]
-                                                  withExif:nil
-                                             withSourceURL:[sourceURL absoluteString]
-                                       withLocalIdentifier: forAsset.localIdentifier
-                                              withFilename:[forAsset valueForKey:@"filename"]
-                                                 withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                                  withMime:@"video/mp4"
-                                                  withSize:fileSizeValue
-                                                  withData:nil
-                                                  withRect:CGRectNull
-                                          withCreationDate:forAsset.creationDate
-                                      withModificationDate:forAsset.modificationDate
-                             ]);
-             } else {
-                 completion(nil);
-             }
-         }];
-     }];
+    PHImageRequestID imageRequest = [self.manager requestExportSessionForVideo:forAsset
+                                                                       options:options
+                                                                  exportPreset:preset
+                                                                 resultHandler:^(AVAssetExportSession * _Nullable exportSession, NSDictionary * _Nullable info) {
+                                                                     dispatch_async(dispatch_get_main_queue(), ^{
+                                                                         [self.loadingLabel setText:loadingLabelTextTemp];
+                                                                     });
+                                                                     exportSession.shouldOptimizeForNetworkUse = YES;
+                                                                     exportSession.outputURL = outputURL;
+                                                                     exportSession.outputFileType = AVFileTypeMPEG4;
+                                                                     [exportSession exportAsynchronouslyWithCompletionHandler:^{
+                                                                         if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+                                                                             AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                                                                             AVAssetTrack *videoTrack = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+                                                                             NSNumber *filesize = nil;
+                                                                             [outputURL getResourceValue:&filesize forKey:NSURLFileSizeKey error:nil];
+                                                                             NSDictionary *video = [self createAttachmentResponse:[outputURL absoluteString]
+                                                                                                                         withExif:nil
+                                                                                                                    withSourceURL:nil
+                                                                                                              withLocalIdentifier:forAsset.localIdentifier
+                                                                                                                     withFilename:[forAsset valueForKey:@"filename"]
+                                                                                                                        withWidth:[NSNumber numberWithFloat:videoTrack.naturalSize.width]
+                                                                                                                       withHeight:[NSNumber numberWithFloat:videoTrack.naturalSize.height]
+                                                                                                                         withMime:mimeType                                                                                    withSize:filesize
+                                                                                                                         withData:nil
+                                                                                                                         withRect:CGRectNull
+                                                                                                                 withCreationDate:forAsset.creationDate
+                                                                                                             withModificationDate:forAsset.modificationDate];
+                                                                             completion(video);
+                                                                         }
+                                                                         else{
+                                                                             completion(nil);
+                                                                         }
+                                                                     }];
+                                                                 }];
+    [self.arrImageProcessId addObject:[NSNumber numberWithInt: imageRequest]];
 }
 
 - (NSDictionary*) createAttachmentResponse:(NSString*)filePath withExif:(NSDictionary*) exif withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withData:(NSString*)data withRect:(CGRect)cropRect withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
@@ -497,14 +669,59 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         case 0x4D:
             return @"image/tiff";
     }
-    return @"";
+    return @"image/jpeg";
+}
+
+- (NSString *)determineExtensionFromImageData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+
+    switch (c) {
+        case 0xFF:
+            return @".jpg";
+        case 0x89:
+            return @".png";
+        case 0x47:
+            return @".gif";
+        case 0x49:
+        case 0x4D:
+            return @".tiff";
+    }
+    return @".jpg";
+}
+
+static ImageResult * getResizedCompressedImageIfNeedded(ImageCropPicker *object, NSData *imageData) {
+    UIImage *imgT = [UIImage imageWithData:imageData];
+
+    NSNumber *compressQuality = [object.options valueForKey:@"compressImageQuality"];
+    Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
+
+    NSNumber *maxWidth = [object.options valueForKey:@"compressImageMaxWidth"];
+    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
+
+    NSNumber *maxHeight = [object.options valueForKey:@"compressImageMaxHeight"];
+    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+    NSString* mime = [object determineMimeTypeFromImageData:imageData];
+    ImageResult *imageResult = [[ImageResult alloc] init];
+    if ([mime isEqualToString:@"image/gif"] || (isLossless && useOriginalWidth && useOriginalHeight)) {
+        // Use original, unmodified image
+        imageResult.data = imageData;
+        imageResult.width = @(imgT.size.width);
+        imageResult.height = @(imgT.size.height);
+        imageResult.mime = mime;
+        imageResult.image = imgT;
+    } else {
+        imageResult = [object.compression compressImage:[imgT fixOrientation] withOptions:object.options];
+    }
+    return imageResult;
 }
 
 - (void)qb_imagePickerController:
 (QBImagePickerController *)imagePickerController
           didFinishPickingAssets:(NSArray *)assets {
 
-    PHImageManager *manager = [PHImageManager defaultManager];
+    self.manager = [PHImageManager defaultManager];
+
     PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
     options.networkAccessAllowed = YES;
@@ -540,14 +757,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                    [self.arrImageProcessId removeAllObjects];
                                     self.resolve(selections);
+
                                 }]];
                                 return;
                             }
                         });
                     }];
                 } else {
-                    [manager
+                    [self.manager
                      requestImageDataForAsset:phAsset
                      options:options
                      resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
@@ -557,28 +776,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                          dispatch_async(dispatch_get_main_queue(), ^{
                              [lock lock];
                              @autoreleasepool {
-                                 UIImage *imgT = [UIImage imageWithData:imageData];
-
-                                 NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
-                                 Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
-
-                                 NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
-                                 Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
-
-                                 NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
-                                 Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
-
-                                 ImageResult *imageResult = [[ImageResult alloc] init];
-                                 if (isLossless && useOriginalWidth && useOriginalHeight) {
-                                     // Use original, unmodified image
-                                     imageResult.data = imageData;
-                                     imageResult.width = @(imgT.size.width);
-                                     imageResult.height = @(imgT.size.height);
-                                     imageResult.mime = [self determineMimeTypeFromImageData:imageData];
-                                     imageResult.image = imgT;
-                                 } else {
-                                     imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
-                                 }
+                                 ImageResult * imageResult = getResizedCompressedImageIfNeedded(self, imageData);
 
                                  NSString *filePath = @"";
                                  if([[self.options objectForKey:@"writeTempFile"] boolValue]) {
@@ -623,7 +821,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  [indicatorView stopAnimating];
                                  [overlayView removeFromSuperview];
                                  [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                     [self.arrImageProcessId removeAllObjects];
                                      self.resolve(selections);
+
                                  }]];
                                  return;
                              }
@@ -643,6 +843,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                         [overlayView removeFromSuperview];
                         [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                             if (video != nil) {
+                                [self.arrImageProcessId removeAllObjects];
                                 self.resolve(video);
                             } else {
                                 self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
@@ -651,7 +852,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     });
                 }];
             } else {
-                [manager
+                [self.manager
                  requestImageDataForAsset:phAsset
                  options:options
                  resultHandler:^(NSData *imageData, NSString *dataUTI,
@@ -666,8 +867,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                      dispatch_async(dispatch_get_main_queue(), ^{
                          [indicatorView stopAnimating];
                          [overlayView removeFromSuperview];
+                         [self.arrImageProcessId removeAllObjects];
+                         [self processSingleImagePick:imageData
 
-                         [self processSingleImagePick:[UIImage imageWithData:imageData]
                                              withExif: exif
                                    withViewController:imagePickerController
                                         withSourceURL:[sourceURL absoluteString]
@@ -691,7 +893,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // when user selected single image, with camera or from photo gallery,
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
-- (void) processSingleImagePick:(UIImage*)image withExif:(NSDictionary*) exif withViewController:(UIViewController*)viewController withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
+
+- (void) processSingleImagePick:(NSData*)imageData withExif:(NSDictionary*) exif withViewController:(UIViewController*)viewController withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
+    UIImage* image = [UIImage imageWithData:imageData];
 
     if (image == nil) {
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -713,7 +917,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
         [self startCropping:[image fixOrientation]];
     } else {
-        ImageResult *imageResult = [self.compression compressImage:[image fixOrientation]  withOptions:self.options];
+
+        ImageResult * imageResult = getResizedCompressedImageIfNeedded(self, imageData);
+
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
             [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -874,7 +1080,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-    filePath = [filePath stringByAppendingString:@".jpg"];
+    NSString* ext = [self determineExtensionFromImageData:data];
+    filePath = [filePath stringByAppendingString:ext];
 
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
@@ -906,3 +1113,4 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 @end
+
