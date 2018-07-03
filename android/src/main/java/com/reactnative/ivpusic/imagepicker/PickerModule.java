@@ -537,11 +537,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (path.startsWith("http://") || path.startsWith("https://")) {
             throw new Exception("Cannot select remote files");
         }
-        validateImage(path);
+        BitmapFactory.Options original = validateImage(path);
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(activity, options, path);
+        File compressedImage = compression.compressImage(activity, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
