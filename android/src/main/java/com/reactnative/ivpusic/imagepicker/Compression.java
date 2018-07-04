@@ -1,12 +1,15 @@
 package com.reactnative.ivpusic.imagepicker;
 
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import id.zelory.compressor.Compressor;
+import java.util.Arrays;
+import java.util.List;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +20,19 @@ import java.io.IOException;
 
 class Compression {
 
-    File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath) throws IOException {
+    File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
 
-        if (maxWidth == null && maxHeight == null && quality == null) {
+        Boolean isLossLess = (quality == null || quality == 1.0);
+        Boolean useOriginalWidth = (maxWidth == null || maxWidth >= bitmapOptions.outWidth);
+        Boolean useOriginalHeight = (maxHeight == null || maxHeight >= bitmapOptions.outHeight);
+
+        List knownMimes = Arrays.asList("image/jpeg", "image/jpg", "image/png", "image/gif", "image/tiff");
+        Boolean isKnownMimeType = (bitmapOptions.outMimeType != null && knownMimes.contains(bitmapOptions.outMimeType.toLowerCase()));
+
+        if (isLossLess && useOriginalWidth && useOriginalHeight && isKnownMimeType) {
             Log.d("image-crop-picker", "Skipping image compression");
             return new File(originalImagePath);
         }
