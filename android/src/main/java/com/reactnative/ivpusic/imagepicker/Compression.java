@@ -30,7 +30,7 @@ class Compression {
         Boolean useOriginalHeight = (maxHeight == null || maxHeight >= bitmapOptions.outHeight);
 
         List knownMimes = Arrays.asList("image/jpeg", "image/jpg", "image/png", "image/gif", "image/tiff");
-        Boolean isKnownMimeType = (bitmapOptions.mimeType != null && knownMimes.contains(bitmapOptions.mimeType.toLowerCase()));
+        Boolean isKnownMimeType = (bitmapOptions.outMimeType != null && knownMimes.contains(bitmapOptions.outMimeType.toLowerCase()));
 
         if (isLossLess && useOriginalWidth && useOriginalHeight && isKnownMimeType) {
             Log.d("image-crop-picker", "Skipping image compression");
