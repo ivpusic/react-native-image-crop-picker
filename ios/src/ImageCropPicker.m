@@ -88,7 +88,8 @@ RCT_EXPORT_MODULE();
                                 @"mediaType": @"any",
                                 @"showsSelectedCount": @YES,
                                 @"cropperCancelText": @"Cancel",
-                                @"cropperChooseText": @"Choose"
+                                @"cropperChooseText": @"Choose",
+                                @"cropperAvoidEmptySpaceAroundImage": @YES
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -363,7 +364,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
     imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
-    imageCropVC.avoidEmptySpaceAroundImage = YES;
+    imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"cropperAvoidEmptySpaceAroundImage"] boolValue];
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
@@ -836,9 +837,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
     // we have correct rect, but not correct dimensions
     // so resize image
-    CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
-    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
-    ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
+//    CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
+//    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
+    ImageResult *imageResult = [self.compression compressImage:croppedImage withOptions:self.options];
 
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
