@@ -126,6 +126,7 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| cropperAvoidEmptySpaceAroundImage (ios only)            |           bool (default true)        | Determines whether the image will always fill the mask space |
 
 #### Smart Album Types (ios)
 
