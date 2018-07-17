@@ -82,6 +82,7 @@ RCT_EXPORT_MODULE();
                                 @"waitAnimationEnd": @YES,
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
+                                @"avoidEmptySpaceAroundImage": @YES,
                                 @"compressImageQuality": @0.8,
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
@@ -363,7 +364,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
     imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
-    imageCropVC.avoidEmptySpaceAroundImage = YES;
+    imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"avoidEmptySpaceAroundImage"] boolValue];
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
