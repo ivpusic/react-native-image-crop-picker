@@ -7,6 +7,7 @@ declare module "react-native-image-crop-picker" {
         path?: string;
         includeBase64?: boolean;
         includeExif?: boolean;
+        avoidEmptySpaceAroundImage?: boolean;
         cropperActiveWidgetColor?: string;
         cropperStatusBarColor?: string;
         cropperToolbarColor?: string;
