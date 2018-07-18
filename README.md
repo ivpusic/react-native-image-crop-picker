@@ -1,10 +1,10 @@
 # react-native-image-crop-picker
 
-<img src="svg.svg" width="65%" height="65%" />
+[![Backers on Open Collective](https://opencollective.com/react-native-image-crop-picker/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-image-crop-picker/sponsors/badge.svg)](#sponsors)
+
+<img src="svg.svg" width="50%" height="50%" />
 
 iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
-
-[![Backers on Open Collective](https://opencollective.com/react-native-image-crop-picker/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-image-crop-picker/sponsors/badge.svg)](#sponsors)
 
 ## Result
 
