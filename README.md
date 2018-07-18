@@ -1,6 +1,6 @@
 # react-native-image-crop-picker
 
-<img src="Logotype primary.png" width="65%" height="65%" />
+<img src="Logotype primary.svg" width="65%" height="65%" />
 
 iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
 
