@@ -11,6 +11,7 @@ declare module "react-native-image-crop-picker" {
         cropperActiveWidgetColor?: string;
         cropperStatusBarColor?: string;
         cropperToolbarColor?: string;
+        cropperToolbarTitle?: string;
         freeStyleCropEnabled?: boolean;
         cropperTintColor?: string;
         cropperCircleOverlay?: boolean;
