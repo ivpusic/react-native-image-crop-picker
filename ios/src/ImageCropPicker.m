@@ -181,6 +181,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 
             if ([availableTypes containsObject:(NSString *)kUTTypeMovie]) {
                 picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeMovie, nil];
+                picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
             }
         } else if ([mediaType isEqualToString:@"any"]) {
             NSArray *availableTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
@@ -190,6 +191,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 
             if ([availableTypes containsObject:(NSString *)kUTTypeMovie]) {
                 [types addObject:(NSString *) kUTTypeMovie];
+                picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
             }
 
             picker.mediaTypes = [types copy];
