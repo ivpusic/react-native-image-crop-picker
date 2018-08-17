@@ -497,7 +497,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"width": width,
              @"height": height,
              @"mime": mime,
-             @"size": size,
+             @"size": (size) ? size : [NSNull null],
              @"data": (data) ? data : [NSNull null],
              @"exif": (exif) ? exif : [NSNull null],
              @"cropRect": CGRectIsNull(cropRect) ? [NSNull null] : [ImageCropPicker cgRectToDictionary:cropRect],
