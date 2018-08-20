@@ -134,7 +134,7 @@ export default class App extends Component {
       multiple: true,
       waitAnimationEnd: false,
       includeExif: true,
-      forgeJPG: true,
+      forgeJpg: true,
     }).then(images => {
       this.setState({
         image: null,
