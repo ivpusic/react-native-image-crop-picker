@@ -1,5 +1,6 @@
 # react-native-image-crop-picker
 
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fivpusic%2Freact-native-image-crop-picker.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fivpusic%2Freact-native-image-crop-picker?ref=badge_shield)
 [![Backers on Open Collective](https://opencollective.com/react-native-image-crop-picker/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-image-crop-picker/sponsors/badge.svg)](#sponsors)
 
 <img src="svg.svg" width="50%" height="50%" />
