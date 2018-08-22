@@ -420,6 +420,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     PHImageManager *manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;
+    options.networkAccessAllowed = YES;
 
     [manager
      requestAVAssetForVideo:forAsset
