@@ -340,7 +340,6 @@ Details for second approach:
 ## TO DO
 
 - [ ] [Android] Standardize multiple select
-- [ ] [Android] Pick remote media
 - [ ] [Android] Video compression
 
 
