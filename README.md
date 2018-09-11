@@ -1,7 +1,11 @@
 # react-native-image-crop-picker
-iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
 
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fivpusic%2Freact-native-image-crop-picker.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fivpusic%2Freact-native-image-crop-picker?ref=badge_shield)
 [![Backers on Open Collective](https://opencollective.com/react-native-image-crop-picker/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-image-crop-picker/sponsors/badge.svg)](#sponsors)
+
+<img src="svg.svg" width="50%" height="50%" />
+
+iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
 
 ## Result
 
@@ -102,6 +106,7 @@ ImagePicker.clean().then(() => {
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${(new Buffer(image.data)).toString('base64')}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
+| avoidEmptySpaceAroundImage            |           bool (default true)           |  When set to true, the image will always fill the mask space. |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
@@ -121,6 +126,7 @@ ImagePicker.clean().then(() => {
 | loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
 | mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only)           |           bool (default true)            | Whether to show the number of selected assets |
+| forceJpg (ios only)           |           bool (default false)            | Whether to convert photos to JPG. This will also convert any Live Photo into its JPG representation |
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
@@ -335,7 +341,6 @@ Details for second approach:
 ## TO DO
 
 - [ ] [Android] Standardize multiple select
-- [ ] [Android] Pick remote media
 - [ ] [Android] Video compression
 
 

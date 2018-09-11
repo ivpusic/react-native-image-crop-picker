@@ -7,9 +7,11 @@ declare module "react-native-image-crop-picker" {
         path?: string;
         includeBase64?: boolean;
         includeExif?: boolean;
+        avoidEmptySpaceAroundImage?: boolean;
         cropperActiveWidgetColor?: string;
         cropperStatusBarColor?: string;
         cropperToolbarColor?: string;
+        cropperToolbarTitle?: string;
         freeStyleCropEnabled?: boolean;
         cropperTintColor?: string;
         cropperCircleOverlay?: boolean;
@@ -25,6 +27,7 @@ declare module "react-native-image-crop-picker" {
         loadingLabelText?: string;
         mediaType?: string;
         showsSelectedCount?: boolean;
+        forceJpg?: boolean;
         showCropGuidelines?: boolean;
         hideBottomControls?: boolean;
         enableRotationGesture?: boolean;

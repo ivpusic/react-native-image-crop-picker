@@ -103,6 +103,7 @@ class RealPathUtil {
     private static File writeToFile(Context context, String fileName, Uri uri) {
         String tmpDir = context.getCacheDir() + "/react-native-image-crop-picker";
         Boolean created = new File(tmpDir).mkdir();
+        fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
         File path = new File(tmpDir);
         File file = new File(path, fileName);
         try {
@@ -145,8 +146,9 @@ class RealPathUtil {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                     null);
             if (cursor != null && cursor.moveToFirst()) {
-                final int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                String path = cursor.getString(index);
+                // Fall back to writing to file if _data column does not exist
+                final int index = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
+                String path = index > -1 ? cursor.getString(index) : null;
                 if (path != null) {
                     return cursor.getString(index);
                 } else {

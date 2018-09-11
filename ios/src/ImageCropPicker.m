@@ -82,11 +82,13 @@ RCT_EXPORT_MODULE();
                                 @"waitAnimationEnd": @YES,
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
+                                @"avoidEmptySpaceAroundImage": @YES,
                                 @"compressImageQuality": @0.8,
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
                                 @"showsSelectedCount": @YES,
+                                @"forceJpg": @NO,
                                 @"cropperCancelText": @"Cancel",
                                 @"cropperChooseText": @"Choose",
                                 @"cropperAvoidEmptySpaceAroundImage": @YES
@@ -276,7 +278,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
             imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
             imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
-
+            
             NSArray *smartAlbums = [self.options objectForKey:@"smartAlbums"];
             if (smartAlbums != nil) {
                 NSDictionary *albums = @{
@@ -364,7 +366,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
     imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
-    imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"cropperAvoidEmptySpaceAroundImage"] boolValue];
+    imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"avoidEmptySpaceAroundImage"] boolValue];
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
@@ -419,6 +421,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     PHImageManager *manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;
+    options.networkAccessAllowed = YES;
 
     [manager
      requestAVAssetForVideo:forAsset
@@ -509,7 +512,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
     options.synchronous = NO;
     options.networkAccessAllowed = YES;
-
+    
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
         NSMutableArray *selections = [[NSMutableArray alloc] init];
 
@@ -559,6 +562,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                              [lock lock];
                              @autoreleasepool {
                                  UIImage *imgT = [UIImage imageWithData:imageData];
+                                 
+                                 Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
 
                                  NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
                                  Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
@@ -573,7 +578,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  Boolean isKnownMimeType = [mimeType length] > 0;
 
                                  ImageResult *imageResult = [[ImageResult alloc] init];
-                                 if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType) {
+                                 if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
                                      // Use original, unmodified image
                                      imageResult.data = imageData;
                                      imageResult.width = @(imgT.size.width);
