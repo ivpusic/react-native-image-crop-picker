@@ -90,7 +90,8 @@ RCT_EXPORT_MODULE();
                                 @"showsSelectedCount": @YES,
                                 @"forceJpg": @NO,
                                 @"cropperCancelText": @"Cancel",
-                                @"cropperChooseText": @"Choose"
+                                @"cropperChooseText": @"Choose",
+                                @"square": @NO
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -361,6 +362,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     LabeledCropView *imageCropVC = [[LabeledCropView alloc] initWithImage:image];
     if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
         imageCropVC.cropMode = RSKImageCropModeCircle;
+    } else if ([[self.options objectForKey:@"square"] boolValue]) {
+        imageCropVC.cropMode = RSKImageCropModeSquare;
     } else {
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
@@ -758,10 +761,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     CGSize maskSize = CGSizeMake(
                                  [[self.options objectForKey:@"width"] intValue],
                                  [[self.options objectForKey:@"height"] intValue]);
-
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-
+    
     CGRect maskRect = CGRectMake((viewWidth - maskSize.width) * 0.5f,
                                  (viewHeight - maskSize.height) * 0.5f,
                                  maskSize.width, maskSize.height);
@@ -841,6 +843,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // we have correct rect, but not correct dimensions
     // so resize image
     CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
+    if ([[self.options objectForKey:@"square"] boolValue]) { // don't change image size if 1:1 ratio
+        resizedImageSize = CGSizeMake(croppedImage.size.width, croppedImage.size.height);
+    }
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
     ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
 

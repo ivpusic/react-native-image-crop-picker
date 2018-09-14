@@ -76,6 +76,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
+    private boolean isSquare = false;
     private ReadableMap options;
 
     //Grey 800
@@ -132,6 +133,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : disableCropperColorSetters;
+        isSquare = options.hasKey("square") ? options.getBoolean("square") : isSquare;
         this.options = options;
     }
 
@@ -610,11 +612,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             configureCropperColors(options);
         }
 
-        UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
-                .withOptions(options)
-                .start(activity);
+        if (isSquare) {
+            UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+                    .withAspectRatio(1, 1)
+                    .withOptions(options)
+                    .start(activity);
+        } else {
+            UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+                    .withMaxResultSize(width, height)
+                    .withAspectRatio(width, height)
+                    .withOptions(options)
+                    .start(activity);
+        }
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {

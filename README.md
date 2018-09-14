@@ -131,6 +131,7 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| square    |           bool (default false)           | Sets the aspect ratio to 1:1. This will disregard the option height and width |
 
 #### Smart Album Types (ios)
 
