@@ -249,6 +249,14 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
+  
+#### Step Optionnal - To localizate the camera / gallery text buttons
+
+- Open your Xcode project
+- Go to your project settings by opening the project name on the Navigation (left side)
+- Select your project in the project list 
+- Should be into the Info tab and add in Localizations the language your app was missing throughout the +
+- Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
 ### Android
 
