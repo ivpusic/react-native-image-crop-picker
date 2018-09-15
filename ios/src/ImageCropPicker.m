@@ -839,11 +839,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
 
-    // we have correct rect, but not correct dimensions
-    // so resize image
-    CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
-    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
-    ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
+    ImageResult *imageResult = [self.compression compressImage:croppedImage withOptions:self.options];
 
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
