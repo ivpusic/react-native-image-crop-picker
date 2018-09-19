@@ -614,7 +614,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
                 .withOptions(options);
 
-        if (width > 0) {
+        if (width > 0 && height > 0) {
             uCrop.withMaxResultSize(width, height).withAspectRatio(width, height);
         }
 
