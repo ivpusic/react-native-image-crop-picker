@@ -1,38 +1,39 @@
 PODS:
   - QBImagePickerController (3.4.0)
-  - React/Core (0.54.0):
-    - yoga (= 0.54.0.React)
-  - React/fishhook (0.54.0)
-  - React/RCTActionSheet (0.54.0):
+  - React/Core (0.55.4):
+    - yoga (= 0.55.4.React)
+  - React/fishhook (0.55.4)
+  - React/RCTActionSheet (0.55.4):
     - React/Core
-  - React/RCTAnimation (0.54.0):
+  - React/RCTAnimation (0.55.4):
     - React/Core
-  - React/RCTBlob (0.54.0):
+  - React/RCTBlob (0.55.4):
     - React/Core
-  - React/RCTGeolocation (0.54.0):
+  - React/RCTGeolocation (0.55.4):
     - React/Core
-  - React/RCTImage (0.54.0):
+  - React/RCTImage (0.55.4):
     - React/Core
     - React/RCTNetwork
-  - React/RCTLinkingIOS (0.54.0):
+  - React/RCTLinkingIOS (0.55.4):
     - React/Core
-  - React/RCTNetwork (0.54.0):
+  - React/RCTNetwork (0.55.4):
     - React/Core
-  - React/RCTSettings (0.54.0):
+  - React/RCTSettings (0.55.4):
     - React/Core
-  - React/RCTText (0.54.0):
+  - React/RCTText (0.55.4):
     - React/Core
-  - React/RCTVibration (0.54.0):
+  - React/RCTVibration (0.55.4):
     - React/Core
-  - React/RCTWebSocket (0.54.0):
+  - React/RCTWebSocket (0.55.4):
     - React/Core
     - React/fishhook
     - React/RCTBlob
-  - RNImageCropPicker (0.19.3):
+  - RNImageCropPicker (0.21.1):
     - QBImagePickerController
+    - React/Core
     - RSKImageCropper
   - RSKImageCropper (2.0.0)
-  - yoga (0.54.0.React)
+  - yoga (0.55.4.React)
 
 DEPENDENCIES:
   - React/Core (from `../node_modules/react-native`)
@@ -59,11 +60,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
-  React: c237e42de9c70e5cac6eeb52b4cfd3a0910c1f00
-  RNImageCropPicker: a637beb8f4c76bf9fe8a89d404ad65a33c4215ac
+  React: aa2040dbb6f317b95314968021bd2888816e03d5
+  RNImageCropPicker: 32ca4b9fef4e1b7b85ba69494242122948117e06
   RSKImageCropper: d9a1acbc0600bf8decc8f0d21895872c99a9e4cf
-  yoga: 55da126afc384965b96bff46652464373b330add
+  yoga: a23273df0088bf7f2bb7e5d7b00044ea57a2a54a
 
-PODFILE CHECKSUM: b75025773b0aeae55b2be89eb9a053b9ad2f70ae
+PODFILE CHECKSUM: 4471a980145b75efa0c908363a6ae6487e284263
 
 COCOAPODS: 1.4.0

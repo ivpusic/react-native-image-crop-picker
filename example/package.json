@@ -10,5 +10,8 @@
     "react-native": "0.55.4",
     "react-native-image-crop-picker": "../",
     "react-native-video": "git://github.com/react-native-community/react-native-video.git"
+  },
+  "devDependencies": {
+    "react-native-cli": "^2.0.1"
   }
 }

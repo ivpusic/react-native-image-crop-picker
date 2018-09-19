@@ -87,8 +87,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     //Light Blue 500
     private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
-    private int width = 200;
-    private int height = 200;
+    private int width = 0;
+    private int height = 0;
 
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
@@ -610,11 +610,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             configureCropperColors(options);
         }
 
-        UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
-                .withOptions(options)
-                .start(activity);
+        UCrop uCrop = UCrop
+                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+                .withOptions(options);
+
+        if (width > 0 && height > 0) {
+            uCrop.withMaxResultSize(width, height).withAspectRatio(width, height);
+        }
+
+        uCrop.start(activity);
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
