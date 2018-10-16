@@ -250,7 +250,7 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
   
-#### Step Optionnal - To localizate the camera / gallery text buttons
+#### Step Optional - To localizate the camera / gallery text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
