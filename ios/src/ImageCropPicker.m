@@ -429,40 +429,64 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                      NSDictionary *info) {
          NSURL *sourceURL = [(AVURLAsset *)asset URL];
 
-         // create temp file
-         NSString *tmpDirFullPath = [self getTmpDirectory];
-         NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-         filePath = [filePath stringByAppendingString:@".mp4"];
-         NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+         if ([[[self options] objectForKey:@"compressVideo"] boolValue]) {
+            // create temp compressed file
+            NSString *tmpDirFullPath = [self getTmpDirectory];
+            NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
+            filePath = [filePath stringByAppendingString:@".mp4"];
+            NSURL *outputURL = [NSURL fileURLWithPath:filePath];
 
-         [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-             if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-                 AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
-                 AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+            [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
+                if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+                    AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+                    AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
 
-                 NSNumber *fileSizeValue = nil;
-                 [outputURL getResourceValue:&fileSizeValue
-                                      forKey:NSURLFileSizeKey
-                                       error:nil];
+                    NSNumber *fileSizeValue = nil;
+                    [outputURL getResourceValue:&fileSizeValue
+                                        forKey:NSURLFileSizeKey
+                                        error:nil];
 
-                 completion([self createAttachmentResponse:[outputURL absoluteString]
-                                                  withExif:nil
-                                             withSourceURL:[sourceURL absoluteString]
-                                       withLocalIdentifier: forAsset.localIdentifier
-                                              withFilename:[forAsset valueForKey:@"filename"]
-                                                 withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                                withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
-                                                  withMime:@"video/mp4"
-                                                  withSize:fileSizeValue
-                                                  withData:nil
-                                                  withRect:CGRectNull
-                                          withCreationDate:forAsset.creationDate
-                                      withModificationDate:forAsset.modificationDate
-                             ]);
-             } else {
-                 completion(nil);
-             }
-         }];
+                    completion([self createAttachmentResponse:[outputURL absoluteString]
+                                                    withExif:nil
+                                                withSourceURL:[sourceURL absoluteString]
+                                        withLocalIdentifier: forAsset.localIdentifier
+                                                withFilename:[forAsset valueForKey:@"filename"]
+                                                    withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                                    withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                                    withMime:@"video/mp4"
+                                                    withSize:fileSizeValue
+                                                    withData:nil
+                                                    withRect:CGRectNull
+                                            withCreationDate:forAsset.creationDate
+                                        withModificationDate:forAsset.modificationDate
+                                ]);
+                } else {
+                    completion(nil);
+                }
+            }];
+         } else {
+             AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+             NSNumber *fileSizeValue = nil;
+             [sourceURL getResourceValue:&fileSizeValue
+                                  forKey:NSURLFileSizeKey
+                                   error:nil];
+
+             completion([self createAttachmentResponse:nil
+                                              withExif:nil
+                                         withSourceURL:[sourceURL absoluteString]
+                                   withLocalIdentifier: forAsset.localIdentifier
+                                          withFilename:[forAsset valueForKey:@"filename"]
+                                             withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                            withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                              withMime:@"video/mp4"
+                                              withSize:fileSizeValue
+                                              withData:nil
+                                              withRect:CGRectNull
+                                      withCreationDate:forAsset.creationDate
+                                  withModificationDate:forAsset.modificationDate
+                         ]);
+             return;
+         }
      }];
 }
 
@@ -475,7 +499,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"width": width,
              @"height": height,
              @"mime": mime,
-             @"size": size,
+             @"size": (size) ? size : [NSNull null],
              @"data": (data) ? data : [NSNull null],
              @"exif": (exif) ? exif : [NSNull null],
              @"cropRect": CGRectIsNull(cropRect) ? [NSNull null] : [ImageCropPicker cgRectToDictionary:cropRect],
