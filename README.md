@@ -322,6 +322,23 @@ android {
     ...
 }
 ```
+- Following should be added to `android/app/src/main/java/com/PROJECT_NAME/ MainApplication.java`
+
+```java
+// ...
+import com.reactnative.ivpusic.imagepicker.PickerPackage;
+// ...
+
+@Override
+protected List<ReactPackage> getPackages() {
+  return Arrays.<ReactPackage>asList(
+      // ...
+      new PickerPackage(),
+      // ...
+  );
+}
+
+```
 
 - [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
