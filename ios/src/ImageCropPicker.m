@@ -733,20 +733,22 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-            self.resolve([self createAttachmentResponse:filePath
-                                               withExif:exif
-                                          withSourceURL:sourceURL
-                                    withLocalIdentifier:localIdentifier
-                                           withFilename:filename
-                                              withWidth:imageResult.width
-                                             withHeight:imageResult.height
-                                               withMime:imageResult.mime
-                                               withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                               withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
-                                               withRect:CGRectNull
-                                       withCreationDate:creationDate
-                                   withModificationDate:modificationDate
-                          ]);
+            NSMutableArray *selections = [[NSMutableArray alloc] init];
+            [selections addObject:[self createAttachmentResponse:filePath
+                                                        withExif:exif
+                                                   withSourceURL:sourceURL
+                                             withLocalIdentifier:localIdentifier
+                                                    withFilename:filename
+                                                       withWidth:imageResult.width
+                                                      withHeight:imageResult.height
+                                                        withMime:imageResult.mime
+                                                        withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                        withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                                        withRect:CGRectNull
+                                                withCreationDate:creationDate
+                                            withModificationDate:modificationDate
+                                   ]];
+            self.resolve(selections);
         }]];
     }
 }
