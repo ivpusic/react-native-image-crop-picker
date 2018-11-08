@@ -76,6 +76,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
+    private boolean useFrontCamera = false;
     private ReadableMap options;
 
     //Grey 800
@@ -132,6 +133,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : false;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : false;
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : false;
+        useFrontCamera = options.hasKey("useFrontCamera") ? options.getBoolean("useFrontCamera") : false;
         this.options = options;
     }
 
@@ -304,6 +306,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+
+            if (this.useFrontCamera) {
+                cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+            }
 
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
