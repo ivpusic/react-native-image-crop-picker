@@ -326,7 +326,7 @@ android {
 - [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
-- [Optional] If you want to use front camera, add following also to `app\src\main\AndroidManifest.xml`
+- [Optional] If you want to use front camera, also add following to `app\src\main\AndroidManifest.xml`
   - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
   - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
 
