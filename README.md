@@ -118,7 +118,7 @@ ImagePicker.clean().then(() => {
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
 | smartAlbums (ios only)                  | array ([supported values](https://github.com/ivpusic/react-native-image-crop-picker/blob/master/README.md#smart-album-types-ios)) (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
-| useFrontCamera (ios only)               |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
+| useFrontCamera                          |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
@@ -325,6 +325,10 @@ android {
 
 - [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
+
+- [Optional] If you want to use front camera, also add following to `app\src\main\AndroidManifest.xml`
+  - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
+  - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
 
 ## Production build
 
