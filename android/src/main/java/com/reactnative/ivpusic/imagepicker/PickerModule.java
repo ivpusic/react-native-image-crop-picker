@@ -271,35 +271,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector = new ResultCollector(promise, multiple);
 
         initiateCamera(activity);
-
-//        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-//            @Override
-//            public Void call() throws Exception {
-//                initiateCamera(activity);
-//                return null;
-//            }
-//        });
-    }
-
-
-    private File createImageFileq() throws IOException {
-
-        String imageFileName = "image-" + UUID.randomUUID().toString();
-
-//      File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File path = getCurrentActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-        if (!path.exists() && !path.isDirectory()) {
-            path.mkdirs();
-        }
-
-        File image = File.createTempFile(imageFileName, ".jpg", path);
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-
-        return image;
-
     }
 
     private void initiateCamera(Activity activity) {
@@ -368,15 +339,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         setConfiguration(options);
         resultCollector = new ResultCollector(promise, multiple);
-
         initiatePicker(activity);
-//        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-//            @Override
-//            public Void call() throws Exception {
-//                initiatePicker(activity);
-//                return null;
-//            }
-//        });
     }
 
     @ReactMethod
