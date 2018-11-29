@@ -30,7 +30,7 @@ class Compression {
         Log.d("image-crop-picker", "Image compression activated");
         Compressor compressor = new Compressor(activity)
                 .setCompressFormat(Bitmap.CompressFormat.JPEG)
-                .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
+                .setDestinationDirectoryPath(activity.getExternalFilesDir(
                         Environment.DIRECTORY_PICTURES).getAbsolutePath());
 
         if (quality == null) {

@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -100,7 +99,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String getTmpDir(Activity activity) {
         String tmpDir = activity.getCacheDir() + "/react-native-image-crop-picker";
         Boolean created = new File(tmpDir).mkdir();
-
         return tmpDir;
     }
 
@@ -272,13 +270,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector = new ResultCollector(promise, multiple);
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                initiateCamera(activity);
-                return null;
-            }
-        });
+        initiateCamera(activity);
     }
 
     private void initiateCamera(Activity activity) {
@@ -347,14 +339,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         setConfiguration(options);
         resultCollector = new ResultCollector(promise, multiple);
-
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                initiatePicker(activity);
-                return null;
-            }
-        });
+        initiatePicker(activity);
     }
 
     @ReactMethod
@@ -588,7 +573,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
         configureCropperColors(options);
 
-        UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+        UCrop.of(uri, Uri.fromFile(createDestImageFile()))
                 .withMaxResultSize(width, height)
                 .withAspectRatio(width, height)
                 .withOptions(options)
@@ -705,8 +690,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private File createImageFile() throws IOException {
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+
+        File path = getCurrentActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -718,6 +703,25 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
 
         return image;
+
+    }
+
+    private File createDestImageFile() {
+
+        String imageFileName = "image-" + UUID.randomUUID().toString();
+        File path = getCurrentActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
+        File imageFile = null;
+        try {
+            imageFile = File.createTempFile(imageFileName, ".jpg", path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return imageFile;
 
     }
 }
