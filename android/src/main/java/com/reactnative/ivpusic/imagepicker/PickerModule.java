@@ -309,6 +309,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             if (this.useFrontCamera) {
                 cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+                cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
             }
 
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
