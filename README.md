@@ -244,7 +244,6 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 ##### Only if you are not using Cocoapods
 
-- Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
