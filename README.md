@@ -1,6 +1,5 @@
 # react-native-image-crop-picker
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fivpusic%2Freact-native-image-crop-picker.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fivpusic%2Freact-native-image-crop-picker?ref=badge_shield)
 [![Backers on Open Collective](https://opencollective.com/react-native-image-crop-picker/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/react-native-image-crop-picker/sponsors/badge.svg)](#sponsors)
 
 <img src="svg.svg" width="50%" height="50%" />
@@ -118,7 +117,7 @@ ImagePicker.clean().then(() => {
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
 | smartAlbums (ios only)                  | array ([supported values](https://github.com/ivpusic/react-native-image-crop-picker/blob/master/README.md#smart-album-types-ios)) (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
-| useFrontCamera (ios only)               |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
+| useFrontCamera                          |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
@@ -245,12 +244,11 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 
 ##### Only if you are not using Cocoapods
 
-- Drag and drop the ios/ImageCropPickerSDK folder to your xcode project. (Make sure Copy items if needed IS ticked)
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
   
-#### Step Optionnal - To localizate the camera / gallery text buttons
+#### Step Optional - To localizate the camera / gallery text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
@@ -325,6 +323,10 @@ android {
 
 - [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
+
+- [Optional] If you want to use front camera, also add following to `app\src\main\AndroidManifest.xml`
+  - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
+  - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
 
 ## Production build
 

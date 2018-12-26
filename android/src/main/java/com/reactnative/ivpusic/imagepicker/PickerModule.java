@@ -76,6 +76,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
+    private boolean useFrontCamera = false;
     private ReadableMap options;
 
     //Grey 800
@@ -87,8 +88,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     //Light Blue 500
     private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
-    private int width = 200;
-    private int height = 200;
+    private int width = 0;
+    private int height = 0;
 
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
@@ -115,23 +116,24 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void setConfiguration(final ReadableMap options) {
-        mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : mediaType;
-        multiple = options.hasKey("multiple") && options.getBoolean("multiple");
-        includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
-        includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
-        width = options.hasKey("width") ? options.getInt("width") : width;
-        height = options.hasKey("height") ? options.getInt("height") : height;
-        cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
-        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : cropperActiveWidgetColor;
-        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : cropperStatusBarColor;
-        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : cropperToolbarColor;
+        mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
+        multiple = options.hasKey("multiple") ? options.getBoolean("multiple") : false;
+        includeBase64 = options.hasKey("includeBase64") ? options.getBoolean("includeBase64") : false;
+        includeExif = options.hasKey("includeExif") ? options.getBoolean("includeExif") : false;
+        width = options.hasKey("width") ? options.getInt("width") : 200;
+        height = options.hasKey("height") ? options.getInt("height") : 200;
+        cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : false;
+        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
+        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
+        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : DEFAULT_TINT;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
-        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : cropperCircleOverlay;
-        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : freeStyleCropEnabled;
-        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
-        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
-        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
-        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : disableCropperColorSetters;
+        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : false;
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : false;
+        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : true;
+        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : false;
+        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : false;
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : false;
+        useFrontCamera = options.hasKey("useFrontCamera") ? options.getBoolean("useFrontCamera") : false;
         this.options = options;
     }
 
@@ -304,6 +306,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+
+            if (this.useFrontCamera) {
+                cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+                cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+            }
 
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
@@ -610,11 +618,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             configureCropperColors(options);
         }
 
-        UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
-                .withOptions(options)
-                .start(activity);
+        UCrop uCrop = UCrop
+                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+                .withOptions(options);
+
+        if (width > 0 && height > 0) {
+            uCrop.withMaxResultSize(width, height).withAspectRatio(width, height);
+        }
+
+        uCrop.start(activity);
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
