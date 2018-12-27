@@ -333,6 +333,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 galleryIntent.setType("image/*");
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
+            } else if (mediaType.equals("all")) {
+                galleryIntent.setType("*/*");
             } else {
                 galleryIntent.setType("*/*");
                 String[] mimetypes = {"image/*", "video/*"};
@@ -532,10 +534,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         BitmapFactory.decodeFile(path, options);
 
-        if (options.outMimeType == null || options.outWidth == 0 || options.outHeight == 0) {
-            throw new Exception("Invalid image selected");
-        }
-
         return options;
     }
 
@@ -547,31 +545,43 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
         BitmapFactory.Options original = validateImage(path);
 
-        // if compression options are provided image will be compressed. If none options is provided,
-        // then original image will be returned
-        File compressedImage = compression.compressImage(activity, options, path, original);
-        String compressedImagePath = compressedImage.getPath();
-        BitmapFactory.Options options = validateImage(compressedImagePath);
-        long modificationDate = new File(path).lastModified();
-
-        image.putString("path", "file://" + compressedImagePath);
-        image.putInt("width", options.outWidth);
-        image.putInt("height", options.outHeight);
-        image.putString("mime", options.outMimeType);
-        image.putInt("size", (int) new File(compressedImagePath).length());
-        image.putString("modificationDate", String.valueOf(modificationDate));
-
-        if (includeBase64) {
-            image.putString("data", getBase64StringFromFile(compressedImagePath));
+        Boolean isImage = !(original.outMimeType == null || original.outWidth == 0 || original.outHeight == 0);
+        if (!mediaType.equals("all") && !isImage) {
+            throw new Exception("Invalid image selected");
         }
 
-        if (includeExif) {
-            try {
-                WritableMap exif = ExifExtractor.extract(path);
-                image.putMap("exif", exif);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        if (isImage) {
+            // if compression options are provided image will be compressed. If none options is provided,
+            // then original image will be returned
+            File compressedImage = compression.compressImage(activity, options, path, original);
+            String compressedImagePath = compressedImage.getPath();
+            BitmapFactory.Options options = validateImage(compressedImagePath);
+            long modificationDate = new File(path).lastModified();
+
+            image.putString("path", "file://" + compressedImagePath);
+            image.putInt("width", options.outWidth);
+            image.putInt("height", options.outHeight);
+            image.putString("mime", options.outMimeType);
+            image.putInt("size", (int) new File(compressedImagePath).length());
+            image.putString("modificationDate", String.valueOf(modificationDate));
+
+            if (includeBase64) {
+                image.putString("data", getBase64StringFromFile(compressedImagePath));
             }
+
+            if (includeExif) {
+                try {
+                    WritableMap exif = ExifExtractor.extract(path);
+                    image.putMap("exif", exif);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } else {
+            image.putString("path", "file://" + path);
+            image.putString("mime", getMimeType(path));
+            image.putInt("size", (int) new File(path).length());
+            image.putString("modificationDate", String.valueOf((new File(path)).lastModified()));
         }
 
         return image;
