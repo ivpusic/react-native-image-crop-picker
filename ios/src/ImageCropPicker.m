@@ -310,6 +310,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                          @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
                                          @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
                                          };
+                
                 NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
                 for (NSString* smartAlbum in smartAlbums) {
                     if ([albums objectForKey:smartAlbum] != nil) {
@@ -814,7 +815,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }]];
 }
 
-- (void) dismissCropper:(RSKImageCropViewController*)controller selectionDone:(BOOL)selectionDone completion:(void (^)())completion {
+- (void) dismissCropper:(RSKImageCropViewController*)controller selectionDone:(BOOL)selectionDone completion:(void (^)(void))completion {
     switch (self.currentSelectionMode) {
         case CROPPING:
             [controller dismissViewControllerAnimated:YES completion:completion];
@@ -839,7 +840,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
 
-    ImageResult *imageResult = [self.compression compressImage:croppedImage withOptions:self.options];
+    // we have correct rect, but not correct dimensions
+    // so resize image
+    CGSize desiredImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue],
+                                         [[[self options] objectForKey:@"height"] intValue]);
+    
+    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:desiredImageSize scaleIfSmaller:YES];
+    ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
 
     NSString *filePath = [self persistFile:imageResult.data];
     if (filePath == nil) {
