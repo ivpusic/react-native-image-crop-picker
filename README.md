@@ -58,13 +58,25 @@ ImagePicker.openPicker({
 **Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
-### Select from camera
+### Select from camera 
+
+#### Image
 
 ```javascript
 ImagePicker.openCamera({
   width: 300,
   height: 400,
-  cropping: true
+  cropping: true,
+}).then(image => {
+  console.log(image);
+});
+```
+
+#### Video
+
+```javascript
+ImagePicker.openCamera({
+  mediaType: 'video',
 }).then(image => {
   console.log(image);
 });

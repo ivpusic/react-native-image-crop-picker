@@ -176,6 +176,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
 
         NSString *mediaType = [self.options objectForKey:@"mediaType"];
+        
         if ([mediaType isEqualToString:@"video"]) {
             NSArray *availableTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
 
@@ -183,18 +184,6 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                 picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeMovie, nil];
                 picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
             }
-        } else if ([mediaType isEqualToString:@"any"]) {
-            NSArray *availableTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
-
-            NSMutableArray* types = [NSMutableArray array];
-            [types addObject:(NSString *) kUTTypeImage];
-
-            if ([availableTypes containsObject:(NSString *)kUTTypeMovie]) {
-                [types addObject:(NSString *) kUTTypeMovie];
-                picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
-            }
-
-            picker.mediaTypes = [types copy];
         }
 
         if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
@@ -214,20 +203,16 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     NSString* mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    
     if (CFStringCompare ((__bridge CFStringRef) mediaType, kUTTypeMovie, 0) == kCFCompareEqualTo) {
         NSURL *url = [info objectForKey:UIImagePickerControllerMediaURL];
         AVURLAsset *asset = [AVURLAsset assetWithURL:url];
         NSString *fileName = [[asset.URL path] lastPathComponent];
 
-        // Can we get this from somewhere??? do we even need it???
-        AVAudioMix *audioMix = nil;
-
         [self handleVideo:asset
-             withAudioMix:audioMix
-                 withInfo:info
              withFileName:fileName
-      withLocalIdentifier:fileName
-                completion:^(NSDictionary* video) {
+      withLocalIdentifier:nil
+               completion:^(NSDictionary* video) {
                    if (video == nil) {
                        [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                            self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
@@ -379,14 +364,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             } else {
                 NSString *mediaType = [self.options objectForKey:@"mediaType"];
 
-                if ([mediaType isEqualToString:@"any"]) {
-                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
-                } else if ([mediaType isEqualToString:@"photo"]) {
+                if ([mediaType isEqualToString:@"photo"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-                } else {
+                } else if ([mediaType isEqualToString:@"video"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
+                } else {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
                 }
-
             }
 
             [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
@@ -470,7 +454,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     });
 }
 
-- (void) handleVideo:(AVAsset*)asset withAudioMix:(AVAudioMix*)audioMix withInfo:(NSDictionary*)info withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
+- (void) handleVideo:(AVAsset*)asset withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
     NSURL *sourceURL = [(AVURLAsset *)asset URL];
 
     // create temp file
@@ -521,8 +505,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
      resultHandler:^(AVAsset * asset, AVAudioMix * audioMix,
                      NSDictionary *info) {
          [self handleVideo:asset
-              withAudioMix:audioMix
-                  withInfo:info
               withFileName:[forAsset valueForKey:@"filename"]
        withLocalIdentifier:forAsset.localIdentifier
                 completion:completion
