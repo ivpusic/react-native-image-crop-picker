@@ -4,7 +4,7 @@
 
 <img src="svg.svg" width="50%" height="50%" />
 
-iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
+iOS/Android image picker with support for camera, video, configurable compression, multiple images and cropping
 
 ## Result
 
