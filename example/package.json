@@ -6,8 +6,8 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "16.7.0",
-    "react-native": "0.57.8",
+    "react": "16.8.3",
+    "react-native": "0.58.5",
     "react-native-image-crop-picker": "../",
     "react-native-video": "git://github.com/react-native-community/react-native-video.git"
   },

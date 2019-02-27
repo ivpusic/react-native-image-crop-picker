@@ -118,23 +118,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
-        multiple = options.hasKey("multiple") ? options.getBoolean("multiple") : false;
-        includeBase64 = options.hasKey("includeBase64") ? options.getBoolean("includeBase64") : false;
-        includeExif = options.hasKey("includeExif") ? options.getBoolean("includeExif") : false;
+        multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
+        includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
-        cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : false;
+        cropping = options.hasKey("cropping") && options.getBoolean("cropping");
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : DEFAULT_TINT;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
-        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : false;
-        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : false;
-        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : true;
-        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : false;
-        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : false;
-        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : false;
-        useFrontCamera = options.hasKey("useFrontCamera") ? options.getBoolean("useFrontCamera") : false;
+        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
+        showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
+        hideBottomControls = options.hasKey("hideBottomControls") && options.getBoolean("hideBottomControls");
+        enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
+        useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         this.options = options;
     }
 
