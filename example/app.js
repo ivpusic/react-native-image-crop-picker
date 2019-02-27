@@ -109,13 +109,13 @@ export default class App extends Component {
 
   pickSingle(cropit, circular=false, mediaType) {
     ImagePicker.openPicker({
-      width: 300,
-      height: 300,
+      width: 500,
+      height: 500,
       cropping: cropit,
       cropperCircleOverlay: circular,
-      compressImageMaxWidth: 400,
-      compressImageMaxHeight: 400,
-      compressImageQuality: 0.5,
+      compressImageMaxWidth: 1000,
+      compressImageMaxHeight: 1000,
+      compressImageQuality: 1,
       compressVideoPreset: 'MediumQuality',
       includeExif: true,
     }).then(image => {

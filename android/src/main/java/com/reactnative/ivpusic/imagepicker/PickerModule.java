@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
@@ -120,8 +121,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         multiple = options.hasKey("multiple") ? options.getBoolean("multiple") : false;
         includeBase64 = options.hasKey("includeBase64") ? options.getBoolean("includeBase64") : false;
         includeExif = options.hasKey("includeExif") ? options.getBoolean("includeExif") : false;
-        width = options.hasKey("width") ? options.getInt("width") : 200;
-        height = options.hasKey("height") ? options.getInt("height") : 200;
+        width = options.hasKey("width") ? options.getInt("width") : 0;
+        height = options.hasKey("height") ? options.getInt("height") : 0;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : false;
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
@@ -565,7 +566,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(activity, options, path, original);
+        File compressedImage = compression.compressImage(options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -639,7 +640,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 .withOptions(options);
 
         if (width > 0 && height > 0) {
-            uCrop.withMaxResultSize(width, height).withAspectRatio(width, height);
+            uCrop.withAspectRatio(width, height);
         }
 
         uCrop.start(activity);
@@ -721,9 +722,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (data != null) {
-            final Uri resultUri = UCrop.getOutput(data);
+            Uri resultUri = UCrop.getOutput(data);
+
             if (resultUri != null) {
                 try {
+                    if (width > 0 && height > 0) {
+                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                    }
+
                     WritableMap result = getSelection(activity, resultUri, false);
 
                     if (result != null) {
