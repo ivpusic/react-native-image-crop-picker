@@ -15,4 +15,5 @@ Pod::Spec.new do |s|
   s.dependency 'RSKImageCropper'
   s.dependency 'QBImagePickerController'
   s.dependency 'React/Core'
+  s.dependency 'TOCropViewController'
 end
