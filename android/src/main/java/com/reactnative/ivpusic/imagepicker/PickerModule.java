@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
@@ -92,7 +93,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private int height = 0;
 
     private Uri mCameraCaptureURI;
-    private String mCurrentPhotoPath;
+    private String mCurrentMediaPath;
     private ResultCollector resultCollector = new ResultCollector();
     private Compression compression = new Compression();
     private ReactApplicationContext reactContext;
@@ -117,23 +118,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
-        multiple = options.hasKey("multiple") ? options.getBoolean("multiple") : false;
-        includeBase64 = options.hasKey("includeBase64") ? options.getBoolean("includeBase64") : false;
-        includeExif = options.hasKey("includeExif") ? options.getBoolean("includeExif") : false;
-        width = options.hasKey("width") ? options.getInt("width") : 200;
-        height = options.hasKey("height") ? options.getInt("height") : 200;
-        cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : false;
+        multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
+        includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
+        width = options.hasKey("width") ? options.getInt("width") : 0;
+        height = options.hasKey("height") ? options.getInt("height") : 0;
+        cropping = options.hasKey("cropping") && options.getBoolean("cropping");
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : DEFAULT_TINT;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
-        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : false;
-        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : false;
-        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : true;
-        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : false;
-        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : false;
-        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : false;
-        useFrontCamera = options.hasKey("useFrontCamera") ? options.getBoolean("useFrontCamera") : false;
+        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
+        showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
+        hideBottomControls = options.hasKey("hideBottomControls") && options.getBoolean("hideBottomControls");
+        enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
+        useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         this.options = options;
     }
 
@@ -280,7 +281,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        resultCollector.setup(promise, multiple);
+        resultCollector.setup(promise, false);
 
         permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
@@ -294,15 +295,25 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiateCamera(Activity activity) {
 
         try {
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File imageFile = createImageFile();
+            String intent;
+            File dataFile;
+
+            if (mediaType.equals("video")) {
+                intent = MediaStore.ACTION_VIDEO_CAPTURE;
+                dataFile = createVideoFile();
+            } else {
+                intent = MediaStore.ACTION_IMAGE_CAPTURE;
+                dataFile = createImageFile();
+            }
+
+            Intent cameraIntent = new Intent(intent);
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mCameraCaptureURI = Uri.fromFile(imageFile);
+                mCameraCaptureURI = Uri.fromFile(dataFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
                         activity.getApplicationContext().getPackageName() + ".provider",
-                        imageFile);
+                        dataFile);
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
@@ -436,6 +447,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             throw new Exception("Cannot resolve asset path.");
         }
 
+        String mime = getMimeType(path);
+        if (mime != null && mime.startsWith("video/")) {
+            getVideo(activity, path, mime);
+            return null;
+        }
+
         return getImage(activity, path);
     }
 
@@ -514,8 +531,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             path = RealPathUtil.getRealPathFromURI(activity, uri);
         } else {
             if (isCamera) {
-                Uri imageUri = Uri.parse(mCurrentPhotoPath);
-                path = imageUri.getPath();
+                Uri mediaUri = Uri.parse(mCurrentMediaPath);
+                path = mediaUri.getPath();
             } else {
                 path = RealPathUtil.getRealPathFromURI(activity, uri);
             }
@@ -549,7 +566,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(activity, options, path, original);
+        File compressedImage = compression.compressImage(options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -623,7 +640,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 .withOptions(options);
 
         if (width > 0 && height > 0) {
-            uCrop.withMaxResultSize(width, height).withAspectRatio(width, height);
+            uCrop.withAspectRatio(width, height);
         }
 
         uCrop.start(activity);
@@ -690,7 +707,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else {
                 try {
                     resultCollector.setWaitCount(1);
-                    resultCollector.notifySuccess(getSelection(activity, uri, true));
+                    WritableMap result = getSelection(activity, uri, true);
+
+                    // If recording a video getSelection handles resultCollector part itself and returns null
+                    if (result != null) {
+                        resultCollector.notifySuccess(result);
+                    }
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -700,14 +722,24 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (data != null) {
-            final Uri resultUri = UCrop.getOutput(data);
+            Uri resultUri = UCrop.getOutput(data);
+
             if (resultUri != null) {
                 try {
-                    WritableMap result = getSelection(activity, resultUri, false);
-                    result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
+                    if (width > 0 && height > 0) {
+                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                    }
 
-                    resultCollector.setWaitCount(1);
-                    resultCollector.notifySuccess(result);
+                    WritableMap result = getSelection(activity, resultUri, false);
+
+                    if (result != null) {
+                        result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
+
+                        resultCollector.setWaitCount(1);
+                        resultCollector.notifySuccess(result);
+                    } else {
+                        throw new Exception("Cannot crop video files");
+                    }
                 } catch (Exception ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
@@ -752,9 +784,28 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         File image = File.createTempFile(imageFileName, ".jpg", path);
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentMediaPath = "file:" + image.getAbsolutePath();
 
         return image;
+
+    }
+
+    private File createVideoFile() throws IOException {
+
+        String videoFileName = "video-" + UUID.randomUUID().toString();
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+
+        File video = File.createTempFile(videoFileName, ".mp4", path);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentMediaPath = "file:" + video.getAbsolutePath();
+
+        return video;
 
     }
 

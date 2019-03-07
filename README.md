@@ -4,7 +4,7 @@
 
 <img src="svg.svg" width="50%" height="50%" />
 
-iOS/Android image picker with support for camera, configurable compression, multiple images and cropping
+iOS/Android image picker with support for camera, video, configurable compression, multiple images and cropping
 
 ## Result
 
@@ -58,13 +58,25 @@ ImagePicker.openPicker({
 **Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
-### Select from camera
+### Select from camera 
+
+#### Image
 
 ```javascript
 ImagePicker.openCamera({
   width: 300,
   height: 400,
-  cropping: true
+  cropping: true,
+}).then(image => {
+  console.log(image);
+});
+```
+
+#### Video
+
+```javascript
+ImagePicker.openCamera({
+  mediaType: 'video',
 }).then(image => {
   console.log(image);
 });
@@ -103,7 +115,7 @@ ImagePicker.clean().then(() => {
 | height                                  |                  number                  | Height of result image when used with `cropping` option |
 | multiple                                |           bool (default false)           | Enable or disable multiple image selection |
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
-| includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${(new Buffer(image.data)).toString('base64')}`}} />`` |
+| includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${image.data}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
 | avoidEmptySpaceAroundImage            |           bool (default true)           |  When set to true, the image will always fill the mask space. |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
