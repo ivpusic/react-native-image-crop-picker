@@ -20,6 +20,6 @@ android {
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:+'
-    compile 'com.github.yalantis:ucrop:2.2.2-native'
+    implementation 'com.facebook.react:react-native:+'
+    implementation 'com.github.yalantis:ucrop:2.2.2-native'
 }
