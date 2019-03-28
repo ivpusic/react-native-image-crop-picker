@@ -74,6 +74,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean cropperCircleOverlay = false;
     private boolean freeStyleCropEnabled = false;
     private boolean showCropGuidelines = true;
+    private boolean showCropFrame = true;
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
@@ -131,6 +132,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
         showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
+        showCropFrame = !options.hasKey("showCropFrame") || options.getBoolean("showCropFrame");
         hideBottomControls = options.hasKey("hideBottomControls") && options.getBoolean("hideBottomControls");
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
@@ -619,6 +621,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setFreeStyleCropEnabled(freeStyleCropEnabled);
         options.setShowCropGrid(showCropGuidelines);
+        options.setShowCropFrame(showCropFrame);
         options.setHideBottomControls(hideBottomControls);
         if (cropperToolbarTitle != null) {
             options.setToolbarTitle(cropperToolbarTitle);
