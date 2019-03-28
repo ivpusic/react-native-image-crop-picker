@@ -43,7 +43,11 @@ declare module "react-native-image-crop-picker" {
         height: number;
         mime: string;
         exif: null | object;
-        cropRect: null | CropRect
+        cropRect: null | CropRect;
+        filename: string;
+        creationDate: string;
+        modificationDate?: string;
+
     }
 
     export interface CropRect {
