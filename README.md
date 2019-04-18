@@ -288,7 +288,10 @@ buildscript {
 - Add this lines into (app/build.gradle)
 
 ```
+dependencies {
     implementation project(':react-native-image-crop-picker')
+  }
+  
 ```
 
 - Add this lines into (MainApplication.java)
