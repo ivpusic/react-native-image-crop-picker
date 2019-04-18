@@ -284,6 +284,13 @@ buildscript {
 }
 ```
 
+
+- Add this lines into (app/build.gradle)
+
+```
+    implementation project(':react-native-image-crop-picker')
+```
+
 - Add this lines into (MainApplication.java)
 
 ```java
@@ -301,6 +308,8 @@ buildscript {
       );
     }
 ```
+
+
 
 - **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
 
