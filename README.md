@@ -284,6 +284,24 @@ buildscript {
 }
 ```
 
+- Add this lines into (MainApplication.java)
+
+```java
+    import com.reactnative.ivpusic.imagepicker.PickerPackage;
+    ...
+    ...
+    ...
+    @Override
+    protected List<ReactPackage> getPackages() {
+      return Arrays.<ReactPackage>asList(
+          ...
+          ...
+          ...
+          new PickerPackage()
+      );
+    }
+```
+
 - **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
 
 ```gradle
