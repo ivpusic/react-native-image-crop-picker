@@ -347,6 +347,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             libraryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
             activity.startActivityForResult(libraryIntent, IMAGE_PICKER_REQUEST);
+            return;
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
             } else {
