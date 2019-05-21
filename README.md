@@ -241,8 +241,51 @@ react-native link react-native-image-crop-picker
 
 ### Android
 
+#### Automatic Installation
+
 ```bash
 react-native link react-native-image-crop-picker
+```
+
+#### Manual Installation
+
+In case `react-native link` doesn't work for you, here are the steps required to manually add the package to your Android project:
+
+##### `MainApplication.java`
+
+1. Add the import (top section): `import com.reactnative.ivpusic.imagepicker.PickerPackage;`
+
+2. In the function `getPackages ()`, add the line: `new ImagePickerPackage(),`
+
+
+##### `android/settings.gradle`
+
+Add: 
+```
+include ':react-native-image-crop-picker'
+project(':react-native-image-crop-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-crop-picker/android')
+```
+
+
+##### `android/app/build.gradle`
+
+1. In the `dependencies` section, add:
+```
+implementation project(':react-native-image-picker')
+```
+
+2. In the `android > defaultConfig` section, add:
+```
+vectorDrawables.useSupportLibrary = true
+```
+
+##### `AndroidManifest.xml`
+
+Add the permissions:
+```
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-feature android:name="android.hardware.camera" android:required="false"/>
+<uses-feature android:name="android.hardware.camera.front" android:required="false" />
 ```
 
 ## Post-install steps
