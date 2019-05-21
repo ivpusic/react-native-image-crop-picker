@@ -5,20 +5,27 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.PromiseImpl;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReactApplicationContext;
+
+import com.iceteck.silicompressorr.*;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by ipusic on 12/27/16.
@@ -118,9 +125,32 @@ class Compression {
         return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
     }
 
-    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
+    public void compressVideo(final ReactApplicationContext context, final ReadableMap options, final String originalVideo, final String compressedVideoPath, final Promise promise) throws ExecutionException, InterruptedException {
         // todo: video compression
         // failed attempt 1: ffmpeg => slow and licensing issues
-        promise.resolve(originalVideo);
+        if (originalVideo != null && compressedVideoPath != null) {
+
+            new AsyncTask<String, String, String>() {
+                protected String doInBackground(String... paths) {
+                    String filePath = null;
+                    try {
+                        filePath = SiliCompressor.with(context).compressVideo(paths[0], paths[1]);
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+
+                    return filePath;
+                }
+                protected void onPostExecute(String compressedFilePath) {
+                    super.onPostExecute(compressedFilePath);
+                    File file = new File(compressedFilePath);
+                    Float fileSize = file.length() / 1024f; //Size in KB
+                    Log.i("Silicompressor", "Path:"+compressedFilePath+"Size:"+fileSize+"KB");
+                    promise.resolve(compressedFilePath);
+                }
+            }.execute(originalVideo, compressedVideoPath);
+
+        }
+
     }
 }
