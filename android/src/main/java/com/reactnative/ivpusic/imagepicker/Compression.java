@@ -57,6 +57,15 @@ class Compression {
         File resizeImageFile = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), UUID.randomUUID() + ".jpg");
 
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+
+        path.mkdirs();
+
+        if (!resizeImageFile.exists()) {
+            resizeImageFile.createNewFile();
+        }
+
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
 
