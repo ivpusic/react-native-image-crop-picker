@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
@@ -42,7 +41,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -154,30 +152,22 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     public void clean(final Promise promise) {
 
         final Activity activity = getCurrentActivity();
-        final PickerModule module = this;
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
             return;
         }
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                try {
-                    File file = new File(module.getTmpDir(activity));
-                    if (!file.exists()) throw new Exception("File does not exist");
+        try {
+            File file = new File(getTmpDir(activity));
+            if (!file.exists()) throw new Exception("File does not exist");
 
-                    module.deleteRecursive(file);
-                    promise.resolve(null);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
-                }
-
-                return null;
-            }
-        });
+            deleteRecursive(file);
+            promise.resolve(null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+        }
     }
 
     @ReactMethod
@@ -285,7 +275,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, false);
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.CAMERA), new Callable<Void>() {
             @Override
             public Void call() {
                 initiateCamera(activity);
@@ -302,10 +292,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             if (mediaType.equals("video")) {
                 intent = MediaStore.ACTION_VIDEO_CAPTURE;
-                dataFile = createVideoFile();
+                dataFile = createVideoFile(activity);
             } else {
                 intent = MediaStore.ACTION_IMAGE_CAPTURE;
-                dataFile = createImageFile();
+                dataFile = createImageFile(activity);
             }
 
             Intent cameraIntent = new Intent(intent);
@@ -375,13 +365,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                initiatePicker(activity);
-                return null;
-            }
-        });
+        initiatePicker(activity);
     }
 
     @ReactMethod
@@ -568,7 +552,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(options, path, original);
+        File compressedImage = compression.compressImage(activity, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -730,7 +714,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                        resultUri = Uri.fromFile(compression.resize(activity, resultUri.getPath(), width, height, 100));
                     }
 
                     WritableMap result = getSelection(activity, resultUri, false);
@@ -774,15 +758,24 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 || activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
     }
 
-    private File createImageFile() throws IOException {
-
-        String imageFileName = "image-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-
+    private File getCameraOutputDir(Activity activity) {
+        int status = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        File path;
+        if (status == PackageManager.PERMISSION_GRANTED) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        } else {
+            path = new File(getTmpDir(activity), "camera");
+        }
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
         }
+        return path;
+    }
+
+    private File createImageFile(Activity activity) throws IOException {
+
+        String imageFileName = "image-" + UUID.randomUUID().toString();
+        File path = getCameraOutputDir(activity);
 
         File image = File.createTempFile(imageFileName, ".jpg", path);
 
@@ -793,15 +786,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     }
 
-    private File createVideoFile() throws IOException {
+    private File createVideoFile(Activity activity) throws IOException {
 
         String videoFileName = "video-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-
-        if (!path.exists() && !path.isDirectory()) {
-            path.mkdirs();
-        }
+        File path = getCameraOutputDir(activity);
 
         File video = File.createTempFile(videoFileName, ".mp4", path);
 

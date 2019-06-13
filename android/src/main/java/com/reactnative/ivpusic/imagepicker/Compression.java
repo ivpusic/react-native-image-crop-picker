@@ -1,11 +1,14 @@
 package com.reactnative.ivpusic.imagepicker;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
@@ -26,7 +29,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+    File resize(Activity activity, String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
         int width = original.getWidth();
@@ -54,8 +57,7 @@ class Compression {
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
-        File resizeImageFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), UUID.randomUUID() + ".jpg");
+        File resizeImageFile = new File(getImageOutputDir(activity), UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
@@ -65,6 +67,27 @@ class Compression {
         resized.recycle();
 
         return resizeImageFile;
+    }
+
+    private String getTmpDir(Activity activity) {
+        String tmpDir = activity.getCacheDir() + "/react-native-image-crop-picker";
+        new File(tmpDir).mkdir();
+
+        return tmpDir;
+    }
+
+    private File getImageOutputDir(Activity activity) {
+        int status = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        File path;
+        if (status == PackageManager.PERMISSION_GRANTED) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        } else {
+            path = new File(getTmpDir(activity), "images");
+        }
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+        return path;
     }
 
     int getRotationInDegreesForOrientationTag(int orientationTag) {
@@ -80,7 +103,7 @@ class Compression {
         }
     }
 
-    File compressImage(final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
+    File compressImage(final Activity activity, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
@@ -115,7 +138,7 @@ class Compression {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
 
-        return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
+        return resize(activity, originalImagePath, maxWidth, maxHeight, targetQuality);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
