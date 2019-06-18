@@ -54,8 +54,16 @@ class Compression {
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
-        File resizeImageFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), UUID.randomUUID() + ".jpg");
+        
+        File imageDirectory = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+
+        if(!imageDirectory.exists()) {
+            Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
+            imageDirectory.mkdirs();
+        }
+
+        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
