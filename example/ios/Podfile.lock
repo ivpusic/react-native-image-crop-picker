@@ -1,38 +1,39 @@
 PODS:
   - QBImagePickerController (3.4.0)
-  - React/Core (0.54.0):
-    - yoga (= 0.54.0.React)
-  - React/fishhook (0.54.0)
-  - React/RCTActionSheet (0.54.0):
+  - React/Core (0.59.1):
+    - yoga (= 0.59.1.React)
+  - React/fishhook (0.59.1)
+  - React/RCTActionSheet (0.59.1):
     - React/Core
-  - React/RCTAnimation (0.54.0):
+  - React/RCTAnimation (0.59.1):
     - React/Core
-  - React/RCTBlob (0.54.0):
+  - React/RCTBlob (0.59.1):
     - React/Core
-  - React/RCTGeolocation (0.54.0):
+  - React/RCTGeolocation (0.59.1):
     - React/Core
-  - React/RCTImage (0.54.0):
+  - React/RCTImage (0.59.1):
     - React/Core
     - React/RCTNetwork
-  - React/RCTLinkingIOS (0.54.0):
+  - React/RCTLinkingIOS (0.59.1):
     - React/Core
-  - React/RCTNetwork (0.54.0):
+  - React/RCTNetwork (0.59.1):
     - React/Core
-  - React/RCTSettings (0.54.0):
+  - React/RCTSettings (0.59.1):
     - React/Core
-  - React/RCTText (0.54.0):
+  - React/RCTText (0.59.1):
     - React/Core
-  - React/RCTVibration (0.54.0):
+  - React/RCTVibration (0.59.1):
     - React/Core
-  - React/RCTWebSocket (0.54.0):
+  - React/RCTWebSocket (0.59.1):
     - React/Core
     - React/fishhook
     - React/RCTBlob
-  - RNImageCropPicker (0.19.3):
+  - RNImageCropPicker (0.23.0):
     - QBImagePickerController
+    - React/Core
     - RSKImageCropper
-  - RSKImageCropper (2.0.0)
-  - yoga (0.54.0.React)
+  - RSKImageCropper (2.2.1)
+  - yoga (0.59.1.React)
 
 DEPENDENCIES:
   - React/Core (from `../node_modules/react-native`)
@@ -49,21 +50,26 @@ DEPENDENCIES:
   - RNImageCropPicker (from `../..`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - QBImagePickerController
+    - RSKImageCropper
+
 EXTERNAL SOURCES:
   React:
-    :path: ../node_modules/react-native
+    :path: "../node_modules/react-native"
   RNImageCropPicker:
-    :path: ../..
+    :path: "../.."
   yoga:
-    :path: ../node_modules/react-native/ReactCommon/yoga/yoga.podspec
+    :path: "../node_modules/react-native/ReactCommon/yoga/yoga.podspec"
 
 SPEC CHECKSUMS:
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
-  React: c237e42de9c70e5cac6eeb52b4cfd3a0910c1f00
-  RNImageCropPicker: a637beb8f4c76bf9fe8a89d404ad65a33c4215ac
-  RSKImageCropper: d9a1acbc0600bf8decc8f0d21895872c99a9e4cf
-  yoga: 55da126afc384965b96bff46652464373b330add
+  React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
+  RNImageCropPicker: 32ca4b9fef4e1b7b85ba69494242122948117e06
+  RSKImageCropper: 98296ad26b41753f796b6898d015509598f13d97
+  yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
 
-PODFILE CHECKSUM: b75025773b0aeae55b2be89eb9a053b9ad2f70ae
+PODFILE CHECKSUM: 4471a980145b75efa0c908363a6ae6487e284263
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.3
