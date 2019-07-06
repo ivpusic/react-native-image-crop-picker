@@ -5,20 +5,27 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.PromiseImpl;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReactApplicationContext;
+
+import com.iceteck.silicompressorr.*;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by ipusic on 12/27/16.
@@ -126,9 +133,76 @@ class Compression {
         return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
     }
 
-    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
+    public void compressVideo(final ReactApplicationContext context, final ReadableMap options, final String originalVideo, final Bitmap bmp, final String compressedVideoPath, final Promise promise) throws ExecutionException, InterruptedException {
         // todo: video compression
         // failed attempt 1: ffmpeg => slow and licensing issues
-        promise.resolve(originalVideo);
+
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+
+        if (options == null) {
+            promise.resolve(originalVideo);
+        }
+
+        Integer bitrate = options.hasKey("bitrate") ? options.getInt("bitrate") : null;
+        if (bitrate == null) {
+            String videoPreset = options.hasKey("compressVideoPreset") ? options.getString("compressVideoPreset") : null;
+            if (videoPreset == null){
+                promise.resolve(originalVideo);
+            } else {
+                Log.d("image-crop-picker", "Compressing Video with Preset " + videoPreset);
+                switch (videoPreset) {
+                    case "LowQuality":
+                        bitrate = 56;
+                        break;
+                    case "640x480":
+                        bitrate = 500;
+                        break;
+                    case "960x540":
+                    case "MediumQuality":
+                        bitrate = 800;
+                        break;
+                    case "1280x720":
+                        bitrate = 2048;
+                    case"1920x1080":
+                    case "HighestQuality":
+                        bitrate = 4096;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (originalVideo != null && compressedVideoPath != null) {
+            final Integer finalWidth = width;
+            final Integer finalHeight = height;
+            final Integer finalBitrate = bitrate;
+
+            new AsyncTask<String, String, String>() {
+                protected String doInBackground(String... paths) {
+                    String filePath = null;
+                    try {
+                        if (finalWidth != null && finalHeight != null && finalBitrate != null) {
+                            Log.d("image-crop-picker", "Compressing Video with bitrate " + finalBitrate);
+                            filePath = SiliCompressor.with(context).compressVideo(paths[0], paths[1], finalWidth, finalHeight, finalBitrate);
+                        } else {
+                            filePath = SiliCompressor.with(context).compressVideo(paths[0], paths[1]);
+                        }
+
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+
+                    return filePath;
+                }
+                protected void onPostExecute(String compressedFilePath) {
+                    super.onPostExecute(compressedFilePath);
+                    promise.resolve(compressedFilePath);
+                }
+            }.execute(originalVideo, compressedVideoPath);
+
+        }
+
     }
 }

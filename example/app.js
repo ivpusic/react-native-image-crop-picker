@@ -42,6 +42,8 @@ export default class App extends Component {
       height: 500,
       includeExif: true,
       mediaType,
+      compressVideoPreset: 'MediumQuality',
+      bitrate: 50,
     }).then(image => {
       console.log('received image', image);
       this.setState({
@@ -117,6 +119,7 @@ export default class App extends Component {
       compressImageMaxHeight: 1000,
       compressImageQuality: 1,
       compressVideoPreset: 'MediumQuality',
+      bitrate: 50,
       includeExif: true,
     }).then(image => {
       console.log('received image', image);

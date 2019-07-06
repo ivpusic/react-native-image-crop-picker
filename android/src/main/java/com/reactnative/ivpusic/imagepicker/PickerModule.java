@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
@@ -486,41 +487,47 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
-        validateVideo(path);
-        final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
+        final Bitmap bmp = validateVideo(path);
+        final String compressedVideoPath = getTmpDir(activity);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
-                    @Override
-                    public void invoke(Object... args) {
-                        String videoPath = (String) args[0];
+                try {
+                    compression.compressVideo(reactContext, options, path, bmp, compressedVideoPath, new PromiseImpl(new Callback() {
+                        @Override
+                        public void invoke(Object... args) {
+                            String videoPath = (String) args[0];
 
-                        try {
-                            Bitmap bmp = validateVideo(videoPath);
-                            long modificationDate = new File(videoPath).lastModified();
+                            try {
+                                Bitmap bmp = validateVideo(videoPath);
+                                long modificationDate = new File(videoPath).lastModified();
 
-                            WritableMap video = new WritableNativeMap();
-                            video.putInt("width", bmp.getWidth());
-                            video.putInt("height", bmp.getHeight());
-                            video.putString("mime", mime);
-                            video.putInt("size", (int) new File(videoPath).length());
-                            video.putString("path", "file://" + videoPath);
-                            video.putString("modificationDate", String.valueOf(modificationDate));
+                                WritableMap video = new WritableNativeMap();
+                                video.putInt("width", bmp.getWidth());
+                                video.putInt("height", bmp.getHeight());
+                                video.putString("mime", mime);
+                                video.putInt("size", (int) new File(videoPath).length());
+                                video.putString("path", "file://" + videoPath);
+                                video.putString("modificationDate", String.valueOf(modificationDate));
 
-                            resultCollector.notifySuccess(video);
-                        } catch (Exception e) {
-                            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+                                resultCollector.notifySuccess(video);
+                            } catch (Exception e) {
+                                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+                            }
                         }
-                    }
-                }, new Callback() {
-                    @Override
-                    public void invoke(Object... args) {
-                        WritableNativeMap ex = (WritableNativeMap) args[0];
-                        resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
-                    }
-                }));
+                    }, new Callback() {
+                        @Override
+                        public void invoke(Object... args) {
+                            WritableNativeMap ex = (WritableNativeMap) args[0];
+                            resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
+                        }
+                    }));
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }).run();
     }
