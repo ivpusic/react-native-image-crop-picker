@@ -185,6 +185,8 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
+NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
+
 #### - If you use Cocoapods which is highly recommended:
 
 ```bash
@@ -244,6 +246,8 @@ react-native link react-native-image-crop-picker
 ```
 
 ### Android
+
+NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
 
 ```bash
 react-native link react-native-image-crop-picker
