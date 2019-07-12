@@ -5,14 +5,28 @@ def DEFAULT_BUILD_TOOLS_VERSION   = "28.0.3"
 def DEFAULT_TARGET_SDK_VERSION    = 28
 def DEFAULT_MIN_SDK_VERSION       = 16
 
-android {
-        compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
-        buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
 
-  defaultConfig {
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+        google()
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url "$rootDir/../node_modules/react-native/android"
+        }
+    }
+}
+
+android {
+    compileSdkVersion = DEFAULT_COMPILE_SDK_VERSION
+    buildToolsVersion = DEFAULT_BUILD_TOOLS_VERSION
+
+    defaultConfig {
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : DEFAULT_MIN_SDK_VERSION
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         abortOnError false
@@ -20,6 +34,19 @@ android {
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
+    implementation 'com.facebook.react:react-native:0.60.3'
     implementation 'com.github.yalantis:ucrop:2.2.2-native'
+    testImplementation 'junit:junit:4.12'
+}
+
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.2' // 1.3.0-beta2
+    }
 }

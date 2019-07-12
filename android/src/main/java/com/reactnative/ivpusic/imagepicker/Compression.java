@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -26,12 +27,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
-        Bitmap original = BitmapFactory.decodeFile(originalImagePath);
-
-        int width = original.getWidth();
-        int height = original.getHeight();
-
+    private Matrix getRotatedMatrix(String originalImagePath) throws IOException {
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
         int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -39,21 +35,25 @@ class Compression {
         Matrix rotationMatrix = new Matrix();
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
+        return rotationMatrix;
+    }
 
-        float ratioBitmap = (float) width / (float) height;
-        float ratioMax = (float) maxWidth / (float) maxHeight;
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+       return resize(originalImagePath, maxWidth, maxHeight, quality, 0);
+    }
 
-        int finalWidth = maxWidth;
-        int finalHeight = maxHeight;
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality, int maxPixels) throws IOException {
+        Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
-        } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
-        }
+        int width = original.getWidth();
+        int height = original.getHeight();
 
-        Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
-        resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
+        Matrix rotationMatrix = getRotatedMatrix(originalImagePath);
+
+        Scale.Dimension finalDimensions = maxPixels > 0 ? Scale.getScaledImageDimensionsByMaxPixels(width, height, maxPixels) : Scale.getScaledImageDimensionsByMaxWidthHeight(width, height, maxWidth, maxHeight);
+
+        Bitmap resized = Bitmap.createScaledBitmap(original, finalDimensions.getWidth(), finalDimensions.getHeight(), true);
+        resized = Bitmap.createBitmap(resized, 0, 0, finalDimensions.getWidth(), finalDimensions.getHeight(), rotationMatrix, true);
         
         File imageDirectory = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
