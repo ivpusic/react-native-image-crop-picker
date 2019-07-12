@@ -50,6 +50,8 @@ class Compression {
 
         Matrix rotationMatrix = getRotatedMatrix(originalImagePath);
 
+        Log.i("image-crop-picker", "Args: maxWidth: " + maxWidth + ", maxHeight: " + maxHeight + ", maxPixels: " + maxPixels);
+
         Scale.Dimension finalDimensions = maxPixels > 0 ? Scale.getScaledImageDimensionsByMaxPixels(width, height, maxPixels) : Scale.getScaledImageDimensionsByMaxWidthHeight(width, height, maxWidth, maxHeight);
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalDimensions.getWidth(), finalDimensions.getHeight(), true);

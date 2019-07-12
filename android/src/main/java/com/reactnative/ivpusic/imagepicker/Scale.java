@@ -1,5 +1,7 @@
 package com.reactnative.ivpusic.imagepicker;
 
+import android.util.Log;
+
 import java.math.BigDecimal;
 
 public class Scale {
@@ -35,15 +37,12 @@ public class Scale {
 
     public static Dimension getScaledImageDimensionsByMaxPixels(int width, int height, int maxPixels) {
         int currentPixels = width * height;
-        System.out.println(("curr pix: " + currentPixels));
-        System.out.println(("max pix: " + maxPixels));
         double scale = 1.0;
         if (currentPixels > maxPixels && currentPixels > 0 && maxPixels > 0) {
             BigDecimal ratio = new BigDecimal(currentPixels).divide(new BigDecimal(maxPixels));
-            System.out.println("cur/max: " + ratio);
-            System.out.println("sq rt: " + Math.sqrt(ratio.doubleValue()));
             scale = scale / Math.sqrt(ratio.doubleValue());
         }
+        Log.i("image-crop-picker", "Compression: currentPixels: " + currentPixels + ", maxPixels: " + maxPixels + ", scale: " + scale);
         System.out.println(("scale: " + scale));
         return new Dimension((int)(width * scale), (int)(height * scale));
     }
