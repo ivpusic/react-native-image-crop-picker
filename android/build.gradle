@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-native:0.60.3'
+    implementation 'com.facebook.react:react-native:0.59.9'
     implementation 'com.github.yalantis:ucrop:2.2.2-native'
     testImplementation 'junit:junit:4.12'
 }
