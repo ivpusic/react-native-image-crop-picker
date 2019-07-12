@@ -37,15 +37,15 @@
                       compressImageWidth:(CGFloat)width
                      compressImageHeight:(CGFloat)height
                               intoResult:(ImageResult*)result {
-    CGSize newSize = CGSizeMake(newWidth, newHeight);
+    CGSize newSize = CGSizeMake(width, height);
     
     UIGraphicsBeginImageContext(newSize);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    result.width = [NSNumber numberWithFloat:newWidth];
-    result.height = [NSNumber numberWithFloat:newHeight];
+    result.width = [NSNumber numberWithFloat:width];
+    result.height = [NSNumber numberWithFloat:height];
     result.image = resizedImage;
     return result;
 }
@@ -76,7 +76,6 @@
                    compressImageMaxPixels:(CGFloat)maxPixels
                               intoResult:(ImageResult*)result {
     
-    CGFloat maxImgSizeInPixels = 5000000;
     CGFloat currentPixels = image.size.width * image.size.height;
     CGFloat scale = 1.0;
     if (currentPixels > maxPixels && currentPixels > 0 && maxPixels > 0) {
@@ -108,14 +107,14 @@
     NSNumber *compressImageMaxWidth = [options valueForKey:@"compressImageMaxWidth"];
     NSNumber *compressImageMaxHeight = [options valueForKey:@"compressImageMaxHeight"];
     NSNumber *compressImageMaxPixels = [options valueForKey:@"compressImageMaxPixels"];
-    if (!compressImageMaxPixels) compressImageMaxPixels = @"0";
+    if (!compressImageMaxPixels) compressImageMaxPixels = 0;
     
     if ([compressImageMaxPixels intValue] > 0) {
         BOOL shouldResizeImage = [self getPixelCountForImage:image] > [compressImageMaxPixels intValue];
         if (shouldResizeImage) {
             [self compressImageDimensions:image
                    compressImageMaxPixels:[compressImageMaxPixels floatValue]
-                               intoResult:result]
+                               intoResult:result];
         }
     } else {
         // determine if it is necessary to resize image
