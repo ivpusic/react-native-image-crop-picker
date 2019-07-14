@@ -37,8 +37,8 @@
 - (ImageResult*) compressImage:(UIImage*)image
                   toDimensions:(CGSize)dimensions
                     intoResult:(ImageResult*)result {
-    
-    NSLog( @"image-crop-picker: compressing image to new width/height: %f/%f", dimensions.width, dimensions.height);
+
+    NSLog(@"image-crop-picker: scaling image width x height: %i x %i -> %i x %i", (int)image.size.width, (int)image.size.height, (int)dimensions.width, (int)dimensions.height);
     
     UIGraphicsBeginImageContext(dimensions);
     [image drawInRect:CGRectMake(0, 0, dimensions.width, dimensions.height)];
@@ -70,14 +70,14 @@
     if (!compressImageMaxPixels) compressImageMaxPixels = 0;
     
     if (compressImageMaxPixels > 0) {
-        NSLog( @"image-crop-picker: compressing image to max pixels: %@", compressImageMaxPixels );
+        NSLog(@"image-crop-picker: scaling image to max pixels: %@", compressImageMaxPixels);
         BOOL shouldResizeImage = [self getPixelCountForImage:image] > [compressImageMaxPixels intValue];
         if (shouldResizeImage) {
             CGSize dimensions = [Scale scaleWidth:image.size.width andHeight:image.size.height maxPixels:[compressImageMaxPixels floatValue]];
             [self compressImage:image toDimensions:dimensions intoResult:result];
         }
     } else {
-        NSLog( @"image-crop-picker: compressing image to max width/height: %@/%@", compressImageMaxWidth, compressImageMaxHeight );
+        NSLog(@"image-crop-picker: scaling image to max width/height: %@/%@", compressImageMaxWidth, compressImageMaxHeight);
         // determine if it is necessary to resize image
         BOOL shouldResizeWidth = (compressImageMaxWidth != nil && [compressImageMaxWidth floatValue] < image.size.width);
         BOOL shouldResizeHeight = (compressImageMaxHeight != nil && [compressImageMaxHeight floatValue] < image.size.height);
@@ -97,7 +97,7 @@
         compressQuality = [NSNumber numberWithFloat:0.8];
     }
     
-    NSLog( @"image-crop-picker: compressing image with image quality: %@", compressQuality);
+    NSLog(@"image-crop-picker: compressing image with image quality: %@", compressQuality);
 
     // convert image to jpeg representation
     result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
