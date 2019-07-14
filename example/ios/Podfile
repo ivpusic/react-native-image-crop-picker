@@ -13,12 +13,18 @@ target 'example' do
     'RCTLinkingIOS',
     'RCTNetwork',
     'RCTSettings',
+    'RCTTest',
     'RCTText',
     'RCTVibration',
     'RCTWebSocket'
   ]
 
-  pod 'RNImageCropPicker', :path =>  '../..'
+  pod 'RNImageCropPicker', :path =>  '../../'
+
+
+  target 'exampleTests' do
+    inherit! :search_paths
+  end
 end
 
 post_install do |installer|

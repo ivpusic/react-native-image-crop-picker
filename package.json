@@ -30,5 +30,8 @@
   "homepage": "https://github.com/ivpusic/react-native-image-crop-picker#readme",
   "peerDependencies": {
     "react-native": ">=0.40.0"
+  },
+  "devDependencies": {
+    "react-native": "^0.59.10"
   }
 }

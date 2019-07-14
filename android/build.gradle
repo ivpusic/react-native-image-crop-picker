@@ -5,14 +5,40 @@ def DEFAULT_BUILD_TOOLS_VERSION   = "28.0.3"
 def DEFAULT_TARGET_SDK_VERSION    = 28
 def DEFAULT_MIN_SDK_VERSION       = 16
 
-android {
-        compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
-        buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+def RN_DEPENDENCY_PATH = "$rootDir/../node_modules/react-native";
 
-  defaultConfig {
+ext.getReactNativeVersion = { ->
+    try {
+        def jsonFile = file(RN_DEPENDENCY_PATH + '/package.json')
+        def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+        return parsedJson.version;
+    } catch (e) {
+        logger.warn("Unable to determing react-native version, using + (latest)");
+        return "+";
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+        google()
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url RN_DEPENDENCY_PATH + "/android"
+        }
+    }
+}
+
+android {
+    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+
+    defaultConfig {
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : DEFAULT_MIN_SDK_VERSION
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         abortOnError false
@@ -20,6 +46,21 @@ android {
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
+    implementation 'com.facebook.react:react-native:' + getReactNativeVersion()
     implementation 'com.github.yalantis:ucrop:2.2.2-native'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:1.10.19'
+    testImplementation 'org.powermock:powermock-module-junit4:1.6.4'
+    testImplementation 'org.powermock:powermock-api-mockito:1.6.4'
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.2'
+    }
 }

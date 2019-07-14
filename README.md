@@ -58,7 +58,7 @@ ImagePicker.openPicker({
 **Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
-### Select from camera 
+### Select from camera
 
 #### Image
 
@@ -131,6 +131,7 @@ ImagePicker.clean().then(() => {
 | smartAlbums (ios only)                  | array ([supported values](https://github.com/ivpusic/react-native-image-crop-picker/blob/master/README.md#smart-album-types-ios)) (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
 | useFrontCamera                          |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
+| compressImageMaxPixels                  |          number (default none)           | Compress image to maximum total number of pixels.  If this is present and > 0, compressImageMaxWidth and compressImageMaxHeight is ignored.|
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
 | compressImageQuality                    |            number (default 1 (Android)/0.8 (iOS))            | Compress image with quality (from 0 to 1, where 1 is best quality). On iOS, values larger than 0.8 don't produce a noticable quality increase in most images, while a value of 0.8 will reduce the file size by about half or less compared to a value of 1. |
@@ -214,7 +215,7 @@ target '<project_name>' do
   pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
 end
 
-# very important to have, unless you removed React dependencies for Libraries 
+# very important to have, unless you removed React dependencies for Libraries
 # and you rely on Cocoapods to manage it
 post_install do |installer|
   installer.pods_project.targets.each do |target|
@@ -260,12 +261,12 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 - Click on project General tab
   - Under `Deployment Info` set `Deployment Target` to `8.0`
   - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
-  
+
 #### Step Optional - To localizate the camera / gallery text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
-- Select your project in the project list 
+- Select your project in the project list
 - Should be into the Info tab and add in Localizations the language your app was missing throughout the +
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
@@ -324,7 +325,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     ...
-    
+
     defaultConfig {
       ...
       targetSdkVersion 27
@@ -370,6 +371,40 @@ Details for second approach:
 
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
 <a href="graphs/contributors"><img src="https://opencollective.com/react-native-image-crop-picker/contributors.svg?width=890" /></a>
+
+## Development
+
+## Android
+
+Android's build gradle can refer to the installation of react-native in the root `node_modules` directory,
+by way of the  `devDependency` in the top-level `package.json`.
+
+## iOS
+
+To build the imageCropPicker target, "react-native" must be installed on the same folder, e.g. alongside
+
+the react-native-image-crop-picker folder. TODO: update xcode to be able to use the react-native `devDependency` installation.
+
+### package.json
+
+The project has a react-native as a peerDependency, but also in its devDependencies, for local tests.
+
+### Android Studio Unit Testing
+
+Tests are implemented as standard JUnit tests.  No additional setup is required.
+
+### XCode Unit Testing
+
+Unit tests exist in the example app (in the example directory).  There is a exampleTests target.
+1. Install dependencies for the example app.
+```
+cd example
+npm i
+cd ios && pod install
+```
+2. Open the example.xcworkspace project.
+3. Go to the Test Navigator
+4. Select the tests to run (e.g. scaleTests)
 
 
 ## Backers
