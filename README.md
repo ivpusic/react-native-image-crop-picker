@@ -185,7 +185,16 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
-NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
+NOTE: If you are using react-native >= 0.60 autolinking, all you have to do is:
+
+- Install the library via NPM or Yarm
+- Run the following:
+```
+cd ios
+pod install
+```
+
+Then the library will be successfully linked.
 
 #### - If you use Cocoapods which is highly recommended:
 
