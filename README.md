@@ -133,7 +133,7 @@ ImagePicker.clean().then(() => {
 | maxFiles (ios only)                     |            number (default 5)            | Max number of files to select when using `multiple` option |
 | waitAnimationEnd (ios only)             |           bool (default true)            | Promise will resolve/reject once ViewController `completion` block is called |
 | smartAlbums (ios only)                  | array ([supported values](https://github.com/ivpusic/react-native-image-crop-picker/blob/master/README.md#smart-album-types-ios)) (default ['UserLibrary', 'PhotoStream', 'Panoramas', 'Videos', 'Bursts']) | List of smart albums to choose from      |
-| useFrontCamera                          |           bool (default false)           | Whether to default to the front/'selfie' camera when opened |
+| useFrontCamera                          |           bool (default false)           | Whether to default to the front/'selfie' camera when opened. Please note that not all Android devices handle this parameter, see [issue #1058](https://github.com/ivpusic/react-native-image-crop-picker/issues/1058)|
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
