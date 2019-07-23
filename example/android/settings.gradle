@@ -1,8 +1,5 @@
 rootProject.name = 'example'
 
-include ':app'
-include ':react-native-video'
-project(':react-native-video').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-video/android')
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 
-include ':react-native-image-crop-picker'
-project(':react-native-image-crop-picker').projectDir = new File(settingsDir, '../../android')
+include ':app'

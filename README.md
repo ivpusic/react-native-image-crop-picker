@@ -14,6 +14,10 @@ iOS/Android image picker with support for camera, video, configurable compressio
 <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick.png">
 </p>
 
+## Important note
+
+If you are using react-native >= 0.60 use react-native-image-crop-picker version >= 0.25.0. Otherwise use version < 0.25.0.
+
 ## Usage
 
 Import library
@@ -181,6 +185,17 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
+NOTE: If you are using react-native >= 0.60 autolinking, all you have to do is:
+
+- Install the library via NPM or Yarm
+- Run the following:
+```
+cd ios
+pod install
+```
+
+Then the library will be successfully linked.
+
 #### - If you use Cocoapods which is highly recommended:
 
 ```bash
@@ -240,6 +255,8 @@ react-native link react-native-image-crop-picker
 ```
 
 ### Android
+
+NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
 
 ```bash
 react-native link react-native-image-crop-picker
