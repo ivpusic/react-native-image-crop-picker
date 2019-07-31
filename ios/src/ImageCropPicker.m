@@ -611,8 +611,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                  UIImage *imgT = [UIImage imageWithData:imageData];
                                
                                  Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
-                               
-                                 Boolean sortOrder = [[self.options valueForKey:@"sortOrder"] boolValue];
 
                                  NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
                                  Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
