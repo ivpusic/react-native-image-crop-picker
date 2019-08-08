@@ -98,8 +98,7 @@ class Compression {
         }
 
         Log.d("image-crop-picker", "Image compression activated");
-
-        // compression quality
+ 
         int targetQuality = quality != null ? (int) (quality * 100) : 100;
         Log.d("image-crop-picker", "Compressing image with quality " + targetQuality);
 
