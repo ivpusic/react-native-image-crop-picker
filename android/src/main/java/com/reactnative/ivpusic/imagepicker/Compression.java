@@ -38,7 +38,12 @@ class Compression {
 
         Matrix rotationMatrix = new Matrix();
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
-        rotationMatrix.postRotate(rotationAngleInDegrees);
+
+        if(width > height & originalOrientation == 0){
+            rotationMatrix.postRotate(-90);
+        }else{
+            rotationMatrix.postRotate(rotationAngleInDegrees);
+        }
 
         float ratioBitmap = (float) width / (float) height;
         float ratioMax = (float) maxWidth / (float) maxHeight;
