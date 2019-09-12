@@ -1,75 +1,211 @@
 PODS:
+  - boost-for-react-native (1.63.0)
+  - DoubleConversion (1.1.6)
+  - Folly (2018.10.22.00):
+    - boost-for-react-native
+    - DoubleConversion
+    - Folly/Default (= 2018.10.22.00)
+    - glog
+  - Folly/Default (2018.10.22.00):
+    - boost-for-react-native
+    - DoubleConversion
+    - glog
+  - glog (0.3.5)
   - QBImagePickerController (3.4.0)
-  - React/Core (0.59.1):
-    - yoga (= 0.59.1.React)
-  - React/fishhook (0.59.1)
-  - React/RCTActionSheet (0.59.1):
-    - React/Core
-  - React/RCTAnimation (0.59.1):
-    - React/Core
-  - React/RCTBlob (0.59.1):
-    - React/Core
-  - React/RCTGeolocation (0.59.1):
-    - React/Core
-  - React/RCTImage (0.59.1):
-    - React/Core
-    - React/RCTNetwork
-  - React/RCTLinkingIOS (0.59.1):
-    - React/Core
-  - React/RCTNetwork (0.59.1):
-    - React/Core
-  - React/RCTSettings (0.59.1):
-    - React/Core
-  - React/RCTText (0.59.1):
-    - React/Core
-  - React/RCTVibration (0.59.1):
-    - React/Core
-  - React/RCTWebSocket (0.59.1):
-    - React/Core
-    - React/fishhook
-    - React/RCTBlob
-  - RNImageCropPicker (0.23.0):
+  - React (0.60.3):
+    - React-Core (= 0.60.3)
+    - React-DevSupport (= 0.60.3)
+    - React-RCTActionSheet (= 0.60.3)
+    - React-RCTAnimation (= 0.60.3)
+    - React-RCTBlob (= 0.60.3)
+    - React-RCTImage (= 0.60.3)
+    - React-RCTLinking (= 0.60.3)
+    - React-RCTNetwork (= 0.60.3)
+    - React-RCTSettings (= 0.60.3)
+    - React-RCTText (= 0.60.3)
+    - React-RCTVibration (= 0.60.3)
+    - React-RCTWebSocket (= 0.60.3)
+  - React-Core (0.60.3):
+    - Folly (= 2018.10.22.00)
+    - React-cxxreact (= 0.60.3)
+    - React-jsiexecutor (= 0.60.3)
+    - yoga (= 0.60.3.React)
+  - React-cxxreact (0.60.3):
+    - boost-for-react-native (= 1.63.0)
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+    - React-jsinspector (= 0.60.3)
+  - React-DevSupport (0.60.3):
+    - React-Core (= 0.60.3)
+    - React-RCTWebSocket (= 0.60.3)
+  - React-fishhook (0.60.3)
+  - React-jsi (0.60.3):
+    - boost-for-react-native (= 1.63.0)
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+    - React-jsi/Default (= 0.60.3)
+  - React-jsi/Default (0.60.3):
+    - boost-for-react-native (= 1.63.0)
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+  - React-jsiexecutor (0.60.3):
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+    - React-cxxreact (= 0.60.3)
+    - React-jsi (= 0.60.3)
+  - React-jsinspector (0.60.3)
+  - react-native-video (4.4.3):
+    - React
+    - react-native-video/Video (= 4.4.3)
+  - react-native-video/Video (4.4.3):
+    - React
+  - React-RCTActionSheet (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTAnimation (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTBlob (0.60.3):
+    - React-Core (= 0.60.3)
+    - React-RCTNetwork (= 0.60.3)
+    - React-RCTWebSocket (= 0.60.3)
+  - React-RCTImage (0.60.3):
+    - React-Core (= 0.60.3)
+    - React-RCTNetwork (= 0.60.3)
+  - React-RCTLinking (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTNetwork (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTSettings (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTText (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTVibration (0.60.3):
+    - React-Core (= 0.60.3)
+  - React-RCTWebSocket (0.60.3):
+    - React-Core (= 0.60.3)
+    - React-fishhook (= 0.60.3)
+  - RNImageCropPicker (0.24.1):
     - QBImagePickerController
-    - React/Core
+    - React-Core
+    - React-RCTImage
     - RSKImageCropper
-  - RSKImageCropper (2.2.1)
-  - yoga (0.59.1.React)
+  - RSKImageCropper (2.2.2)
+  - yoga (0.60.3.React)
 
 DEPENDENCIES:
-  - React/Core (from `../node_modules/react-native`)
-  - React/RCTActionSheet (from `../node_modules/react-native`)
-  - React/RCTAnimation (from `../node_modules/react-native`)
-  - React/RCTGeolocation (from `../node_modules/react-native`)
-  - React/RCTImage (from `../node_modules/react-native`)
-  - React/RCTLinkingIOS (from `../node_modules/react-native`)
-  - React/RCTNetwork (from `../node_modules/react-native`)
-  - React/RCTSettings (from `../node_modules/react-native`)
-  - React/RCTText (from `../node_modules/react-native`)
-  - React/RCTVibration (from `../node_modules/react-native`)
-  - React/RCTWebSocket (from `../node_modules/react-native`)
-  - RNImageCropPicker (from `../..`)
-  - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
+  - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
+  - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - React (from `../node_modules/react-native/`)
+  - React-Core (from `../node_modules/react-native/React`)
+  - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
+  - React-DevSupport (from `../node_modules/react-native/React`)
+  - React-fishhook (from `../node_modules/react-native/Libraries/fishhook`)
+  - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
+  - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
+  - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-video (from `../node_modules/react-native-video`)
+  - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
+  - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
+  - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
+  - React-RCTImage (from `../node_modules/react-native/Libraries/Image`)
+  - React-RCTLinking (from `../node_modules/react-native/Libraries/LinkingIOS`)
+  - React-RCTNetwork (from `../node_modules/react-native/Libraries/Network`)
+  - React-RCTSettings (from `../node_modules/react-native/Libraries/Settings`)
+  - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
+  - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
+  - React-RCTWebSocket (from `../node_modules/react-native/Libraries/WebSocket`)
+  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - boost-for-react-native
     - QBImagePickerController
     - RSKImageCropper
 
 EXTERNAL SOURCES:
+  DoubleConversion:
+    :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  Folly:
+    :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
+  glog:
+    :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   React:
-    :path: "../node_modules/react-native"
+    :path: "../node_modules/react-native/"
+  React-Core:
+    :path: "../node_modules/react-native/React"
+  React-cxxreact:
+    :path: "../node_modules/react-native/ReactCommon/cxxreact"
+  React-DevSupport:
+    :path: "../node_modules/react-native/React"
+  React-fishhook:
+    :path: "../node_modules/react-native/Libraries/fishhook"
+  React-jsi:
+    :path: "../node_modules/react-native/ReactCommon/jsi"
+  React-jsiexecutor:
+    :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
+  React-jsinspector:
+    :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-video:
+    :path: "../node_modules/react-native-video"
+  React-RCTActionSheet:
+    :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
+  React-RCTAnimation:
+    :path: "../node_modules/react-native/Libraries/NativeAnimation"
+  React-RCTBlob:
+    :path: "../node_modules/react-native/Libraries/Blob"
+  React-RCTImage:
+    :path: "../node_modules/react-native/Libraries/Image"
+  React-RCTLinking:
+    :path: "../node_modules/react-native/Libraries/LinkingIOS"
+  React-RCTNetwork:
+    :path: "../node_modules/react-native/Libraries/Network"
+  React-RCTSettings:
+    :path: "../node_modules/react-native/Libraries/Settings"
+  React-RCTText:
+    :path: "../node_modules/react-native/Libraries/Text"
+  React-RCTVibration:
+    :path: "../node_modules/react-native/Libraries/Vibration"
+  React-RCTWebSocket:
+    :path: "../node_modules/react-native/Libraries/WebSocket"
   RNImageCropPicker:
-    :path: "../.."
+    :path: "../node_modules/react-native-image-crop-picker"
   yoga:
-    :path: "../node_modules/react-native/ReactCommon/yoga/yoga.podspec"
+    :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
+  DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
+  Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
+  glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
-  React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
-  RNImageCropPicker: 32ca4b9fef4e1b7b85ba69494242122948117e06
-  RSKImageCropper: 98296ad26b41753f796b6898d015509598f13d97
-  yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
+  React: ac23e9cc8d2d4cfe9b536b5cc0c32d19b9937bcf
+  React-Core: 84de3cf80e31f0267c5ce0b5b482d59ce30a8a57
+  React-cxxreact: a802a1c6b14f3de66ba032460b424c17ececd1e2
+  React-DevSupport: ae72c4fc86c03197f007bb24404077c85f6dabc1
+  React-fishhook: 12bd79b4461280f441937dea83f11d9fb660edfc
+  React-jsi: c2b6e57836bcae2677a036384111dc2c58e94369
+  React-jsiexecutor: d9023c5c199114d2b6f38ec861a4d923c73d0735
+  React-jsinspector: 817b64f3c8a807f09d78620f4f505868d89b26f3
+  react-native-video: 556a560c8921379960a48c3e31baee84299050c2
+  React-RCTActionSheet: 9c42321fd5652515d706dd722c5a10b1970d7ec8
+  React-RCTAnimation: fabb087dde8964c9a835a7fabd0e7e5701787913
+  React-RCTBlob: 93f34281d9c9c9e216b25824309eed9fe22a5d41
+  React-RCTImage: b09f30159b048eb9a0f859f8f9b0878f3311e8eb
+  React-RCTLinking: 9dba672b3d5aadab59e93f9ab8c65e5e24b9fb73
+  React-RCTNetwork: 4b2f706819f08b6fa15c47909985f96b80859832
+  React-RCTSettings: 59c0eedc36b9aa9dd21cdbb5ab9591ba04132b1f
+  React-RCTText: b026f8350c2cbe0daeb9880dd9c6e018fce0daf7
+  React-RCTVibration: 5d9ed4a968e9d42880ddcc7c29bee3417c745408
+  React-RCTWebSocket: 69d8565d66043f244b4129f3d7154c5689fb7d3e
+  RNImageCropPicker: 4948e2883d262025613c45344e1027fe4c2e79a3
+  RSKImageCropper: 05e3b82a18da83ea3c2b7bffa7f2199a621d6802
+  yoga: 843fe25849b56131275bf3e5da2c468e96f68aff
 
-PODFILE CHECKSUM: 4471a980145b75efa0c908363a6ae6487e284263
+PODFILE CHECKSUM: fbb7bdebf3c0bc5c852457d8633651e7642597f6
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.7.4
