@@ -314,7 +314,7 @@ allprojects {
       maven { url 'https://maven.google.com' }
 
       // ADD THIS
-      maven { url "https://jitpack.io" }
+      maven { url "https://www.jitpack.io" }
     }
 }
 ```
