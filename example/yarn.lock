@@ -3765,11 +3765,11 @@ react-native-cli@^2.0.1:
     semver "^5.0.3"
 
 react-native-image-crop-picker@../:
-  version "0.24.1"
+  version "0.25.2"
 
-"react-native-video@https://github.com/vokhuyetOz/react-native-video":
-  version "4.4.1"
-  resolved "https://github.com/vokhuyetOz/react-native-video#4f36eb1254e175ebf46563e941dd5a085a9a6f62"
+"react-native-video@git://github.com/react-native-community/react-native-video.git":
+  version "5.0.1"
+  resolved "git://github.com/react-native-community/react-native-video.git#f66ca32d499d7cc7524d43ff190e00f4cdf25afe"
   dependencies:
     keymirror "^0.1.1"
     prop-types "^15.5.10"

@@ -43,9 +43,16 @@ typedef NS_ENUM(NSUInteger, QBImagePickerMediaType) {
 @property (nonatomic, assign) NSUInteger maximumNumberOfSelection;
 
 @property (nonatomic, copy) NSString *prompt;
-@property (nonatomic, assign) BOOL showsNumberOfSelectedAssets;
+@property (nonatomic, copy) NSString *selectImgCancelText;
+@property (nonatomic, copy) NSString *selectImgDoneText;
+@property (nonatomic, copy) NSString *galleryHeaderText;
+@property (nonatomic, copy) NSString *changeFolderText;
 
+@property (nonatomic, assign) BOOL showsNumberOfSelectedAssets;
+@property (nonatomic, strong) NSMutableDictionary *options;
 @property (nonatomic, assign) NSUInteger numberOfColumnsInPortrait;
 @property (nonatomic, assign) NSUInteger numberOfColumnsInLandscape;
+@property (nonatomic, strong) UINavigationController *albumsNavigationController;
+- (instancetype)init:(BOOL)isWithNavigation;
 
 @end

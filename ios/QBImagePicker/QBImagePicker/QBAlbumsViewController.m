@@ -29,6 +29,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @interface QBAlbumsViewController () <PHPhotoLibraryChangeObserver>
 
 @property (nonatomic, strong) IBOutlet UIBarButtonItem *doneButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 
 @property (nonatomic, copy) NSArray *fetchResults;
 @property (nonatomic, copy) NSArray *assetCollections;
@@ -59,7 +60,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [super viewWillAppear:animated];
     
     // Configure navigation item
-    self.navigationItem.title = NSLocalizedStringFromTableInBundle(@"albums.title", @"QBImagePicker", self.imagePickerController.assetBundle, nil);
+    self.navigationItem.title = self.imagePickerController.galleryHeaderText;
     self.navigationItem.prompt = self.imagePickerController.prompt;
     
     // Show/hide 'Done' button
@@ -87,6 +88,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     QBAssetsViewController *assetsViewController = segue.destinationViewController;
     assetsViewController.imagePickerController = self.imagePickerController;
     assetsViewController.assetCollection = self.assetCollections[self.tableView.indexPathForSelectedRow.row];
+    assetsViewController.assetCollections = self.assetCollections;
+    assetsViewController.fetchResults = self.fetchResults;
 }
 
 
@@ -107,6 +110,24 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     }
 }
 
+#pragma mark - UINavigationBar
+
+- (UIView *)titleViewForHeader{
+    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 250, 44)];
+    UIButton *button = [[UIButton alloc] initWithFrame:titleView.frame];
+    UILabel *titleHeader = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 250, 30)];
+    UILabel *titleSubHeader = [[UILabel alloc] initWithFrame:CGRectMake(0, 31, 250, 14)];
+    titleHeader.textAlignment = NSTextAlignmentCenter;
+    titleHeader.text = NSLocalizedStringFromTableInBundle(@"albums.title", @"QBImagePicker", self.imagePickerController.assetBundle, nil);
+    titleSubHeader.text = self.imagePickerController.changeFolderText;
+    titleSubHeader.textAlignment = NSTextAlignmentCenter;
+    [button addSubview:titleHeader];
+    [button addSubview:titleSubHeader];
+    button.backgroundColor = [UIColor greenColor];
+    [titleView addSubview:button];
+    [titleView setBackgroundColor:[UIColor blueColor]];
+    return titleView;
+}
 
 #pragma mark - Toolbar
 

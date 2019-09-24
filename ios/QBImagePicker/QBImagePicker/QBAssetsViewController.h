@@ -15,5 +15,7 @@
 
 @property (nonatomic, weak) QBImagePickerController *imagePickerController;
 @property (nonatomic, strong) PHAssetCollection *assetCollection;
+@property (nonatomic, copy) NSArray *assetCollections;
+@property (nonatomic, copy) NSArray *fetchResults;
 
 @end

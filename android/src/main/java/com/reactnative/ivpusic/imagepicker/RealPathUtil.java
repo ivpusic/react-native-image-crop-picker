@@ -1,6 +1,5 @@
 package com.reactnative.ivpusic.imagepicker;
 
-import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 class RealPathUtil {
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
 
         final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
@@ -200,7 +198,6 @@ class RealPathUtil {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private static String getPathToNonPrimaryVolume(Context context, String tag) {
         File[] volumes = context.getExternalCacheDirs();
         if (volumes != null) {
