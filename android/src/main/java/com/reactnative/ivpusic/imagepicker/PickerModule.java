@@ -3,7 +3,6 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,11 +13,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
+import android.content.ContentResolver;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -67,6 +67,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
 
     private String mediaType = "any";
+    private String selectImgCancelText = "Cancel";
+    private String selectImgDoneText = "Done";
+    private String galleryHeaderText = "Gallery";
+    private String changeFolderText = "Tap to change folder";
     private boolean multiple = false;
     private boolean includeBase64 = false;
     private boolean includeExif = false;
@@ -113,12 +117,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     @Override
+    public boolean canOverrideExistingModule() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "ImageCropPicker";
     }
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
+        selectImgCancelText = options.hasKey("selectImgCancelText") ? options.getString("selectImgCancelText") : "Cancel";
+        selectImgDoneText = options.hasKey("selectImgDoneText") ? options.getString("selectImgDoneText") : "Done";
+        galleryHeaderText = options.hasKey("galleryHeaderText") ? options.getString("galleryHeaderText") : "Gallery";
+        changeFolderText = options.hasKey("changeFolderText") ? options.getString("changeFolderText") : "Tap to change folder";
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
@@ -378,7 +391,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
-                initiatePicker(activity);
+                initiatePicker
+
+                        (activity);
                 return null;
             }
         });
@@ -396,14 +411,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, false);
 
-        final Uri uri = Uri.parse(options.getString("path"));
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                startCropping(activity, uri);
-                return null;
-            }
-        });
+        Uri uri = Uri.parse(options.getString("path"));
+        startCropping(activity, uri);
     }
 
     private String getBase64StringFromFile(String absoluteFilePath) {
@@ -620,7 +629,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
-    private void startCropping(final Activity activity, final Uri uri) {
+    private void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);

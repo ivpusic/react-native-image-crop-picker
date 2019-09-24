@@ -92,7 +92,11 @@ RCT_EXPORT_MODULE();
                                 @"showsSelectedCount": @YES,
                                 @"forceJpg": @NO,
                                 @"cropperCancelText": @"Cancel",
-                                @"cropperChooseText": @"Choose"
+                                @"cropperChooseText": @"Choose",
+                                @"selectImgCancelText": @"Cancel",
+                                @"selectImgDoneText": @"Done",
+                                @"galleryHeaderText": @"Gallery",
+                                @"changeFolderText": @"Tap to change folder"
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -311,7 +315,12 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             // init picker
             QBImagePickerController *imagePickerController =
             [QBImagePickerController new];
+            imagePickerController.options = self.options;
             imagePickerController.delegate = self;
+            imagePickerController.selectImgCancelText = [self.options objectForKey:@"selectImgCancelText"];
+            imagePickerController.selectImgDoneText = [self.options objectForKey:@"selectImgDoneText"];
+            imagePickerController.galleryHeaderText = [self.options objectForKey:@"galleryHeaderText"];
+            imagePickerController.changeFolderText = [self.options objectForKey:@"changeFolderText"];
             imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
             imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
             imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
