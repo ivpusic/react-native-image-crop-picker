@@ -21,6 +21,12 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		245E293E233CA06300664D94 /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 245E2938233CA06300664D94 /* Montserrat-Light.ttf */; };
+		245E293F233CA06300664D94 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 245E2939233CA06300664D94 /* Montserrat-Bold.ttf */; };
+		245E2940233CA06300664D94 /* ProximaNovaSoft-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 245E293A233CA06300664D94 /* ProximaNovaSoft-Semibold.ttf */; };
+		245E2941233CA06300664D94 /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 245E293B233CA06300664D94 /* Montserrat-Regular.ttf */; };
+		245E2942233CA06300664D94 /* ProximaNovaSoft-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 245E293C233CA06300664D94 /* ProximaNovaSoft-Bold.ttf */; };
+		245E2943233CA06300664D94 /* ProximaNovaSoft-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 245E293D233CA06300664D94 /* ProximaNovaSoft-Regular.ttf */; };
 		249AAF582338B27700064B2A /* carrat_down_3.png in Resources */ = {isa = PBXBuildFile; fileRef = 249AAF562338B27700064B2A /* carrat_down_3.png */; };
 		249AAF592338B27700064B2A /* carrat_up_3.png in Resources */ = {isa = PBXBuildFile; fileRef = 249AAF572338B27700064B2A /* carrat_up_3.png */; };
 		790A850F1AE7D4D9008E2A80 /* QBSlomoIconView.h in Headers */ = {isa = PBXBuildFile; fileRef = 790A850D1AE7D4D9008E2A80 /* QBSlomoIconView.h */; };
@@ -48,6 +54,12 @@
 
 /* Begin PBXFileReference section */
 		07A50A481B331A840010E048 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
+		245E2938233CA06300664D94 /* Montserrat-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Light.ttf"; sourceTree = "<group>"; };
+		245E2939233CA06300664D94 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Bold.ttf"; sourceTree = "<group>"; };
+		245E293A233CA06300664D94 /* ProximaNovaSoft-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ProximaNovaSoft-Semibold.ttf"; sourceTree = "<group>"; };
+		245E293B233CA06300664D94 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Regular.ttf"; sourceTree = "<group>"; };
+		245E293C233CA06300664D94 /* ProximaNovaSoft-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ProximaNovaSoft-Bold.ttf"; sourceTree = "<group>"; };
+		245E293D233CA06300664D94 /* ProximaNovaSoft-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ProximaNovaSoft-Regular.ttf"; sourceTree = "<group>"; };
 		249AAF562338B27700064B2A /* carrat_down_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = carrat_down_3.png; path = ../../../../../assets/icons/carrat_down_3.png; sourceTree = "<group>"; };
 		249AAF572338B27700064B2A /* carrat_up_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = carrat_up_3.png; path = ../../../../../assets/icons/carrat_up_3.png; sourceTree = "<group>"; };
 		5A63116E200FC8C0006D76A5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
@@ -91,6 +103,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		245E2937233CA06300664D94 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				245E2938233CA06300664D94 /* Montserrat-Light.ttf */,
+				245E2939233CA06300664D94 /* Montserrat-Bold.ttf */,
+				245E293A233CA06300664D94 /* ProximaNovaSoft-Semibold.ttf */,
+				245E293B233CA06300664D94 /* Montserrat-Regular.ttf */,
+				245E293C233CA06300664D94 /* ProximaNovaSoft-Bold.ttf */,
+				245E293D233CA06300664D94 /* ProximaNovaSoft-Regular.ttf */,
+			);
+			name = fonts;
+			path = ../../../../../assets/fonts;
+			sourceTree = "<group>";
+		};
 		AA3AD0751ACFA22500BF523E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -162,6 +188,7 @@
 		AAF1CA241ACE5665005F6295 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				245E2937233CA06300664D94 /* fonts */,
 				249AAF562338B27700064B2A /* carrat_down_3.png */,
 				249AAF572338B27700064B2A /* carrat_up_3.png */,
 				AAF1CA221ACE5598005F6295 /* QBImagePicker.storyboard */,
@@ -259,7 +286,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				245E2941233CA06300664D94 /* Montserrat-Regular.ttf in Resources */,
+				245E2940233CA06300664D94 /* ProximaNovaSoft-Semibold.ttf in Resources */,
+				245E293E233CA06300664D94 /* Montserrat-Light.ttf in Resources */,
 				249AAF582338B27700064B2A /* carrat_down_3.png in Resources */,
+				245E293F233CA06300664D94 /* Montserrat-Bold.ttf in Resources */,
+				245E2942233CA06300664D94 /* ProximaNovaSoft-Bold.ttf in Resources */,
+				245E2943233CA06300664D94 /* ProximaNovaSoft-Regular.ttf in Resources */,
 				249AAF592338B27700064B2A /* carrat_up_3.png in Resources */,
 				E521B0A21B01D9300079461F /* QBImagePicker.strings in Resources */,
 				AAF1CA231ACE5598005F6295 /* QBImagePicker.storyboard in Resources */,

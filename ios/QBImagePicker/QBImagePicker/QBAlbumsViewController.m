@@ -30,7 +30,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 @property (nonatomic, strong) IBOutlet UIBarButtonItem *doneButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
-
+@property (nonatomic, weak) IBOutlet UIView *headerView;
+@property (nonatomic, weak) IBOutlet UILabel *titleHeaderLbl;
 @property (nonatomic, copy) NSArray *fetchResults;
 @property (nonatomic, copy) NSArray *assetCollections;
 
@@ -60,14 +61,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [super viewWillAppear:animated];
     
     // Configure navigation item
-    self.navigationItem.title = self.imagePickerController.galleryHeaderText;
-    self.navigationItem.prompt = self.imagePickerController.prompt;
-    
-    // Show/hide 'Done' button
+    self.navigationItem.titleView = self.headerView;
+    self.titleHeaderLbl.text = self.imagePickerController.galleryHeaderText;
     if (self.imagePickerController.allowsMultipleSelection) {
         [self.navigationItem setRightBarButtonItem:self.doneButton animated:NO];
+        self.doneButton.enabled = YES;
     } else {
-        [self.navigationItem setRightBarButtonItem:nil animated:NO];
+        self.doneButton.title = @"";
+        [self.navigationItem setRightBarButtonItem:self.doneButton animated:NO];
+        self.doneButton.enabled = NO;
     }
     
     [self updateControlState];

@@ -102,8 +102,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     // Show/hide 'Done' button
     if (self.imagePickerController.allowsMultipleSelection) {
+        [self.navigationItem setRightBarButtonItem:self.doneButton animated:NO];
         self.doneButton.enabled = YES;
     } else {
+        self.doneButton.title = @"";
+        [self.navigationItem setRightBarButtonItem:nil animated:NO];
         self.doneButton.enabled = NO;
     }
     
@@ -819,8 +822,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    self.assetCollection = self.assetCollections[indexPath.row];
-    [self.albumTblView removeFromSuperview];
+    self.assetCollection = self.assetCollections[indexPath.row];    
     float height = self.view.frame.size.height;
     float width = self.view.frame.size.width;
     [UITableView animateWithDuration:0.5 animations:^{
