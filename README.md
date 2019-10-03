@@ -254,6 +254,14 @@ After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_na
 react-native link react-native-image-crop-picker
 ```
 
+#### Dark Mode
+
+To enable support for dark mode, please add local 'QBImagePickerController' pod to your Podfile.
+
+```
+pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
+```
+
 ### Android
 
 NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
