@@ -461,7 +461,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return null;
         }
 
-        return getImage(activity, path);
+        return getImage(activity, path, uri);
     }
 
     private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
@@ -477,7 +477,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        resultCollector.notifySuccess(getImage(activity, path));
+        resultCollector.notifySuccess(getImage(activity, path, uri));
     }
 
     private Bitmap validateVideo(String path) throws Exception {
@@ -562,6 +562,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         return options;
+    }
+    
+    private WritableMap getImage(final Activity activity, String path, Uri uri) throws Exception {
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            throw new Exception("Cannot select remote files");
+        }
+        WritableMap image = getImage(activity, path);
+        image.putString("uri", "" + uri);
+        return image;
     }
 
     private WritableMap getImage(final Activity activity, String path) throws Exception {
