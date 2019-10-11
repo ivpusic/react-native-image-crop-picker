@@ -185,81 +185,29 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
-NOTE: If you are using react-native >= 0.60 autolinking, all you have to do is:
+#### react-native >= 0.60 with cocoapods
 
-- Install the library via NPM or Yarm
 - Run the following:
-```
-cd ios
-pod install
-```
-
-Then the library will be successfully linked.
-
-#### - If you use Cocoapods which is highly recommended:
 
 ```bash
 cd ios
-pod init
-```
-
-After this edit Podfile. Example content is following:
-
-```bash
-platform :ios, '8.0'
-
-target '<project_name>' do
-  # this is very important to have!
-  rn_path = '../node_modules/react-native'
-  pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
-  pod 'React', path: rn_path, subspecs: [
-    'Core',
-    'RCTActionSheet',
-    'RCTAnimation',
-    'RCTGeolocation',
-    'RCTImage',
-    'RCTLinkingIOS',
-    'RCTNetwork',
-    'RCTSettings',
-    'RCTText',
-    'RCTVibration',
-    'RCTWebSocket'
-  ]
-
-  pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
-end
-
-# very important to have, unless you removed React dependencies for Libraries 
-# and you rely on Cocoapods to manage it
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    if target.name == "React"
-      target.remove_from_project
-    end
-  end
-end
-```
-
-After this run:
-
-```bash
 pod install
 ```
 
 After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
 
+##### Using local QBImagePicker
+
+It is recommended to use locally provided QBImagePicker pod, because it contains few improvements over original version.
+
+```
+pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
+```
+
 #### - If you are not using Cocoapods which is not recommended:
 
 ```bash
 react-native link react-native-image-crop-picker
-```
-
-#### Dark Mode
-
-To enable support for dark mode, please add local 'QBImagePickerController' pod to your Podfile.
-
-```
-pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
 ```
 
 ### Android
@@ -359,10 +307,11 @@ android {
 }
 ```
 
-- [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
+- [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
-- [Optional] If you want to use front camera, also add following to `app\src\main\AndroidManifest.xml`
+- [Optional] If you want to use front camera, also add following to `app/src/main/
+AndroidManifest.xml`
   - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
   - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
 
