@@ -8,12 +8,12 @@
     "android": "node node_modules/react-native/local-cli/cli.js run-android"
   },
   "dependencies": {
-    "react": "16.8.6",
-    "react-native": "0.60.3",
+    "react": "16.10.2",
+    "react-native": "0.61.2",
     "react-native-image-crop-picker": "../",
-    "react-native-video": "git://github.com/react-native-community/react-native-video.git"
+    "react-native-video": "5.1.0-alpha1"
   },
   "devDependencies": {
-    "react-native-cli": "^2.0.1"
+    "react-native-cli": "2.0.1"
   }
 }
