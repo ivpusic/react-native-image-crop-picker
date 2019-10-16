@@ -224,7 +224,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                        self.resolve(video);
                    }]];
-                   };
+                   });
                }
          ];
     } else {
