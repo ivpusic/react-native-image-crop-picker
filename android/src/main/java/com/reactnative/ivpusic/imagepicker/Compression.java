@@ -40,16 +40,37 @@ class Compression {
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
 
-        float ratioBitmap = (float) width / (float) height;
-        float ratioMax = (float) maxWidth / (float) maxHeight;
+//        float ratioBitmap = (float) width / (float) height;
+//        float ratioMax = (float) maxWidth / (float) maxHeight;
 
         int finalWidth = maxWidth;
         int finalHeight = maxHeight;
 
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
+//        if (ratioMax > 1) {
+//            finalWidth = (int) ((float) maxHeight * ratioBitmap);
+//        } else {
+//            finalHeight = (int) ((float) maxWidth / ratioBitmap);
+//        }
+
+        // get resize width and height
+
+        if (width > height) {
+            if (width >= maxWidth) {
+//                finalWidth = maxWidth;
+                finalHeight = Math.round(((float) maxWidth / width) * height);
+            } else {
+                finalWidth = width;
+                finalHeight = height;
+            }
         } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
+
+            if (height >= maxHeight) {
+//                finalHeight = maxHeight;
+                finalWidth = Math.round(((float) maxHeight / height) * width);
+            } else {
+                finalWidth = width;
+                finalHeight = height;
+            }
         }
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
