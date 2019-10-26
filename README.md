@@ -137,12 +137,11 @@ ImagePicker.clean().then(() => {
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
-| compressImageQuality                    |            number (default 1 (Android)/0.8 (iOS))            | Compress image with quality (from 0 to 1, where 1 is best quality). On iOS, values larger than 0.8 don't produce a noticable quality increase in most images, while a value of 0.8 will reduce the file size by about half or less compared to a value of 1. |
+| compressImageQuality                    |            number (default 1 (Android)/0.8 (iOS))            | Compress image with quality (from 0 to 1, where 1 is best quality). On iOS, values larger than 0.8 don't produce a noticeable quality increase in most images, while a value of 0.8 will reduce the file size by about half or less compared to a value of 1. |
 | loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
 | mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only)           |           bool (default true)            | Whether to show the number of selected assets |
 | forceJpg (ios only)           |           bool (default false)            | Whether to convert photos to JPG. This will also convert any Live Photo into its JPG representation |
-| sortOrder (ios only)           |           string (default 'none', supported values: 'asc', 'desc', 'none')            | Applies a sort order on the creation date on how media is displayed within the albums/detail photo views when opening the image picker |
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | showCropFrame (android only)       |           bool (default true)            | Whether to show crop frame during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
@@ -186,68 +185,24 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
-NOTE: If you are using react-native >= 0.60 autolinking, all you have to do is:
+#### react-native >= 0.60 with cocoapods
 
-- Install the library via NPM or Yarm
 - Run the following:
-```
-cd ios
-pod install
-```
-
-Then the library will be successfully linked.
-
-#### - If you use Cocoapods which is highly recommended:
 
 ```bash
 cd ios
-pod init
-```
-
-After this edit Podfile. Example content is following:
-
-```bash
-platform :ios, '8.0'
-
-target '<project_name>' do
-  # this is very important to have!
-  rn_path = '../node_modules/react-native'
-  pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
-  pod 'React', path: rn_path, subspecs: [
-    'Core',
-    'RCTActionSheet',
-    'RCTAnimation',
-    'RCTGeolocation',
-    'RCTImage',
-    'RCTLinkingIOS',
-    'RCTNetwork',
-    'RCTSettings',
-    'RCTText',
-    'RCTVibration',
-    'RCTWebSocket'
-  ]
-
-  pod 'RNImageCropPicker', :path =>  '../node_modules/react-native-image-crop-picker'
-end
-
-# very important to have, unless you removed React dependencies for Libraries 
-# and you rely on Cocoapods to manage it
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    if target.name == "React"
-      target.remove_from_project
-    end
-  end
-end
-```
-
-After this run:
-
-```bash
 pod install
 ```
 
 After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
+
+##### Using local QBImagePicker
+
+It is recommended to use locally provided QBImagePicker pod, because it contains few improvements over original version.
+
+```
+pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
+```
 
 #### - If you are not using Cocoapods which is not recommended:
 
@@ -315,7 +270,7 @@ allprojects {
       maven { url 'https://maven.google.com' }
 
       // ADD THIS
-      maven { url "https://jitpack.io" }
+      maven { url "https://www.jitpack.io" }
     }
 }
 ```
@@ -352,10 +307,11 @@ android {
 }
 ```
 
-- [Optional] If you want to use camera picker in your project, add following to `app\src\main\AndroidManifest.xml`
+- [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
-- [Optional] If you want to use front camera, also add following to `app\src\main\AndroidManifest.xml`
+- [Optional] If you want to use front camera, also add following to `app/src/main/
+AndroidManifest.xml`
   - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
   - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
 
