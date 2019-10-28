@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.core.app.ActivityCompat;
@@ -98,6 +99,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private ResultCollector resultCollector = new ResultCollector();
     private Compression compression = new Compression();
     private ReactApplicationContext reactContext;
+
+    File originalFileToDelete;
 
     PickerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -319,6 +322,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+            originalFileToDelete = dataFile;
 
             if (this.useFrontCamera) {
                 cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
@@ -729,6 +733,20 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
+    static void deleteFile(File originalFileToDelete) {
+        try{
+            boolean isDeleted = originalFileToDelete.delete();
+            if(isDeleted){
+                Log.i("Deleting file :", originalFileToDelete.getAbsolutePath());
+            }else {
+                Log.e("Deleting file :", "FAILED");
+            }
+
+        }catch (Exception err){
+            Log.e("File Delete Exception",err.getMessage());
+        }
+    }
+
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (data != null) {
             Uri resultUri = UCrop.getOutput(data);
@@ -740,6 +758,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     }
 
                     WritableMap result = getSelection(activity, resultUri, false);
+                    deleteFile(originalFileToDelete);
 
                     if (result != null) {
                         result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
