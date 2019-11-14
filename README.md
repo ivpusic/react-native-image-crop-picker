@@ -148,6 +148,7 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| recordLowQuality                          |           bool (default false)           | Whether to record video in lower quality. See Android: [EXTRA_VIDEO_QUALITY](https://developer.android.com/reference/android/provider/MediaStore.html#EXTRA_VIDEO_QUALITY), iOS: [UIImagePickerControllerQualityType640x480](https://developer.apple.com/documentation/uikit/uiimagepickercontrollerqualitytype/uiimagepickercontrollerqualitytype640x480?language=objc) Note that for iOS video resolution will be even lower than 640x480 if default MediumQuality compressVideoPreset is set
 
 #### Smart Album Types (ios)
 

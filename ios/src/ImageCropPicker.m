@@ -184,7 +184,13 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 
                 if ([availableTypes containsObject:(NSString *)kUTTypeMovie]) {
                     picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeMovie, nil];
-                    picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
+                    
+                    if ([self.options objectForKey:@"recordLowQuality"]) {
+                        picker.videoQuality = UIImagePickerControllerQualityType640x480;
+                    } else {
+                        picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
+                    }
+                    
                 }
             }
 
