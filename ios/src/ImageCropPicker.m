@@ -5,6 +5,8 @@
 //  Copyright © 2016 Facebook. All rights reserved.
 //
 
+#import <MobileCoreServices/MobileCoreServices.h>
+
 #import "ImageCropPicker.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVAsset.h>
@@ -86,11 +88,15 @@ RCT_EXPORT_MODULE();
                                 @"waitAnimationEnd": @YES,
                                 @"height": @200,
                                 @"useFrontCamera": @NO,
-                                @"compressImageQuality": @1,
+                                @"avoidEmptySpaceAroundImage": @YES,
+                                @"compressImageQuality": @0.8,
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
-                                @"showsSelectedCount": @YES
+                                @"showsSelectedCount": @YES,
+                                @"forceJpg": @NO,
+                                @"cropperCancelText": @"Cancel",
+                                @"cropperChooseText": @"Choose"
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -172,8 +178,18 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         picker.delegate = self;
         picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-        
+
         NSString *mediaType = [self.options objectForKey:@"mediaType"];
+        
+        if ([mediaType isEqualToString:@"video"]) {
+            NSArray *availableTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
+
+            if ([availableTypes containsObject:(NSString *)kUTTypeMovie]) {
+                picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeMovie, nil];
+                picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
+            }
+        }
+
         if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
             picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
         }
@@ -368,6 +384,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                                          @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
                                          @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
                                          };
+                
                 NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
                 for (NSString* smartAlbum in smartAlbums) {
                     if ([albums objectForKey:smartAlbum] != nil) {
@@ -381,17 +398,17 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             } else {
                 NSString *mediaType = [self.options objectForKey:@"mediaType"];
-                
-                if ([mediaType isEqualToString:@"any"]) {
-                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
-                } else if ([mediaType isEqualToString:@"photo"]) {
+
+                if ([mediaType isEqualToString:@"photo"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-                } else {
+                } else if ([mediaType isEqualToString:@"video"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
+                } else {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
                 }
-                
             }
             
+            [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
             [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
         });
     }];
@@ -423,11 +440,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
     imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
-    imageCropVC.avoidEmptySpaceAroundImage = YES;
+    imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"avoidEmptySpaceAroundImage"] boolValue];
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
+    NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
+    NSString *cropperChooseText = [self.options objectForKey:@"cropperChooseText"];
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
+    [imageCropVC.cancelButton setTitle:cropperCancelText forState:UIControlStateNormal];
+    [imageCropVC.chooseButton setTitle:cropperChooseText forState:UIControlStateNormal];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
     });
@@ -482,6 +503,44 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     });
 }
 
+- (void) handleVideo:(AVAsset*)asset withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
+    NSURL *sourceURL = [(AVURLAsset *)asset URL];
+
+    // create temp file
+    NSString *tmpDirFullPath = [self getTmpDirectory];
+    NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
+    filePath = [filePath stringByAppendingString:@".mp4"];
+    NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+
+    [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
+        if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+            AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
+            AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+
+            NSNumber *fileSizeValue = nil;
+            [outputURL getResourceValue:&fileSizeValue
+                                 forKey:NSURLFileSizeKey
+                                  error:nil];
+
+            completion([self createAttachmentResponse:[outputURL absoluteString]
+                                             withExif:nil
+                                        withSourceURL:[sourceURL absoluteString]
+                                  withLocalIdentifier:localIdentifier
+                                         withFilename:fileName
+                                            withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                           withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                             withMime:@"video/mp4"
+                                             withSize:fileSizeValue
+                                             withData:nil
+                                             withRect:CGRectNull
+                                     withCreationDate:nil
+                                 withModificationDate:nil
+                        ]);
+        } else {
+            completion(nil);
+        }
+    }];
+}
 
 
 -(IBAction)btnCancelAction:(id)sender{
@@ -1000,13 +1059,13 @@ static ImageResult * getResizedCompressedImageIfNeedded(ImageCropPicker *object,
 - (void)imageCropViewControllerDidCancelCrop:
 (RSKImageCropViewController *)controller {
     [self dismissCropper:controller selectionDone:NO completion:[self waitAnimationEnd:^{
-        if (self.currentSelectionMode == CROPPING) {
+        if (self.currentSelectionMode != PICKER && (self.currentSelectionMode == CROPPING || [[self.options objectForKey:@"cropping"] boolValue])) {
             self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
         }
     }]];
 }
 
-- (void) dismissCropper:(RSKImageCropViewController*)controller selectionDone:(BOOL)selectionDone completion:(void (^)())completion {
+- (void) dismissCropper:(RSKImageCropViewController*)controller selectionDone:(BOOL)selectionDone completion:(void (^)(void))completion {
     switch (self.currentSelectionMode) {
         case CROPPING:
             [controller dismissViewControllerAnimated:YES completion:completion];
@@ -1033,8 +1092,10 @@ static ImageResult * getResizedCompressedImageIfNeedded(ImageCropPicker *object,
     
     // we have correct rect, but not correct dimensions
     // so resize image
-    CGSize resizedImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue], [[[self options] objectForKey:@"height"] intValue]);
-    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:resizedImageSize scaleIfSmaller:YES];
+    CGSize desiredImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue],
+                                         [[[self options] objectForKey:@"height"] intValue]);
+    
+    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:desiredImageSize scaleIfSmaller:YES];
     ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
     
     NSString *filePath = [self persistFile:imageResult.data];
