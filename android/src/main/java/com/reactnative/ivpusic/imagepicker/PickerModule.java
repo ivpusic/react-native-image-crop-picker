@@ -79,6 +79,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private boolean useFrontCamera = false;
+    private boolean recordLowQuality = false;
     private ReadableMap options;
 
     //Grey 800
@@ -137,6 +138,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
+        recordLowQuality = options.hasKey("recordLowQuality") && options.getBoolean("recordLowQuality");
         this.options = options;
     }
 
@@ -324,6 +326,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
                 cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
                 cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+            }
+
+            if (this.recordLowQuality) {
+                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 0);
             }
 
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
