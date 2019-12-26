@@ -3,6 +3,7 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,11 +14,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
-import android.content.ContentResolver;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -73,6 +74,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean cropperCircleOverlay = false;
     private boolean freeStyleCropEnabled = false;
     private boolean showCropGuidelines = true;
+    private boolean showCropFrame = true;
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
@@ -117,23 +119,24 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
-        multiple = options.hasKey("multiple") ? options.getBoolean("multiple") : false;
-        includeBase64 = options.hasKey("includeBase64") ? options.getBoolean("includeBase64") : false;
-        includeExif = options.hasKey("includeExif") ? options.getBoolean("includeExif") : false;
-        width = options.hasKey("width") ? options.getInt("width") : 200;
-        height = options.hasKey("height") ? options.getInt("height") : 200;
-        cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : false;
+        multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
+        includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
+        width = options.hasKey("width") ? options.getInt("width") : 0;
+        height = options.hasKey("height") ? options.getInt("height") : 0;
+        cropping = options.hasKey("cropping") && options.getBoolean("cropping");
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : DEFAULT_TINT;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
-        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") ? options.getBoolean("cropperCircleOverlay") : false;
-        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") ? options.getBoolean("freeStyleCropEnabled") : false;
-        showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : true;
-        hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : false;
-        enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : false;
-        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") ? options.getBoolean("disableCropperColorSetters") : false;
-        useFrontCamera = options.hasKey("useFrontCamera") ? options.getBoolean("useFrontCamera") : false;
+        cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
+        showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
+        showCropFrame = !options.hasKey("showCropFrame") || options.getBoolean("showCropFrame");
+        hideBottomControls = options.hasKey("hideBottomControls") && options.getBoolean("hideBottomControls");
+        enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
+        useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         this.options = options;
     }
 
@@ -393,8 +396,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, false);
 
-        Uri uri = Uri.parse(options.getString("path"));
-        startCropping(activity, uri);
+        final Uri uri = Uri.parse(options.getString("path"));
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+            @Override
+            public Void call() {
+                startCropping(activity, uri);
+                return null;
+            }
+        });
     }
 
     private String getBase64StringFromFile(String absoluteFilePath) {
@@ -565,7 +574,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(activity, options, path, original);
+        File compressedImage = compression.compressImage(options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -611,13 +620,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
-    private void startCropping(Activity activity, Uri uri) {
+    private void startCropping(final Activity activity, final Uri uri) {
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setFreeStyleCropEnabled(freeStyleCropEnabled);
         options.setShowCropGrid(showCropGuidelines);
+        options.setShowCropFrame(showCropFrame);
         options.setHideBottomControls(hideBottomControls);
         if (cropperToolbarTitle != null) {
             options.setToolbarTitle(cropperToolbarTitle);
@@ -639,7 +649,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 .withOptions(options);
 
         if (width > 0 && height > 0) {
-            uCrop.withMaxResultSize(width, height).withAspectRatio(width, height);
+            uCrop.withAspectRatio(width, height);
         }
 
         uCrop.start(activity);
@@ -721,9 +731,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (data != null) {
-            final Uri resultUri = UCrop.getOutput(data);
+            Uri resultUri = UCrop.getOutput(data);
+
             if (resultUri != null) {
                 try {
+                    if (width > 0 && height > 0) {
+                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                    }
+
                     WritableMap result = getSelection(activity, resultUri, false);
 
                     if (result != null) {

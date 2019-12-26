@@ -12,10 +12,16 @@
 
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
-#import <React/RCTImageLoader.h>
+#import <React/RCTImageURLLoader.h>
+#import <React/RCTImageShadowView.h>
+#import <React/RCTImageView.h>
+#import <React/RCTImageLoaderProtocol.h>
 #else
 #import "RCTBridgeModule.h"
-#import "RCTImageLoader.h"
+#import "RCTImageURLLoader.h"
+#import "RCTImageShadowView.h"
+#import "RCTImageView.h"
+#import "RCTImageLoaderProtocol.h"
 #endif
 
 #if __has_include("QBImagePicker.h")
