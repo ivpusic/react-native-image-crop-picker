@@ -25,7 +25,7 @@ declare module "react-native-image-crop-picker" {
         compressImageMaxHeight?: number;
         compressImageQuality?: number;
         loadingLabelText?: string;
-        mediaType?: 'photo' | 'video';
+        mediaType?: 'photo' | 'video' | 'any';
         showsSelectedCount?: boolean;
         forceJpg?: boolean;
         showCropGuidelines?: boolean;
@@ -33,6 +33,7 @@ declare module "react-native-image-crop-picker" {
         enableRotationGesture?: boolean;
         cropperCancelText?: string;
         cropperChooseText?: string;
+        writeTempFile: boolean;
     }
 
     export interface Image {
