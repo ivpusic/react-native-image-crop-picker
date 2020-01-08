@@ -64,6 +64,15 @@ class Compression {
         original.recycle();
         resized.recycle();
 
+        try {
+            File originalFile = new File(originalImagePath);
+            if (!originalFile.exists()) throw new Exception("File does not exist");
+
+            originalFile.delete()
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         return resizeImageFile;
     }
 
