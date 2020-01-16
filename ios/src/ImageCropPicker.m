@@ -411,8 +411,17 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"avoidEmptySpaceAroundImage"] boolValue];
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
-    NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
-    NSString *cropperChooseText = [self.options objectForKey:@"cropperChooseText"];
+    
+    NSShadow *shadow = [[NSShadow alloc] init];
+    shadow.shadowColor = [UIColor darkGrayColor];
+    shadow.shadowOffset = CGSizeMake(1, 1);
+    shadow.shadowBlurRadius = 1;
+    
+    NSString *cancelTitle = [self.options objectForKey:@"cropperCancelText"];
+    NSString *chooseTitle = [self.options objectForKey:@"cropperChooseText"];
+    NSAttributedString *cropperChooseText = [[NSAttributedString alloc] initWithString:chooseTitle attributes:@{NSShadowAttributeName:shadow, NSForegroundColorAttributeName : [UIColor whiteColor]}];
+    NSAttributedString *cropperCancelText = [[NSAttributedString alloc] initWithString:cancelTitle attributes:@{NSShadowAttributeName:shadow, NSForegroundColorAttributeName : [UIColor whiteColor]}];
+    
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
     [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
     [imageCropVC.cancelButton setTitle:cropperCancelText forState:UIControlStateNormal];
