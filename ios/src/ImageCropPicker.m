@@ -91,6 +91,7 @@ RCT_EXPORT_MODULE();
                                 @"mediaType": @"any",
                                 @"showsSelectedCount": @YES,
                                 @"forceJpg": @NO,
+                                @"sortOrder": @"none",
                                 @"cropperCancelText": @"Cancel",
                                 @"cropperChooseText": @"Choose"
                                 };
@@ -319,6 +320,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
             imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
             imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
+            imagePickerController.sortOrder = [self.options objectForKey:@"sortOrder"];
             
             NSArray *smartAlbums = [self.options objectForKey:@"smartAlbums"];
             if (smartAlbums != nil) {
