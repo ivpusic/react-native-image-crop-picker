@@ -28,6 +28,7 @@ declare module "react-native-image-crop-picker" {
         mediaType?: 'photo' | 'video' | 'any';
         showsSelectedCount?: boolean;
         forceJpg?: boolean;
+        sortOrder?: 'none' | 'asc' | 'desc';
         showCropGuidelines?: boolean;
         hideBottomControls?: boolean;
         enableRotationGesture?: boolean;

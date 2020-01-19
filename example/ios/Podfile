@@ -34,5 +34,7 @@ target 'example' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
+
   use_native_modules!
 end

@@ -223,7 +223,7 @@ PODS:
     - React-cxxreact (= 0.61.2)
     - React-jsi (= 0.61.2)
     - ReactCommon/jscallinvoker (= 0.61.2)
-  - RNImageCropPicker (0.25.3):
+  - RNImageCropPicker (0.26.3):
     - QBImagePickerController
     - React-Core
     - React-RCTImage
@@ -237,6 +237,7 @@ DEPENDENCIES:
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - QBImagePickerController (from `../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -266,7 +267,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - boost-for-react-native
-    - QBImagePickerController
     - RSKImageCropper
 
 EXTERNAL SOURCES:
@@ -280,6 +280,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  QBImagePickerController:
+    :path: "../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
   RCTTypeSafety:
@@ -353,10 +355,10 @@ SPEC CHECKSUMS:
   React-RCTText: e3ef6191cdb627855ff7fe8fa0c1e14094967fb8
   React-RCTVibration: fb54c732fd20405a76598e431aa2f8c2bf527de9
   ReactCommon: 5848032ed2f274fcb40f6b9ec24067787c42d479
-  RNImageCropPicker: bfb3ea9c8622f290532e2fe63f369e0d5a52f597
+  RNImageCropPicker: 8a993e3b6730f7e0d723b4dc5984907ac332f5d4
   RSKImageCropper: a446db0e8444a036b34f3c43db01b2373baa4b2a
   Yoga: 14927e37bd25376d216b150ab2a561773d57911f
 
-PODFILE CHECKSUM: 61ffb4ec62885bf26d3320925ac20ddbefc82e79
+PODFILE CHECKSUM: 39fe1408e793fbdebf591bcd10d0013cb2170da9
 
 COCOAPODS: 1.8.3

@@ -113,6 +113,7 @@ export default class App extends Component {
       height: 500,
       cropping: cropit,
       cropperCircleOverlay: circular,
+      sortOrder: 'none',
       compressImageMaxWidth: 1000,
       compressImageMaxHeight: 1000,
       compressImageQuality: 1,
@@ -134,6 +135,7 @@ export default class App extends Component {
     ImagePicker.openPicker({
       multiple: true,
       waitAnimationEnd: false,
+      sortOrder: 'desc',
       includeExif: true,
       forceJpg: true,
     }).then(images => {
