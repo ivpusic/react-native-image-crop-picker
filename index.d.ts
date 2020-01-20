@@ -35,6 +35,7 @@ declare module "react-native-image-crop-picker" {
         cropperCancelText?: string;
         cropperChooseText?: string;
         writeTempFile?: boolean;
+        imageOutput?: 'jpg' | 'png' | 'webp'
     }
 
     export interface Image {
