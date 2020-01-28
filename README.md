@@ -197,14 +197,6 @@ pod install
 
 After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
 
-##### Using local QBImagePicker
-
-Add following to your Podfile:
-
-```
-pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
-```
-
 #### - If you are not using Cocoapods which is not recommended:
 
 ```bash

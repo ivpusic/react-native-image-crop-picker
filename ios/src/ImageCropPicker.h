@@ -30,7 +30,11 @@
 #elif __has_include(<QBImagePickerController/QBImagePickerController.h>)
 #import <QBImagePickerController/QBImagePickerController.h>
 #import <RSKImageCropper/RSKImageCropper.h>
+#elif __has_include("QBImagePickerController.h") // local QBImagePickerController subspec
+#import "QBImagePickerController.h"
+#import <RSKImageCropper/RSKImageCropper.h>
 #else
+#import
 #import "QBImagePicker/QBImagePicker.h"
 #import <RSKImageCropper/RSKImageCropper.h>
 #endif
