@@ -59,6 +59,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private static final String E_CALLBACK_ERROR = "E_CALLBACK_ERROR";
     private static final String E_FAILED_TO_SHOW_PICKER = "E_FAILED_TO_SHOW_PICKER";
+    private static final String E_PICTURE_2_COMPRESS_NOT_FOUND = "E_PICTURE_2_COMPRESS_NOT_FOUND";
+    private static final String PROBLEM_2_COMPRESS = "PROBLEM_2_COMPRESS";
+
     private static final String E_FAILED_TO_OPEN_CAMERA = "E_FAILED_TO_OPEN_CAMERA";
     private static final String E_NO_IMAGE_DATA_FOUND = "E_NO_IMAGE_DATA_FOUND";
     private static final String E_CAMERA_IS_NOT_AVAILABLE = "E_CAMERA_IS_NOT_AVAILABLE";
@@ -71,6 +74,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean includeBase64 = false;
     private boolean includeExif = false;
     private boolean cropping = false;
+    private String picturesPath = "";
+    private String pictureToCompress = null;
     private boolean cropperCircleOverlay = false;
     private boolean freeStyleCropEnabled = false;
     private boolean showCropGuidelines = true;
@@ -137,6 +142,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
+        picturesPath = options.hasKey("directory") != null ? options.hasKey("directory") : "" ;
+        pictureToCompress = options.get("pictureToCompress");
+        if ("".equals(picturesPath) && !picturesPath.startsWith("/")){
+            picturesPath += "/";
+        }
         this.options = options;
     }
 
@@ -326,11 +336,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
             }
 
-            if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
-                resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
-                return;
-            }
-
             activity.startActivityForResult(cameraIntent, CAMERA_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
@@ -360,6 +365,41 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
+        }
+    }
+
+    @ReactMethod
+    public void compressImage(final ReadableMap options, final Promise promise) {
+        final Activity activity = getCurrentActivity();
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+        setConfiguration(options);
+        if (pictureToCompress != null){
+            try {
+                BitmapFactory.Options original = validateImage(pictureToCompress);
+                File compressedImage = compression.compressImage(options, pictureToCompress, original);
+                String compressedImagePath = compressedImage.getPath();
+                BitmapFactory.Options options = validateImage(compressedImagePath);
+                long modificationDate = new File(path).lastModified();
+
+                image.putString("path", "file://" + compressedImagePath);
+                image.putInt("width", options.outWidth);
+                image.putInt("height", options.outHeight);
+                image.putString("mime", options.outMimeType);
+                image.putInt("size", (int) new File(compressedImagePath).length());
+                image.putString("modificationDate", String.valueOf(modificationDate));
+
+                if (includeBase64) {
+                    image.putString("data", getBase64StringFromFile(compressedImagePath));
+                }
+                resultCollector.notifySuccess(image);
+            } catch(Exception e){
+                resultCollector.notifyProblem(PROBLEM_2_COMPRESS, e);
+            }
+        } else {
+            resultCollector.notifyProblem(E_PICTURE_2_COMPRESS_NOT_FOUND, "Image to compress not found.");
         }
     }
 
@@ -645,7 +685,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         UCrop uCrop = UCrop
-                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + "-cameraFile.jpg")))
                 .withOptions(options);
 
         if (width > 0 && height > 0) {
@@ -784,7 +824,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+                Environment.DIRECTORY_PICTURES + picturesPath);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -803,7 +843,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String videoFileName = "video-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+                Environment.DIRECTORY_PICTURES + picturesPath);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();

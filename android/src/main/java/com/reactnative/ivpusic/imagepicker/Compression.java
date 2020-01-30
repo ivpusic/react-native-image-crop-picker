@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
+import java.nio.file.Files;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -28,7 +29,10 @@ class Compression {
 
     File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
-
+        String picturesPath = options.hasKey("directory") != null ? options.hasKey("directory") : "" ;
+        if ("".equals(picturesPath) && !picturesPath.startsWith("/")){
+            picturesPath += "/";
+        }
         int width = original.getWidth();
         int height = original.getHeight();
 
@@ -56,14 +60,18 @@ class Compression {
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
         
         File imageDirectory = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+                Environment.DIRECTORY_PICTURES + picturesPath);
 
         if(!imageDirectory.exists()) {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
             imageDirectory.mkdirs();
         }
 
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        String randomUUID = UUID.randomUUID().toString();
+        File resizeImageFile = new File(imageDirectory, randomUUID + "-compressed.jpg");
+        File originalImageFile = new File(imageDirectory, randomUUID + "-original.jpg");
+        File originalCacheFile = new File(originalImagePath);
+        Files.copy(originalCacheFile.toPath(), originalImageFile.toPath());
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
