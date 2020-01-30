@@ -29,7 +29,7 @@ class Compression {
 
     File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
-        String picturesPath = options.hasKey("directory") != null ? options.hasKey("directory") : "" ;
+        String picturesPath = options.hasKey("directory") ? options.getString("directory") : "" ;
         if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
             picturesPath += "/";
         }
@@ -131,7 +131,7 @@ class Compression {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
 
-        return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
+        return resize(originalImagePath, maxWidth, maxHeight, targetQuality, options);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {

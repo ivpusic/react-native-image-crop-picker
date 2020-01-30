@@ -142,8 +142,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
-        picturesPath = options.hasKey("directory") != null ? options.hasKey("directory") : "" ;
-        pictureToCompress = options.get("pictureToCompress");
+        picturesPath = options.hasKey("directory") ? options.getString("directory") : "" ;
+        pictureToCompress = options.getString("pictureToCompress");
         if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
             picturesPath += "/";
         }
@@ -370,6 +370,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void compressImage(final ReadableMap options, final Promise promise) {
+        WritableMap image = new WritableNativeMap();
         final Activity activity = getCurrentActivity();
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -381,13 +382,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 BitmapFactory.Options original = validateImage(pictureToCompress);
                 File compressedImage = compression.compressImage(options, pictureToCompress, original);
                 String compressedImagePath = compressedImage.getPath();
-                BitmapFactory.Options options = validateImage(compressedImagePath);
-                long modificationDate = new File(path).lastModified();
+                BitmapFactory.Options bmpOptions = validateImage(compressedImagePath);
+                long modificationDate = new File(compressedImagePath).lastModified();
 
                 image.putString("path", "file://" + compressedImagePath);
-                image.putInt("width", options.outWidth);
-                image.putInt("height", options.outHeight);
-                image.putString("mime", options.outMimeType);
+                image.putInt("width", bmpOptions.outWidth);
+                image.putInt("height", bmpOptions.outHeight);
+                image.putString("mime", bmpOptions.outMimeType);
                 image.putInt("size", (int) new File(compressedImagePath).length());
                 image.putString("modificationDate", String.valueOf(modificationDate));
 
@@ -396,7 +397,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }
                 resultCollector.notifySuccess(image);
             } catch(Exception e){
-                resultCollector.notifyProblem(PROBLEM_2_COMPRESS, e);
+                resultCollector.notifyProblem(PROBLEM_2_COMPRESS, "Error.");
             }
         } else {
             resultCollector.notifyProblem(E_PICTURE_2_COMPRESS_NOT_FOUND, "Image to compress not found.");
@@ -614,7 +615,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(options, path, original);
+        File opedImage = compression.compressImage(options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
