@@ -11,6 +11,7 @@ import android.util.Log;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -71,7 +72,7 @@ class Compression {
         File resizeImageFile = new File(imageDirectory, randomUUID + "-compressed.jpg");
         File originalImageFile = new File(imageDirectory, randomUUID + "-original.jpg");
         File originalCacheFile = new File(originalImagePath);
-        Files.copy(originalCacheFile.toPath(), originalImageFile.toPath());
+        Files.move(originalCacheFile.toPath(), originalImageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
