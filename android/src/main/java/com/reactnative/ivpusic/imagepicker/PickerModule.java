@@ -777,7 +777,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100, options));
                     }
 
                     WritableMap result = getSelection(activity, resultUri, false);
