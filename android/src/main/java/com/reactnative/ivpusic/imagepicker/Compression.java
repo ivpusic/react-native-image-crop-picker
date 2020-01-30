@@ -30,7 +30,7 @@ class Compression {
     File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
         String picturesPath = options.hasKey("directory") != null ? options.hasKey("directory") : "" ;
-        if ("".equals(picturesPath) && !picturesPath.startsWith("/")){
+        if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
             picturesPath += "/";
         }
         int width = original.getWidth();

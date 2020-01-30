@@ -144,7 +144,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         picturesPath = options.hasKey("directory") != null ? options.hasKey("directory") : "" ;
         pictureToCompress = options.get("pictureToCompress");
-        if ("".equals(picturesPath) && !picturesPath.startsWith("/")){
+        if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
             picturesPath += "/";
         }
         this.options = options;
