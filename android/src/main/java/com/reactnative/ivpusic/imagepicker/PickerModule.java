@@ -825,7 +825,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + picturesPath);
+                Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
