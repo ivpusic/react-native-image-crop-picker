@@ -143,7 +143,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         picturesPath = options.hasKey("directory") ? options.getString("directory") : "" ;
-        pictureToCompress = options.getString("pictureToCompress");
+        pictureToCompress = options.hasKey("pictureToCompress") ? options.getString("pictureToCompress") : null;
         if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
             picturesPath += "/";
         }
