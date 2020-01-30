@@ -27,7 +27,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality, final ReadableMap options) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
         String picturesPath = options.hasKey("directory") ? options.getString("directory") : "" ;
         if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
