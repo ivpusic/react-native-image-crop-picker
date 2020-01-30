@@ -26,7 +26,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality, String outputFormat) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
         int width = original.getWidth();
@@ -63,10 +63,11 @@ class Compression {
             imageDirectory.mkdirs();
         }
 
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + "." + outputFormat);
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        Bitmap.CompressFormat compressFormat = getCompressFormat(outputFormat);
+        resized.compress(compressFormat, quality, os);
 
         os.close();
         original.recycle();
@@ -92,6 +93,7 @@ class Compression {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
+        String outputFormat = options.hasKey("imageOutputFormat") ? options.getString("imageOutputFormat") : "jpg";
 
         boolean isLossLess = (quality == null || quality == 1.0);
         boolean useOriginalWidth = (maxWidth == null || maxWidth >= bitmapOptions.outWidth);
@@ -123,12 +125,19 @@ class Compression {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
 
-        return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
+        return resize(originalImagePath, maxWidth, maxHeight, targetQuality, outputFormat);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
         // todo: video compression
         // failed attempt 1: ffmpeg => slow and licensing issues
         promise.resolve(originalVideo);
+    }
+
+    Bitmap.CompressFormat getCompressFormat(String format){
+        if (format.equals("png")){
+            return Bitmap.CompressFormat.PNG;
+        }
+        return Bitmap.CompressFormat.JPEG;
     }
 }

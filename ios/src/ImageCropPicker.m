@@ -93,7 +93,8 @@ RCT_EXPORT_MODULE();
                                 @"forceJpg": @NO,
                                 @"sortOrder": @"none",
                                 @"cropperCancelText": @"Cancel",
-                                @"cropperChooseText": @"Choose"
+                                @"cropperChooseText": @"Choose",
+                                @"imageOutputFormat": @"jpg"
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -936,7 +937,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-    filePath = [filePath stringByAppendingString:@".jpg"];
+    NSString *imageOutputFormat = [@"." stringByAppendingString:[self.options objectForKey:@"imageOutputFormat"]];
+    filePath = [filePath stringByAppendingString:imageOutputFormat];
 
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];

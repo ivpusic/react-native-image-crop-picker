@@ -26,11 +26,13 @@
 
 @interface Compression : NSObject
 
-- (ImageResult*) compressImage:(UIImage*)image withOptions:(NSDictionary*)options;
-- (void)compressVideo:(NSURL*)inputURL
-            outputURL:(NSURL*)outputURL
-          withOptions:(NSDictionary*)options
-              handler:(void (^)(AVAssetExportSession*))handler;
+- (NSString *)determineMimeTypeFromOutputFormat:(NSString *)outputFormat;
+- (NSData *)convertImageToOutputFormat:(UIImage *)image outputFormat:(NSString *)outputFormat compressQuality:(NSNumber *)compressQuality;
+- (ImageResult *)compressImage:(UIImage *)image withOptions:(NSDictionary *)options;
+- (void)compressVideo:(NSURL *)inputURL
+            outputURL:(NSURL *)outputURL
+          withOptions:(NSDictionary *)options
+              handler:(void (^)(AVAssetExportSession *))handler;
 
 @property NSDictionary *exportPresets;
 
