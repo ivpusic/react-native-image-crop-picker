@@ -419,6 +419,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
+        if (this.pictureToCompress != null){
+            compressImage(options, promise);
+            return;
+        }
+
         final Activity activity = getCurrentActivity();
 
         if (activity == null) {
