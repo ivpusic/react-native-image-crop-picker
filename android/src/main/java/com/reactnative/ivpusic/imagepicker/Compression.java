@@ -26,7 +26,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality, boolean forceJpg) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
         int width = original.getWidth();
@@ -62,11 +62,13 @@ class Compression {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
             imageDirectory.mkdirs();
         }
+        String fileExtension = forceJpg ? ".jpg" : originalImagePath.substring(originalImagePath.lastIndexOf("."));
 
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + fileExtension);
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        Bitmap.CompressFormat compressFormat = determineCompressionFromFileExtension(fileExtension);
+        resized.compress(compressFormat, quality, os);
 
         os.close();
         original.recycle();
@@ -123,12 +125,21 @@ class Compression {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
 
-        return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
+        Boolean forceJpg = options.hasKey("forceJpg") ? options.getBoolean("forceJpg") : false;
+
+        return resize(originalImagePath, maxWidth, maxHeight, targetQuality, forceJpg);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
         // todo: video compression
         // failed attempt 1: ffmpeg => slow and licensing issues
         promise.resolve(originalVideo);
+    }
+
+    Bitmap.CompressFormat determineCompressionFromFileExtension(String extension){
+        if (extension.equals(".png")){
+            return Bitmap.CompressFormat.PNG;
+        }
+        return Bitmap.CompressFormat.JPEG;
     }
 }

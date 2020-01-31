@@ -64,17 +64,26 @@
     return result;
 }
 
+- (NSData *)convertImageToOutputFormat:(UIImage*)image mimeType:(NSString*)mime compressQuality:(NSNumber *)compressQuality {
+    if ([mime isEqual: @"image/png"]) {
+        return UIImagePNGRepresentation(image);
+    }
+    return UIImageJPEGRepresentation(image, [compressQuality floatValue]);
+}
+
 - (ImageResult*) compressImage:(UIImage*)image
-                   withOptions:(NSDictionary*)options {
+                   withOptions:(NSDictionary*)options
+                      mimeType:(NSString*)mime {
     
     ImageResult *result = [[ImageResult alloc] init];
     result.width = @(image.size.width);
     result.height = @(image.size.height);
     result.image = image;
-    result.mime = @"image/jpeg";
     
     NSNumber *compressImageMaxWidth = [options valueForKey:@"compressImageMaxWidth"];
     NSNumber *compressImageMaxHeight = [options valueForKey:@"compressImageMaxHeight"];
+
+    result.mime = mime;
     
     // determine if it is necessary to resize image
     BOOL shouldResizeWidth = (compressImageMaxWidth != nil && [compressImageMaxWidth floatValue] < image.size.width);
@@ -96,8 +105,8 @@
         compressQuality = [NSNumber numberWithFloat:0.8];
     }
     
-    // convert image to jpeg representation
-    result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
+    // convert image to output format representation
+    result.data = [self convertImageToOutputFormat:result.image mimeType:mime compressQuality:compressQuality];
     
     return result;
 }
