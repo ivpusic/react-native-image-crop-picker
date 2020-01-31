@@ -383,9 +383,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             pictureToCompress = Environment.DIRECTORY_PICTURES + picturesPath + pictureToCompress;
             File f = Environment.getExternalStoragePublicDirectory(
                     pictureToCompress);
-            pictureToCompress = f.getPath();
             try {
-                BitmapFactory.Options original = validateImage(pictureToCompress);
+                BitmapFactory.Options original = validateImage(f.getPath());
                 File compressedImage = compression.compressImage(options, pictureToCompress, original);
                 String compressedImagePath = compressedImage.getPath();
                 BitmapFactory.Options bmpOptions = validateImage(compressedImagePath);
@@ -609,15 +608,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.inJustDecodeBounds = true;
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         options.inDither = true;
-
-        File f = Environment.getExternalStoragePublicDirectory(
-                path);
-        if ( !f.exists() ){
-            throw new Exception(" File not found: " + f.getPath());
-        }
-
-        BitmapFactory.decodeFile(f.getPath(), options);
-
+        BitmapFactory.decodeFile(path, options);
         if (options.outMimeType == null || options.outWidth == 0 || options.outHeight == 0) {
             throw new Exception("Invalid image selected" + options.outMimeType + " :: " + options.outWidth + " :: " + options.outHeight + " :: " + path);
         }
