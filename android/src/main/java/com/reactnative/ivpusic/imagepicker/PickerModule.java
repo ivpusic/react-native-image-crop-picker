@@ -409,13 +409,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } catch(Exception e){
                 Log.d("image-crop-picker", "Works 10");
                 resultCollector.notifyProblem(PROBLEM_2_COMPRESS, "Error.");
-                promise.reject(PROBLEM_2_COMPRESS, "Error");
+                promise.reject(PROBLEM_2_COMPRESS, "Error  1 " + e.getMessage());
                 Log.d("image-crop-picker", "Works 11");
             }
         } else {
             Log.d("image-crop-picker", "Works 12");
             resultCollector.notifyProblem(E_PICTURE_2_COMPRESS_NOT_FOUND, "Image to compress not found.");
-            promise.reject(E_PICTURE_2_COMPRESS_NOT_FOUND, "Error");
+            promise.reject(E_PICTURE_2_COMPRESS_NOT_FOUND, "Error 2");
             Log.d("image-crop-picker", "Works 13s");
         }
     }
