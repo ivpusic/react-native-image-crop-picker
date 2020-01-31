@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -370,37 +371,52 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void compressImage(final ReadableMap options, final Promise promise) {
+        Log.d("image-crop-picker", "Works 1");
         WritableMap image = new WritableNativeMap();
         final Activity activity = getCurrentActivity();
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
             return;
         }
+        Log.d("image-crop-picker", "Works 2");
+        resultCollector.setup(promise, multiple);
         setConfiguration(options);
+        Log.d("image-crop-picker", "Works 3 " + pictureToCompress);
         if (pictureToCompress != null){
+            Log.d("image-crop-picker", "Works 4");
             try {
+                Log.d("image-crop-picker", "Works 5");
                 BitmapFactory.Options original = validateImage(pictureToCompress);
                 File compressedImage = compression.compressImage(options, pictureToCompress, original);
                 String compressedImagePath = compressedImage.getPath();
                 BitmapFactory.Options bmpOptions = validateImage(compressedImagePath);
                 long modificationDate = new File(compressedImagePath).lastModified();
-
+                Log.d("image-crop-picker", "Works 6");
                 image.putString("path", "file://" + compressedImagePath);
                 image.putInt("width", bmpOptions.outWidth);
                 image.putInt("height", bmpOptions.outHeight);
                 image.putString("mime", bmpOptions.outMimeType);
                 image.putInt("size", (int) new File(compressedImagePath).length());
                 image.putString("modificationDate", String.valueOf(modificationDate));
-
+                Log.d("image-crop-picker", "Works 7");
                 if (includeBase64) {
                     image.putString("data", getBase64StringFromFile(compressedImagePath));
                 }
+                Log.d("image-crop-picker", "Works 8");
                 resultCollector.notifySuccess(image);
+                promise.resolve(null);
+                Log.d("image-crop-picker", "Works 9");
             } catch(Exception e){
+                Log.d("image-crop-picker", "Works 10");
                 resultCollector.notifyProblem(PROBLEM_2_COMPRESS, "Error.");
+                promise.reject(PROBLEM_2_COMPRESS, "Error");
+                Log.d("image-crop-picker", "Works 11");
             }
         } else {
+            Log.d("image-crop-picker", "Works 12");
             resultCollector.notifyProblem(E_PICTURE_2_COMPRESS_NOT_FOUND, "Image to compress not found.");
+            promise.reject(E_PICTURE_2_COMPRESS_NOT_FOUND, "Error");
+            Log.d("image-crop-picker", "Works 13s");
         }
     }
 
