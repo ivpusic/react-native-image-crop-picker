@@ -377,10 +377,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
             return;
         }
-        promise.reject(E_PICTURE_2_COMPRESS_NOT_FOUND, "No sirve... 2");
         resultCollector.setup(promise, multiple);
         setConfiguration(options);
         if (pictureToCompress != null){
+            pictureToCompress = Environment.DIRECTORY_PICTURES + picturesPath + File.separator + pictureToCompress;
             try {
                 BitmapFactory.Options original = validateImage(pictureToCompress);
                 File compressedImage = compression.compressImage(options, pictureToCompress, original);
@@ -403,7 +403,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 promise.resolve(null);
 
             } catch(Exception e){
-
+                promise.reject(E_PICTURE_2_COMPRESS_NOT_FOUND, "No sirve... X "  + e.getMessage());
                 resultCollector.notifyProblem(PROBLEM_2_COMPRESS, "Error.");
                 promise.reject(PROBLEM_2_COMPRESS, "Error  1 " + e.getMessage());
 
@@ -610,7 +610,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         BitmapFactory.decodeFile(path, options);
 
         if (options.outMimeType == null || options.outWidth == 0 || options.outHeight == 0) {
-            throw new Exception("Invalid image selected");
+            throw new Exception("Invalid image selected" + options.outMimeType + " :: " + options.outWidth + " :: " + options.outHeight + " :: " + path);
         }
 
         return options;
