@@ -371,7 +371,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void compressImage(final ReadableMap options, final Promise promise) {
+        promise.reject(E_PICTURE_2_COMPRESS_NOT_FOUND, "No sirve....");
         Log.d("image-crop-picker", "Works 1");
+
         WritableMap image = new WritableNativeMap();
         final Activity activity = getCurrentActivity();
         if (activity == null) {
