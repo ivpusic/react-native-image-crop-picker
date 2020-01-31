@@ -419,8 +419,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
+        setConfiguration(options);
         if (this.pictureToCompress != null){
-            setConfiguration(options);
             compressImage(options, promise);
             return;
         }
@@ -432,7 +432,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
