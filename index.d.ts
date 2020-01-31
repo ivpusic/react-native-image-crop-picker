@@ -62,7 +62,6 @@ declare module "react-native-image-crop-picker" {
     }
 
     export function openPicker(options: Options): Promise<Image | Image[]>;
-    export function compressImage(options: Options): Promise<Image | Image[]>;
     export function openCamera(options: Options): Promise<Image | Image[]>;
     export function openCropper(options: Options): Promise<Image>;
     export function clean(): Promise<void>;
@@ -70,7 +69,6 @@ declare module "react-native-image-crop-picker" {
 
     export interface ImageCropPicker {
         openPicker(options: Options): Promise<Image | Image[]>;
-        compressImage(options: Options): Promise<Image | Image[]>;
         openCamera(options: Options): Promise<Image | Image[]>;
         openCropper(options: Options): Promise<Image>;
         clean(): Promise<void>;
