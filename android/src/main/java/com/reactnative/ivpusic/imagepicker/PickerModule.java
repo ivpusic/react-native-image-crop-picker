@@ -608,7 +608,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.inDither = true;
 
         BitmapFactory.decodeFile(path, options);
-        File f = new File(path);
+        File f = Environment.getExternalStoragePublicDirectory(
+                path);
         if ( !f.exists() ){
             throw new Exception(" File not found: " + f.getPath());
         }
