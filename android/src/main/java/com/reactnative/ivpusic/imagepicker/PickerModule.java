@@ -378,7 +378,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
         resultCollector.setup(promise, multiple);
-        setConfiguration(options);
+        //setConfiguration(options);
         if (pictureToCompress != null){
             pictureToCompress = Environment.DIRECTORY_PICTURES + picturesPath + pictureToCompress;
             File f = Environment.getExternalStoragePublicDirectory(
@@ -420,6 +420,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
         if (this.pictureToCompress != null){
+            setConfiguration(options);
             compressImage(options, promise);
             return;
         }
