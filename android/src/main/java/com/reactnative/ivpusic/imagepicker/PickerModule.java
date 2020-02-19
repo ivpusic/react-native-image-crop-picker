@@ -779,7 +779,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     if (result != null) {
                         resultCollector.notifySuccess(result);
                     }
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
             }
