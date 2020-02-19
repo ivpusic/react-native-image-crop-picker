@@ -75,7 +75,7 @@ class Compression {
         File resizeImageFile = new File(imageDirectory, randomUUID + "-compressed.jpg");
         File originalImageFile = new File(imageDirectory, randomUUID + "-original.jpg");
         File originalCacheFile = new File(originalImagePath);
-        Files.move(FileSystems.getDefault().getPath(originalCacheFile.getPath()), FileSystems.getDefault().getPath(originalImageFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+        Files.move(Paths.get(originalCacheFile.getPath()), Paths.get(originalImageFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
 
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
