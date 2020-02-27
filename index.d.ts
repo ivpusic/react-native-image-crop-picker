@@ -87,7 +87,7 @@ declare module "react-native-image-crop-picker" {
         writeTempFile?: boolean;
     }
 
-    export interface Image {
+    interface ImageVideoCommon {
         path: string;
         size: number;
         data: null | string;
@@ -95,12 +95,29 @@ declare module "react-native-image-crop-picker" {
         height: number;
         mime: string;
         exif: null | object;
-        cropRect: null | CropRect;
         filename: string;
         creationDate: string;
         modificationDate?: string;
         duration: null | number;
     }
+
+    export interface Image extends ImageVideoCommon {
+        data: null | string;
+        cropRect: null | CropRect;
+    }
+
+    export interface Video extends ImageVideoCommon {
+      /** Video duration in milliseconds */
+      duration: null | number;
+
+      /** Video framerate, rounded to whole number on Android */
+      framerate?: null | number;
+
+      /** Estimated video bitrate in bits-per-second */
+      bitrate?: null | number;
+    }
+
+    export type ImageOrVideo = Image | Video;
 
     export interface CropRect {
         x: number;
@@ -139,8 +156,8 @@ declare module "react-native-image-crop-picker" {
     export function cleanSingle(path: string): Promise<void>;
 
     export interface ImageCropPicker {
-        openPicker(options: Options): Promise<Image | Image[]>;
-        openCamera(options: Options): Promise<Image | Image[]>;
+        openPicker(options: Options): Promise<ImageOrVideo | ImageOrVideo[]>;
+        openCamera(options: Options): Promise<ImageOrVideo | ImageOrVideo[]>;
         openCropper(options: Options): Promise<Image>;
         clean(): Promise<void>;
         cleanSingle(path: string): Promise<void>;
