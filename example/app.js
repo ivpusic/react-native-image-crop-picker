@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Alert,
-  Image, TouchableOpacity, NativeModules, Dimensions
+  Image, TouchableOpacity, NativeModules, Dimensions, Platform
 } from 'react-native';
 
 import Video from 'react-native-video';
@@ -132,6 +132,11 @@ export default class App extends Component {
   }
 
   pickMultiple() {
+    if(Platform.OS === "ios") {
+      ImagePicker.setOnExceedMaxFiles(()=>{
+        alert("OMG")
+      })
+    }
     ImagePicker.openPicker({
       multiple: true,
       waitAnimationEnd: false,
