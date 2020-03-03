@@ -61,6 +61,10 @@
 }
 @end
 
+@interface ImageCropPicker ()
+@property (nonatomic, nullable) RCTResponseSenderBlock *onExceedMaxFiles;
+@end
+    
 @implementation ImageCropPicker
 
 RCT_EXPORT_MODULE();
@@ -300,8 +304,9 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-
+                  rejecter:(RCTPromiseRejectBlock)reject
+                 onExceedMaxFiles: (RCTResponseSenderBlock)callback) {
+    self.onExceedMaxFiles = callback;
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
 
@@ -553,6 +558,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             return @"image/tiff";
     }
     return @"";
+}
+
+-(BOOL)qb_imagePickerController:(QBImagePickerController *)imagePickerController shouldSelectAsset:(PHAsset *)asset {
+    if(imagePickerController.allowsMultipleSelection) {
+        if(imagePickerController.maximumNumberOfSelection > imagePickerController.selectedAssets.count) {
+            return YES;
+        } else {
+            // exceed max number
+            if(self.onExceedMaxFiles != nil) {
+                onExceedMaxFiles(@[[NSNull null]]);
+            }
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (void)qb_imagePickerController:
