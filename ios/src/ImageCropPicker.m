@@ -6,7 +6,6 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
-
 #import "ImageCropPicker.h"
 
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
@@ -60,16 +59,13 @@
     return self._moveAndScaleLabel;
 }
 @end
-
-@interface ImageCropPicker ()
-@property (nonatomic, nullable) RCTResponseSenderBlock _onExceedMaxFiles;
-@end
     
 @implementation ImageCropPicker
+{
+  bool hasListeners;
+}
 
 RCT_EXPORT_MODULE();
-
-@synthesize bridge = _bridge;
 
 - (instancetype)init
 {
@@ -300,11 +296,6 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
     } else {
         resolve(nil);
     }
-}
-
-RCT_EXPORT_METHOD(setOnExceedMaxFiles:(RCTResponseSenderBlock)callback)
-{
-    self._onExceedMaxFiles = callback;
 }
 
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
@@ -570,9 +561,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             return YES;
         } else {
             // exceed max number
-            if(self._onExceedMaxFiles != nil) {
-                self._onExceedMaxFiles(@[[NSNull null]]);
-            }
+             if (hasListeners) { // Only send events if anyone is listening
+               [self sendEventWithName:@"onExceedMaxFiles" body:@{}];
+             }
             return NO;
         }
     }
@@ -989,6 +980,25 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"width": [NSNumber numberWithFloat: CGRectGetWidth(rect)],
              @"height": [NSNumber numberWithFloat: CGRectGetHeight(rect)]
              };
+}
+
+#pragma mark - RCTEventEmitter
+- (NSArray<NSString *> *)supportedEvents
+{
+  return @[@"onExceedMaxFiles"];
+}
+
+
+// Will be called when this module's first listener is added.
+-(void)startObserving {
+    hasListeners = YES;
+    // Set up any upstream listeners or background tasks as necessary
+}
+
+// Will be called when this module's last listener is removed, or on dealloc.
+-(void)stopObserving {
+    hasListeners = NO;
+    // Remove upstream listeners, stop unnecessary background tasks
 }
 
 @end
