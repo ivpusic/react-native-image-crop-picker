@@ -62,7 +62,7 @@
 @end
 
 @interface ImageCropPicker ()
-@property (nonatomic, nullable) RCTResponseSenderBlock *onExceedMaxFiles;
+@property (nonatomic, nullable) RCTResponseSenderBlock _onExceedMaxFiles;
 @end
     
 @implementation ImageCropPicker
@@ -302,11 +302,15 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
     }
 }
 
+RCT_EXPORT_METHOD(setOnExceedMaxFiles:(RCTResponseSenderBlock)callback)
+{
+    self._onExceedMaxFiles = callback;
+}
+
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject
-                 onExceedMaxFiles: (RCTResponseSenderBlock)callback) {
-    self.onExceedMaxFiles = callback;
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
 
@@ -566,8 +570,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             return YES;
         } else {
             // exceed max number
-            if(self.onExceedMaxFiles != nil) {
-                onExceedMaxFiles(@[[NSNull null]]);
+            if(self._onExceedMaxFiles != nil) {
+                self._onExceedMaxFiles(@[[NSNull null]]);
             }
             return NO;
         }
