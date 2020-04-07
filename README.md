@@ -149,6 +149,7 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| imagesFolder (android only)            |           string (default "")        | Create a folder to save images in Pictures |
 
 #### Smart Album Types (ios)
 

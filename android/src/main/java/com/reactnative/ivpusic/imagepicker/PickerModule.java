@@ -79,6 +79,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private boolean useFrontCamera = false;
+    private boolean imagesFolder = "";
     private ReadableMap options;
 
     //Grey 800
@@ -784,7 +785,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+                Environment.DIRECTORY_PICTURES + imagesFolder);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
