@@ -785,7 +785,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + imagesFolder);
+                Environment.DIRECTORY_PICTURES + "/" + imagesFolder);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -804,7 +804,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String videoFileName = "video-" + UUID.randomUUID().toString();
         File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + imagesFolder);
+                Environment.DIRECTORY_PICTURES + "/" + imagesFolder);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
