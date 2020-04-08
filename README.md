@@ -121,7 +121,7 @@ ImagePicker.clean().then(() => {
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${image.data}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
-| avoidEmptySpaceAroundImage            |           bool (default true)           |  When set to true, the image will always fill the mask space. |
+| avoidEmptySpaceAroundImage (ios only)  |           bool (default true)           |  When set to true, the image will always fill the mask space. |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
