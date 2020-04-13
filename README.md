@@ -137,6 +137,7 @@ ImagePicker.clean().then(() => {
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
+| compressImageMaxPixels                  |          number (default none)           | Compress image to maximum total number of pixels.  If this is present and > 0, compressImageMaxWidth and compressImageMaxHeight is ignored.|
 | compressImageQuality                    |            number (default 1 (Android)/0.8 (iOS))            | Compress image with quality (from 0 to 1, where 1 is best quality). On iOS, values larger than 0.8 don't produce a noticeable quality increase in most images, while a value of 0.8 will reduce the file size by about half or less compared to a value of 1. |
 | loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
 | mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
@@ -326,6 +327,23 @@ Details for second approach:
 1. Remove the pre-built frameworks from `Embedded Binaries`
 2. Build for Device
 3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
+
+## Testing
+
+### Android Studio Unit Testing
+Tests are implemented as standard JUnit tests.  No additional setup is required.
+
+### XCode Unit Testing
+Unit tests exist in the example app (in the example directory).  There is a exampleTests target.
+1. Install dependencies for the example app.
+```
+cd example
+npm i
+cd ios && pod install
+```
+2. Open the example.xcworkspace project.
+3. Go to the Test Navigator
+4. Select the tests to run (e.g. scaleTests)
 
 ## TO DO
 

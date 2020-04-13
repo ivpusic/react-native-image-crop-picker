@@ -7,6 +7,7 @@
 //
 
 #import "Compression.h"
+#import "Scale.h"
 
 @implementation Compression
 
@@ -33,35 +34,25 @@
     return self;
 }
 
-- (ImageResult*) compressImageDimensions:(UIImage*)image
-                   compressImageMaxWidth:(CGFloat)maxWidth
-                  compressImageMaxHeight:(CGFloat)maxHeight
-                              intoResult:(ImageResult*)result {
+- (ImageResult*) compressImage:(UIImage*)image
+                  toDimensions:(CGSize)dimensions
+                    intoResult:(ImageResult*)result {
+
+    NSLog(@"image-crop-picker: scaling image width x height: %i x %i -> %i x %i", (int)image.size.width, (int)image.size.height, (int)dimensions.width, (int)dimensions.height);
     
-    CGFloat oldWidth = image.size.width;
-    CGFloat oldHeight = image.size.height;
-    
-    int newWidth = 0;
-    int newHeight = 0;
-    
-    if (maxWidth < maxHeight) {
-        newWidth = maxWidth;
-        newHeight = (oldHeight / oldWidth) * newWidth;
-    } else {
-        newHeight = maxHeight;
-        newWidth = (oldWidth / oldHeight) * newHeight;
-    }
-    CGSize newSize = CGSizeMake(newWidth, newHeight);
-    
-    UIGraphicsBeginImageContext(newSize);
-    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIGraphicsBeginImageContext(dimensions);
+    [image drawInRect:CGRectMake(0, 0, dimensions.width, dimensions.height)];
     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    result.width = [NSNumber numberWithFloat:newWidth];
-    result.height = [NSNumber numberWithFloat:newHeight];
+    result.width = [NSNumber numberWithFloat:dimensions.width];
+    result.height = [NSNumber numberWithFloat:dimensions.height];
     result.image = resizedImage;
     return result;
+}
+
+- (NSInteger) getPixelCountForImage:(UIImage*)image {
+    return image.size.width * image.size.height;
 }
 
 - (ImageResult*) compressImage:(UIImage*)image
@@ -75,19 +66,29 @@
     
     NSNumber *compressImageMaxWidth = [options valueForKey:@"compressImageMaxWidth"];
     NSNumber *compressImageMaxHeight = [options valueForKey:@"compressImageMaxHeight"];
+    NSNumber *compressImageMaxPixels = [options valueForKey:@"compressImageMaxPixels"];
+    if (!compressImageMaxPixels) compressImageMaxPixels = 0;
     
-    // determine if it is necessary to resize image
-    BOOL shouldResizeWidth = (compressImageMaxWidth != nil && [compressImageMaxWidth floatValue] < image.size.width);
-    BOOL shouldResizeHeight = (compressImageMaxHeight != nil && [compressImageMaxHeight floatValue] < image.size.height);
-    
-    if (shouldResizeWidth || shouldResizeHeight) {
-        CGFloat maxWidth = compressImageMaxWidth != nil ? [compressImageMaxWidth floatValue] : image.size.width;
-        CGFloat maxHeight = compressImageMaxHeight != nil ? [compressImageMaxHeight floatValue] : image.size.height;
+    if (compressImageMaxPixels > 0) {
+        NSLog(@"image-crop-picker: scaling image to max pixels: %@", compressImageMaxPixels);
+        BOOL shouldResizeImage = [self getPixelCountForImage:image] > [compressImageMaxPixels intValue];
+        if (shouldResizeImage) {
+            CGSize dimensions = [Scale scaleWidth:image.size.width andHeight:image.size.height maxPixels:[compressImageMaxPixels floatValue]];
+            [self compressImage:image toDimensions:dimensions intoResult:result];
+        }
+    } else {
+        NSLog(@"image-crop-picker: scaling image to max width/height: %@/%@", compressImageMaxWidth, compressImageMaxHeight);
+        // determine if it is necessary to resize image
+        BOOL shouldResizeWidth = (compressImageMaxWidth != nil && [compressImageMaxWidth floatValue] < image.size.width);
+        BOOL shouldResizeHeight = (compressImageMaxHeight != nil && [compressImageMaxHeight floatValue] < image.size.height);
         
-        [self compressImageDimensions:image
-                compressImageMaxWidth:maxWidth
-               compressImageMaxHeight:maxHeight
-                           intoResult:result];
+        if (shouldResizeWidth || shouldResizeHeight) {
+            CGFloat maxWidth = compressImageMaxWidth != nil ? [compressImageMaxWidth floatValue] : image.size.width;
+            CGFloat maxHeight = compressImageMaxHeight != nil ? [compressImageMaxHeight floatValue] : image.size.height;
+            
+            CGSize dimensions = [Scale scaleWidth:image.size.width andHeight:image.size.height maxWidth:maxWidth maxHeight:maxHeight];
+            [self compressImage:image toDimensions:dimensions intoResult:result];
+        }
     }
     
     // parse desired image quality
@@ -96,6 +97,8 @@
         compressQuality = [NSNumber numberWithFloat:0.8];
     }
     
+    NSLog(@"image-crop-picker: compressing image with image quality: %@", compressQuality);
+
     // convert image to jpeg representation
     result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
     

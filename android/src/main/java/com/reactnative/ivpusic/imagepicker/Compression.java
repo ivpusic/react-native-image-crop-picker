@@ -26,12 +26,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
-        Bitmap original = BitmapFactory.decodeFile(originalImagePath);
-
-        int width = original.getWidth();
-        int height = original.getHeight();
-
+    private Matrix getRotatedMatrix(String originalImagePath) throws IOException {
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
         int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -39,22 +34,31 @@ class Compression {
         Matrix rotationMatrix = new Matrix();
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
+        return rotationMatrix;
+    }
 
-        float ratioBitmap = (float) width / (float) height;
-        float ratioMax = (float) maxWidth / (float) maxHeight;
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+        return resize(originalImagePath, maxWidth, maxHeight, quality, 0);
+    }
 
-        int finalWidth = maxWidth;
-        int finalHeight = maxHeight;
+    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality, int maxPixels) throws IOException {
+        Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
-        } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
-        }
+        int width = original.getWidth();
+        int height = original.getHeight();
 
-        Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
-        resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
-        
+        Matrix rotationMatrix = getRotatedMatrix(originalImagePath);
+
+        Log.d("image-crop-picker", "Args: maxWidth: " + maxWidth + ", maxHeight: " + maxHeight + ", maxPixels: " + maxPixels);
+
+        Scale.Dimension finalDimensions = maxPixels > 0 ? Scale.getScaledImageDimensionsByMaxPixels(width, height, maxPixels) : Scale.getScaledImageDimensionsByMaxWidthHeight(width, height, maxWidth, maxHeight);
+
+        Log.d("image-crop-picker", "Final Dimensions: w: " + finalDimensions.getWidth() + ", h: " + finalDimensions.getHeight());
+
+
+        Bitmap resized = Bitmap.createScaledBitmap(original, finalDimensions.getWidth(), finalDimensions.getHeight(), true);
+        resized = Bitmap.createBitmap(resized, 0, 0, finalDimensions.getWidth(), finalDimensions.getHeight(), rotationMatrix, true);
+
         File imageDirectory = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
 
@@ -88,19 +92,28 @@ class Compression {
         }
     }
 
-    File compressImage(final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
-        Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
-        Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
-        Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
-
+    boolean shouldCompress(BitmapFactory.Options bitmapOptions, Double quality, Integer maxWidth, Integer maxHeight, Integer maxPixels) {
         boolean isLossLess = (quality == null || quality == 1.0);
         boolean useOriginalWidth = (maxWidth == null || maxWidth >= bitmapOptions.outWidth);
         boolean useOriginalHeight = (maxHeight == null || maxHeight >= bitmapOptions.outHeight);
 
+        Integer currentPixels = bitmapOptions.outWidth * bitmapOptions.outHeight;
+        boolean isPreserveDimensions =  maxPixels == 0 ?  (useOriginalWidth && useOriginalHeight) : (maxPixels >= currentPixels);
+
+
         List knownMimes = Arrays.asList("image/jpeg", "image/jpg", "image/png", "image/gif", "image/tiff");
         boolean isKnownMimeType = (bitmapOptions.outMimeType != null && knownMimes.contains(bitmapOptions.outMimeType.toLowerCase()));
 
-        if (isLossLess && useOriginalWidth && useOriginalHeight && isKnownMimeType) {
+        return !(isLossLess && isPreserveDimensions && isKnownMimeType);
+    }
+
+    File compressImage(final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
+        Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
+        Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
+        Integer maxPixels = options.hasKey("compressImageMaxPixels") ? options.getInt("compressImageMaxPixels") : 0;
+        Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
+
+        if (!shouldCompress(bitmapOptions, quality, maxWidth, maxHeight, maxPixels)) {
             Log.d("image-crop-picker", "Skipping image compression");
             return new File(originalImagePath);
         }
@@ -123,7 +136,7 @@ class Compression {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
 
-        return resize(originalImagePath, maxWidth, maxHeight, targetQuality);
+        return resize(originalImagePath, maxWidth, maxHeight, targetQuality, maxPixels);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {

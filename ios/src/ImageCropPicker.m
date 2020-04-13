@@ -172,7 +172,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            
+
             UIImagePickerController *picker = [[UIImagePickerController alloc] init];
             picker.delegate = self;
             picker.allowsEditing = NO;
@@ -377,7 +377,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                     imagePickerController.mediaType = QBImagePickerMediaTypeAny;
                 }
             }
-            
+
             [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
             [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
         });

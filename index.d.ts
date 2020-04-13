@@ -23,6 +23,7 @@ declare module "react-native-image-crop-picker" {
         compressVideoPreset?: string;
         compressImageMaxWidth?: number;
         compressImageMaxHeight?: number;
+        compressImageMaxPixels?: number;
         compressImageQuality?: number;
         loadingLabelText?: string;
         mediaType?: 'photo' | 'video' | 'any';
