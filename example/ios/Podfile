@@ -36,5 +36,9 @@ target 'example' do
 
   pod 'RNImageCropPicker', :path => '../../'
 
+  target 'exampleTests' do
+    inherit! :search_paths
+  end
+
   use_native_modules!
 end
