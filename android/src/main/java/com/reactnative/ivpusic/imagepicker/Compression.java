@@ -3,8 +3,10 @@ package com.reactnative.ivpusic.imagepicker;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+
 import android.os.Environment;
 import android.util.Log;
 
@@ -32,13 +34,12 @@ class Compression {
         int width = original.getWidth();
         int height = original.getHeight();
 
-        // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
-        int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
 
-        Matrix rotationMatrix = new Matrix();
-        int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
-        rotationMatrix.postRotate(rotationAngleInDegrees);
+Matrix rotationMatrix = new Matrix();
+int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
+rotationMatrix.postRotate(rotationAngleInDegrees);
 
         float ratioBitmap = (float) width / (float) height;
         float ratioMax = (float) maxWidth / (float) maxHeight;
@@ -53,17 +54,11 @@ class Compression {
         }
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
+
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
-        
-        File imageDirectory = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
 
-        if(!imageDirectory.exists()) {
-            Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
-            imageDirectory.mkdirs();
-        }
-
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        File resizeImageFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
@@ -76,17 +71,19 @@ class Compression {
     }
 
     int getRotationInDegreesForOrientationTag(int orientationTag) {
-        switch(orientationTag){
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return 90;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return -90;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return 180;
-            default:
-                return 0;
-        }
+    switch(orientationTag){
+        case ExifInterface.ORIENTATION_ROTATE_90:
+            return 90;
+        case ExifInterface.ORIENTATION_ROTATE_270:
+            return -90;
+        case ExifInterface.ORIENTATION_ROTATE_180:
+            return 180;
+        default:
+            return 0;
     }
+}
+
+
 
     File compressImage(final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
