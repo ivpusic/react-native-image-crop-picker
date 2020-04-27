@@ -656,7 +656,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
-        if (resultCode == Activity.RESULT_CANCELED) {
+        if (resultCode == Activity.RESULT_CANCELED || data == null) {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
         } else if (resultCode == Activity.RESULT_OK) {
             if (multiple) {
