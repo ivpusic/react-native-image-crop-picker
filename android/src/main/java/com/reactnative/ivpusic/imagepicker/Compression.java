@@ -26,6 +26,8 @@ import java.util.UUID;
 
 class Compression {
 
+    private static final long TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+
     File resize(String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
@@ -62,8 +64,16 @@ class Compression {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
             imageDirectory.mkdirs();
         }
+        File cacheFolder = new File(imageDirectory, ".cache");
+        if (!cacheFolder.exists()){
+            cacheFolder.mkdir();
+        }
+        File noMediaFile = new File(cacheFolder, ".nomedia");
+        if (!noMediaFile.exists()) {
+            noMediaFile.createNewFile();
+        }
 
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        File resizeImageFile = new File(cacheFolder, UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
@@ -130,5 +140,35 @@ class Compression {
         // todo: video compression
         // failed attempt 1: ffmpeg => slow and licensing issues
         promise.resolve(originalVideo);
+    }
+
+    void clearOldItems() {
+        try {
+            File imageDirectory = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES);
+
+            if (!imageDirectory.exists()) {
+                Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
+                imageDirectory.mkdirs();
+            }
+            File cacheFolder = new File(imageDirectory, ".cache");
+            if (!cacheFolder.exists()) {
+                cacheFolder.mkdir();
+            }
+            File noMediaFile = new File(cacheFolder, ".nomedia");
+            if (!noMediaFile.exists()) {
+                noMediaFile.createNewFile();
+            }
+            for (String filePath: cacheFolder.list()) {
+                File file = new File(filePath);
+                if (file.exists() && file.isFile() && System.currentTimeMillis() - file.lastModified() > TWO_DAYS) {
+                    try {
+                        file.delete();
+                    } catch (Exception ignore) {}
+                }
+            }
+        } catch (Exception e) {
+            Log.d("image-crop-picker", "Failed to clear cached images older than 2 days");
+        }
     }
 }

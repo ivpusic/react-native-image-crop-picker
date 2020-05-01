@@ -103,6 +103,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         super(reactContext);
         reactContext.addActivityEventListener(this);
         this.reactContext = reactContext;
+
     }
 
     private String getTmpDir(Activity activity) {
@@ -828,5 +829,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         map.putInt("height", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, DEFAULT_VALUE));
 
         return map;
+    }
+
+    @Override
+    public void onCatalystInstanceDestroy() {
+        if (compression != null) {
+            compression.clearOldItems();
+        }
+        super.onCatalystInstanceDestroy();
     }
 }
