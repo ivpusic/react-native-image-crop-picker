@@ -613,10 +613,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             Default tint is grey => use a more flashy color that stands out more as the call to action
             Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
             */
-            options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
+            options.setActiveControlsWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
         } else {
             //If they pass a custom tint color in, we use this for everything
-            options.setActiveWidgetColor(activeWidgetColor);
+            options.setActiveControlsWidgetColor(activeWidgetColor);
         }
     }
 
