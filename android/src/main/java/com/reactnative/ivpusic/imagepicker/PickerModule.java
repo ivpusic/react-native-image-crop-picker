@@ -464,20 +464,30 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return getImage(activity, path);
     }
 
-    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
-        String path = resolveRealPath(activity, uri, isCamera);
-        if (path == null || path.isEmpty()) {
+
+
+    private void getAsyncSelection(final Activity activity, final Uri uri, final boolean isCamera) throws Exception {
+      new Thread(new Runnable() {
+        public void run() {
+          try {
+            String path = resolveRealPath(activity, uri, isCamera);
+          if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
             return;
-        }
+          }
 
-        String mime = getMimeType(path);
-        if (mime != null && mime.startsWith("video/")) {
-            getVideo(activity, path, mime);
+          String mime = getMimeType(path);
+          if (mime != null && mime.startsWith("video/")) {
+              getVideo(activity, path, mime);
             return;
+          }
+            resultCollector.notifySuccess(getImage(activity, path));
+          }catch (Exception ex) {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
+          }
         }
+      }).start();
 
-        resultCollector.notifySuccess(getImage(activity, path));
     }
 
     private Bitmap validateVideo(String path) throws Exception {
@@ -493,7 +503,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
-        validateVideo(path);
         final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
 
         new Thread(new Runnable() {

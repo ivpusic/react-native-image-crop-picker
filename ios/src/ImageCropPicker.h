@@ -16,12 +16,14 @@
 #import <React/RCTImageShadowView.h>
 #import <React/RCTImageView.h>
 #import <React/RCTImageLoaderProtocol.h>
+#import <React/RCTEventEmitter.h>
 #else
 #import "RCTBridgeModule.h"
 #import "RCTImageURLLoader.h"
 #import "RCTImageShadowView.h"
 #import "RCTImageView.h"
 #import "RCTImageLoaderProtocol.h"
+#import "RCTEventEmitter.h"
 #endif
 
 #if __has_include("QBImagePicker.h")
@@ -43,10 +45,10 @@
 #import "Compression.h"
 #import <math.h>
 
-@interface ImageCropPicker : NSObject<
+@interface ImageCropPicker : RCTEventEmitter<
+RCTBridgeModule,
 UIImagePickerControllerDelegate,
 UINavigationControllerDelegate,
-RCTBridgeModule,
 QBImagePickerControllerDelegate,
 RSKImageCropViewControllerDelegate,
 RSKImageCropViewControllerDataSource>

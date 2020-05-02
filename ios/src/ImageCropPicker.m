@@ -6,7 +6,6 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
-
 #import "ImageCropPicker.h"
 
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
@@ -60,12 +59,13 @@
     return self._moveAndScaleLabel;
 }
 @end
-
+    
 @implementation ImageCropPicker
+{
+  bool hasListeners;
+}
 
 RCT_EXPORT_MODULE();
-
-@synthesize bridge = _bridge;
 
 - (instancetype)init
 {
@@ -300,8 +300,8 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
 
@@ -553,6 +553,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             return @"image/tiff";
     }
     return @"";
+}
+
+-(BOOL)qb_imagePickerController:(QBImagePickerController *)imagePickerController shouldSelectAsset:(PHAsset *)asset {
+    if(imagePickerController.allowsMultipleSelection) {
+        if(imagePickerController.maximumNumberOfSelection > imagePickerController.selectedAssets.count) {
+            return YES;
+        } else {
+            // exceed max number
+             if (hasListeners) { // Only send events if anyone is listening
+               [self sendEventWithName:@"onExceedMaxFiles" body:@{}];
+             }
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (void)qb_imagePickerController:
@@ -965,6 +980,25 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"width": [NSNumber numberWithFloat: CGRectGetWidth(rect)],
              @"height": [NSNumber numberWithFloat: CGRectGetHeight(rect)]
              };
+}
+
+#pragma mark - RCTEventEmitter
+- (NSArray<NSString *> *)supportedEvents
+{
+  return @[@"onExceedMaxFiles"];
+}
+
+
+// Will be called when this module's first listener is added.
+-(void)startObserving {
+    hasListeners = YES;
+    // Set up any upstream listeners or background tasks as necessary
+}
+
+// Will be called when this module's last listener is removed, or on dealloc.
+-(void)stopObserving {
+    hasListeners = NO;
+    // Remove upstream listeners, stop unnecessary background tasks
 }
 
 @end

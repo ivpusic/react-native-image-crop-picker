@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Alert,
-  Image, TouchableOpacity, NativeModules, Dimensions
+  Image, TouchableOpacity, NativeModules, Dimensions, Platform, NativeEventEmitter
 } from 'react-native';
 
 import Video from 'react-native-video';
 
 var ImagePicker = NativeModules.ImageCropPicker;
+const imagePickerEmitter = new NativeEventEmitter(ImagePicker)
 
 const styles = StyleSheet.create({
   container: {
@@ -33,6 +34,21 @@ export default class App extends Component {
       image: null,
       images: null
     };
+  }
+  
+  componentDidMount() {
+    if(Platform.OS === "ios") {
+      this.subscription = imagePickerEmitter.addListener(
+        'onExceedMaxFiles',
+        () => alert('OMG')
+      )
+    }
+  }
+
+  componentWillUnmount() {
+    if(this.subscription) {
+      this.subscription.remove()
+    }
   }
 
   pickSingleWithCamera(cropping, mediaType='photo') {
