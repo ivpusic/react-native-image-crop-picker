@@ -574,7 +574,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(options, path, original);
+        File compressedImage = compression.compressImage(this.reactContext, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -613,10 +613,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             Default tint is grey => use a more flashy color that stands out more as the call to action
             Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
             */
-            options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
+            options.setActiveControlsWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
         } else {
             //If they pass a custom tint color in, we use this for everything
-            options.setActiveWidgetColor(activeWidgetColor);
+            options.setActiveControlsWidgetColor(activeWidgetColor);
         }
     }
 
@@ -736,7 +736,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100);
+                        resultUri = Uri.fromFile(resized);
                     }
 
                     WritableMap result = getSelection(activity, resultUri, false);
@@ -783,8 +784,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private File createImageFile() throws IOException {
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File path = this.reactContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -802,8 +802,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private File createVideoFile() throws IOException {
 
         String videoFileName = "video-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File path = this.reactContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
