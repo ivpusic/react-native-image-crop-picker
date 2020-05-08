@@ -121,7 +121,7 @@ ImagePicker.clean().then(() => {
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${image.data}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
-| avoidEmptySpaceAroundImage            |           bool (default true)           |  When set to true, the image will always fill the mask space. |
+| avoidEmptySpaceAroundImage (ios only)  |           bool (default true)           |  When set to true, the image will always fill the mask space. |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
@@ -141,6 +141,7 @@ ImagePicker.clean().then(() => {
 | loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
 | mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only)           |           bool (default true)            | Whether to show the number of selected assets |
+| sortOrder (ios only)           |           string (default 'none', supported values: 'asc', 'desc', 'none')            | Applies a sort order on the creation date on how media is displayed within the albums/detail photo views when opening the image picker |
 | forceJpg (ios only)           |           bool (default false)            | Whether to convert photos to JPG. This will also convert any Live Photo into its JPG representation |
 | showCropGuidelines (android only)       |           bool (default true)            | Whether to show the 3x3 grid on top of the image during cropping |
 | showCropFrame (android only)       |           bool (default true)            | Whether to show crop frame during cropping |
@@ -195,14 +196,6 @@ pod install
 ```
 
 After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
-
-##### Using local QBImagePicker
-
-It is recommended to use locally provided QBImagePicker pod, because it contains few improvements over original version.
-
-```
-pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
-```
 
 #### - If you are not using Cocoapods which is not recommended:
 
