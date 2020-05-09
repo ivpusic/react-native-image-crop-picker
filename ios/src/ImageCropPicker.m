@@ -870,11 +870,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     cropVC.title = [[self options] objectForKey:@"cropperToolbarTitle"];
     cropVC.delegate = self;
     
-    NSString *cropperChooseText = [self.options objectForKey:@"cropperChooseText"];
-    NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
+    cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
+    cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
     
-    cropVC.doneButtonTitle = cropperChooseText;
-    cropVC.cancelButtonTitle = cropperCancelText;
+    cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
         
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
