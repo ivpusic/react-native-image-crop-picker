@@ -186,48 +186,20 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
-#### react-native >= 0.60 with cocoapods
-
-- Run the following:
-
 ```bash
 cd ios
 pod install
 ```
 
-After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
-
-#### - If you are not using Cocoapods which is not recommended:
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-### Android
-
-NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-## Post-install steps
+## Step 3
 
 ### iOS
 
 #### Step 1
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-
-#### Step 2
-
-##### Only if you are not using Cocoapods
-
-- Click on project General tab
-  - Under `Deployment Info` set `Deployment Target` to `8.0`
-  - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
   
-#### Step Optional - To localizate the camera / gallery text buttons
+#### (Optional) Step 2 - To localizate the camera / gallery / cropper text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
@@ -236,19 +208,6 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
 ### Android
-
-- Make sure you are using Gradle >= `2.2.x` (android/build.gradle)
-
-```gradle
-buildscript {
-    ...
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-        ...
-    }
-    ...
-}
-```
 
 - **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
 
@@ -307,25 +266,6 @@ android {
 AndroidManifest.xml`
   - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
   - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
-
-## Production build
-
-### iOS
-
-#### Cocoapods (Highly recommended)
-
-- You are already done
-
-#### Manual
-
-If you are using pre-built frameworks from `ios/ImageCropPickerSDK`, then before deploying app to production you should strip off simulator ARCHs from these, or you can add frameworks from `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework` to Embedded Binaries instead of pre-built ones.
-Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/61.
-
-Details for second approach:
-
-1. Remove the pre-built frameworks from `Embedded Binaries`
-2. Build for Device
-3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
 
 ## TO DO
 
