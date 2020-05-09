@@ -9,9 +9,10 @@ iOS/Android image picker with support for camera, video, configurable compressio
 ## Result
 
 <p align="left">
-  <img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png">
-<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_crop.png">
-<img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick.png">
+  <img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick_v2.png">
+  <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick_v2.png">
+  <img width=200 title="iOS Crop Normal" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_normal_crop.png">
+  <img width=200 title="iOS Crop Circular" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_circular_crop.png">
 </p>
 
 ## Important note
