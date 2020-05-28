@@ -11,9 +11,9 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/ivpusic/react-native-image-crop-picker", :tag => "v#{s.version}"}
   s.source_files = 'ios/src/*.{h,m}'
   s.platform     = :ios, "8.0"
-  s.dependency 'RSKImageCropper'
   s.dependency 'React-Core'
   s.dependency 'React-RCTImage'
+  s.dependency 'TOCropViewController'
 
   s.subspec 'QBImagePickerController' do |qb|
     qb.name             = "QBImagePickerController"

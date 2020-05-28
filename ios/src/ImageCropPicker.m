@@ -39,28 +39,6 @@
 @implementation ImageResult
 @end
 
-@interface LabeledCropView : RSKImageCropViewController {
-}
-@property NSString *toolbarTitle;
-@property UILabel *_moveAndScaleLabel;
-- (UILabel *)moveAndScaleLabel;
-@end
-
-@implementation LabeledCropView
-    - (UILabel *)moveAndScaleLabel
-{
-    if (!self._moveAndScaleLabel) {
-        self._moveAndScaleLabel = [[UILabel alloc] init];
-        self._moveAndScaleLabel.backgroundColor = [UIColor clearColor];
-        self._moveAndScaleLabel.text = self.toolbarTitle;
-        self._moveAndScaleLabel.textColor = [UIColor whiteColor];
-        self._moveAndScaleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        self._moveAndScaleLabel.opaque = NO;
-    }
-    return self._moveAndScaleLabel;
-}
-@end
-
 @implementation ImageCropPicker
 
 RCT_EXPORT_MODULE();
@@ -397,31 +375,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         if (error) {
             self.reject(ERROR_CROPPER_IMAGE_NOT_FOUND_KEY, ERROR_CROPPER_IMAGE_NOT_FOUND_MSG, nil);
         } else {
-            [self startCropping:[image fixOrientation]];
+            [self cropImage:[image fixOrientation]];
         }
     }];
-}
-
-- (void)startCropping:(UIImage *)image {
-    LabeledCropView *imageCropVC = [[LabeledCropView alloc] initWithImage:image];
-    if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
-        imageCropVC.cropMode = RSKImageCropModeCircle;
-    } else {
-        imageCropVC.cropMode = RSKImageCropModeCustom;
-    }
-    imageCropVC.toolbarTitle = [[self options] objectForKey:@"cropperToolbarTitle"];
-    imageCropVC.avoidEmptySpaceAroundImage = [[[self options] objectForKey:@"avoidEmptySpaceAroundImage"] boolValue];
-    imageCropVC.dataSource = self;
-    imageCropVC.delegate = self;
-    NSString *cropperCancelText = [self.options objectForKey:@"cropperCancelText"];
-    NSString *cropperChooseText = [self.options objectForKey:@"cropperChooseText"];
-    [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
-    [imageCropVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-    [imageCropVC.cancelButton setTitle:cropperCancelText forState:UIControlStateNormal];
-    [imageCropVC.chooseButton setTitle:cropperChooseText forState:UIControlStateNormal];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[self getRootVC] presentViewController:imageCropVC animated:YES completion:nil];
-    });
 }
 
 - (void)showActivityIndicator:(void (^)(UIActivityIndicatorView*, UIView*))handler {
@@ -796,7 +752,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         self.croppingFile[@"mimeType"] = mimeType;
         NSLog(@"CroppingFile %@", self.croppingFile);
 
-        [self startCropping:[image fixOrientation]];
+        [self cropImage:[image fixOrientation]];
     } else {
         ImageResult *imageResult = [self.compression compressImage:[image fixOrientation]  withOptions:self.options mimeType:mimeType];
         NSString *filePath = [self persistFile:imageResult.data];
@@ -828,70 +784,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }
 }
 
-#pragma mark - CustomCropModeDelegates
-
-// Returns a custom rect for the mask.
-- (CGRect)imageCropViewControllerCustomMaskRect:
-(RSKImageCropViewController *)controller {
-    CGSize maskSize = CGSizeMake(
-                                 [[self.options objectForKey:@"width"] intValue],
-                                 [[self.options objectForKey:@"height"] intValue]);
-
-    CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
-    CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-
-    CGRect maskRect = CGRectMake((viewWidth - maskSize.width) * 0.5f,
-                                 (viewHeight - maskSize.height) * 0.5f,
-                                 maskSize.width, maskSize.height);
-
-    return maskRect;
-}
-
-// if provided width or height is bigger than screen w/h,
-// then we should scale draw area
-- (CGRect) scaleRect:(RSKImageCropViewController *)controller {
-    CGRect rect = controller.maskRect;
-    CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
-    CGFloat viewHeight = CGRectGetHeight(controller.view.frame);
-
-    double scaleFactor = fmin(viewWidth / rect.size.width, viewHeight / rect.size.height);
-    rect.size.width *= scaleFactor;
-    rect.size.height *= scaleFactor;
-    rect.origin.x = (viewWidth - rect.size.width) / 2;
-    rect.origin.y = (viewHeight - rect.size.height) / 2;
-
-    return rect;
-}
-
-// Returns a custom path for the mask.
-- (UIBezierPath *)imageCropViewControllerCustomMaskPath:
-(RSKImageCropViewController *)controller {
-    CGRect rect = [self scaleRect:controller];
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect
-                                               byRoundingCorners:UIRectCornerAllCorners
-                                                     cornerRadii:CGSizeMake(0, 0)];
-    return path;
-}
-
-// Returns a custom rect in which the image can be moved.
-- (CGRect)imageCropViewControllerCustomMovementRect:
-(RSKImageCropViewController *)controller {
-    return [self scaleRect:controller];
-}
-
-#pragma mark - CropFinishDelegate
-
-// Crop image has been canceled.
-- (void)imageCropViewControllerDidCancelCrop:
-(RSKImageCropViewController *)controller {
-    [self dismissCropper:controller selectionDone:NO completion:[self waitAnimationEnd:^{
-        if (self.currentSelectionMode != PICKER && (self.currentSelectionMode == CROPPING || [[self.options objectForKey:@"cropping"] boolValue])) {
-            self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-        }
-    }]];
-}
-
-- (void) dismissCropper:(RSKImageCropViewController*)controller selectionDone:(BOOL)selectionDone completion:(void (^)(void))completion {
+- (void)dismissCropper:(UIViewController *)controller selectionDone:(BOOL)selectionDone completion:(void (^)(void))completion {
     switch (self.currentSelectionMode) {
         case CROPPING:
             [controller dismissViewControllerAnimated:YES completion:completion];
@@ -912,7 +805,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 // The original image has been cropped.
-- (void)imageCropViewController:(RSKImageCropViewController *)controller
+- (void)imageCropViewController:(UIViewController *)controller
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
 
@@ -975,17 +868,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     return filePath;
 }
 
-// The original image has been cropped. Additionally provides a rotation angle
-// used to produce image.
-- (void)imageCropViewController:(RSKImageCropViewController *)controller
-                   didCropImage:(UIImage *)croppedImage
-                  usingCropRect:(CGRect)cropRect
-                  rotationAngle:(CGFloat)rotationAngle {
-    [self imageCropViewController:controller didCropImage:croppedImage usingCropRect:cropRect];
-}
-
-
-
 + (NSDictionary *)cgRectToDictionary:(CGRect)rect {
     return @{
              @"x": [NSNumber numberWithFloat: rect.origin.x],
@@ -993,6 +875,53 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"width": [NSNumber numberWithFloat: CGRectGetWidth(rect)],
              @"height": [NSNumber numberWithFloat: CGRectGetHeight(rect)]
              };
+}
+
+#pragma mark - TOCCropViewController Implementation
+- (void)cropImage:(UIImage *)image {
+    TOCropViewController *cropVC;
+    if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
+        cropVC = [[TOCropViewController alloc] initWithCroppingStyle:TOCropViewCroppingStyleCircular image:image];
+    } else {
+        cropVC = [[TOCropViewController alloc] initWithImage:image];
+        CGFloat widthRatio = [[self.options objectForKey:@"width"] floatValue];
+        CGFloat heightRatio = [[self.options objectForKey:@"height"] floatValue];
+        if (widthRatio > 0 && heightRatio > 0){
+            CGSize aspectRatio = CGSizeMake(widthRatio, heightRatio);
+            cropVC.customAspectRatio = aspectRatio;
+            
+        }
+        cropVC.aspectRatioLockEnabled = ![[self.options objectForKey:@"freeStyleCropEnabled"] boolValue];
+        cropVC.resetAspectRatioEnabled = !cropVC.aspectRatioLockEnabled;
+    }
+
+    cropVC.title = [[self options] objectForKey:@"cropperToolbarTitle"];
+    cropVC.delegate = self;
+    
+    cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
+    cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
+    
+    cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
+    });
+}
+#pragma mark - TOCropViewController Delegate
+- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle {
+    [self imageCropViewController:cropViewController didCropImage:image usingCropRect:cropRect];
+}
+
+- (void)cropViewController:(TOCropViewController *)cropViewController didCropToCircularImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle {
+    [self imageCropViewController:cropViewController didCropImage:image usingCropRect:cropRect];
+}
+
+- (void)cropViewController:(TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled {
+    [self dismissCropper:cropViewController selectionDone:NO completion:[self waitAnimationEnd:^{
+        if (self.currentSelectionMode == CROPPING) {
+            self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+        }
+    }]];
 }
 
 @end

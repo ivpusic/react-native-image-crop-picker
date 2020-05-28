@@ -1,6 +1,7 @@
 package com.reactnative.ivpusic.imagepicker;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -26,7 +27,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(String originalImagePath, int maxWidth, int maxHeight, int quality, boolean forceJpg) throws IOException {
+    File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality, boolean forceJpg) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
         int width = original.getWidth();
@@ -54,9 +55,8 @@ class Compression {
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
-        
-        File imageDirectory = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+
+        File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if(!imageDirectory.exists()) {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
@@ -90,7 +90,7 @@ class Compression {
         }
     }
 
-    File compressImage(final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
+    File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
@@ -126,8 +126,7 @@ class Compression {
         }
 
         Boolean forceJpg = options.hasKey("forceJpg") ? options.getBoolean("forceJpg") : false;
-
-        return resize(originalImagePath, maxWidth, maxHeight, targetQuality, forceJpg);
+        return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality, forceJpg);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
