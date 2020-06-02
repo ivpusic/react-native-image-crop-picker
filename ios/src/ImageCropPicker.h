@@ -26,20 +26,20 @@
 
 #if __has_include("QBImagePicker.h")
 #import "QBImagePicker.h"
-#import "RSKImageCropper.h"
 #elif __has_include(<QBImagePickerController/QBImagePickerController.h>)
 #import <QBImagePickerController/QBImagePickerController.h>
-#import <RSKImageCropper/RSKImageCropper.h>
 #elif __has_include("QBImagePickerController.h") // local QBImagePickerController subspec
 #import "QBImagePickerController.h"
-#import <RSKImageCropper/RSKImageCropper.h>
 #else
 #import
 #import "QBImagePicker/QBImagePicker.h"
-#import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
+
+#import <TOCropViewController/TOCropViewController.h>
+
 #import "UIImage+Resize.h"
+#import "UIImage+Extension.h"
 #import "Compression.h"
 #import <math.h>
 
@@ -48,8 +48,7 @@ UIImagePickerControllerDelegate,
 UINavigationControllerDelegate,
 RCTBridgeModule,
 QBImagePickerControllerDelegate,
-RSKImageCropViewControllerDelegate,
-RSKImageCropViewControllerDataSource>
+TOCropViewControllerDelegate>
 
 typedef enum selectionMode {
     CAMERA,

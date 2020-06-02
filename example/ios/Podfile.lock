@@ -222,16 +222,16 @@ PODS:
     - React-cxxreact (= 0.61.2)
     - React-jsi (= 0.61.2)
     - ReactCommon/jscallinvoker (= 0.61.2)
-  - RNImageCropPicker (0.27.0):
+  - RNImageCropPicker (0.30.0):
     - React-Core
     - React-RCTImage
-    - RNImageCropPicker/QBImagePickerController (= 0.27.0)
-    - RSKImageCropper
-  - RNImageCropPicker/QBImagePickerController (0.27.0):
+    - RNImageCropPicker/QBImagePickerController (= 0.30.0)
+    - TOCropViewController
+  - RNImageCropPicker/QBImagePickerController (0.30.0):
     - React-Core
     - React-RCTImage
-    - RSKImageCropper
-  - RSKImageCropper (2.2.3)
+    - TOCropViewController
+  - TOCropViewController (2.5.2)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -269,7 +269,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - boost-for-react-native
-    - RSKImageCropper
+    - TOCropViewController
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -354,10 +354,10 @@ SPEC CHECKSUMS:
   React-RCTText: e3ef6191cdb627855ff7fe8fa0c1e14094967fb8
   React-RCTVibration: fb54c732fd20405a76598e431aa2f8c2bf527de9
   ReactCommon: 5848032ed2f274fcb40f6b9ec24067787c42d479
-  RNImageCropPicker: 9d74cf3dadd8774c05a5f772b9a3397027576fa8
-  RSKImageCropper: a446db0e8444a036b34f3c43db01b2373baa4b2a
+  RNImageCropPicker: 8064cda7efc1650212f35b6b164c5db433a28aad
+  TOCropViewController: e9da34f484aedd4e5d5a8ab230ba217cfe16c729
   Yoga: 14927e37bd25376d216b150ab2a561773d57911f
 
 PODFILE CHECKSUM: c105f81c59b354c8c6043ddcc6156cc74cc4a621
 
-COCOAPODS: 1.8.3
+COCOAPODS: 1.9.1

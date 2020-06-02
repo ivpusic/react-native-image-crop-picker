@@ -14,6 +14,6 @@
     "react-native-video": "5.1.0-alpha1"
   },
   "devDependencies": {
-    "@react-native-community/cli": "3.0.4"
+    "@react-native-community/cli": "4.8.0"
   }
 }
