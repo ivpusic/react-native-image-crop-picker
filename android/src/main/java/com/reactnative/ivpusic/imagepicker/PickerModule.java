@@ -81,15 +81,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean useFrontCamera = false;
     private ReadableMap options;
 
-    //Grey 800
-    private final String DEFAULT_TINT = "#424242";
-    private String cropperActiveWidgetColor = DEFAULT_TINT;
-    private String cropperStatusBarColor = DEFAULT_TINT;
-    private String cropperToolbarColor = DEFAULT_TINT;
+    private String cropperActiveWidgetColor = null;
+    private String cropperStatusBarColor = null;
+    private String cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
 
-    //Light Blue 500
-    private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
     private int width = 0;
     private int height = 0;
 
@@ -125,9 +121,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
         cropping = options.hasKey("cropping") && options.getBoolean("cropping");
-        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
-        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
-        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : DEFAULT_TINT;
+        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : null;
+        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : null;
+        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : null;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
@@ -603,20 +599,16 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void configureCropperColors(UCrop.Options options) {
-        int activeWidgetColor = Color.parseColor(cropperActiveWidgetColor);
-        int toolbarColor = Color.parseColor(cropperToolbarColor);
-        int statusBarColor = Color.parseColor(cropperStatusBarColor);
-        options.setToolbarColor(toolbarColor);
-        options.setStatusBarColor(statusBarColor);
-        if (activeWidgetColor == Color.parseColor(DEFAULT_TINT)) {
-            /*
-            Default tint is grey => use a more flashy color that stands out more as the call to action
-            Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
-            */
-            options.setActiveControlsWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
-        } else {
-            //If they pass a custom tint color in, we use this for everything
-            options.setActiveControlsWidgetColor(activeWidgetColor);
+        if (cropperActiveWidgetColor != null) {
+            options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
+        }
+
+        if (cropperToolbarColor != null) {
+            options.setToolbarColor(Color.parseColor(cropperToolbarColor));
+        }
+
+        if (cropperStatusBarColor != null) {
+            options.setStatusBarColor(Color.parseColor(cropperStatusBarColor));
         }
     }
 
@@ -629,9 +621,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setShowCropGrid(showCropGuidelines);
         options.setShowCropFrame(showCropFrame);
         options.setHideBottomControls(hideBottomControls);
+
         if (cropperToolbarTitle != null) {
             options.setToolbarTitle(cropperToolbarTitle);
         }
+
         if (enableRotationGesture) {
             // UCropActivity.ALL = enable both rotation & scaling
             options.setAllowedGestures(
@@ -640,6 +634,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
+
         if (!disableCropperColorSetters) {
             configureCropperColors(options);
         }
