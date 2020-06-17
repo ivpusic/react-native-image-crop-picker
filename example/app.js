@@ -148,6 +148,7 @@ export default class App extends Component {
       cropperStatusBarColor: 'white',
       cropperToolbarColor: 'white',
       cropperActiveWidgetColor: 'white',
+      cropperToolbarWidgetColor: '#3498DB',
     })
       .then((image) => {
         console.log('received image', image);
