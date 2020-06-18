@@ -87,6 +87,19 @@ ImagePicker.openCamera({
 });
 ```
 
+### Select from file (iOS only)
+
+This is not available on android as the android picker let the user select file from cloud storage.
+
+```javascript
+ImagePicker.openFile({
+}).then(image => {
+  console.log(image);
+});
+```
+
+**The `multiple` property has not been implemented yet -- coming soon**
+
 ### Crop picture
 
 ```javascript
@@ -118,7 +131,7 @@ ImagePicker.clean().then(() => {
 | cropping                                |           bool (default false)           | Enable or disable cropping               |
 | width                                   |                  number                  | Width of result image when used with `cropping` option |
 | height                                  |                  number                  | Height of result image when used with `cropping` option |
-| multiple                                |           bool (default false)           | Enable or disable multiple image selection |
+| multiple                                |           bool (default false)           | Enable or disable multiple image selection (not available for `openFile()`) |
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${image.data}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
@@ -163,7 +176,7 @@ ImagePicker.clean().then(() => {
 | Property                  |  Type  | Description                              |
 | ------------------------- | :----: | :--------------------------------------- |
 | path                      | string | Selected image location. This is null when the `writeTempFile` option is set to false. |
-| localIdentifier(ios only) | string | Selected images' localidentifier, used for PHAsset searching |
+| localIdentifier(ios only, allways null with `openFile()`) | string | Selected images' localidentifier, used for PHAsset searching |
 | sourceURL(ios only)       | string | Selected images' source path, do not have write access |
 | filename(ios only)        | string | Selected images' filename                |
 | width                     | number | Selected image width                     |
@@ -208,6 +221,13 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 - Select your project in the project list 
 - Should be into the Info tab and add in Localizations the language your app was missing throughout the +
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
+
+#### Step 3
+
+##### Only if you want to use `openFile()` (access iCloud)
+
+- Add iCloud capability in Xcode.
+- `Key-value storage` and `iCloud Documents` must be checked.
 
 ### Android
 
