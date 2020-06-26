@@ -437,7 +437,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             
             AVURLAsset *durationFromUrl = [AVURLAsset assetWithURL:outputURL];
             CMTime time = [durationFromUrl duration];
-            int seconds = ceil(time.value/time.timescale) * 1000;
+            int milliseconds = ceil(time.value/time.timescale) * 1000;
 
             completion([self createAttachmentResponse:[outputURL absoluteString]
                                              withExif:nil
@@ -448,7 +448,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                            withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
                                              withMime:@"video/mp4"
                                              withSize:fileSizeValue
-                                             withDuration:[NSNumber numberWithFloat:seconds]
+                                             withDuration:[NSNumber numberWithFloat:milliseconds]
                                              withData:nil
                                              withRect:CGRectNull
                                      withCreationDate:nil
