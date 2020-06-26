@@ -170,6 +170,7 @@ ImagePicker.clean().then(() => {
 | height                    | number | Selected image height                    |
 | mime                      | string | Selected image MIME type (image/jpeg, image/png) |
 | size                      | number | Selected image size in bytes             |
+| duration                  | number | Video duration time in milliseconds      |
 | data                      | base64 | Optional base64 selected file representation |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
 | cropRect                  | object | Cropped image rectangle (width, height, x, y)    |
