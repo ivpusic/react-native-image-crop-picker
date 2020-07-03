@@ -6,16 +6,16 @@
   Copyright (c) 2015 Katsuma Tanaka. All rights reserved.
 */
 
-"albums.title" = "Photos";
+"albums.title" = "Альбомы";
 
-"assets.footer.photo" = "%ld Photo";
-"assets.footer.photos" = "%ld Photos";
-"assets.footer.video" = "%ld Video";
-"assets.footer.videos" = "%ld Videos";
-"assets.footer.photo-and-video" = "%ld Photo, %ld Video";
-"assets.footer.photos-and-video" = "%ld Photos, %ld Video";
-"assets.footer.photo-and-videos" = "%ld Photo, %ld Videos";
-"assets.footer.photos-and-videos" = "%ld Photos, %ld Videos";
+"assets.footer.photo" = "Фотографии: %ld";
+"assets.footer.photos" = "Фотографии: %ld";
+"assets.footer.video" = "Видео: %ld";
+"assets.footer.videos" = "Видео: %ld";
+"assets.footer.photo-and-video" = "Фотографии: %ld, Видео: %ld";
+"assets.footer.photos-and-video" = "Фотографии: %ld, Видео: %ld";
+"assets.footer.photo-and-videos" = "Фотографии: %ld, Видео: %ld";
+"assets.footer.photos-and-videos" = "Фотографии: %ld, Видео: %ld";
 
-"assets.toolbar.item-selected" = "%ld Item Selected";
-"assets.toolbar.items-selected" = "%ld Items Selected";
+"assets.toolbar.item-selected" = "Выбрано элементов: %ld";
+"assets.toolbar.items-selected" = "Выбрано элементов: %ld";
