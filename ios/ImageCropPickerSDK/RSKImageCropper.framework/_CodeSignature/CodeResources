@@ -264,7 +264,7 @@
 			<key>optional</key>
 			<true/>
 		</dict>
-		<key>RSKImageCropperStrings.bundle/ru.lproj/RSKImageCropper.strings</key>
+		<key>RSKImageCropperStrings.bundle/ru-RU.lproj/RSKImageCropper.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>
@@ -752,7 +752,7 @@
 			<key>optional</key>
 			<true/>
 		</dict>
-		<key>RSKImageCropperStrings.bundle/ru.lproj/RSKImageCropper.strings</key>
+		<key>RSKImageCropperStrings.bundle/ru-RU.lproj/RSKImageCropper.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>

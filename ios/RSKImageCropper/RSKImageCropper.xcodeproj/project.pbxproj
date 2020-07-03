@@ -180,7 +180,7 @@
 			};
 			buildConfigurationList = A5BE39371B32B49D00ECDF88 /* Build configuration list for PBXProject "RSKImageCropper" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
