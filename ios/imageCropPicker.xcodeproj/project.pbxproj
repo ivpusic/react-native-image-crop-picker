@@ -167,6 +167,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				de,
 				es,
@@ -174,6 +175,7 @@
 				ja,
 				pl,
 				"zh-Hans",
+				ru,
 			);
 			mainGroup = 3400A7FF1CEB54A6008A0BC7;
 			productRefGroup = 3400A8091CEB54A6008A0BC7 /* Products */;
