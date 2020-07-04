@@ -494,6 +494,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              @"cropRect": CGRectIsNull(cropRect) ? [NSNull null] : [ImageCropPicker cgRectToDictionary:cropRect],
              @"creationDate": (creationDate) ? [NSString stringWithFormat:@"%.0f", [creationDate timeIntervalSince1970]] : [NSNull null],
              @"modificationDate": (modificationDate) ? [NSString stringWithFormat:@"%.0f", [modificationDate timeIntervalSince1970]] : [NSNull null],
+             @"duration": (duration) ? duration : [NSNull null]
              };
 }
 
