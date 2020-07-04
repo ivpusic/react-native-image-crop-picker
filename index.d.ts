@@ -1,4 +1,53 @@
 declare module "react-native-image-crop-picker" {
+    /**
+     * AVAssetExportPreset presets.
+     *
+     * @see https://developer.apple.com/documentation/avfoundation/avassetexportsession/export_preset_names_for_quicktime_files_of_a_given_size
+     */
+    type CompressVideoPresets =
+        | '640x480'
+        | '960x540'
+        | '1280x720'
+        | '1920x1080'
+        | 'HEVC3840x2160'
+        | 'LowQuality'
+        | 'MediumQuality'
+        | 'HighestQuality'
+        | 'Passthrough';
+
+    /**
+     * iOS smart album types
+     *
+     * @see https://developer.apple.com/documentation/photokit/phassetcollectionsubtype
+     */
+    type SmartAlbums =
+        | 'Regular'
+        | 'SyncedEvent'
+        | 'SyncedFaces'
+        | 'SyncedAlbum'
+        | 'Imported'
+        | 'PhotoStream'
+        | 'CloudShared'
+        | 'Generic'
+        | 'Panoramas'
+        | 'Videos'
+        | 'Favorites'
+        | 'Timelapses'
+        | 'AllHidden'
+        | 'RecentlyAdded'
+        | 'Bursts'
+        | 'SlomoVideos'
+        | 'UserLibrary'
+        | 'Screenshots'
+        | 'SelfPortraits'
+        /** >= iOS 10.2 */
+        | 'DepthEffect'
+        /** >= iOS 10.3 */
+        | 'LivePhotos'
+        /** >= iOS 11 */
+        | 'Animated'
+        | 'LongExposure';
+
     export interface Options {
         cropping?: boolean;
         width?: number;
@@ -19,9 +68,9 @@ declare module "react-native-image-crop-picker" {
         disableCropperColorSetters?: boolean;
         maxFiles?: number;
         waitAnimationEnd?: boolean;
-        smartAlbums?: string[];
+        smartAlbums?: SmartAlbums[];
         useFrontCamera?: boolean;
-        compressVideoPreset?: string;
+        compressVideoPreset?: CompressVideoPresets;
         compressImageMaxWidth?: number;
         compressImageMaxHeight?: number;
         compressImageQuality?: number;
