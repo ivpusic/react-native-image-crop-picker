@@ -48,14 +48,28 @@ declare module "react-native-image-crop-picker" {
         | 'Animated'
         | 'LongExposure';
 
-    export interface Options {
-        cropping?: boolean;
-        width?: number;
-        height?: number;
+    export interface CommonOptions {
         multiple?: boolean;
         path?: string;
+        maxFiles?: number;
+        waitAnimationEnd?: boolean;
+        smartAlbums?: SmartAlbums[];
+        useFrontCamera?: boolean;
+        loadingLabelText?: string;
+        showsSelectedCount?: boolean;
+        sortOrder?: 'none' | 'asc' | 'desc';
+        hideBottomControls?: boolean;
+        writeTempFile?: boolean;
+    }
+
+    type ImageOptions = CommonOptions & {
+        mediaType: 'photo';
+        width?: number;
+        height?: number;
         includeBase64?: boolean;
         includeExif?: boolean;
+        forceJpg?: boolean;
+        cropping?: boolean;
         avoidEmptySpaceAroundImage?: boolean;
         cropperActiveWidgetColor?: string;
         cropperStatusBarColor?: string;
@@ -65,27 +79,26 @@ declare module "react-native-image-crop-picker" {
         freeStyleCropEnabled?: boolean;
         cropperTintColor?: string;
         cropperCircleOverlay?: boolean;
+        cropperCancelText?: string;
+        cropperChooseText?: string;
+        showCropGuidelines?: boolean;
+        enableRotationGesture?: boolean;
         disableCropperColorSetters?: boolean;
-        maxFiles?: number;
-        waitAnimationEnd?: boolean;
-        smartAlbums?: SmartAlbums[];
-        useFrontCamera?: boolean;
-        compressVideoPreset?: CompressVideoPresets;
         compressImageMaxWidth?: number;
         compressImageMaxHeight?: number;
         compressImageQuality?: number;
-        loadingLabelText?: string;
-        mediaType?: 'photo' | 'video' | 'any';
-        showsSelectedCount?: boolean;
-        forceJpg?: boolean;
-        sortOrder?: 'none' | 'asc' | 'desc';
-        showCropGuidelines?: boolean;
-        hideBottomControls?: boolean;
-        enableRotationGesture?: boolean;
-        cropperCancelText?: string;
-        cropperChooseText?: string;
-        writeTempFile?: boolean;
     }
+
+    type VideoOptions = CommonOptions & {
+        mediaType: 'video';
+        compressVideoPreset?: CompressVideoPresets;
+    };
+
+    type AnyOptions = Omit<ImageOptions, 'mediaType'> & Omit<VideoOptions, 'mediaType'> & {
+        mediaType?: 'any';
+    };
+
+    export type Options = AnyOptions | VideoOptions | ImageOptions;
 
     interface ImageVideoCommon {
         path: string;
@@ -98,7 +111,6 @@ declare module "react-native-image-crop-picker" {
         filename: string;
         creationDate: string;
         modificationDate?: string;
-        duration: null | number;
     }
 
     export interface Image extends ImageVideoCommon {
@@ -109,12 +121,6 @@ declare module "react-native-image-crop-picker" {
     export interface Video extends ImageVideoCommon {
       /** Video duration in milliseconds */
       duration: null | number;
-
-      /** Video framerate, rounded to whole number on Android */
-      framerate?: null | number;
-
-      /** Estimated video bitrate in bits-per-second */
-      bitrate?: null | number;
     }
 
     export type ImageOrVideo = Image | Video;
@@ -149,16 +155,25 @@ declare module "react-native-image-crop-picker" {
 
     export type PickerErrorCode = PickerErrorCodeCommon | PickerErrorCodeIOS | PickerErrorCodeAndroid;
 
-    export function openPicker(options: Options): Promise<Image | Image[]>;
-    export function openCamera(options: Options): Promise<Image | Image[]>;
-    export function openCropper(options: Options): Promise<Image>;
+    /** Change return type based on `multiple` property. */
+    export type PossibleArray<O, T> = O extends { multiple: true; } ? T[] : T;
+
+    /** Isolate return type based on `mediaType` property. */
+    type MediaType<O> =
+        O extends { mediaType: 'photo'; } ? Image :
+        O extends { mediaType: 'video'; } ? Video :
+        ImageOrVideo;
+
+    export function openPicker<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
+    export function openCamera<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
+    export function openCropper(options: ImageOptions): Promise<Image>;
     export function clean(): Promise<void>;
     export function cleanSingle(path: string): Promise<void>;
 
     export interface ImageCropPicker {
-        openPicker(options: Options): Promise<ImageOrVideo | ImageOrVideo[]>;
-        openCamera(options: Options): Promise<ImageOrVideo | ImageOrVideo[]>;
-        openCropper(options: Options): Promise<Image>;
+        openPicker<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
+        openCamera<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
+        openCropper(options: ImageOptions): Promise<Image>;
         clean(): Promise<void>;
         cleanSingle(path: string): Promise<void>;
     }
