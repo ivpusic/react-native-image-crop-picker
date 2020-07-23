@@ -151,6 +151,8 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| disableZoom            |           bool (default false)        | Disable zooming of image |
+| maximumZoomScale            |           number (default 10.0 (Android)/15.0 (iOS))        | Maximum scale to zoom image|
 
 #### Smart Album Types (ios)
 
