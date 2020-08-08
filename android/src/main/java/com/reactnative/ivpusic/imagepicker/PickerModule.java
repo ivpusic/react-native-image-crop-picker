@@ -81,15 +81,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean useFrontCamera = false;
     private ReadableMap options;
 
-    //Grey 800
-    private final String DEFAULT_TINT = "#424242";
-    private String cropperActiveWidgetColor = DEFAULT_TINT;
-    private String cropperStatusBarColor = DEFAULT_TINT;
-    private String cropperToolbarColor = DEFAULT_TINT;
+    private String cropperActiveWidgetColor = null;
+    private String cropperStatusBarColor = null;
+    private String cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
+    private String cropperToolbarWidgetColor = null;
 
-    //Light Blue 500
-    private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
     private int width = 0;
     private int height = 0;
 
@@ -125,10 +122,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
         cropping = options.hasKey("cropping") && options.getBoolean("cropping");
-        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : DEFAULT_TINT;
-        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : DEFAULT_TINT;
-        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : DEFAULT_TINT;
+        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : null;
+        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : null;
+        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : null;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
+        cropperToolbarWidgetColor = options.hasKey("cropperToolbarWidgetColor") ? options.getString("cropperToolbarWidgetColor") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
         showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
@@ -491,6 +489,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return bmp;
     }
+    
+    private static Long getVideoDuration(String path) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(path);
+
+        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+    }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
         validateVideo(path);
@@ -507,12 +512,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                         try {
                             Bitmap bmp = validateVideo(videoPath);
                             long modificationDate = new File(videoPath).lastModified();
+                            long duration = getVideoDuration(videoPath);
 
                             WritableMap video = new WritableNativeMap();
                             video.putInt("width", bmp.getWidth());
                             video.putInt("height", bmp.getHeight());
                             video.putString("mime", mime);
                             video.putInt("size", (int) new File(videoPath).length());
+                            video.putInt("duration", (int) duration);
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
@@ -574,7 +581,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(options, path, original);
+        File compressedImage = compression.compressImage(this.reactContext, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -604,20 +611,20 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void configureCropperColors(UCrop.Options options) {
-        int activeWidgetColor = Color.parseColor(cropperActiveWidgetColor);
-        int toolbarColor = Color.parseColor(cropperToolbarColor);
-        int statusBarColor = Color.parseColor(cropperStatusBarColor);
-        options.setToolbarColor(toolbarColor);
-        options.setStatusBarColor(statusBarColor);
-        if (activeWidgetColor == Color.parseColor(DEFAULT_TINT)) {
-            /*
-            Default tint is grey => use a more flashy color that stands out more as the call to action
-            Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
-            */
-            options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
-        } else {
-            //If they pass a custom tint color in, we use this for everything
-            options.setActiveWidgetColor(activeWidgetColor);
+        if (cropperActiveWidgetColor != null) {
+            options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
+        }
+
+        if (cropperToolbarColor != null) {
+            options.setToolbarColor(Color.parseColor(cropperToolbarColor));
+        }
+
+        if (cropperStatusBarColor != null) {
+            options.setStatusBarColor(Color.parseColor(cropperStatusBarColor));
+        }
+
+        if (cropperToolbarWidgetColor != null) {
+            options.setToolbarWidgetColor(Color.parseColor(cropperToolbarWidgetColor));
         }
     }
 
@@ -630,9 +637,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setShowCropGrid(showCropGuidelines);
         options.setShowCropFrame(showCropFrame);
         options.setHideBottomControls(hideBottomControls);
+
         if (cropperToolbarTitle != null) {
             options.setToolbarTitle(cropperToolbarTitle);
         }
+
         if (enableRotationGesture) {
             // UCropActivity.ALL = enable both rotation & scaling
             options.setAllowedGestures(
@@ -641,6 +650,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
+
         if (!disableCropperColorSetters) {
             configureCropperColors(options);
         }
@@ -737,7 +747,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        resultUri = Uri.fromFile(compression.resize(resultUri.getPath(), width, height, 100));
+                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100);
+                        resultUri = Uri.fromFile(resized);
                     }
 
                     WritableMap result = getSelection(activity, resultUri, false);
@@ -784,8 +795,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private File createImageFile() throws IOException {
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File path = this.reactContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -803,8 +813,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private File createVideoFile() throws IOException {
 
         String videoFileName = "video-" + UUID.randomUUID().toString();
-        File path = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        File path = this.reactContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();

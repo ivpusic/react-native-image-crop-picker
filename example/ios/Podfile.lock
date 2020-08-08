@@ -19,7 +19,6 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - QBImagePickerController (3.4.0)
   - RCTRequired (0.61.2)
   - RCTTypeSafety (0.61.2):
     - FBLazyVector (= 0.61.2)
@@ -223,12 +222,16 @@ PODS:
     - React-cxxreact (= 0.61.2)
     - React-jsi (= 0.61.2)
     - ReactCommon/jscallinvoker (= 0.61.2)
-  - RNImageCropPicker (0.25.3):
-    - QBImagePickerController
+  - RNImageCropPicker (0.32.0):
     - React-Core
     - React-RCTImage
-    - RSKImageCropper
-  - RSKImageCropper (2.2.3)
+    - RNImageCropPicker/QBImagePickerController (= 0.32.0)
+    - TOCropViewController
+  - RNImageCropPicker/QBImagePickerController (0.32.0):
+    - React-Core
+    - React-RCTImage
+    - TOCropViewController
+  - TOCropViewController (2.5.2)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -260,14 +263,13 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/jscallinvoker (from `../node_modules/react-native/ReactCommon`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - RNImageCropPicker (from `../../`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
     - boost-for-react-native
-    - QBImagePickerController
-    - RSKImageCropper
+    - TOCropViewController
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -321,7 +323,7 @@ EXTERNAL SOURCES:
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
   RNImageCropPicker:
-    :path: "../node_modules/react-native-image-crop-picker"
+    :path: "../../"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -332,7 +334,6 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: 5a764c60abdc3336a213e5310c40b74741f32839
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
   RCTRequired: c639d59ed389cfb1f1203f65c2ea946d8ec586e2
   RCTTypeSafety: dc23fb655d6c77667c78e327bf661bc11e3b8aec
   React: 7e586e5d7bec12b91c1a096826b0fc9ab1da7865
@@ -353,10 +354,10 @@ SPEC CHECKSUMS:
   React-RCTText: e3ef6191cdb627855ff7fe8fa0c1e14094967fb8
   React-RCTVibration: fb54c732fd20405a76598e431aa2f8c2bf527de9
   ReactCommon: 5848032ed2f274fcb40f6b9ec24067787c42d479
-  RNImageCropPicker: bfb3ea9c8622f290532e2fe63f369e0d5a52f597
-  RSKImageCropper: a446db0e8444a036b34f3c43db01b2373baa4b2a
+  RNImageCropPicker: fc4b4d2a4d7176eeb6442fa191ba56493c14b6d6
+  TOCropViewController: e9da34f484aedd4e5d5a8ab230ba217cfe16c729
   Yoga: 14927e37bd25376d216b150ab2a561773d57911f
 
-PODFILE CHECKSUM: 61ffb4ec62885bf26d3320925ac20ddbefc82e79
+PODFILE CHECKSUM: c105f81c59b354c8c6043ddcc6156cc74cc4a621
 
-COCOAPODS: 1.8.3
+COCOAPODS: 1.9.1
