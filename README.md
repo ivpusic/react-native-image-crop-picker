@@ -172,7 +172,7 @@ NOTE: Some of these types may not be available on all iOS versions. Be sure to c
 | mime                      | string | Selected image MIME type (image/jpeg, image/png) |
 | size                      | number | Selected image size in bytes             |
 | duration                  | number | Video duration time in milliseconds      |
-| data                      | base64 | Optional base64 selected file representation |
+| data                      | base64 | Optional base64 selected file representation (see `includeBase64` in request object) |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
 | cropRect                  | object | Cropped image rectangle (width, height, x, y)    |
 | creationDate (ios only)   | string | UNIX timestamp when image was created    |
