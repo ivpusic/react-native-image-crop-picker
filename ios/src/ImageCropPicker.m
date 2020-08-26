@@ -418,7 +418,14 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
 - (void) handleVideo:(AVAsset*)asset withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
     NSURL *sourceURL = [(AVURLAsset *)asset URL];
-
+    
+    // extract creation date
+    AVMetadataItem *creationDateMeta = asset.creationDate;
+    NSDate *creationDate;
+    if (creationDateMeta) {
+        creationDate = creationDateMeta.dateValue;
+    }
+    
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
@@ -451,7 +458,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                              withDuration:[NSNumber numberWithFloat:milliseconds]
                                              withData:nil
                                              withRect:CGRectNull
-                                     withCreationDate:nil
+                                     withCreationDate:creationDate
                                  withModificationDate:nil
                         ]);
         } else {
