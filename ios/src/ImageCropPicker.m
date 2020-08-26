@@ -165,6 +165,11 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                     picker.mediaTypes = [[NSArray alloc] initWithObjects:(NSString *)kUTTypeMovie, nil];
                     picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
                 }
+                
+                id durationLimit = [self.options objectForKey:@"durationLimit"];
+                if (durationLimit) {
+                    picker.videoMaximumDuration = [durationLimit doubleValue];
+                }
             }
 
             if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
