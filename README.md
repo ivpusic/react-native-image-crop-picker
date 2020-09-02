@@ -63,7 +63,7 @@ ImagePicker.openPicker({
 **Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
-### Select from camera 
+### Select from camera
 
 #### Image
 
@@ -172,6 +172,8 @@ NOTE: Some of these types may not be available on all iOS versions. Be sure to c
 | mime                      | string | Selected image MIME type (image/jpeg, image/png) |
 | size                      | number | Selected image size in bytes             |
 | duration                  | number | Video duration time in milliseconds      |
+| framerate                 | number | Video framerate, rounded to whole number on Android |
+| bitrate                   | number | Average video bitrate in bits-per-second |
 | data                      | base64 | Optional base64 selected file representation |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
 | cropRect                  | object | Cropped image rectangle (width, height, x, y)    |
@@ -202,12 +204,12 @@ pod install
 #### Step 1
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-  
+
 #### (Optional) Step 2 - To localizate the camera / gallery / cropper text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
-- Select your project in the project list 
+- Select your project in the project list
 - Should be into the Info tab and add in Localizations the language your app was missing throughout the +
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
@@ -253,7 +255,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     ...
-    
+
     defaultConfig {
       ...
       targetSdkVersion 27

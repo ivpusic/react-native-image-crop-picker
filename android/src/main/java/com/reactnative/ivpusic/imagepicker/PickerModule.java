@@ -10,6 +10,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -478,23 +480,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.notifySuccess(getImage(activity, path));
     }
 
-    private Bitmap validateVideo(String path) throws Exception {
+    private MediaMetadataRetriever validateVideo(String path) throws Exception {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(path);
-        Bitmap bmp = retriever.getFrameAtTime();
 
-        if (bmp == null) {
+        if (retriever == null) {
             throw new Exception("Cannot retrieve video data");
         }
 
-        return bmp;
-    }
-    
-    private static Long getVideoDuration(String path) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
-
-        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        return retriever;
     }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
@@ -510,16 +504,36 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                         String videoPath = (String) args[0];
 
                         try {
-                            Bitmap bmp = validateVideo(videoPath);
+                            MediaMetadataRetriever retriever = validateVideo(videoPath);
+                            Bitmap bmp = retriever.getFrameAtTime();
                             long modificationDate = new File(videoPath).lastModified();
-                            long duration = getVideoDuration(videoPath);
+
+                            MediaExtractor mediaExtractor = new MediaExtractor();
+                            int frameRate = 0;
+                            try {
+                              mediaExtractor.setDataSource(videoPath);
+                              MediaFormat format = mediaExtractor.getTrackFormat(0);
+
+                              if (format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                                frameRate = format.getInteger(MediaFormat.KEY_FRAME_RATE);
+                              }
+                            } catch (IOException e) {
+                              // resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+                            } finally {
+                              mediaExtractor.release();
+                            }
+
+                            int duration = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                            int bitrate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
 
                             WritableMap video = new WritableNativeMap();
                             video.putInt("width", bmp.getWidth());
                             video.putInt("height", bmp.getHeight());
                             video.putString("mime", mime);
                             video.putInt("size", (int) new File(videoPath).length());
-                            video.putInt("duration", (int) duration);
+                            video.putInt("duration", duration);
+                            video.putInt("framerate", frameRate);
+                            video.putInt("bitrate", bitrate);
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
