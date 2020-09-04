@@ -141,7 +141,12 @@ declare module "react-native-image-crop-picker" {
 
     type ImageOptions = CommonOptions & {
         mediaType: 'photo';
-
+        
+        /**
+         * Selected image location. This is null when the `writeTempFile` option is set to `false`.
+         */
+        path: string;
+        
         /**
          * Width of result image when used with `cropping` option.
          */
