@@ -470,4 +470,6 @@ declare module "react-native-image-crop-picker" {
     const ImageCropPicker: ImageCropPicker;
 
     export default ImageCropPicker;
+
+    export const isCancel: (error: unknown) => Boolean
 }

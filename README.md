@@ -111,6 +111,26 @@ ImagePicker.clean().then(() => {
 });
 ```
 
+### Cancel piker or close camera
+
+If the user cancels the image picker without choosing an image (by pressing the system back button on Android or the Cancel button on iOS) the Promise will be rejected with a cancellation error. You can check for this error using `isCancel(error)` allowing you to ignore it and cleanup any parts of your interface that may not be needed anymore.
+
+```javascript
+import ImagePicker, { isCancel } from "react-native-image-crop-picker";
+
+ImagePicker.openPicker({
+  mediaType: "photo"
+}).then(() => {
+  // ...
+}).catch(error => {
+  if (isCancel(error)) {
+    // User cancelled the picker, exit any dialogs or menus and move on
+  } else {
+    throw error;
+  }
+});
+```
+
 ### Request Object
 
 | Property                                |                   Type                   | Description                           |
