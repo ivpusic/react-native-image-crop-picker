@@ -310,6 +310,13 @@ declare module "react-native-image-crop-picker" {
         compressImageQuality?: number;
     }
 
+    type CropperOptions = ImageOptions & {
+        /**
+         * Selected image location
+         */
+        path: string;
+    }
+
     type VideoOptions = CommonOptions & {
         mediaType: 'video';
 
@@ -455,14 +462,14 @@ declare module "react-native-image-crop-picker" {
 
     export function openPicker<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
     export function openCamera<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
-    export function openCropper(options: ImageOptions): Promise<Image>;
+    export function openCropper(options: CropperOptions): Promise<Image>;
     export function clean(): Promise<void>;
     export function cleanSingle(path: string): Promise<void>;
 
     export interface ImageCropPicker {
         openPicker<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
         openCamera<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
-        openCropper(options: ImageOptions): Promise<Image>;
+        openCropper(options: CropperOptions): Promise<Image>;
         clean(): Promise<void>;
         cleanSingle(path: string): Promise<void>;
     }
