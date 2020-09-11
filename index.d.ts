@@ -417,6 +417,16 @@ declare module "react-native-image-crop-picker" {
          * Video duration in milliseconds
          */
         duration: number | null;
+
+        /**
+         * Video framerate, rounded to whole number on Android.
+         */
+        framerate: number | null;
+
+        /**
+         * Average video bitrate in bits-per-second.
+         */
+        bitrate: number | null;
     }
 
     export type ImageOrVideo = Image | Video;
