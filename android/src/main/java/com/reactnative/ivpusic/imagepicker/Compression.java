@@ -53,7 +53,24 @@ class Compression {
             finalHeight = (int) ((float) maxWidth / ratioBitmap);
         }
 
-        Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
+
+        int halfWidth = original.getWidth() / 2;
+        int halfHeight = original.getHeight() / 2;
+        Bitmap resized = original;
+
+        while (halfWidth * 2 > finalWidth) {
+            Bitmap temp = Bitmap.createScaledBitmap(resized, halfWidth, halfHeight, true);
+            resized.recycle();
+            resized = temp;
+
+            halfWidth /= 2;
+            halfHeight /= 2;
+        }
+
+        Bitmap temp = Bitmap.createScaledBitmap(resized, finalWidth, finalHeight, true);
+        resized.recycle();
+        resized = temp;
+
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
