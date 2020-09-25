@@ -263,6 +263,18 @@ android {
 }
 ```
 
+- Minimum Gradle version if you are using react-native-image-crop-picker >= 0.35.0
+
+```
+3.3.3
+3.4.3
+3.5.4
+3.6.4
+4.0.1
+```
+
+Reference for more details https://github.com/ivpusic/react-native-image-crop-picker/issues/1406
+
 - [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
