@@ -79,6 +79,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private boolean useFrontCamera = false;
+    private boolean pickByAlbum = false;
     private ReadableMap options;
 
     private String cropperActiveWidgetColor = null;
@@ -135,6 +136,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
+        pickByAlbum = options.hasKey("pickByAlbum") ? options.getBoolean("pickByAlbum") : false;
         this.options = options;
     }
 
@@ -338,24 +340,32 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-
+            String type = "*/*";
             if (cropping || mediaType.equals("photo")) {
-                galleryIntent.setType("image/*");
+                type = "image/*";
             } else if (mediaType.equals("video")) {
-                galleryIntent.setType("video/*");
+                type = "video/*";
+            }
+            Intent galleryIntent = null;
+
+            if (pickByAlbum) {
+                galleryIntent = new Intent(Intent.ACTION_PICK, null);
+                galleryIntent.setDataAndType(MediaStore.Images.Media.INTERNAL_CONTENT_URI, type);
             } else {
-                galleryIntent.setType("*/*");
-                String[] mimetypes = {"image/*", "video/*"};
-                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType(type);
+                galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
+                galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+
+                galleryIntent = Intent.createChooser(galleryIntent, "Pick an image");
             }
 
-            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
-
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            if(type.equals("*/*")) {
+                String[] types = {"image/*", "video/*"};
+                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, types);
+            }
+            activity.startActivityForResult(galleryIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
