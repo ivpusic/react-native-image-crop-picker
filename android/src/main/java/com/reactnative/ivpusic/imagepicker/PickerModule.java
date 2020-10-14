@@ -152,30 +152,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     public void clean(final Promise promise) {
 
         final Activity activity = getCurrentActivity();
-        final PickerModule module = this;
-
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
             return;
         }
-
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                try {
-                    File file = new File(module.getTmpDir(activity));
-                    if (!file.exists()) throw new Exception("File does not exist");
-
-                    module.deleteRecursive(file);
-                    promise.resolve(null);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
-                }
-
-                return null;
-            }
-        });
+        try {
+            File file = new File(getTmpDir(activity));
+            if (!file.exists()) throw new Exception("File does not exist");
+            deleteRecursive(file);
+            promise.resolve(null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            promise.reject(E_ERROR_WHILE_CLEANING_FILES, ex.getMessage());
+        }
     }
 
     @ReactMethod
@@ -283,7 +272,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, false);
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.CAMERA), new Callable<Void>() {
             @Override
             public Void call() {
                 initiateCamera(activity);
@@ -300,10 +289,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             if (mediaType.equals("video")) {
                 intent = MediaStore.ACTION_VIDEO_CAPTURE;
-                dataFile = createVideoFile();
+                dataFile = createVideoFile(activity);
             } else {
                 intent = MediaStore.ACTION_IMAGE_CAPTURE;
-                dataFile = createImageFile();
+                dataFile = createImageFile(activity);
             }
 
             Intent cameraIntent = new Intent(intent);
@@ -377,13 +366,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                initiatePicker(activity);
-                return null;
-            }
-        });
+        initiatePicker(activity);
     }
 
     @ReactMethod
@@ -795,10 +778,24 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 || activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
     }
 
-    private File createImageFile() throws IOException {
+    private File getCameraOutputDir(Activity activity) {
+        int status = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        File path;
+        if (status == PackageManager.PERMISSION_GRANTED) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        } else {
+            path = new File(getTmpDir(activity), "camera");
+        }
+        if (!path.exists() && !path.isDirectory()) {
+            path.mkdirs();
+        }
+        return path;
+    }
+
+    private File createImageFile(Activity activity) throws IOException {
 
         String imageFileName = "image-" + UUID.randomUUID().toString();
-        File path = this.reactContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File path = getCameraOutputDir(activity);
 
         if (!path.exists() && !path.isDirectory()) {
             path.mkdirs();
@@ -813,14 +810,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     }
 
-    private File createVideoFile() throws IOException {
+    private File createVideoFile(Activity activity) throws IOException {
 
         String videoFileName = "video-" + UUID.randomUUID().toString();
-        File path = this.reactContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-        if (!path.exists() && !path.isDirectory()) {
-            path.mkdirs();
-        }
+        File path = getCameraOutputDir(activity);
 
         File video = File.createTempFile(videoFileName, ".mp4", path);
 
