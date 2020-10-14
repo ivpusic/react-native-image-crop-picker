@@ -6,8 +6,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.Build;
 import android.os.Environment;
+import android.renderscript.Allocation;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
+import android.renderscript.ScriptIntrinsicResize;
+import android.renderscript.Type;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -27,6 +35,53 @@ import java.util.UUID;
 
 class Compression {
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    // https://medium.com/@petrakeas/alias-free-resize-with-renderscript-5bf15a86ce3
+    public static Bitmap resizeBitmapWithRenderScript(RenderScript rs, Bitmap src, int dstWidth) {
+        Bitmap.Config  bitmapConfig = src.getConfig();
+        int srcWidth = src.getWidth();
+        int srcHeight = src.getHeight();
+        float srcAspectRatio = (float) srcWidth / srcHeight;
+        int dstHeight = (int) (dstWidth / srcAspectRatio);
+
+        float resizeRatio = (float) srcWidth / dstWidth;
+
+        /* Calculate gaussian's radius */
+        float sigma = resizeRatio / (float) Math.PI;
+        // https://android.googlesource.com/platform/frameworks/rs/+/master/cpu_ref/rsCpuIntrinsicBlur.cpp
+        float radius = 2.5f * sigma - 1.5f;
+        radius = Math.min(25, Math.max(0.0001f, radius));
+
+        /* Gaussian filter */
+        Allocation tmpIn = Allocation.createFromBitmap(rs, src);
+        Allocation tmpFiltered = Allocation.createTyped(rs, tmpIn.getType());
+        ScriptIntrinsicBlur blurIntrinsic = ScriptIntrinsicBlur.create(rs, tmpIn.getElement());
+
+        blurIntrinsic.setRadius(radius);
+        blurIntrinsic.setInput(tmpIn);
+        blurIntrinsic.forEach(tmpFiltered);
+
+        tmpIn.destroy();
+        blurIntrinsic.destroy();
+
+        /* Resize */
+        Bitmap dst = Bitmap.createBitmap(dstWidth, dstHeight, bitmapConfig);
+        Type t = Type.createXY(rs, tmpFiltered.getElement(), dstWidth, dstHeight);
+        Allocation tmpOut = Allocation.createTyped(rs, t);
+        ScriptIntrinsicResize resizeIntrinsic = ScriptIntrinsicResize.create(rs);
+
+        resizeIntrinsic.setInput(tmpFiltered);
+        resizeIntrinsic.forEach_bicubic(tmpOut);
+        tmpOut.copyTo(dst);
+
+        tmpFiltered.destroy();
+        tmpOut.destroy();
+        resizeIntrinsic.destroy();
+
+        return dst;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
@@ -45,33 +100,12 @@ class Compression {
         float ratioMax = (float) maxWidth / (float) maxHeight;
 
         int finalWidth = maxWidth;
-        int finalHeight = maxHeight;
 
         if (ratioMax > 1) {
             finalWidth = (int) ((float) maxHeight * ratioBitmap);
-        } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
         }
 
-
-        int halfWidth = original.getWidth() / 2;
-        int halfHeight = original.getHeight() / 2;
-        Bitmap resized = original;
-
-        while (halfWidth * 2 > finalWidth) {
-            Bitmap temp = Bitmap.createScaledBitmap(resized, halfWidth, halfHeight, true);
-            resized.recycle();
-            resized = temp;
-
-            halfWidth /= 2;
-            halfHeight /= 2;
-        }
-
-        Bitmap temp = Bitmap.createScaledBitmap(resized, finalWidth, finalHeight, true);
-        resized.recycle();
-        resized = temp;
-
-        resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
+        Bitmap resized = resizeBitmapWithRenderScript(RenderScript.create(context), original, finalWidth);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
