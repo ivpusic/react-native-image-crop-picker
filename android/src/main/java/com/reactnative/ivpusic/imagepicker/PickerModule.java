@@ -644,7 +644,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void startCropping(final Activity activity, final Uri uri, boolean isCamera) {
         UCrop.Options options = new UCrop.Options();
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setFreeStyleCropEnabled(freeStyleCropEnabled);
@@ -664,12 +663,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
+        if (!disableCropperColorSetters) {
+            configureCropperColors(options);
+        }
         try {
             String extension = resolveExtension(activity, uri, isCamera);
             options.setCompressionFormat(compression.determineCompressionFromFileExtension(extension));
-            if (!disableCropperColorSetters) {
-                configureCropperColors(options);
-            }
 
             UCrop uCrop = UCrop
                     .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + extension)))
