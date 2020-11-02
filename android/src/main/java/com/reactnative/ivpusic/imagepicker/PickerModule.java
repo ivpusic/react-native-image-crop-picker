@@ -35,6 +35,12 @@ import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
+
+import android.content.pm.ActivityInfo;
+import android.util.Log;
+import android.widget.Toast;
+import com.anilokcun.uwmediapicker.UwMediaPicker;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -336,30 +342,51 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     }
 
+    //UW media picker
+    private void getImagesFromGalaryUWMediaPicker() {
+        UwMediaPicker.Companion
+                .with(this)                        // Activity or Fragment
+                .setGalleryMode(UwMediaPicker.GalleryMode.ImageGallery) // GalleryMode: ImageGallery/VideoGallery/ImageAndVideoGallery, default is ImageGallery
+                .setGridColumnCount(4)                                  // Grid column count, default is 3
+                .setMaxSelectableMediaCount(10)                         // Maximum selectable media count, default is null which means infinite
+                .setLightStatusBar(true)                                // Is llight status bar enable, default is true
+                .enableImageCompression(true)                // Is image compression enable, default is false
+                .setCompressionMaxWidth(1280F)                // Compressed image's max width px, default is 1280
+                .setCompressionMaxHeight(720F)                // Compressed image's max height px, default is 720
+                .setCompressFormat(Bitmap.CompressFormat.JPEG)        // Compressed image's format, default is JPEG
+                .setCompressionQuality(85)                // Image compression quality, default is 85
+                .setCompressedFileDestinationPath("path").launch(n -> {
+            Toast.makeText(this, "Selected Items" + n, Toast.LENGTH_SHORT).show();
+            return null;
+        });
+    }
+
     private void initiatePicker(final Activity activity) {
+
         try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-
-            if (cropping || mediaType.equals("photo")) {
-                galleryIntent.setType("image/*");
-                if (cropping) {
-                    String[] mimetypes = {"image/jpeg", "image/png"};
-                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                }
-            } else if (mediaType.equals("video")) {
-                galleryIntent.setType("video/*");
-            } else {
-                galleryIntent.setType("*/*");
-                String[] mimetypes = {"image/*", "video/*"};
-                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-            }
-
-            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
-
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            getImagesFromGalaryUWMediaPicker();
+//            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+//
+//            if (cropping || mediaType.equals("photo")) {
+//                galleryIntent.setType("image/*");
+//                if (cropping) {
+//                    String[] mimetypes = {"image/jpeg", "image/png"};
+//                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//                }
+//            } else if (mediaType.equals("video")) {
+//                galleryIntent.setType("video/*");
+//            } else {
+//                galleryIntent.setType("*/*");
+//                String[] mimetypes = {"image/*", "video/*"};
+//                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+//            }
+//
+//            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
+//            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+//
+//            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+//            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
