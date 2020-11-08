@@ -46,8 +46,8 @@ class Compression {
         // Resize the image by whichever ratio will make the image smaller, satisfying both constraints.
         float resizeRatio = Math.min(widthRatio, heightRatio);
 
-        int finalWidth = width * resizeRatio;
-        int finalHeight = height * resizeRatio;
+        int finalWidth = (int) (width * resizeRatio);
+        int finalHeight = (int) (height * resizeRatio);
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
