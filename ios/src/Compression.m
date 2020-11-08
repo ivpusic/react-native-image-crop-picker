@@ -41,16 +41,13 @@
     CGFloat oldWidth = image.size.width;
     CGFloat oldHeight = image.size.height;
     
-    int newWidth = 0;
-    int newHeight = 0;
-    
-    if (maxWidth < maxHeight) {
-        newWidth = maxWidth;
-        newHeight = (oldHeight / oldWidth) * newWidth;
-    } else {
-        newHeight = maxHeight;
-        newWidth = (oldWidth / oldHeight) * newHeight;
-    }
+    CGFloat widthRatio = maxWidth / oldWidth;
+    CGFloat heightRatio = maxHeight / oldHeight;
+    // Resize the image by whichever ratio will make the image smaller, satisfying both constraints.
+    CGFloat resizeRatio = widthRatio < heightRatio ? widthRatio : heightRatio;
+
+    int newWidth = oldWidth * resizeRatio;
+    int newHeight = oldHeight * resizeRatio;
     CGSize newSize = CGSizeMake(newWidth, newHeight);
     
     UIGraphicsBeginImageContext(newSize);
