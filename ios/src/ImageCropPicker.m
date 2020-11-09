@@ -864,31 +864,31 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
 #pragma mark - TOCCropViewController Implementation
 - (void)cropImage:(UIImage *)image {
-    TOCropViewController *cropVC;
-    if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
-        cropVC = [[TOCropViewController alloc] initWithCroppingStyle:TOCropViewCroppingStyleCircular image:image];
-    } else {
-        cropVC = [[TOCropViewController alloc] initWithImage:image];
-        CGFloat widthRatio = [[self.options objectForKey:@"width"] floatValue];
-        CGFloat heightRatio = [[self.options objectForKey:@"height"] floatValue];
-        if (widthRatio > 0 && heightRatio > 0){
-            CGSize aspectRatio = CGSizeMake(widthRatio, heightRatio);
-            cropVC.customAspectRatio = aspectRatio;
-            
-        }
-        cropVC.aspectRatioLockEnabled = ![[self.options objectForKey:@"freeStyleCropEnabled"] boolValue];
-        cropVC.resetAspectRatioEnabled = !cropVC.aspectRatioLockEnabled;
-    }
-    
-    cropVC.title = [[self options] objectForKey:@"cropperToolbarTitle"];
-    cropVC.delegate = self;
-    
-    cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
-    cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
-    
-    cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
-    
     dispatch_async(dispatch_get_main_queue(), ^{
+        TOCropViewController *cropVC;
+        if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
+            cropVC = [[TOCropViewController alloc] initWithCroppingStyle:TOCropViewCroppingStyleCircular image:image];
+        } else {
+            cropVC = [[TOCropViewController alloc] initWithImage:image];
+            CGFloat widthRatio = [[self.options objectForKey:@"width"] floatValue];
+            CGFloat heightRatio = [[self.options objectForKey:@"height"] floatValue];
+            if (widthRatio > 0 && heightRatio > 0){
+                CGSize aspectRatio = CGSizeMake(widthRatio, heightRatio);
+                cropVC.customAspectRatio = aspectRatio;
+                
+            }
+            cropVC.aspectRatioLockEnabled = ![[self.options objectForKey:@"freeStyleCropEnabled"] boolValue];
+            cropVC.resetAspectRatioEnabled = !cropVC.aspectRatioLockEnabled;
+        }
+        
+        cropVC.title = [[self options] objectForKey:@"cropperToolbarTitle"];
+        cropVC.delegate = self;
+        
+        cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
+        cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
+        
+        cropVC.modalPresentationStyle = UIModalPresentationFullScreen;\
+        
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });
 }
