@@ -17,9 +17,12 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.anilokcun.uwmediapicker.UwMediaPicker;
+import com.anilokcun.uwmediapicker.model.UwMediaPickerMediaModel;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
@@ -34,12 +37,6 @@ import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
-
-
-import android.content.pm.ActivityInfo;
-import android.util.Log;
-import android.widget.Toast;
-import com.anilokcun.uwmediapicker.UwMediaPicker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -71,6 +68,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
     private static final String E_PERMISSIONS_MISSING = "E_PERMISSION_MISSING";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
+
+    private static final String UW_MEDIA_PICKER_RESULT_KEY = "UW_MEDIA_PICKER_RESULT_KEY";
 
     private String mediaType = "any";
     private boolean multiple = false;
@@ -165,7 +164,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 try {
@@ -199,7 +198,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 try {
@@ -289,7 +288,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, false);
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 initiateCamera(activity);
@@ -342,54 +341,54 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     }
 
-    //UW media picker
-    private void getImagesFromGalaryUWMediaPicker() {
-        UwMediaPicker.Companion
-                .with(this)                        // Activity or Fragment
-                .setGalleryMode(UwMediaPicker.GalleryMode.ImageGallery) // GalleryMode: ImageGallery/VideoGallery/ImageAndVideoGallery, default is ImageGallery
-                .setGridColumnCount(4)                                  // Grid column count, default is 3
-                .setMaxSelectableMediaCount(10)                         // Maximum selectable media count, default is null which means infinite
-                .setLightStatusBar(true)                                // Is llight status bar enable, default is true
-                .enableImageCompression(true)                // Is image compression enable, default is false
-                .setCompressionMaxWidth(1280F)                // Compressed image's max width px, default is 1280
-                .setCompressionMaxHeight(720F)                // Compressed image's max height px, default is 720
-                .setCompressFormat(Bitmap.CompressFormat.JPEG)        // Compressed image's format, default is JPEG
-                .setCompressionQuality(85)                // Image compression quality, default is 85
-                .setCompressedFileDestinationPath("path").launch(n -> {
-            Toast.makeText(this, "Selected Items" + n, Toast.LENGTH_SHORT).show();
-            return null;
-        });
-    }
-
     private void initiatePicker(final Activity activity) {
-
         try {
-            getImagesFromGalaryUWMediaPicker();
-//            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-//
-//            if (cropping || mediaType.equals("photo")) {
-//                galleryIntent.setType("image/*");
-//                if (cropping) {
-//                    String[] mimetypes = {"image/jpeg", "image/png"};
-//                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-//                }
-//            } else if (mediaType.equals("video")) {
-//                galleryIntent.setType("video/*");
-//            } else {
-//                galleryIntent.setType("*/*");
-//                String[] mimetypes = {"image/*", "video/*"};
-//                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-//            }
-//
-//            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-//            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
-//
-//            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-//            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            UwMediaPicker.GalleryMode mode = UwMediaPicker.GalleryMode.ImageGallery;
+
+            if (cropping || mediaType.equals("photo")) {
+                galleryIntent.setType("image/*");
+                if (cropping) {
+                    String[] mimetypes = {"image/jpeg", "image/png"};
+                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                }
+            } else if (mediaType.equals("video")) {
+                galleryIntent.setType("video/*");
+                mode = UwMediaPicker.GalleryMode.VideoGallery;
+            } else {
+                galleryIntent.setType("*/*");
+                String[] mimetypes = {"image/*", "video/*"};
+                mode = UwMediaPicker.GalleryMode.ImageAndVideoGallery;
+                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+            }
+
+            if (multiple) {
+                getImagesFromGalaryUWMediaPicker(mode);
+            } else {
+                galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
+                galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+
+                final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+                activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            }
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
+    }
+
+    //UW media picker
+    private void getImagesFromGalaryUWMediaPicker(UwMediaPicker.GalleryMode mode) {
+        UwMediaPicker.Companion
+                .with((AppCompatActivity) getCurrentActivity())                        // Activity or Fragment
+                .setGalleryMode(mode) // GalleryMode: ImageGallery/VideoGallery/ImageAndVideoGallery, default is ImageGallery
+                .setGridColumnCount(3)                                  // Grid column count, default is 3
+                .setMaxSelectableMediaCount(10)                         // Maximum selectable media count, default is null which means infinite
+                .setLightStatusBar(true)                                // Is llight status bar enable, default is true
+                .launch(n -> {
+                    int numberOfItemsSelected = n == null ? 0 : n.size();
+                    return null;
+                });
     }
 
     @ReactMethod
@@ -404,7 +403,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 initiatePicker(activity);
@@ -426,7 +425,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.setup(promise, false);
 
         final Uri uri = Uri.parse(options.getString("path"));
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 startCropping(activity, uri);
@@ -493,8 +492,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return getImage(activity, path);
     }
 
-    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
-        String path = resolveRealPath(activity, uri, isCamera);
+    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera, boolean otherMediaPickerUsed) throws Exception {
+        String path = uri.getPath();
+        if (!otherMediaPickerUsed) {
+            path = resolveRealPath(activity, uri, isCamera);
+        }
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
             return;
@@ -696,6 +698,36 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         uCrop.start(activity);
     }
 
+    /**
+     * Author :Arvind kumar
+     * email: arvindk@mindfiresolutions.com
+     * process result data, obtained through UWMediaPicker
+     *
+     * @param activity:   current activity
+     * @param resultCode: String result code
+     * @param data:       result data from onActivityResult()
+     */
+    private void uwMediaPickerResult(Activity activity, final int resultCode, final Intent data) {
+        if (resultCode == Activity.RESULT_CANCELED) {
+            resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
+        } else if (resultCode == Activity.RESULT_OK && data.getExtras() != null) {
+            try {
+                ArrayList<UwMediaPickerMediaModel> uriList = data.getExtras().getParcelableArrayList(UW_MEDIA_PICKER_RESULT_KEY);
+
+                if (uriList != null) {
+                    resultCollector.setWaitCount(uriList.size());
+                    for (UwMediaPickerMediaModel media : uriList) {
+                        getAsyncSelection(activity, Uri.parse(media.getMediaPath()), false, true);
+                    }
+                }
+            } catch (Exception ex) {
+                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
+            }
+        } else {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, E_PICKER_CANCELLED_MSG);
+        }
+    }
+
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (resultCode == Activity.RESULT_CANCELED) {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
@@ -707,11 +739,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     // only one image selected
                     if (clipData == null) {
                         resultCollector.setWaitCount(1);
-                        getAsyncSelection(activity, data.getData(), false);
+                        getAsyncSelection(activity, data.getData(), false, false);
                     } else {
                         resultCollector.setWaitCount(clipData.getItemCount());
                         for (int i = 0; i < clipData.getItemCount(); i++) {
-                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
+                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false, false);
                         }
                     }
                 } catch (Exception ex) {
@@ -730,7 +762,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     startCropping(activity, uri);
                 } else {
                     try {
-                        getAsyncSelection(activity, uri, false);
+                        getAsyncSelection(activity, uri, false, false);
                     } catch (Exception ex) {
                         resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                     }
@@ -804,12 +836,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
+
         if (requestCode == IMAGE_PICKER_REQUEST) {
             imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {
             cameraPickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == UCrop.REQUEST_CROP) {
             croppingResult(activity, requestCode, resultCode, data);
+        } else {
+            uwMediaPickerResult(activity, resultCode, data);
         }
     }
 
