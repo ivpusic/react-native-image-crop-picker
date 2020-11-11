@@ -273,6 +273,41 @@ android {
 4.0.1
 ```
 
+======
+EXTRA FEATURE over image-crop-picker library
+- Multiple file can be selected without long press
+- Max file limit can be set similar to ios
+- Color and text can be customized from /res/values/color.xml /res/values/strings.xml
+
+Setup android:
+- minSdkVersion should be 17 or grater
+- you need to enalble kotlin plugin in your project by updating project level build.gradle
+
+buildscript {
+   ext.kotlin_version = '1.4.10'  /// >>>Add this
+  ext {
+    buildToolsVersion = "28.0.3"
+    minSdkVersion = 17
+    compileSdkVersion = 28
+    targetSdkVersion = 28
+  }
+  repositories {
+    mavenCentral()
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath('com.android.tools.build:gradle:4.0.1')
+    classpath 'com.google.gms:google-services:4.3.3'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"   /// >>>Add this
+
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
+}
+
+======
+
 Reference for more details https://github.com/ivpusic/react-native-image-crop-picker/issues/1406
 
 - [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
