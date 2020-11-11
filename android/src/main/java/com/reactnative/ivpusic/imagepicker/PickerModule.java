@@ -94,6 +94,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private int width = 0;
     private int height = 0;
+    private int maxFiles = 10;
 
     private Uri mCameraCaptureURI;
     private String mCurrentMediaPath;
@@ -122,6 +123,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : 10;
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
@@ -383,7 +385,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 .with((AppCompatActivity) getCurrentActivity())                        // Activity or Fragment
                 .setGalleryMode(mode) // GalleryMode: ImageGallery/VideoGallery/ImageAndVideoGallery, default is ImageGallery
                 .setGridColumnCount(3)                                  // Grid column count, default is 3
-                .setMaxSelectableMediaCount(10)                         // Maximum selectable media count, default is null which means infinite
+                .setMaxSelectableMediaCount(maxFiles)                         // Maximum selectable media count, default is null which means infinite
                 .setLightStatusBar(true)                                // Is llight status bar enable, default is true
                 .launch(n -> {
                     int numberOfItemsSelected = n == null ? 0 : n.size();

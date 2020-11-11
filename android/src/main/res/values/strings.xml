@@ -1,0 +1,29 @@
+<resources>
+  <!-- Toolbar Texts -->
+  <string name="uwmediapicker_toolbar_title_image_library">Images</string>
+  <string name="uwmediapicker_toolbar_title_video_library">Videos</string>
+  <string name="uwmediapicker_toolbar_title_image_and_video_library">Gallery</string>
+  <string name="uwmediapicker_toolbar_text_uw_media_picker_selected_media_count">%d/%d selected</string>
+  <string name="uwmediapicker_toolbar_done">Done</string>
+
+  <!-- Snackbar Messages -->
+  <string name="uwmediapicker_snackbar_error_gallery_open_failed">Gallery could not be opened.</string>
+  <string name="uwmediapicker_snackbar_action_retry">Retry</string>
+
+  <!-- Toast Messages-->
+  <string name="uwmediapicker_toast_error_media_bucket_open_failed">Album could not be opened.</string>
+  <string name="uwmediapicker_toast_error_media_select_failed">Media could not be selected.</string>
+  <string name="uwmediapicker_toast_error_max_media_selected">You can not select any more media</string>
+  <string name="uwmediapicker_toast_error_some_media_select_failed">Some media could not be selected</string>
+
+  <!-- Time Formats -->
+  <string name="uwmediapicker_time_format_hour_min_sec">%02d:%02d:%02d</string>
+  <string name="uwmediapicker_time_format_min_sec">%02d:%02d</string>
+
+  <!-- Content Descriptions -->
+  <string name="uwmediapicker_content_description_back_button">Back button</string>
+  <string name="uwmediapicker_content_description_album_thumbnail">Album thumbnail</string>
+  <string name="uwmediapicker_content_description_image_thumbnail">Image thumbnail</string>
+  <string name="uwmediapicker_content_description_video_thumbnail">Video thumbnail</string>
+  <string name="uwmediapicker_content_description_selected_icon">Selected icon</string>g>
+</resources>
