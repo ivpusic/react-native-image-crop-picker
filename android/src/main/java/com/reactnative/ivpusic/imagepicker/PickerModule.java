@@ -89,6 +89,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private int width = 0;
     private int height = 0;
+    private int maximumVideoDuration = -1;
 
     private Uri mCameraCaptureURI;
     private String mCurrentMediaPath;
@@ -135,6 +136,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
+        maximumVideoDuration = options.hasKey("maximumVideoDuration") ? options.getInt("maximumVideoDuration") : -1;
         this.options = options;
     }
 
@@ -324,6 +326,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
             }
 
+            if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
+                cameraIntent.putExtra(Intent.EXTRA_DURATION_MILLIS, maximumVideoDuration);
+            }
+
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
                 return;
@@ -348,6 +354,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
+                if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
+                    galleryIntent.putExtra(Intent.EXTRA_DURATION_MILLIS, maximumVideoDuration);
+                }
             } else {
                 galleryIntent.setType("*/*");
                 String[] mimetypes = {"image/*", "video/*"};
