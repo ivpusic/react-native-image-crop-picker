@@ -327,7 +327,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
-                cameraIntent.putExtra(Intent.EXTRA_DURATION_MILLIS, maximumVideoDuration);
+                cameraIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, maximumVideoDuration);
             }
 
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
@@ -354,13 +354,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
-                if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
-                    galleryIntent.putExtra(Intent.EXTRA_DURATION_MILLIS, maximumVideoDuration);
-                }
             } else {
                 galleryIntent.setType("*/*");
                 String[] mimetypes = {"image/*", "video/*"};
                 galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+            }
+            if (Build.VERSION.SDK_INT >= 29 && maximumVideoDuration > 0) {
+                galleryIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, maximumVideoDuration);
             }
 
             galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
