@@ -9,9 +9,10 @@ iOS/Android image picker with support for camera, video, configurable compressio
 ## Result
 
 <p align="left">
-  <img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick.png">
-<img width=200 title="iOS Crop" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_crop.png">
-<img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick.png">
+  <img width=200 title="iOS Single Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_single_pick_v2.png">
+  <img width=200 title="iOS Multiple Pick" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_multiple_pick_v2.png">
+  <img width=200 title="iOS Crop Normal" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_normal_crop.png">
+  <img width=200 title="iOS Crop Circular" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_circular_crop.png">
 </p>
 
 ## Important note
@@ -59,7 +60,7 @@ ImagePicker.openPicker({
 });
 ```
 
-**Android: The prop 'cropping' has been known to cause videos not to be display in the gallery on Android. Please do not set cropping to true when selecting videos.**
+**Android: The prop 'cropping' has been known to cause videos not to be displayed in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
 ### Select from camera 
@@ -121,10 +122,11 @@ ImagePicker.clean().then(() => {
 | writeTempFile (ios only)                |           bool (default true)            | When set to false, does not write temporary files for the selected images. This is useful to improve performance when you are retrieving file contents with the `includeBase64` option and don't need to read files from disk. |
 | includeBase64                           |           bool (default false)           | When set to true, the image file content will be available as a base64-encoded string in the `data` property. Hint: To use this string as an image source, use it like: ``<Image source={{uri: `data:${image.mime};base64,${image.data}`}} />`` |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
-| avoidEmptySpaceAroundImage            |           bool (default true)           |  When set to true, the image will always fill the mask space. |
+| avoidEmptySpaceAroundImage (ios only)  |           bool (default true)           |  When set to true, the image will always fill the mask space. |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
+| cropperToolbarWidgetColor (android only)      |        string (default `darker orange`)        | When cropping image, determines the color of Toolbar text and buttons. |
 | freeStyleCropEnabled (android only)      |        bool (default false)        | Enables user to apply custom rectangle area for cropping |
 | cropperToolbarTitle                     |        string (default `Edit Photo`)     | When cropping image, determines the title of Toolbar. |
 | cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
@@ -152,6 +154,7 @@ ImagePicker.clean().then(() => {
 
 #### Smart Album Types (ios)
 
+NOTE: Some of these types may not be available on all iOS versions. Be sure to check this to avoid issues.
 ```
 ['PhotoStream', 'Generic', 'Panoramas', 'Videos', 'Favorites', 'Timelapses', 'AllHidden', 'RecentlyAdded', 'Bursts', 'SlomoVideos', 'UserLibrary', 'SelfPortraits', 'Screenshots', 'DepthEffect', 'LivePhotos', 'Animated', 'LongExposure']
 ```
@@ -168,6 +171,7 @@ ImagePicker.clean().then(() => {
 | height                    | number | Selected image height                    |
 | mime                      | string | Selected image MIME type (image/jpeg, image/png) |
 | size                      | number | Selected image size in bytes             |
+| duration                  | number | Video duration time in milliseconds      |
 | data                      | base64 | Optional base64 selected file representation |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
 | cropRect                  | object | Cropped image rectangle (width, height, x, y)    |
@@ -186,48 +190,20 @@ npm i react-native-image-crop-picker --save
 
 ### iOS
 
-#### react-native >= 0.60 with cocoapods
-
-- Run the following:
-
 ```bash
 cd ios
 pod install
 ```
 
-After this use `ios/<project_name>.xcworkspace`. **Do not use** `ios/<project_name>.xcodeproj`.
-
-#### - If you are not using Cocoapods which is not recommended:
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-### Android
-
-NOTE: If you are using react-native >= 0.60 autolinking, you can skip this step.
-
-```bash
-react-native link react-native-image-crop-picker
-```
-
-## Post-install steps
+## Step 3
 
 ### iOS
 
 #### Step 1
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-
-#### Step 2
-
-##### Only if you are not using Cocoapods
-
-- Click on project General tab
-  - Under `Deployment Info` set `Deployment Target` to `8.0`
-  - Under `Embedded Binaries` click `+` and add `RSKImageCropper.framework` and `QBImagePicker.framework`
   
-#### Step Optional - To localizate the camera / gallery text buttons
+#### (Optional) Step 2 - To localizate the camera / gallery / cropper text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
@@ -236,19 +212,6 @@ In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` wit
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
 ### Android
-
-- Make sure you are using Gradle >= `2.2.x` (android/build.gradle)
-
-```gradle
-buildscript {
-    ...
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-        ...
-    }
-    ...
-}
-```
 
 - **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
 
@@ -300,6 +263,18 @@ android {
 }
 ```
 
+- Minimum Gradle version if you are using react-native-image-crop-picker >= 0.35.0
+
+```
+3.3.3
+3.4.3
+3.5.4
+3.6.4
+4.0.1
+```
+
+Reference for more details https://github.com/ivpusic/react-native-image-crop-picker/issues/1406
+
 - [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
@@ -307,25 +282,6 @@ android {
 AndroidManifest.xml`
   - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
   - `<uses-feature android:name="android.hardware.camera.front" android:required="false" />`
-
-## Production build
-
-### iOS
-
-#### Cocoapods (Highly recommended)
-
-- You are already done
-
-#### Manual
-
-If you are using pre-built frameworks from `ios/ImageCropPickerSDK`, then before deploying app to production you should strip off simulator ARCHs from these, or you can add frameworks from `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework` to Embedded Binaries instead of pre-built ones.
-Related issue: https://github.com/ivpusic/react-native-image-crop-picker/issues/61.
-
-Details for second approach:
-
-1. Remove the pre-built frameworks from `Embedded Binaries`
-2. Build for Device
-3. Add the newly built binaries for both frameworks to `Embedded Binaries` (located at `Libraries/imageCropPicker/Libraries/_framework_name_.xcodeproj/Products/_framework_name_.framework`)
 
 ## TO DO
 
