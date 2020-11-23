@@ -387,7 +387,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     pictureToCompress);
             try {
                 BitmapFactory.Options original = validateImage(f.getPath());
-                File compressedImage = compression.compressImage(options, f.getPath(), original);
+                File compressedImage = compression.compressImage(this.reactContext, options, f.getPath(), original);
                 String compressedImagePath = compressedImage.getPath();
                 BitmapFactory.Options bmpOptions = validateImage(compressedImagePath);
                 long modificationDate = new File(compressedImagePath).lastModified();
@@ -807,7 +807,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100);
+                    	File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100, options);
                         resultUri = Uri.fromFile(resized);
                     }
                     WritableMap result = getSelection(activity, resultUri, false);
