@@ -72,6 +72,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String UW_MEDIA_PICKER_RESULT_KEY = "UW_MEDIA_PICKER_RESULT_KEY";
 
     private String mediaType = "any";
+    private String compressVideoPreset = "MediumQuality";
     private boolean multiple = false;
     private boolean includeBase64 = false;
     private boolean includeExif = false;
@@ -122,6 +123,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
+        compressVideoPreset = options.hasKey("compressVideoPreset") ? options.getString("compressVideoPreset") : "MediumQuality";
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : 10;
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
@@ -519,7 +521,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         Bitmap bmp = retriever.getFrameAtTime();
 
         if (bmp == null) {
-            throw new Exception("Cannot retrieve video data");
+//            throw new Exception("Cannot retrieve video data");
         }
 
         return bmp;
@@ -539,7 +541,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         new Thread(new Runnable() {
             @Override
             public void run() {
-                compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
+                compression.compressVideo(compressVideoPreset, activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
                     @Override
                     public void invoke(Object... args) {
                         String videoPath = (String) args[0];
@@ -550,8 +552,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             long duration = getVideoDuration(videoPath);
 
                             WritableMap video = new WritableNativeMap();
-                            video.putInt("width", bmp.getWidth());
-                            video.putInt("height", bmp.getHeight());
+
+                            if (bmp != null) {
+                                video.putInt("width", bmp.getWidth());
+                                video.putInt("height", bmp.getHeight());
+                            }
+
                             video.putString("mime", mime);
                             video.putInt("size", (int) new File(videoPath).length());
                             video.putInt("duration", (int) duration);

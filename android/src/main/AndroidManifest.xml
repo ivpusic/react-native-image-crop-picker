@@ -8,9 +8,9 @@
         </intent>
     </queries>
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-  <uses-sdk tools:overrideLibrary="com.anilokcun.uwmediapicker"/>
+  <uses-sdk tools:overrideLibrary="com.anilokcun.uwmediapicker, com.abedelazizshe.lightcompressorlibrary"/>
 
     <application>
 
