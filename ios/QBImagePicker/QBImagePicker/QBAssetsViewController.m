@@ -194,9 +194,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
     // Info label
     UIColor *labelColor = [UIColor blackColor];
+    #ifdef __IPHONE_13_0
     if (@available(iOS 13.0, *)) {
         labelColor = [UIColor labelColor];
     }
+    #endif
     NSDictionary *attributes = @{ NSForegroundColorAttributeName: labelColor };
     UIBarButtonItem *infoButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:NULL];
     infoButtonItem.enabled = NO;
