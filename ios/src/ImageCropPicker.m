@@ -753,7 +753,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             break;
         case PICKER:
             if (selectionDone) {
-                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+                [controller.presentingViewController dismissViewControllerAnimated:YES completion:completion];
             } else {
                 // if user opened picker, tried to crop image, and cancelled cropping
                 // return him to the image selection instead of returning him to the app
