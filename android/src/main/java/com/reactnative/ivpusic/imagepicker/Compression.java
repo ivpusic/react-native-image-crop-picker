@@ -6,9 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
-import android.os.Build;
 
 import com.abedelazizshe.lightcompressorlibrary.CompressionListener;
 import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
@@ -132,7 +132,7 @@ class Compression {
         return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality);
     }
 
-    synchronized void compressVideo(String compressVideoPreset, final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
+    void compressVideo(String compressVideoPreset, final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             VideoQuality videoQuality = null;

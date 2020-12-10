@@ -92,6 +92,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
     private String cropperToolbarWidgetColor = null;
+    private String filePath = null;
 
     private int width = 0;
     private int height = 0;
@@ -136,6 +137,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : null;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
         cropperToolbarWidgetColor = options.hasKey("cropperToolbarWidgetColor") ? options.getString("cropperToolbarWidgetColor") : null;
+        filePath = options.hasKey("path") ? options.getString("path") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
         showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
@@ -534,17 +536,70 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
     }
 
+    /**
+     * Author : Amit Kumar Sahoo (amit.mindfiresolutions.com), modified on 12.08.2020
+     *
+     * @param activity: current activity object
+     * @param path:     original video path
+     * @param mime:     file type
+     * @throws Exception : File exception
+     */
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
         validateVideo(path);
-        final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
+        //final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                compression.compressVideo(compressVideoPreset, activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
+        try {
+            Bitmap bmp = validateVideo(path);
+            long modificationDate = new File(path).lastModified();
+            long duration = getVideoDuration(path);
+
+            WritableMap video = new WritableNativeMap();
+
+            if (bmp != null) {
+                video.putInt("width", bmp.getWidth());
+                video.putInt("height", bmp.getHeight());
+            }
+
+            video.putString("mime", mime);
+            video.putInt("size", (int) new File(path).length());
+            video.putInt("duration", (int) duration);
+            video.putString("path", "file://" + path);
+            video.putString("modificationDate", String.valueOf(modificationDate));
+
+            resultCollector.notifySuccess(video);
+        } catch (Exception e) {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+        }
+    }
+
+    /**
+     * Author :  Amit Kumar Sahoo (amit.mindfiresolutions.com), modified on 12.08.2020
+     * Method for compress video
+     *
+     * @param options : Properties to compress video
+     * @param promise : Promise to set success and error result
+     */
+    @ReactMethod
+    private void compressVideo(final ReadableMap options, Promise promise) {
+        final Activity activity = getCurrentActivity();
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        setConfiguration(options);
+        //resultCollector.setup(promise, false);
+
+        final String compressedVideoPath = getTmpDir(getCurrentActivity()) + "/" + UUID.randomUUID().toString() + ".mp4";
+        //resultCollector.setWaitCount(1);
+
+        compression.compressVideo(compressVideoPreset, getCurrentActivity(), options,
+                filePath.replace("file://", ""), compressedVideoPath, new PromiseImpl(new Callback() {
                     @Override
                     public void invoke(Object... args) {
                         String videoPath = (String) args[0];
+                        String mime = getMimeType(compressedVideoPath);
 
                         try {
                             Bitmap bmp = validateVideo(videoPath);
@@ -564,20 +619,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
-                            resultCollector.notifySuccess(video);
+                            promise.resolve(video);
                         } catch (Exception e) {
-                            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+                            promise.reject(E_NO_IMAGE_DATA_FOUND, e);
                         }
                     }
                 }, new Callback() {
                     @Override
                     public void invoke(Object... args) {
                         WritableNativeMap ex = (WritableNativeMap) args[0];
-                        resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
+                        promise.reject(E_NO_IMAGE_DATA_FOUND, e);
                     }
                 }));
-            }
-        }).run();
     }
 
     private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
