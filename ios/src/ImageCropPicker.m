@@ -380,7 +380,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }];
 }
 
-RCT_EXPORT_METHOD(compressMedia:(NSDictionary *)options
+RCT_EXPORT_METHOD(compressVideo:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
 
