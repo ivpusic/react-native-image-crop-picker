@@ -589,10 +589,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         setConfiguration(options);
-        //resultCollector.setup(promise, false);
+        resultCollector.setup(promise, false);
 
         final String compressedVideoPath = getTmpDir(getCurrentActivity()) + "/" + UUID.randomUUID().toString() + ".mp4";
-        //resultCollector.setWaitCount(1);
+        resultCollector.setWaitCount(1);
 
         compression.compressVideo(compressVideoPreset, getCurrentActivity(), options,
                 filePath.replace("file://", ""), compressedVideoPath, new PromiseImpl(new Callback() {
@@ -628,7 +628,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     @Override
                     public void invoke(Object... args) {
                         WritableNativeMap ex = (WritableNativeMap) args[0];
-                        promise.reject(E_NO_IMAGE_DATA_FOUND, e);
+                        promise.reject(ex.getString("message"), ex);
                     }
                 }));
     }
