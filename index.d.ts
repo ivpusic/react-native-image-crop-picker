@@ -271,6 +271,14 @@ declare module "react-native-image-crop-picker" {
         showCropGuidelines?: boolean;
 
         /**
+         * Whether to show the square crop frame during cropping
+         *
+         * @platform Android only
+         * @default true
+         */
+        showCropFrame?: boolean;
+
+        /**
          * Whether to enable rotating the image by hand gesture.
          *
          * @platform Android only
