@@ -62,7 +62,8 @@ class Compression {
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
 
-        File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        String tmpDir = context.getCacheDir() + "/react-native-image-crop-picker";
+        File imageDirectory = new File(tmpDir);
 
         if (!imageDirectory.exists()) {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
