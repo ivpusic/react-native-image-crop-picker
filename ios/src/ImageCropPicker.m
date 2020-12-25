@@ -71,7 +71,8 @@ RCT_EXPORT_MODULE();
             @"forceJpg": @NO,
             @"sortOrder": @"none",
             @"cropperCancelText": @"Cancel",
-            @"cropperChooseText": @"Choose"
+            @"cropperChooseText": @"Choose",
+            @"useCroppedDimensions": @NO
         };
         self.compression = [[Compression alloc] init];
     }
@@ -795,11 +796,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (void)imageCropViewController:(UIViewController *)controller
                    didCropImage:(UIImage *)croppedImage
                   usingCropRect:(CGRect)cropRect {
+    CGSize desiredImageSize;
     
-    // we have correct rect, but not correct dimensions
-    // so resize image
-    CGSize desiredImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue],
-                                         [[[self options] objectForKey:@"height"] intValue]);
+    if ([[[self options] objectForKey:@"useCroppedDimensions"] boolValue]) {
+        desiredImageSize = cropRect.size;
+    } else {
+        // we have correct rect, but not correct dimensions
+        // so resize image
+        desiredImageSize = CGSizeMake([[[self options] objectForKey:@"width"] intValue],
+                                             [[[self options] objectForKey:@"height"] intValue]);
+    }
     
     UIImage *resizedImage = [croppedImage resizedImageToFitInSize:desiredImageSize scaleIfSmaller:YES];
     ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
