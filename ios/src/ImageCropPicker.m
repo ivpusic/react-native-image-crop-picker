@@ -881,6 +881,23 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             cropVC.resetAspectRatioEnabled = !cropVC.aspectRatioLockEnabled;
         }
         
+        if ([self.options objectForKey:@"cropperChooseTextColor"] != nil) {
+            UIColor *textColor = [RCTConvert UIColor:[self.options objectForKey:@"cropperChooseTextColor"]];
+            [cropVC.toolbar.doneTextButton setTitleColor:textColor forState:UIControlStateNormal];
+        }
+        
+        if ([self.options objectForKey:@"cropperCancelTextColor"] != nil) {
+            UIColor *textColor = [RCTConvert UIColor:[self.options objectForKey:@"cropperCancelTextColor"]];
+            [cropVC.toolbar.cancelTextButton setTitleColor:textColor forState:UIControlStateNormal];
+        }
+        
+        if ([self.options objectForKey:@"cropperToolbarButtonsColor"] != nil) {
+            UIColor *buttonColor = [RCTConvert UIColor:[self.options objectForKey:@"cropperToolbarButtonsColor"]];
+            [cropVC.toolbar.rotateClockwiseButton setTintColor:buttonColor];
+            [cropVC.toolbar.rotateCounterclockwiseButton setTintColor:buttonColor];
+            [cropVC.toolbar.resetButton setTitleColor:buttonColor forState:UIControlStateNormal];
+        }
+        
         cropVC.title = [[self options] objectForKey:@"cropperToolbarTitle"];
         cropVC.delegate = self;
         

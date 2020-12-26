@@ -81,11 +81,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean useFrontCamera = false;
     private ReadableMap options;
 
-    private String cropperActiveWidgetColor = null;
-    private String cropperStatusBarColor = null;
-    private String cropperToolbarColor = null;
+    private Integer cropperActiveWidgetColor = null;
+    private Integer cropperStatusBarColor = null;
+    private Integer cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
-    private String cropperToolbarWidgetColor = null;
+    private Integer cropperToolbarWidgetColor = null;
 
     private int width = 0;
     private int height = 0;
@@ -122,11 +122,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
         cropping = options.hasKey("cropping") && options.getBoolean("cropping");
-        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : null;
-        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : null;
-        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : null;
+        cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getInt("cropperActiveWidgetColor") : null;
+        cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getInt("cropperStatusBarColor") : null;
+        cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getInt("cropperToolbarColor") : null;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
-        cropperToolbarWidgetColor = options.hasKey("cropperToolbarWidgetColor") ? options.getString("cropperToolbarWidgetColor") : null;
+        cropperToolbarWidgetColor = options.hasKey("cropperToolbarWidgetColor") ? options.getInt("cropperToolbarWidgetColor") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
         showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
@@ -615,19 +615,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void configureCropperColors(UCrop.Options options) {
         if (cropperActiveWidgetColor != null) {
-            options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
+            options.setActiveControlsWidgetColor(cropperActiveWidgetColor);
         }
 
         if (cropperToolbarColor != null) {
-            options.setToolbarColor(Color.parseColor(cropperToolbarColor));
+            options.setToolbarColor(cropperToolbarColor);
         }
 
         if (cropperStatusBarColor != null) {
-            options.setStatusBarColor(Color.parseColor(cropperStatusBarColor));
+            options.setStatusBarColor(cropperStatusBarColor);
         }
 
         if (cropperToolbarWidgetColor != null) {
-            options.setToolbarWidgetColor(Color.parseColor(cropperToolbarWidgetColor));
+            options.setToolbarWidgetColor(cropperToolbarWidgetColor);
         }
     }
 
