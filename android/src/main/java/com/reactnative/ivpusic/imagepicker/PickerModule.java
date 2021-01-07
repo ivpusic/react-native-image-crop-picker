@@ -249,7 +249,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                                 if (permission.equals(Manifest.permission.CAMERA)) {
                                     promise.reject(E_NO_CAMERA_PERMISSION_KEY, E_NO_CAMERA_PERMISSION_MSG);
                                 } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_KEY);
+                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_MSG);
                                 } else {
                                     // should not happen, we fallback on E_NO_LIBRARY_PERMISSION_KEY rejection for minimal consistency
                                     promise.reject(E_NO_LIBRARY_PERMISSION_KEY, "Required permission missing");
