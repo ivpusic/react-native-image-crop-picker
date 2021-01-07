@@ -246,9 +246,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             int grantResult = grantResults[permissionIndex];
 
                             if (grantResult == PackageManager.PERMISSION_DENIED) {
-                                if (permission == Manifest.permission.CAMERA) {
+                                if (permission.equals(Manifest.permission.CAMERA)) {
                                     promise.reject(E_NO_CAMERA_PERMISSION_KEY, E_NO_CAMERA_PERMISSION_MSG);
-                                } else if (permission == Manifest.permission.WRITE_EXTERNAL_STORAGE) {
+                                } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                                     promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_KEY);
                                 } else {
                                     // should not happen, we fallback on E_NO_LIBRARY_PERMISSION_KEY rejection for minimal consistency
