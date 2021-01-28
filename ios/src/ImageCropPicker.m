@@ -524,7 +524,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     
     PHImageManager *manager = [PHImageManager defaultManager];
     PHImageRequestOptions* options = [[PHImageRequestOptions alloc] init];
-    options.synchronous = NO;
+    
+    // For an asynchronous request, Photos may call your result handler block more than once.
+    // Photos first calls the block to provide a low-quality image suitable for displaying
+    // temporarily while it prepares a high-quality image.
+    // We do not want this. We want to return all photos at once so we will wait for high-quality.
+    options.synchronous = YES;
     options.networkAccessAllowed = YES;
     
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
@@ -567,41 +572,40 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                 } else {
                     [phAsset requestContentEditingInputWithOptions:nil completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
                         [manager
-                         requestImageDataForAsset:phAsset
+                         requestImageForAsset:phAsset
+                         targetSize:PHImageManagerMaximumSize
+                         contentMode:PHImageContentModeDefault
                          options:options
-                         resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+                         resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
                             
                             NSURL *sourceURL = contentEditingInput.fullSizeImageURL;
                             
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [lock lock];
                                 @autoreleasepool {
-                                    UIImage *imgT = [UIImage imageWithData:imageData];
-                                    
                                     Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
                                     
                                     NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
                                     Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
                                     
                                     NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
-                                    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
+                                    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= result.size.width);
                                     
                                     NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
-                                    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+                                    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= result.size.height);
                                     
-                                    NSString *mimeType = [self determineMimeTypeFromImageData:imageData];
+                                    NSString *mimeType = contentEditingInput.uniformTypeIdentifier;
                                     Boolean isKnownMimeType = [mimeType length] > 0;
                                     
                                     ImageResult *imageResult = [[ImageResult alloc] init];
                                     if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
                                         // Use original, unmodified image
-                                        imageResult.data = imageData;
-                                        imageResult.width = @(imgT.size.width);
-                                        imageResult.height = @(imgT.size.height);
+                                        imageResult.width = @(result.size.width);
+                                        imageResult.height = @(result.size.height);
                                         imageResult.mime = mimeType;
-                                        imageResult.image = imgT;
+                                        imageResult.image = result;
                                     } else {
-                                        imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
+                                        imageResult = [self.compression compressImage:[result fixOrientation] withOptions:self.options];
                                     }
                                     
                                     NSString *filePath = @"";
@@ -621,7 +625,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     
                                     NSDictionary* exif = nil;
                                     if([[self.options objectForKey:@"includeExif"] boolValue]) {
-                                        exif = [[CIImage imageWithData:imageData] properties];
+                                        exif = [[CIImage imageWithContentsOfURL:contentEditingInput.fullSizeImageURL] properties];
                                     }
                                     
                                     [selections addObject:[self createAttachmentResponse:filePath
@@ -679,23 +683,24 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             } else {
                 [phAsset requestContentEditingInputWithOptions:nil completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
                     [manager
-                     requestImageDataForAsset:phAsset
+                     requestImageForAsset:phAsset
+                     targetSize:PHImageManagerMaximumSize
+                     contentMode:PHImageContentModeDefault
                      options:options
-                     resultHandler:^(NSData *imageData, NSString *dataUTI,
-                                     UIImageOrientation orientation,
-                                     NSDictionary *info) {
+                     resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+                        
                         NSURL *sourceURL = contentEditingInput.fullSizeImageURL;
                         NSDictionary* exif;
                         if([[self.options objectForKey:@"includeExif"] boolValue]) {
-                            exif = [[CIImage imageWithData:imageData] properties];
+                            exif = [[CIImage imageWithContentsOfURL:contentEditingInput.fullSizeImageURL] properties];
                         }
                         
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [indicatorView stopAnimating];
                             [overlayView removeFromSuperview];
                             
-                            [self processSingleImagePick:[UIImage imageWithData:imageData]
-                                                withExif: exif
+                            [self processSingleImagePick:result
+                                                withExif:exif
                                       withViewController:imagePickerController
                                            withSourceURL:[sourceURL absoluteString]
                                      withLocalIdentifier:phAsset.localIdentifier
