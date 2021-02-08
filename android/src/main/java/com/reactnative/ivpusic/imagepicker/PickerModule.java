@@ -547,13 +547,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         String path;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            path = RealPathUtil.getRealPathFromURI(activity, uri);
+            path = RealPathUtil.getRealPath(activity, uri);
         } else {
             if (isCamera) {
                 Uri mediaUri = Uri.parse(mCurrentMediaPath);
                 path = mediaUri.getPath();
             } else {
-                path = RealPathUtil.getRealPathFromURI(activity, uri);
+                path = RealPathUtil.getRealPath(activity, uri);
             }
         }
 
