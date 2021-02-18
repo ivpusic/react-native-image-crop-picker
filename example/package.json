@@ -3,17 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "ios": "node node_modules/react-native/local-cli/cli.js run-ios",
-    "android": "node node_modules/react-native/local-cli/cli.js run-android"
+    "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "16.10.2",
-    "react-native": "0.61.2",
+    "react": "16.2.0",
+    "react-native": "0.54.0",
     "react-native-image-crop-picker": "../",
-    "react-native-video": "5.1.0-alpha1"
-  },
-  "devDependencies": {
-    "@react-native-community/cli": "4.8.0"
+    "react-native-video": "git://github.com/react-native-community/react-native-video.git"
   }
 }

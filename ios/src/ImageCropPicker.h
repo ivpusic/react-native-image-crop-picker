@@ -12,34 +12,24 @@
 
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
-#import <React/RCTImageURLLoader.h>
-#import <React/RCTImageShadowView.h>
-#import <React/RCTImageView.h>
-#import <React/RCTImageLoaderProtocol.h>
+#import <React/RCTImageLoader.h>
 #else
 #import "RCTBridgeModule.h"
-#import "RCTImageURLLoader.h"
-#import "RCTImageShadowView.h"
-#import "RCTImageView.h"
-#import "RCTImageLoaderProtocol.h"
+#import "RCTImageLoader.h"
 #endif
 
 #if __has_include("QBImagePicker.h")
 #import "QBImagePicker.h"
+#import "RSKImageCropper.h"
 #elif __has_include(<QBImagePickerController/QBImagePickerController.h>)
 #import <QBImagePickerController/QBImagePickerController.h>
-#elif __has_include("QBImagePickerController.h") // local QBImagePickerController subspec
-#import "QBImagePickerController.h"
+#import <RSKImageCropper/RSKImageCropper.h>
 #else
-#import
 #import "QBImagePicker/QBImagePicker.h"
+#import <RSKImageCropper/RSKImageCropper.h>
 #endif
 
-
-#import <TOCropViewController/TOCropViewController.h>
-
 #import "UIImage+Resize.h"
-#import "UIImage+Extension.h"
 #import "Compression.h"
 #import <math.h>
 
@@ -48,7 +38,8 @@ UIImagePickerControllerDelegate,
 UINavigationControllerDelegate,
 RCTBridgeModule,
 QBImagePickerControllerDelegate,
-TOCropViewControllerDelegate>
+RSKImageCropViewControllerDelegate,
+RSKImageCropViewControllerDataSource>
 
 typedef enum selectionMode {
     CAMERA,

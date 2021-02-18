@@ -19,15 +19,11 @@ class ResultCollector {
     private boolean multiple;
     private AtomicInteger waitCounter;
     private WritableArray arrayResult;
-    private boolean resultSent;
+    private boolean resultSent = false;
 
-    synchronized void setup(Promise promise, boolean multiple) {
+    ResultCollector(Promise promise, boolean multiple) {
         this.promise = promise;
         this.multiple = multiple;
-
-        this.resultSent = false;
-        this.waitCount = 0;
-        this.waitCounter = new AtomicInteger(0);
 
         if (multiple) {
             this.arrayResult = new WritableNativeArray();
@@ -36,28 +32,14 @@ class ResultCollector {
 
     // if user has provided "multiple" option, we will wait for X number of result to come,
     // and also return result as an array
-    synchronized void setWaitCount(int waitCount) {
+    void setWaitCount(int waitCount) {
         this.waitCount = waitCount;
         this.waitCounter = new AtomicInteger(0);
     }
 
-    synchronized private boolean isRequestValid() {
+    synchronized void notifySuccess(WritableMap result) {
         if (resultSent) {
             Log.w("image-crop-picker", "Skipping result, already sent...");
-            return false;
-        }
-
-        if (promise == null) {
-            Log.w("image-crop-picker", "Trying to notify success but promise is not set");
-            return false;
-        }
-
-        return true;
-    }
-
-    synchronized void notifySuccess(WritableMap result) {
-        if (!isRequestValid()) {
-            return;
         }
 
         if (multiple) {
@@ -75,8 +57,8 @@ class ResultCollector {
     }
 
     synchronized void notifyProblem(String code, String message) {
-        if (!isRequestValid()) {
-            return;
+        if (resultSent) {
+            Log.w("image-crop-picker", "Skipping result, already sent...");
         }
 
         Log.e("image-crop-picker", "Promise rejected. " + message);
@@ -85,8 +67,8 @@ class ResultCollector {
     }
 
     synchronized void notifyProblem(String code, Throwable throwable) {
-        if (!isRequestValid()) {
-            return;
+        if (resultSent) {
+            Log.w("image-crop-picker", "Skipping result, already sent...");
         }
 
         Log.e("image-crop-picker", "Promise rejected. " + throwable.getMessage());
