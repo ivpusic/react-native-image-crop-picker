@@ -9,6 +9,7 @@
 #define RN_IMAGE_CROP_PICKER_h
 
 #import <Foundation/Foundation.h>
+#import <PhotosUI/PhotosUI.h>
 
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
@@ -48,6 +49,7 @@ UIImagePickerControllerDelegate,
 UINavigationControllerDelegate,
 RCTBridgeModule,
 QBImagePickerControllerDelegate,
+PHPickerViewControllerDelegate,
 TOCropViewControllerDelegate>
 
 typedef enum selectionMode {
