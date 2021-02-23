@@ -644,6 +644,14 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // PHPicker didFinishPicking
 -(void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results API_AVAILABLE(ios(14)){
     
+    if ([results count] == 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+            }]];
+        });
+    }
+    
     NSLock *lock = [[NSLock alloc] init];
     __block int processed = 0;
     
