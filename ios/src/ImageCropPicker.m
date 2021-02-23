@@ -295,18 +295,20 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            if (@available(iOS 14, *)) {
-                // Use new PHPicker
-                PHPhotoLibrary *photoLibrary = [PHPhotoLibrary sharedPhotoLibrary];
-                PHPickerConfiguration *config = [[PHPickerConfiguration alloc] initWithPhotoLibrary:photoLibrary];;
-                config.selectionLimit = 0;
-                config.filter = [PHPickerFilter imagesFilter];
+            if (![[self.options objectForKey:@"legacy"] boolValue]) {
+                if (@available(iOS 14, *)) { // needs to be it's own if statement
+                    // Use new PHPicker
+                    PHPhotoLibrary *photoLibrary = [PHPhotoLibrary sharedPhotoLibrary];
+                    PHPickerConfiguration *config = [[PHPickerConfiguration alloc] initWithPhotoLibrary:photoLibrary];;
+                    config.selectionLimit = 0;
+                    config.filter = [PHPickerFilter imagesFilter];
 
-                PHPickerViewController *phPickerController = [[PHPickerViewController alloc] initWithConfiguration:config];
-                phPickerController.delegate = self;
-                [[self getRootVC] presentViewController:phPickerController animated:YES completion:nil];
-                return;
-            };
+                    PHPickerViewController *phPickerController = [[PHPickerViewController alloc] initWithConfiguration:config];
+                    phPickerController.delegate = self;
+                    [[self getRootVC] presentViewController:phPickerController animated:YES completion:nil];
+                    return;
+                };
+            }
             
             // Use legacy picker
             QBImagePickerController *imagePickerController =
