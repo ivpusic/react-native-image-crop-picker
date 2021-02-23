@@ -280,6 +280,19 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
     }
 }
 
+RCT_EXPORT_METHOD(getPhotoData:(NSString *)assetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    PHAsset *phAsset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[assetId] options:nil] firstObject];
+    [self getPhotoAsset:phAsset completion:^(NSDictionary *image) {
+        if (!image) {
+            reject(ERROR_CANNOT_PROCESS_IMAGE_KEY, ERROR_CANNOT_PROCESS_IMAGE_MSG, nil);
+        } else {
+            resolve(image);
+        }
+    }];
+}
+
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
