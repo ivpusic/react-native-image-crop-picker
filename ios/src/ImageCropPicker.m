@@ -499,6 +499,30 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     };
 }
 
+- (NSString *)determineHEIFBrandFromImageData:(NSData *)data {
+    char c[12];
+    [data getBytes:&c length:12];
+    if (c[4] != 'f' || c[5] != 't' || c[6] != 'y' || c[7] != 'p') {
+        return @"";
+    }
+    
+    char brand[5];
+      brand[0] = c[8];
+      brand[1] = c[9];
+      brand[2] = c[10];
+      brand[3] = c[11];
+      brand[4] = 0;
+    
+    if(strcmp(brand, "heic") || strcmp(brand, "heix") || strcmp(brand, "heim") || strcmp(brand, "heis")){
+        return @"heic";
+    }
+    else if(strcmp(brand, "mif1")){
+        return @"heif";
+    }
+    
+    return @"";
+}
+
 // See https://stackoverflow.com/questions/4147311/finding-image-type-from-nsdata-or-uiimage
 - (NSString *)determineMimeTypeFromImageData:(NSData *)data {
     uint8_t c;
@@ -515,6 +539,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         case 0x4D:
             return @"image/tiff";
     }
+    
+    NSString *heifBrand = [self determineHEIFBrandFromImageData:data];
+    if([heifBrand length] > 0){
+        return [NSString stringWithFormat:@"image/%@", heifBrand];
+    }
+    
     return @"";
 }
 
@@ -533,6 +563,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         case 0x4D:
             return @".tiff";
     }
+    
+    NSString *heifBrand = [self determineHEIFBrandFromImageData:data];
+    if([heifBrand length] > 0){
+        return [NSString stringWithFormat:@".%@", heifBrand];
+    }
+    
     return @".jpg";
 }
 
