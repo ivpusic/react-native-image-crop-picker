@@ -35,6 +35,18 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return indexPaths;
 }
 
+- (BOOL) containsAnyIndexOf:(NSIndexSet *)otherSet{
+    __block BOOL result = NO;
+    [otherSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([self containsIndex:idx]){
+            result = YES;
+            *stop = YES;
+        }
+    }];
+    
+    return result;
+}
+
 @end
 
 @implementation UICollectionView (Convenience)
@@ -393,41 +405,59 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 #pragma mark - PHPhotoLibraryChangeObserver
 
-- (void)photoLibraryDidChange:(PHChange *)changeInstance
-{
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    __weak typeof(self) weakSelf = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        PHFetchResultChangeDetails *collectionChanges = [changeInstance changeDetailsForFetchResult:self.fetchResult];
+        typeof(self) self = weakSelf;
 
-        if (collectionChanges) {
-            // Get the new fetch result
-            self.fetchResult = [collectionChanges fetchResultAfterChanges];
-
-            if (![collectionChanges hasIncrementalChanges] || [collectionChanges hasMoves]) {
-                // We need to reload all if the incremental diffs are not available
-                [self.collectionView reloadData];
-            } else {
-                // If we have incremental diffs, tell the collection view to animate insertions and deletions
-                [self.collectionView performBatchUpdates:^{
-                    NSIndexSet *removedIndexes = [collectionChanges removedIndexes];
-                    if ([removedIndexes count]) {
-                        [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
-
-                    NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
-                    if ([insertedIndexes count]) {
-                        [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
-
-                    NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
-                    if ([changedIndexes count]) {
-                        [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
-                } completion:NULL];
+        if (!self) return;
+        
+        // If we have incremental diffs, tell the collection view to animate insertions and deletions
+        void (^batchUpdated)(PHFetchResultChangeDetails *) = ^void(PHFetchResultChangeDetails *collectionChanges){
+            [self.collectionView performBatchUpdates:^{
+                NSIndexSet *removedIndexes = [collectionChanges removedIndexes];
+                if ([removedIndexes count]) {
+                    [self.collectionView deleteItemsAtIndexPaths:[removedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
+                
+                NSIndexSet *insertedIndexes = [collectionChanges insertedIndexes];
+                if ([insertedIndexes count]) {
+                    [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
+                
+                NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
+                if ([changedIndexes count]) {
+                    [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
+            } completion:NULL];
+        };
+        
+        BOOL (^shouldReload)(PHFetchResultChangeDetails *) = ^BOOL(PHFetchResultChangeDetails *collectionChanges){
+            if ([collectionChanges hasMoves]) { return YES; }
+            if ([collectionChanges hasIncrementalChanges] == NO) { return YES; }
+            if ([collectionChanges.removedIndexes containsAnyIndexOf:collectionChanges.changedIndexes]) {
+                return YES;
             }
 
-            [self resetCachedAssets];
+            return NO;
+        };
+        
+        PHFetchResultChangeDetails *collectionChanges = [changeInstance changeDetailsForFetchResult:self.fetchResult];
+        if (collectionChanges == nil) { return; }
+        
+        self.fetchResult = [collectionChanges fetchResultAfterChanges];
+        
+        if (shouldReload(collectionChanges)){
+            // We need to reload all if the incremental diffs are not available
+            [self.collectionView reloadData];
+        } else {
+            batchUpdated(collectionChanges);
         }
+        
+        [self resetCachedAssets];
     });
+    
 }
 
 
