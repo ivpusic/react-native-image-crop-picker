@@ -104,7 +104,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [self.collectionView reloadData];
 
     // Scroll to bottom
-    if (self.fetchResult.count > 0 && !self.disableScrollToBottom) {
+    if (self.fetchResult.count > 0 && self.isMovingToParentViewController && !self.disableScrollToBottom) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection:0];
         [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
     }
@@ -193,11 +193,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     UIBarButtonItem *rightSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:NULL];
 
     // Info label
-    UIColor *labelColor = [UIColor blackColor];
-    if (@available(iOS 13.0, *)) {
-        labelColor = [UIColor labelColor];
-    }
-    NSDictionary *attributes = @{ NSForegroundColorAttributeName: labelColor };
+    NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor blackColor] };
     UIBarButtonItem *infoButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:NULL];
     infoButtonItem.enabled = NO;
     [infoButtonItem setTitleTextAttributes:attributes forState:UIControlStateNormal];
@@ -245,15 +241,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
             default:
                 break;
-        }
-
-
-        if ([self.imagePickerController.sortOrder isEqualToString:@"asc"]) {
-            options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending: YES]];
-        }
-
-        if ([self.imagePickerController.sortOrder isEqualToString:@"desc"]) {
-            options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending: NO]];
         }
 
         self.fetchResult = [PHAsset fetchAssetsInAssetCollection:self.assetCollection options:options];
