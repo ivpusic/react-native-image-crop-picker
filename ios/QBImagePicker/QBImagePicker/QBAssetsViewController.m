@@ -435,6 +435,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                 }
             }
             [self removeAssetsFromSelection:removedAssets];
+
+            // Update the footer to show the current photo/video counts
+            NSArray<UICollectionReusableView *> *footers =
+                [self.collectionView visibleSupplementaryViewsOfKind:UICollectionElementKindSectionFooter];
+            if (footers.count) {
+                [self updateFooterView:footers[0]];
+            }
         }
     });
 }
@@ -516,57 +523,60 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         UICollectionReusableView *footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                                                                                   withReuseIdentifier:@"FooterView"
                                                                                          forIndexPath:indexPath];
-
-        // Number of assets
-        UILabel *label = (UILabel *)[footerView viewWithTag:1];
-
-        NSBundle *bundle = self.imagePickerController.assetBundle;
-        NSUInteger numberOfPhotos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeImage];
-        NSUInteger numberOfVideos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeVideo];
-
-        switch (self.imagePickerController.mediaType) {
-            case QBImagePickerMediaTypeAny:
-            {
-                NSString *format;
-                if (numberOfPhotos == 1) {
-                    if (numberOfVideos == 1) {
-                        format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-video", @"QBImagePicker", bundle, nil);
-                    } else {
-                        format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-videos", @"QBImagePicker", bundle, nil);
-                    }
-                } else if (numberOfVideos == 1) {
-                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-video", @"QBImagePicker", bundle, nil);
-                } else {
-                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-videos", @"QBImagePicker", bundle, nil);
-                }
-
-                label.text = [NSString stringWithFormat:format, numberOfPhotos, numberOfVideos];
-            }
-                break;
-
-            case QBImagePickerMediaTypeImage:
-            {
-                NSString *key = (numberOfPhotos == 1) ? @"assets.footer.photo" : @"assets.footer.photos";
-                NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
-
-                label.text = [NSString stringWithFormat:format, numberOfPhotos];
-            }
-                break;
-
-            case QBImagePickerMediaTypeVideo:
-            {
-                NSString *key = (numberOfVideos == 1) ? @"assets.footer.video" : @"assets.footer.videos";
-                NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
-
-                label.text = [NSString stringWithFormat:format, numberOfVideos];
-            }
-                break;
-        }
+        [self updateFooterView:footerView];
 
         return footerView;
     }
 
     return nil;
+}
+
+- (void)updateFooterView:(UICollectionReusableView *)footerView {
+    // Number of assets
+    UILabel *label = (UILabel *)[footerView viewWithTag:1];
+
+    NSBundle *bundle = self.imagePickerController.assetBundle;
+    NSUInteger numberOfPhotos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeImage];
+    NSUInteger numberOfVideos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeVideo];
+
+    switch (self.imagePickerController.mediaType) {
+        case QBImagePickerMediaTypeAny:
+        {
+            NSString *format;
+            if (numberOfPhotos == 1) {
+                if (numberOfVideos == 1) {
+                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-video", @"QBImagePicker", bundle, nil);
+                } else {
+                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-videos", @"QBImagePicker", bundle, nil);
+                }
+            } else if (numberOfVideos == 1) {
+                format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-video", @"QBImagePicker", bundle, nil);
+            } else {
+                format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-videos", @"QBImagePicker", bundle, nil);
+            }
+
+            label.text = [NSString stringWithFormat:format, numberOfPhotos, numberOfVideos];
+        }
+            break;
+
+        case QBImagePickerMediaTypeImage:
+        {
+            NSString *key = (numberOfPhotos == 1) ? @"assets.footer.photo" : @"assets.footer.photos";
+            NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
+
+            label.text = [NSString stringWithFormat:format, numberOfPhotos];
+        }
+            break;
+
+        case QBImagePickerMediaTypeVideo:
+        {
+            NSString *key = (numberOfVideos == 1) ? @"assets.footer.video" : @"assets.footer.videos";
+            NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
+
+            label.text = [NSString stringWithFormat:format, numberOfVideos];
+        }
+            break;
+    }
 }
 
 
