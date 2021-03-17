@@ -426,6 +426,15 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             }
 
             [self resetCachedAssets];
+
+            // Update the selection to remove any assets that have been removed from the collection
+            NSMutableSet *removedAssets = [NSMutableSet new];
+            for (PHAsset *asset in self.imagePickerController.selectedAssets) {
+                if(![self.fetchResult containsObject:asset]) {
+                    [removedAssets addObject:asset];
+                }
+            }
+            [self removeAssetsFromSelection:removedAssets];
         }
     });
 }
@@ -650,6 +659,32 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
     if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didDeselectAsset:)]) {
         [imagePickerController.delegate qb_imagePickerController:imagePickerController didDeselectAsset:asset];
+    }
+}
+
+- (void)removeAssetsFromSelection:(NSSet *)assets
+{
+    if (assets.count == 0) {
+        return;
+    }
+
+    QBImagePickerController *imagePickerController = self.imagePickerController;
+    NSMutableOrderedSet *selectedAssets = imagePickerController.selectedAssets;
+
+    // Remove assets from set
+    [selectedAssets minusSet:assets];
+
+    self.lastSelectedItemIndexPath = nil;
+
+    [self updateDoneButtonState];
+
+    if (self.imagePickerController.showsNumberOfSelectedAssets) {
+        [self updateSelectionInfo];
+
+        if (selectedAssets.count == 0) {
+            // Hide toolbar
+            [self.navigationController setToolbarHidden:YES animated:YES];
+        }
     }
 }
 
