@@ -29,10 +29,7 @@
 #import "Compression.h"
 #import <math.h>
 
-@interface ImageCropPicker : NSObject<
-UIImagePickerControllerDelegate,
-UINavigationControllerDelegate,
-RCTBridgeModule>
+@interface ImageCropPicker : NSObject<UINavigationControllerDelegate, RCTBridgeModule>
 
 typedef enum selectionMode {
     CAMERA,

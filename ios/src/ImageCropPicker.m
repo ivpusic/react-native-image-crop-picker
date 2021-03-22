@@ -51,6 +51,9 @@
 @implementation ImageResult
 @end
 
+@interface ImageCropPicker(UIImagePickerControllerDelegate) <UIImagePickerControllerDelegate>
+@end
+
 @interface ImageCropPicker(QBImagePickerControllerDelegate) <QBImagePickerControllerDelegate>
 @end
 
@@ -185,57 +188,6 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         });
     }];
 #endif
-}
-
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    NSString* mediaType = info[UIImagePickerControllerMediaType];
-    
-    if (CFStringCompare ((__bridge CFStringRef) mediaType, kUTTypeMovie, 0) == kCFCompareEqualTo) {
-        NSURL *url = info[UIImagePickerControllerMediaURL];
-        AVURLAsset *asset = [AVURLAsset assetWithURL:url];
-        NSString *fileName = [[asset.URL path] lastPathComponent];
-        
-        [self handleVideo:asset
-             withFileName:fileName
-      withLocalIdentifier:nil
-               completion:^(NSDictionary* video) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (video == nil) {
-                    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                        self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
-                    }]];
-                    return;
-                }
-                
-                [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-                    self.resolve(video);
-                }]];
-            });
-        }
-         ];
-    } else {
-        UIImage *chosenImage = info[UIImagePickerControllerOriginalImage];
-        
-        NSDictionary *exif;
-        if([self.options[@"includeExif"] boolValue]) {
-            exif = info[UIImagePickerControllerMediaMetadata];
-        }
-        
-        [self processSingleImagePick:chosenImage
-                            withExif:exif
-                  withViewController:picker
-                       withSourceURL:self.croppingFile[@"sourceURL"]
-                 withLocalIdentifier:self.croppingFile[@"localIdentifier"]
-                        withFilename:self.croppingFile[@"filename"]
-                    withCreationDate:self.croppingFile[@"creationDate"]
-                withModificationDate:self.croppingFile[@"modificationDate"]];
-    }
-}
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
-        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
-    }]];
 }
 
 - (NSString*) getTmpDirectory {
@@ -643,6 +595,61 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });
+}
+
+@end
+
+@implementation ImageCropPicker(UIImagePickerControllerDelegate)
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    NSString* mediaType = info[UIImagePickerControllerMediaType];
+
+    if (CFStringCompare ((__bridge CFStringRef) mediaType, kUTTypeMovie, 0) == kCFCompareEqualTo) {
+        NSURL *url = info[UIImagePickerControllerMediaURL];
+        AVURLAsset *asset = [AVURLAsset assetWithURL:url];
+        NSString *fileName = [[asset.URL path] lastPathComponent];
+
+        [self handleVideo:asset
+             withFileName:fileName
+      withLocalIdentifier:nil
+               completion:^(NSDictionary* video) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (video == nil) {
+                    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                        self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                    }]];
+                    return;
+                }
+
+                [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                    self.resolve(video);
+                }]];
+            });
+        }
+         ];
+    } else {
+        UIImage *chosenImage = info[UIImagePickerControllerOriginalImage];
+
+        NSDictionary *exif;
+        if([self.options[@"includeExif"] boolValue]) {
+            exif = info[UIImagePickerControllerMediaMetadata];
+        }
+
+        [self processSingleImagePick:chosenImage
+                            withExif:exif
+                  withViewController:picker
+                       withSourceURL:self.croppingFile[@"sourceURL"]
+                 withLocalIdentifier:self.croppingFile[@"localIdentifier"]
+                        withFilename:self.croppingFile[@"filename"]
+                    withCreationDate:self.croppingFile[@"creationDate"]
+                withModificationDate:self.croppingFile[@"modificationDate"]];
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+        self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+    }]];
 }
 
 @end
