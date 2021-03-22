@@ -12,20 +12,18 @@
 
 - (instancetype)init {
     NSMutableDictionary *dic = [[NSMutableDictionary alloc] initWithDictionary:@{
-                                                                                 @"640x480": AVAssetExportPreset640x480,
-                                                                                 @"960x540": AVAssetExportPreset960x540,
-                                                                                 @"1280x720": AVAssetExportPreset1280x720,
-                                                                                 @"1920x1080": AVAssetExportPreset1920x1080,
-                                                                                 @"LowQuality": AVAssetExportPresetLowQuality,
-                                                                                 @"MediumQuality": AVAssetExportPresetMediumQuality,
-                                                                                 @"HighestQuality": AVAssetExportPresetHighestQuality,
-                                                                                 @"Passthrough": AVAssetExportPresetPassthrough,
-                                                                                 }];
+        @"640x480": AVAssetExportPreset640x480,
+        @"960x540": AVAssetExportPreset960x540,
+        @"1280x720": AVAssetExportPreset1280x720,
+        @"1920x1080": AVAssetExportPreset1920x1080,
+        @"LowQuality": AVAssetExportPresetLowQuality,
+        @"MediumQuality": AVAssetExportPresetMediumQuality,
+        @"HighestQuality": AVAssetExportPresetHighestQuality,
+        @"Passthrough": AVAssetExportPresetPassthrough,
+    }];
     
     if (@available(iOS 9.0, *)) {
         [dic addEntriesFromDictionary:@{@"3840x2160": AVAssetExportPreset3840x2160}];
-    } else {
-        // Fallback on earlier versions
     }
     
     self.exportPresets = dic;

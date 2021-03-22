@@ -45,8 +45,7 @@ RCT_EXPORT_MODULE();
 
 @synthesize bridge = _bridge;
 
-- (instancetype)init
-{
+- (instancetype)init {
     if (self = [super init]) {
         self.defaultOptions = @{
             @"multiple": @NO,
@@ -96,8 +95,7 @@ RCT_EXPORT_MODULE();
     return nil;
 }
 
-- (void)checkCameraPermissions:(void(^)(BOOL granted))callback
-{
+- (void)checkCameraPermissions:(void(^)(BOOL granted))callback {
     AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if (status == AVAuthorizationStatusAuthorized) {
         callback(YES);
@@ -125,12 +123,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (UIViewController*) getRootVC {
-    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-    while (root.presentedViewController != nil) {
-        root = root.presentedViewController;
-    }
-    
-    return root;
+    return RCTPresentedViewController();
 }
 
 RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
@@ -151,7 +144,6 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            
             UIImagePickerController *picker = [[UIImagePickerController alloc] init];
             picker.delegate = self;
             picker.allowsEditing = NO;
@@ -212,7 +204,14 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             exif = info[UIImagePickerControllerMediaMetadata];
         }
         
-        [self processSingleImagePick:chosenImage withExif:exif withViewController:picker withSourceURL:self.croppingFile[@"sourceURL"] withLocalIdentifier:self.croppingFile[@"localIdentifier"] withFilename:self.croppingFile[@"filename"] withCreationDate:self.croppingFile[@"creationDate"] withModificationDate:self.croppingFile[@"modificationDate"]];
+        [self processSingleImagePick:chosenImage
+                            withExif:exif
+                  withViewController:picker
+                       withSourceURL:self.croppingFile[@"sourceURL"]
+                 withLocalIdentifier:self.croppingFile[@"localIdentifier"]
+                        withFilename:self.croppingFile[@"filename"]
+                    withCreationDate:self.croppingFile[@"creationDate"]
+                withModificationDate:self.croppingFile[@"modificationDate"]];
     }
 }
 
@@ -241,8 +240,8 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
     NSArray* tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tmpDirectoryPath error:NULL];
     
     for (NSString *file in tmpDirectory) {
-        BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", tmpDirectoryPath, file] error:NULL];
-        
+        BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", tmpDirectoryPath, file]
+                                                                  error:NULL];
         if (!deleted) {
             return NO;
         }
@@ -276,7 +275,6 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
     
@@ -362,13 +360,13 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
 RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = CROPPING;
     
     NSString *path = options[@"path"];
     
-    [[self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
+    [[self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:[RCTConvert NSURLRequest:path]
+                                                                                         callback:^(NSError *error, UIImage *image) {
         if (error) {
             self.reject(ERROR_CROPPER_IMAGE_NOT_FOUND_KEY, ERROR_CROPPER_IMAGE_NOT_FOUND_MSG, nil);
         } else {
