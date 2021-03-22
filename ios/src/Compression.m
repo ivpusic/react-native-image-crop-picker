@@ -58,8 +58,8 @@
     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    result.width = [NSNumber numberWithFloat:newWidth];
-    result.height = [NSNumber numberWithFloat:newHeight];
+    result.width = @(newWidth);
+    result.height = @(newHeight);
     result.image = resizedImage;
     return result;
 }
@@ -93,7 +93,7 @@
     // parse desired image quality
     NSNumber *compressQuality = [options valueForKey:@"compressImageQuality"];
     if (compressQuality == nil) {
-        compressQuality = [NSNumber numberWithFloat:0.8];
+        compressQuality = @0.8F;
     }
     
     // convert image to jpeg representation
