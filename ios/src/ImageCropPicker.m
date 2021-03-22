@@ -6,6 +6,7 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <TOCropViewController/TOCropViewController.h>
 
 #import "ImageCropPicker.h"
 
@@ -37,6 +38,9 @@
 #define ERROR_CANNOT_PROCESS_VIDEO_MSG @"Cannot process video data"
 
 @implementation ImageResult
+@end
+
+@interface ImageCropPicker(TOCropViewControllerDelegate) <TOCropViewControllerDelegate>
 @end
 
 @implementation ImageCropPicker
@@ -768,71 +772,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }
 }
 
-- (void)dismissCropper:(UIViewController *)controller selectionDone:(BOOL)selectionDone completion:(void (^)(void))completion {
-    switch (self.currentSelectionMode) {
-        case CROPPING:
-            [controller dismissViewControllerAnimated:YES completion:completion];
-            break;
-        case PICKER:
-            if (selectionDone) {
-                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
-            } else {
-                // if user opened picker, tried to crop image, and cancelled cropping
-                // return him to the image selection instead of returning him to the app
-                [controller.presentingViewController dismissViewControllerAnimated:YES completion:completion];
-            }
-            break;
-        case CAMERA:
-            [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
-            break;
-    }
-}
-
-// The original image has been cropped.
-- (void)imageCropViewController:(UIViewController *)controller
-                   didCropImage:(UIImage *)croppedImage
-                  usingCropRect:(CGRect)cropRect {
-    
-    // we have correct rect, but not correct dimensions
-    // so resize image
-    CGSize desiredImageSize = CGSizeMake([self.options[@"width"] intValue],
-                                         [self.options[@"height"] intValue]);
-    
-    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:desiredImageSize scaleIfSmaller:YES];
-    ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
-    
-    NSString *filePath = [self persistFile:imageResult.data];
-    if (filePath == nil) {
-        [self dismissCropper:controller selectionDone:YES completion:[self waitAnimationEnd:^{
-            self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
-        }]];
-        return;
-    }
-    
-    NSDictionary* exif = nil;
-    if([self.options[@"includeExif"] boolValue]) {
-        exif = [[CIImage imageWithData:imageResult.data] properties];
-    }
-    
-    [self dismissCropper:controller selectionDone:YES completion:[self waitAnimationEnd:^{
-        self.resolve([self createAttachmentResponse:filePath
-                                           withExif: exif
-                                      withSourceURL: self.croppingFile[@"sourceURL"]
-                                withLocalIdentifier: self.croppingFile[@"localIdentifier"]
-                                       withFilename: self.croppingFile[@"filename"]
-                                          withWidth:imageResult.width
-                                         withHeight:imageResult.height
-                                           withMime:imageResult.mime
-                                           withSize:@(imageResult.data.length)
-                                       withDuration: nil
-                                           withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
-                                           withRect:cropRect
-                                   withCreationDate:self.croppingFile[@"creationDate"]
-                               withModificationDate:self.croppingFile[@"modificationDate"]
-                      ]);
-    }]];
-}
-
 // at the moment it is not possible to upload image by reading PHAsset
 // we are saving image and saving it to the tmp location where we are allowed to access image later
 - (NSString*) persistFile:(NSData*)data {
@@ -889,8 +828,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });
 }
-#pragma mark - TOCropViewController Delegate
-- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle {
+
+@end
+
+@implementation ImageCropPicker(TOCropViewControllerDelegate)
+
+- (void)cropViewController:(TOCropViewController *)cropViewController
+            didCropToImage:(UIImage *)image
+                  withRect:(CGRect)cropRect
+                     angle:(NSInteger)angle {
     [self imageCropViewController:cropViewController didCropImage:image usingCropRect:cropRect];
 }
 
@@ -900,6 +846,71 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
         }
     }]];
+}
+
+// The original image has been cropped.
+- (void)imageCropViewController:(UIViewController *)controller
+                   didCropImage:(UIImage *)croppedImage
+                  usingCropRect:(CGRect)cropRect {
+
+    // we have correct rect, but not correct dimensions
+    // so resize image
+    CGSize desiredImageSize = CGSizeMake([self.options[@"width"] intValue],
+                                         [self.options[@"height"] intValue]);
+
+    UIImage *resizedImage = [croppedImage resizedImageToFitInSize:desiredImageSize scaleIfSmaller:YES];
+    ImageResult *imageResult = [self.compression compressImage:resizedImage withOptions:self.options];
+
+    NSString *filePath = [self persistFile:imageResult.data];
+    if (filePath == nil) {
+        [self dismissCropper:controller selectionDone:YES completion:[self waitAnimationEnd:^{
+            self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+        }]];
+        return;
+    }
+
+    NSDictionary* exif = nil;
+    if([self.options[@"includeExif"] boolValue]) {
+        exif = [[CIImage imageWithData:imageResult.data] properties];
+    }
+
+    [self dismissCropper:controller selectionDone:YES completion:[self waitAnimationEnd:^{
+        self.resolve([self createAttachmentResponse:filePath
+                                           withExif: exif
+                                      withSourceURL: self.croppingFile[@"sourceURL"]
+                                withLocalIdentifier: self.croppingFile[@"localIdentifier"]
+                                       withFilename: self.croppingFile[@"filename"]
+                                          withWidth:imageResult.width
+                                         withHeight:imageResult.height
+                                           withMime:imageResult.mime
+                                           withSize:@(imageResult.data.length)
+                                       withDuration: nil
+                                           withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                           withRect:cropRect
+                                   withCreationDate:self.croppingFile[@"creationDate"]
+                               withModificationDate:self.croppingFile[@"modificationDate"]
+                      ]);
+    }]];
+}
+
+- (void)dismissCropper:(UIViewController *)controller selectionDone:(BOOL)selectionDone completion:(void (^)(void))completion {
+    switch (self.currentSelectionMode) {
+        case CROPPING:
+            [controller dismissViewControllerAnimated:YES completion:completion];
+            break;
+        case PICKER:
+            if (selectionDone) {
+                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            } else {
+                // if user opened picker, tried to crop image, and cancelled cropping
+                // return him to the image selection instead of returning him to the app
+                [controller.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            }
+            break;
+        case CAMERA:
+            [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            break;
+    }
 }
 
 @end
