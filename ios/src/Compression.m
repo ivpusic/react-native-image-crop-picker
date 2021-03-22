@@ -41,8 +41,8 @@
     CGFloat oldWidth = image.size.width;
     CGFloat oldHeight = image.size.height;
     
-    int newWidth = 0;
-    int newHeight = 0;
+    CGFloat newWidth = 0;
+    CGFloat newHeight = 0;
     
     if (maxWidth < maxHeight) {
         newWidth = maxWidth;
