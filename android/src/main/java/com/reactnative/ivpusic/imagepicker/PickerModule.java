@@ -63,8 +63,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_NO_IMAGE_DATA_FOUND = "E_NO_IMAGE_DATA_FOUND";
     private static final String E_CAMERA_IS_NOT_AVAILABLE = "E_CAMERA_IS_NOT_AVAILABLE";
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
-    private static final String E_PERMISSIONS_MISSING = "E_PERMISSION_MISSING";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
+
+    private static final String E_NO_LIBRARY_PERMISSION_KEY = "E_NO_LIBRARY_PERMISSION";
+    private static final String E_NO_LIBRARY_PERMISSION_MSG = "User did not grant library permission.";
+    private static final String E_NO_CAMERA_PERMISSION_KEY = "E_NO_CAMERA_PERMISSION";
+    private static final String E_NO_CAMERA_PERMISSION_MSG = "User did not grant camera permission.";
 
     private String mediaType = "any";
     private boolean multiple = false;
@@ -237,9 +241,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
                     if (requestCode == 1) {
 
-                        for (int grantResult : grantResults) {
+                        for (int permissionIndex = 0; permissionIndex < permissions.length; permissionIndex++) {
+                            String permission = permissions[permissionIndex];
+                            int grantResult = grantResults[permissionIndex];
+
                             if (grantResult == PackageManager.PERMISSION_DENIED) {
-                                promise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
+                                if (permission.equals(Manifest.permission.CAMERA)) {
+                                    promise.reject(E_NO_CAMERA_PERMISSION_KEY, E_NO_CAMERA_PERMISSION_MSG);
+                                } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_MSG);
+                                } else {
+                                    // should not happen, we fallback on E_NO_LIBRARY_PERMISSION_KEY rejection for minimal consistency
+                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, "Required permission missing");
+                                }
                                 return true;
                             }
                         }
