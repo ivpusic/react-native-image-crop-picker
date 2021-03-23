@@ -256,7 +256,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     self.currentSelectionMode = PICKER;
 
     if (@available(iOS 14, *)) {
-        PHPickerConfiguration *configuration = [[PHPickerConfiguration alloc] init];
+        PHPickerConfiguration *configuration = [self makeConfiguration];
         PHPickerViewController *controller = [[PHPickerViewController alloc] initWithConfiguration:configuration];
         controller.delegate = self;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -360,6 +360,20 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }];
 }
 
+- (PHPickerConfiguration *)makeConfiguration API_AVAILABLE(ios(14)){
+    PHPickerConfiguration *configuration = [[PHPickerConfiguration alloc] init];
+    configuration.selectionLimit = [self.options[@"multiple"] boolValue] ? 0 : 1;
+
+    NSString *mediaType = self.options[@"mediaType"];
+    if ([mediaType isEqualToString:@"video"] && ![self.options[@"cropping"] boolValue]) {
+        configuration.filter = [PHPickerFilter videosFilter];
+    } else {
+        configuration.filter = [PHPickerFilter imagesFilter];
+    }
+
+    return configuration;
+}
+
 - (void)showActivityIndicator:(void (^)(UIActivityIndicatorView*, UIView*))handler {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIView *mainView = [[self getRootVC] view];
@@ -396,7 +410,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     });
 }
 
-- (void) handleVideo:(AVAsset*)asset withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
+- (void) handleVideo:(AVAsset*)asset
+        withFileName:(NSString*)fileName
+ withLocalIdentifier:(NSString*)localIdentifier
+          completion:(void (^)(NSDictionary* image))completion {
     NSURL *sourceURL = [(AVURLAsset *)asset URL];
     
     // create temp file
@@ -447,11 +464,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     options.networkAccessAllowed = YES;
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeHighQualityFormat;
     
-    [manager
-     requestAVAssetForVideo:forAsset
-     options:options
-     resultHandler:^(AVAsset * asset, AVAudioMix * audioMix,
-                     NSDictionary *info) {
+    [manager requestAVAssetForVideo:forAsset
+                            options:options
+                      resultHandler:^(AVAsset * asset, AVAudioMix * audioMix, NSDictionary *info) {
         [self handleVideo:asset
              withFileName:[forAsset valueForKey:@"filename"]
       withLocalIdentifier:forAsset.localIdentifier
@@ -642,8 +657,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     self.resolve(video);
                 }]];
             });
-        }
-         ];
+        }];
     } else {
         UIImage *chosenImage = info[UIImagePickerControllerOriginalImage];
 
@@ -773,7 +787,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             __block int processed = 0;
 
             for (PHAsset *phAsset in assets) {
-
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -803,18 +816,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                         });
                     }];
                 } else {
-                    [phAsset requestContentEditingInputWithOptions:nil completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
-                        [manager
-                         requestImageDataForAsset:phAsset
-                         options:options
-                         resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+                    [phAsset requestContentEditingInputWithOptions:nil
+                                                 completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
+                        [manager requestImageDataForAsset:phAsset
+                                                  options:options
+                                            resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
 
                             NSURL *sourceURL = contentEditingInput.fullSizeImageURL;
 
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [lock lock];
                                 @autoreleasepool {
-                                    UIImage *imgT = [UIImage imageWithData:imageData];
+                                    UIImage *image = [UIImage imageWithData:imageData];
 
                                     Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
 
@@ -822,10 +835,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
 
                                     NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
-                                    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
+                                    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= image.size.width);
 
                                     NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
-                                    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+                                    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= image.size.height);
 
                                     NSString *mimeType = [self determineMimeTypeFromImageData:imageData];
                                     Boolean isKnownMimeType = [mimeType length] > 0;
@@ -834,12 +847,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
                                         // Use original, unmodified image
                                         imageResult.data = imageData;
-                                        imageResult.width = @(imgT.size.width);
-                                        imageResult.height = @(imgT.size.height);
+                                        imageResult.width = @(image.size.width);
+                                        imageResult.height = @(image.size.height);
                                         imageResult.mime = mimeType;
-                                        imageResult.image = imgT;
+                                        imageResult.image = image;
                                     } else {
-                                        imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
+                                        imageResult = [self.compression compressImage:[image fixOrientation] withOptions:self.options];
                                     }
 
                                     NSString *filePath = @"";
@@ -915,13 +928,11 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     });
                 }];
             } else {
-                [phAsset requestContentEditingInputWithOptions:nil completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
-                    [manager
-                     requestImageDataForAsset:phAsset
-                     options:options
-                     resultHandler:^(NSData *imageData, NSString *dataUTI,
-                                     UIImageOrientation orientation,
-                                     NSDictionary *info) {
+                [phAsset requestContentEditingInputWithOptions:nil
+                                             completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
+                    [manager requestImageDataForAsset:phAsset
+                                              options:options
+                                        resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                         NSURL *sourceURL = contentEditingInput.fullSizeImageURL;
                         NSDictionary* exif;
                         if([self.options[@"includeExif"] boolValue]) {
@@ -966,9 +977,50 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         return;
     }
 
+    NSMutableArray *selection = [[NSMutableArray alloc] initWithCapacity:results.count];
+
+    [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        __block NSUInteger processed = 0;
+
+        for (PHPickerResult* result in results) {
+            NSItemProvider *provider = result.itemProvider;
+
+            if ([provider hasItemConformingToTypeIdentifier:@"public.movie"]) {
+                dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+                [provider loadFileRepresentationForTypeIdentifier:@"public.movie"
+                                                completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+                    [self makeResponseForURL:url completion:^(NSDictionary *video) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [selection addObject:video];
+                            processed++;
+
+                            dispatch_semaphore_signal(semaphore);
+
+                            if (processed == results.count) {
+                                [indicatorView stopAnimating];
+                                [overlayView removeFromSuperview];
+                                [picker dismissViewControllerAnimated:YES completion:^{
+                                    self.resolve(selection);
+                                }];
+                            }
+                        });
+                    }];
+                }];
+            }
+        }
+    }];
+
     [picker dismissViewControllerAnimated:YES completion:^{
         self.resolve(nil);
     }];
+}
+
+- (void)makeResponseForURL:(NSURL *)url completion:(void (^)(NSDictionary* video))completion {
+    NSString *fileName = url.lastPathComponent;
+    AVURLAsset *asset = [AVURLAsset assetWithURL:url];
+    [self handleVideo:asset withFileName:fileName withLocalIdentifier:nil completion:completion];
 }
 
 @end
