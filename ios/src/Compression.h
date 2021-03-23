@@ -6,7 +6,6 @@
 //  Copyright © 2016 Ivan Pusic. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
@@ -26,7 +25,7 @@
 
 @interface Compression : NSObject
 
-- (ImageResult*) compressImage:(UIImage*)image withOptions:(NSDictionary*)options;
+- (ImageResult*)compressImage:(UIImage*)image withOptions:(NSDictionary*)options;
 - (void)compressVideo:(NSURL*)inputURL
             outputURL:(NSURL*)outputURL
           withOptions:(NSDictionary*)options

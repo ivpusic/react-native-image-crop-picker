@@ -48,6 +48,10 @@
 #define ERROR_CANNOT_PROCESS_VIDEO_KEY @"E_CANNOT_PROCESS_VIDEO"
 #define ERROR_CANNOT_PROCESS_VIDEO_MSG @"Cannot process video data"
 
+#import "UIImage+Resize.h"
+#import "UIImage+Extension.h"
+#import "Compression.h"
+
 @implementation ImageResult
 @end
 
