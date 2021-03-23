@@ -8,7 +8,9 @@
 #ifndef RN_IMAGE_CROP_PICKER_h
 #define RN_IMAGE_CROP_PICKER_h
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@class Compression;
 
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
@@ -23,11 +25,6 @@
 #import "RCTImageView.h"
 #import "RCTImageLoaderProtocol.h"
 #endif
-
-#import "UIImage+Resize.h"
-#import "UIImage+Extension.h"
-#import "Compression.h"
-#import <math.h>
 
 @interface ImageCropPicker : NSObject<UINavigationControllerDelegate, RCTBridgeModule>
 
