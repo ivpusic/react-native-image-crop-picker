@@ -518,7 +518,14 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // when user selected single image, with camera or from photo gallery,
 // this method will take care of attaching image metadata, and sending image to cropping controller
 // or to user directly
-- (void) processSingleImagePick:(UIImage*)image withExif:(NSDictionary*) exif withViewController:(UIViewController*)viewController withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
+- (void) processSingleImagePick:(UIImage*)image
+                       withExif:(NSDictionary*)exif
+             withViewController:(UIViewController*)viewController
+                  withSourceURL:(NSString*)sourceURL
+            withLocalIdentifier:(NSString*)localIdentifier
+                   withFilename:(NSString*)filename
+               withCreationDate:(NSDate*)creationDate
+           withModificationDate:(NSDate*)modificationDate {
     
     if (image == nil) {
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -980,46 +987,76 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     NSMutableArray *selection = [[NSMutableArray alloc] initWithCapacity:results.count];
 
     [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        NSLock *lock = [[NSLock alloc] init];
         __block NSUInteger processed = 0;
 
         for (PHPickerResult* result in results) {
             NSItemProvider *provider = result.itemProvider;
 
             if ([provider hasItemConformingToTypeIdentifier:@"public.movie"]) {
-                dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-
                 [provider loadFileRepresentationForTypeIdentifier:@"public.movie"
                                                 completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+                    [lock lock];
+
                     [self makeResponseForURL:url completion:^(NSDictionary *video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
+                            if (video == nil) {
+                                [indicatorView stopAnimating];
+                                [overlayView removeFromSuperview];
+                                [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                    self.reject(ERROR_CANNOT_PROCESS_VIDEO_KEY, ERROR_CANNOT_PROCESS_VIDEO_MSG, nil);
+                                }]];
+                                return;
+                            }
+
+
                             [selection addObject:video];
                             processed++;
-
-                            dispatch_semaphore_signal(semaphore);
+                            [lock unlock];
 
                             if (processed == results.count) {
                                 [indicatorView stopAnimating];
                                 [overlayView removeFromSuperview];
-                                [picker dismissViewControllerAnimated:YES completion:^{
+                                [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                                     self.resolve(selection);
-                                }];
+                                }]];
                             }
                         });
                     }];
                 }];
+            } else if ([provider canLoadObjectOfClass:[UIImage class]]) {
+                //                UIImage *chosenImage = info[UIImagePickerControllerOriginalImage];
+//
+//                NSDictionary *exif;
+//                if([self.options[@"includeExif"] boolValue]) {
+//                    exif = info[UIImagePickerControllerMediaMetadata];
+//                }
+//
+//                [self processSingleImagePick:chosenImage
+//                                    withExif:exif
+//                          withViewController:picker
+//                               withSourceURL:self.croppingFile[@"sourceURL"]
+//                         withLocalIdentifier:self.croppingFile[@"localIdentifier"]
+//                                withFilename:self.croppingFile[@"filename"]
+//                            withCreationDate:self.croppingFile[@"creationDate"]
+//                        withModificationDate:self.croppingFile[@"modificationDate"]];
             }
         }
     }];
 
-    [picker dismissViewControllerAnimated:YES completion:^{
-        self.resolve(nil);
-    }];
+//    [picker dismissViewControllerAnimated:YES completion:^{
+//        self.resolve(nil);
+//    }];
 }
 
 - (void)makeResponseForURL:(NSURL *)url completion:(void (^)(NSDictionary* video))completion {
     NSString *fileName = url.lastPathComponent;
-    AVURLAsset *asset = [AVURLAsset assetWithURL:url];
+    NSString *path = [[NSTemporaryDirectory() stringByStandardizingPath] stringByAppendingPathComponent:url.lastPathComponent];
+    NSURL *targetURL = [NSURL fileURLWithPath:path];
+
+    [[NSFileManager defaultManager] copyItemAtURL:url toURL:targetURL error:nil];
+
+    AVURLAsset *asset = [AVURLAsset assetWithURL:targetURL];
     [self handleVideo:asset withFileName:fileName withLocalIdentifier:nil completion:completion];
 }
 
