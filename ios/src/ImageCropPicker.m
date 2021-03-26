@@ -1023,6 +1023,17 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     }];
                 }];
             } else if ([provider canLoadObjectOfClass:[UIImage class]]) {
+                NSString *identifier = provider.registeredTypeIdentifiers.firstObject;
+                [provider loadFileRepresentationForTypeIdentifier:identifier
+                                                completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+                    NSURL *targetURL = [self copyFileFromURL:url];
+
+                    NSDictionary *exif;
+                    if ([self.options[@"includeExif"] boolValue]) {
+                        CGImageSourceRef ref = CGImageSourceCreateWithURL((__bridge CFURLRef) targetURL, nil);
+                        exif = CFBridgingRelease(CGImageSourceCopyMetadataAtIndex(ref, 0, nil));
+                    }
+                }];
                 //                UIImage *chosenImage = info[UIImagePickerControllerOriginalImage];
 //
 //                NSDictionary *exif;
@@ -1048,14 +1059,19 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 - (void)makeResponseForURL:(NSURL *)url completion:(void (^)(NSDictionary* video))completion {
+    NSURL *targetURL = [self copyFileFromURL:url];
+    AVURLAsset *asset = [AVURLAsset assetWithURL:targetURL];
     NSString *fileName = url.lastPathComponent;
+    [self handleVideo:asset withFileName:fileName withLocalIdentifier:nil completion:completion];
+}
+
+- (NSURL *)copyFileFromURL:(NSURL *)url {
     NSString *path = [[NSTemporaryDirectory() stringByStandardizingPath] stringByAppendingPathComponent:url.lastPathComponent];
     NSURL *targetURL = [NSURL fileURLWithPath:path];
 
     [[NSFileManager defaultManager] copyItemAtURL:url toURL:targetURL error:nil];
 
-    AVURLAsset *asset = [AVURLAsset assetWithURL:targetURL];
-    [self handleVideo:asset withFileName:fileName withLocalIdentifier:nil completion:completion];
+    return targetURL;
 }
 
 @end
