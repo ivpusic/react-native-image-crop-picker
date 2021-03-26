@@ -1030,25 +1030,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                     NSDictionary *exif;
                     if ([self.options[@"includeExif"] boolValue]) {
-                        CGImageSourceRef ref = CGImageSourceCreateWithURL((__bridge CFURLRef) targetURL, nil);
-                        exif = CFBridgingRelease(CGImageSourceCopyMetadataAtIndex(ref, 0, nil));
+                        exif = [self exifDataFromURL:targetURL];
                     }
+                    UIImage *image = [[UIImage alloc] initWithContentsOfFile:targetURL.path];
+
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self processSingleImagePick:image
+                                            withExif:exif
+                                  withViewController:picker
+                                       withSourceURL:self.croppingFile[@"sourceURL"]
+                                 withLocalIdentifier:self.croppingFile[@"localIdentifier"]
+                                        withFilename:self.croppingFile[@"filename"]
+                                    withCreationDate:self.croppingFile[@"creationDate"]
+                                withModificationDate:self.croppingFile[@"modificationDate"]];
+                    });
                 }];
-                //                UIImage *chosenImage = info[UIImagePickerControllerOriginalImage];
-//
-//                NSDictionary *exif;
-//                if([self.options[@"includeExif"] boolValue]) {
-//                    exif = info[UIImagePickerControllerMediaMetadata];
-//                }
-//
-//                [self processSingleImagePick:chosenImage
-//                                    withExif:exif
-//                          withViewController:picker
-//                               withSourceURL:self.croppingFile[@"sourceURL"]
-//                         withLocalIdentifier:self.croppingFile[@"localIdentifier"]
-//                                withFilename:self.croppingFile[@"filename"]
-//                            withCreationDate:self.croppingFile[@"creationDate"]
-//                        withModificationDate:self.croppingFile[@"modificationDate"]];
             }
         }
     }];
@@ -1072,6 +1068,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     [[NSFileManager defaultManager] copyItemAtURL:url toURL:targetURL error:nil];
 
     return targetURL;
+}
+
+- (NSDictionary *)exifDataFromURL:(NSURL *)url {
+    CGImageSourceRef ref = CGImageSourceCreateWithURL((__bridge CFURLRef) url, nil);
+    NSDictionary *properties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(ref, 0, nil));
+
+    return properties[(NSString *)kCGImagePropertyExifDictionary];
 }
 
 @end
