@@ -255,90 +255,93 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     self.currentSelectionMode = PICKER;
 
     if (@available(iOS 14, *)) {
-        PHPickerConfiguration *configuration = [self makeConfiguration];
-        PHPickerViewController *controller = [[PHPickerViewController alloc] initWithConfiguration:configuration];
-        controller.delegate = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[self getRootVC] presentViewController:controller animated:YES completion:nil];
-        });
-    } else {
-        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-            if (status != PHAuthorizationStatusAuthorized) {
-                self.reject(ERROR_NO_LIBRARY_PERMISSION_KEY, ERROR_NO_LIBRARY_PERMISSION_MSG, nil);
-                return;
-            }
-
+        if (![self.options[@"cropperCircleOverlay"] boolValue] && ![self.options[@"cropping"] boolValue]) {
+            PHPickerConfiguration *configuration = [self makeConfiguration];
+            PHPickerViewController *controller = [[PHPickerViewController alloc] initWithConfiguration:configuration];
+            controller.delegate = self;
             dispatch_async(dispatch_get_main_queue(), ^{
-                // init picker
-                QBImagePickerController *imagePickerController = [QBImagePickerController new];
-                imagePickerController.delegate = self;
-                imagePickerController.allowsMultipleSelection = [self.options[@"multiple"] boolValue];
-                imagePickerController.minimumNumberOfSelection = abs([self.options[@"minFiles"] intValue]);
-                imagePickerController.maximumNumberOfSelection = abs([self.options[@"maxFiles"] intValue]);
-                imagePickerController.showsNumberOfSelectedAssets = [self.options[@"showsSelectedCount"] boolValue];
-                imagePickerController.sortOrder = self.options[@"sortOrder"];
-
-                NSArray *smartAlbums = self.options[@"smartAlbums"];
-                if (smartAlbums != nil) {
-                    NSDictionary *albums = @{
-                        //user albums
-                        @"Regular" : @(PHAssetCollectionSubtypeAlbumRegular),
-                        @"SyncedEvent" : @(PHAssetCollectionSubtypeAlbumSyncedEvent),
-                        @"SyncedFaces" : @(PHAssetCollectionSubtypeAlbumSyncedFaces),
-                        @"SyncedAlbum" : @(PHAssetCollectionSubtypeAlbumSyncedAlbum),
-                        @"Imported" : @(PHAssetCollectionSubtypeAlbumImported),
-
-                        //cloud albums
-                        @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
-                        @"CloudShared" : @(PHAssetCollectionSubtypeAlbumCloudShared),
-
-                        //smart albums
-                        @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
-                        @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
-                        @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
-                        @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
-                        @"Timelapses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
-                        @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
-                        @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
-                        @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
-                        @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
-                        @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
-                        @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
-                        @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
-                        @"DepthEffect" : @(PHAssetCollectionSubtypeSmartAlbumDepthEffect),
-                        @"LivePhotos" : @(PHAssetCollectionSubtypeSmartAlbumLivePhotos),
-                        @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
-                        @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
-                    };
-
-                    NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
-                    for (NSString* smartAlbum in smartAlbums) {
-                        if (albums[smartAlbum] != nil) {
-                          [albumsToShow addObject:albums[smartAlbum]];
-                        }
-                    }
-                    imagePickerController.assetCollectionSubtypes = albumsToShow;
-                }
-
-                if ([self.options[@"cropping"] boolValue]) {
-                    imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-                } else {
-                    NSString *mediaType = self.options[@"mediaType"];
-
-                    if ([mediaType isEqualToString:@"photo"]) {
-                        imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-                    } else if ([mediaType isEqualToString:@"video"]) {
-                        imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
-                    } else {
-                        imagePickerController.mediaType = QBImagePickerMediaTypeAny;
-                    }
-                }
-
-                [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
-                [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
+                [[self getRootVC] presentViewController:controller animated:YES completion:nil];
             });
-        }];
+            return;
+        }
     }
+
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        if (status != PHAuthorizationStatusAuthorized) {
+            self.reject(ERROR_NO_LIBRARY_PERMISSION_KEY, ERROR_NO_LIBRARY_PERMISSION_MSG, nil);
+            return;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // init picker
+            QBImagePickerController *imagePickerController = [QBImagePickerController new];
+            imagePickerController.delegate = self;
+            imagePickerController.allowsMultipleSelection = [self.options[@"multiple"] boolValue];
+            imagePickerController.minimumNumberOfSelection = abs([self.options[@"minFiles"] intValue]);
+            imagePickerController.maximumNumberOfSelection = abs([self.options[@"maxFiles"] intValue]);
+            imagePickerController.showsNumberOfSelectedAssets = [self.options[@"showsSelectedCount"] boolValue];
+            imagePickerController.sortOrder = self.options[@"sortOrder"];
+            
+            NSArray *smartAlbums = self.options[@"smartAlbums"];
+            if (smartAlbums != nil) {
+                NSDictionary *albums = @{
+                    //user albums
+                    @"Regular" : @(PHAssetCollectionSubtypeAlbumRegular),
+                    @"SyncedEvent" : @(PHAssetCollectionSubtypeAlbumSyncedEvent),
+                    @"SyncedFaces" : @(PHAssetCollectionSubtypeAlbumSyncedFaces),
+                    @"SyncedAlbum" : @(PHAssetCollectionSubtypeAlbumSyncedAlbum),
+                    @"Imported" : @(PHAssetCollectionSubtypeAlbumImported),
+                    
+                    //cloud albums
+                    @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                    @"CloudShared" : @(PHAssetCollectionSubtypeAlbumCloudShared),
+                    
+                    //smart albums
+                    @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
+                    @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                    @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                    @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                    @"Timelapses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
+                    @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
+                    @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
+                    @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                    @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                    @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                    @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                    @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                    @"DepthEffect" : @(PHAssetCollectionSubtypeSmartAlbumDepthEffect),
+                    @"LivePhotos" : @(PHAssetCollectionSubtypeSmartAlbumLivePhotos),
+                    @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
+                    @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
+                };
+                
+                NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
+                for (NSString* smartAlbum in smartAlbums) {
+                    if (albums[smartAlbum] != nil) {
+                        [albumsToShow addObject:albums[smartAlbum]];
+                    }
+                }
+                imagePickerController.assetCollectionSubtypes = albumsToShow;
+            }
+            
+            if ([self.options[@"cropping"] boolValue]) {
+                imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+            } else {
+                NSString *mediaType = self.options[@"mediaType"];
+                
+                if ([mediaType isEqualToString:@"photo"]) {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+                } else if ([mediaType isEqualToString:@"video"]) {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
+                } else {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
+                }
+            }
+            
+            [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
+            [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
+        });
+    }];
 }
 
 RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
