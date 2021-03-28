@@ -836,37 +836,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 @autoreleasepool {
                                     UIImage *image = [UIImage imageWithData:imageData];
 
-                                    Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
-
-                                    NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
-                                    Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
-
-                                    NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
-                                    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= image.size.width);
-
-                                    NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
-                                    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= image.size.height);
-
-                                    NSString *mimeType = [self determineMimeTypeFromImageData:imageData];
-                                    Boolean isKnownMimeType = [mimeType length] > 0;
-
-                                    ImageResult *imageResult = [[ImageResult alloc] init];
-                                    if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
-                                        // Use original, unmodified image
-                                        imageResult.data = imageData;
-                                        imageResult.width = @(image.size.width);
-                                        imageResult.height = @(image.size.height);
-                                        imageResult.mime = mimeType;
-                                        imageResult.image = image;
-                                    } else {
-                                        imageResult = [self.compression compressImage:[image fixOrientation] withOptions:self.options];
-                                    }
+                                    ImageResult *imageResult = [self makeResultFromImageData:imageData image:image];
 
                                     NSString *filePath = @"";
                                     if([self.options[@"writeTempFile"] boolValue]) {
-
+                                        
                                         filePath = [self persistFile:imageResult.data];
-
+                                        
                                         if (filePath == nil) {
                                             [indicatorView stopAnimating];
                                             [overlayView removeFromSuperview];
@@ -876,12 +852,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                             return;
                                         }
                                     }
-
+                                    
                                     NSDictionary* exif = nil;
                                     if([self.options[@"includeExif"] boolValue]) {
                                         exif = [[CIImage imageWithData:imageData] properties];
                                     }
-
+                                    
                                     [selections addObject:[self createAttachmentResponse:filePath
                                                                                 withExif: exif
                                                                            withSourceURL:[sourceURL absoluteString]
@@ -964,6 +940,36 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             }
         }];
     }
+}
+
+- (ImageResult *)makeResultFromImageData:(NSData *)data image:(UIImage *)image
+{
+  Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
+
+  NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
+  Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
+
+  NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
+  Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= image.size.width);
+
+  NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
+  Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= image.size.height);
+
+  NSString *mimeType = [self determineMimeTypeFromImageData:data];
+  Boolean isKnownMimeType = [mimeType length] > 0;
+
+  ImageResult *imageResult = [[ImageResult alloc] init];
+  if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
+      // Use original, unmodified image
+      imageResult.data = data;
+      imageResult.width = @(image.size.width);
+      imageResult.height = @(image.size.height);
+      imageResult.mime = mimeType;
+      imageResult.image = image;
+  } else {
+      imageResult = [self.compression compressImage:[image fixOrientation] withOptions:self.options];
+  }
+  return imageResult;
 }
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController {
