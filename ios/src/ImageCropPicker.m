@@ -840,9 +840,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                                     NSString *filePath = @"";
                                     if([self.options[@"writeTempFile"] boolValue]) {
-                                        
+
                                         filePath = [self persistFile:imageResult.data];
-                                        
+
                                         if (filePath == nil) {
                                             [indicatorView stopAnimating];
                                             [overlayView removeFromSuperview];
@@ -852,12 +852,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                             return;
                                         }
                                     }
-                                    
+
                                     NSDictionary* exif = nil;
                                     if([self.options[@"includeExif"] boolValue]) {
                                         exif = [[CIImage imageWithData:imageData] properties];
                                     }
-                                    
+
                                     [selections addObject:[self createAttachmentResponse:filePath
                                                                                 withExif: exif
                                                                            withSourceURL:[sourceURL absoluteString]
@@ -868,7 +868,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                                                 withMime:imageResult.mime
                                                                                 withSize:@(imageResult.data.length)
                                                                             withDuration: nil
-                                                                                withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0]: nil
+                                                                                withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
                                                                                 withRect:CGRectNull
                                                                         withCreationDate:phAsset.creationDate
                                                                     withModificationDate:phAsset.modificationDate
@@ -990,9 +990,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         return;
     }
 
-    NSMutableArray *selection = [[NSMutableArray alloc] initWithCapacity:results.count];
-
     [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
+        NSMutableArray *selection = [[NSMutableArray alloc] initWithCapacity:results.count];
+
         NSLock *lock = [[NSLock alloc] init];
         __block NSUInteger processed = 0;
 
@@ -1034,32 +1034,49 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                 NSString *identifier = provider.registeredTypeIdentifiers.firstObject;
                 [provider loadFileRepresentationForTypeIdentifier:identifier
                                                 completionHandler:^(NSURL * _Nullable url, NSError * _Nullable error) {
+                    [lock lock];
+
                     NSURL *targetURL = [self copyFileFromURL:url];
 
                     NSDictionary *exif;
                     if ([self.options[@"includeExif"] boolValue]) {
                         exif = [self exifDataFromURL:targetURL];
                     }
-                    UIImage *image = [[UIImage alloc] initWithContentsOfFile:targetURL.path];
+                    NSData *imageData = [[NSData alloc] initWithContentsOfFile:targetURL.path];
+                    UIImage *image = [[UIImage alloc] initWithData:imageData];
 
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self processSingleImagePick:image
-                                            withExif:exif
-                                  withViewController:picker
-                                       withSourceURL:self.croppingFile[@"sourceURL"]
-                                 withLocalIdentifier:self.croppingFile[@"localIdentifier"]
-                                        withFilename:self.croppingFile[@"filename"]
-                                    withCreationDate:self.croppingFile[@"creationDate"]
-                                withModificationDate:self.croppingFile[@"modificationDate"]];
-                    });
+                    ImageResult *imageResult = [self makeResultFromImageData:imageData image:image];
+
+                    [selection addObject:[self createAttachmentResponse:targetURL.absoluteString
+                                                               withExif:exif
+                                                          withSourceURL:url.absoluteString
+                                                    withLocalIdentifier:provider.suggestedName
+                                                           withFilename:url.lastPathComponent
+                                                              withWidth:imageResult.width
+                                                             withHeight:imageResult.height
+                                                               withMime:imageResult.mime
+                                                               withSize:@(imageResult.data.length)
+                                                           withDuration:nil
+                                                               withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                                               withRect:CGRectNull
+                                                       withCreationDate:[NSDate distantFuture]
+                                                   withModificationDate:[NSDate distantFuture]]];
+                    processed++;
+                    [lock unlock];
+
+                    if (processed == results.count) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [indicatorView stopAnimating];
+                            [overlayView removeFromSuperview];
+                            [picker dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                self.resolve(selection);
+                            }]];
+                        });
+                    }
                 }];
             }
         }
     }];
-
-//    [picker dismissViewControllerAnimated:YES completion:^{
-//        self.resolve(nil);
-//    }];
 }
 
 - (void)makeResponseForURL:(NSURL *)url completion:(void (^)(NSDictionary* video))completion {
