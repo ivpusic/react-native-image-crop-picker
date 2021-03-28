@@ -942,34 +942,33 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }
 }
 
-- (ImageResult *)makeResultFromImageData:(NSData *)data image:(UIImage *)image
-{
-  Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
-
-  NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
-  Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
-
-  NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
-  Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= image.size.width);
-
-  NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
-  Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= image.size.height);
-
-  NSString *mimeType = [self determineMimeTypeFromImageData:data];
-  Boolean isKnownMimeType = [mimeType length] > 0;
-
-  ImageResult *imageResult = [[ImageResult alloc] init];
-  if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
-      // Use original, unmodified image
-      imageResult.data = data;
-      imageResult.width = @(image.size.width);
-      imageResult.height = @(image.size.height);
-      imageResult.mime = mimeType;
-      imageResult.image = image;
-  } else {
-      imageResult = [self.compression compressImage:[image fixOrientation] withOptions:self.options];
-  }
-  return imageResult;
+- (ImageResult *)makeResultFromImageData:(NSData *)data image:(UIImage *)image {
+    Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
+    
+    NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
+    Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
+    
+    NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
+    Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= image.size.width);
+    
+    NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
+    Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= image.size.height);
+    
+    NSString *mimeType = [self determineMimeTypeFromImageData:data];
+    Boolean isKnownMimeType = [mimeType length] > 0;
+    
+    ImageResult *imageResult = [[ImageResult alloc] init];
+    if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
+        // Use original, unmodified image
+        imageResult.data = data;
+        imageResult.width = @(image.size.width);
+        imageResult.height = @(image.size.height);
+        imageResult.mime = mimeType;
+        imageResult.image = image;
+    } else {
+        imageResult = [self.compression compressImage:[image fixOrientation] withOptions:self.options];
+    }
+    return imageResult;
 }
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController {
@@ -1049,7 +1048,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                     [selection addObject:[self createAttachmentResponse:targetURL.absoluteString
                                                                withExif:exif
-                                                          withSourceURL:url.absoluteString
+                                                          withSourceURL:targetURL.absoluteString
                                                     withLocalIdentifier:provider.suggestedName
                                                            withFilename:url.lastPathComponent
                                                               withWidth:imageResult.width
