@@ -474,7 +474,20 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }];
 }
 
-- (NSDictionary*) createAttachmentResponse:(NSString*)filePath withExif:(NSDictionary*) exif withSourceURL:(NSString*)sourceURL withLocalIdentifier:(NSString*)localIdentifier withFilename:(NSString*)filename withWidth:(NSNumber*)width withHeight:(NSNumber*)height withMime:(NSString*)mime withSize:(NSNumber*)size withDuration:(NSNumber*)duration withData:(NSString*)data withRect:(CGRect)cropRect withCreationDate:(NSDate*)creationDate withModificationDate:(NSDate*)modificationDate {
+- (NSDictionary*) createAttachmentResponse:(NSString*)filePath
+                                  withExif:(NSDictionary*) exif
+                             withSourceURL:(NSString*)sourceURL
+                       withLocalIdentifier:(NSString*)localIdentifier
+                              withFilename:(NSString*)filename
+                                 withWidth:(NSNumber*)width
+                                withHeight:(NSNumber*)height
+                                  withMime:(NSString*)mime
+                                  withSize:(NSNumber*)size
+                              withDuration:(NSNumber*)duration
+                                  withData:(NSString*)data
+                                  withRect:(CGRect)cropRect
+                          withCreationDate:(NSDate*)creationDate
+                      withModificationDate:(NSDate*)modificationDate {
     return @{
         @"path": (filePath && ![filePath isEqualToString:(@"")]) ? filePath : [NSNull null],
         @"sourceURL": (sourceURL) ? sourceURL : [NSNull null],
@@ -942,19 +955,19 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
 - (ImageResult *)makeResultFromImageData:(NSData *)data image:(UIImage *)image {
     Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
-    
+
     NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
     Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
-    
+
     NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
     Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= image.size.width);
-    
+
     NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
     Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= image.size.height);
-    
+
     NSString *mimeType = [self determineMimeTypeFromImageData:data];
     Boolean isKnownMimeType = [mimeType length] > 0;
-    
+
     ImageResult *imageResult = [[ImageResult alloc] init];
     if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
         // Use original, unmodified image
@@ -1044,20 +1057,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                     ImageResult *imageResult = [self makeResultFromImageData:imageData image:image];
 
-                    [selection addObject:[self createAttachmentResponse:targetURL.absoluteString
-                                                               withExif:exif
-                                                          withSourceURL:targetURL.absoluteString
-                                                    withLocalIdentifier:provider.suggestedName
-                                                           withFilename:url.lastPathComponent
-                                                              withWidth:imageResult.width
-                                                             withHeight:imageResult.height
-                                                               withMime:imageResult.mime
-                                                               withSize:@(imageResult.data.length)
-                                                           withDuration:nil
-                                                               withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
-                                                               withRect:CGRectNull
-                                                       withCreationDate:[NSDate distantFuture]
-                                                   withModificationDate:[NSDate distantFuture]]];
+                    NSDictionary *attachment = [self createAttachmentResponse:targetURL.absoluteString
+                                                                     withExif:exif
+                                                                withSourceURL:targetURL.absoluteString
+                                                          withLocalIdentifier:provider.suggestedName
+                                                                 withFilename:url.lastPathComponent
+                                                                    withWidth:imageResult.width
+                                                                   withHeight:imageResult.height
+                                                                     withMime:imageResult.mime
+                                                                     withSize:@(imageResult.data.length)
+                                                                 withDuration:nil
+                                                                     withData:[self.options[@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
+                                                                     withRect:CGRectNull
+                                                             withCreationDate:[self dateForFileAtURL:url key:NSURLCreationDateKey]
+                                                         withModificationDate:[self dateForFileAtURL:url key:NSURLContentModificationDateKey]];
+                    [selection addObject:attachment];
                     processed++;
                     [lock unlock];
 
@@ -1097,6 +1111,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     NSDictionary *properties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(ref, 0, nil));
 
     return properties[(NSString *)kCGImagePropertyExifDictionary];
+}
+
+- (NSDate *)dateForFileAtURL:(NSURL *)url key:(NSURLResourceKey)key {
+    NSDate *date;
+    [url getResourceValue:&date forKey:key error:nil];
+    return date;
 }
 
 @end
