@@ -1053,7 +1053,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
                     NSDictionary *exif;
                     if ([self.options[@"includeExif"] boolValue]) {
-                        exif = [self exifDataFromURL:targetURL];
+                        exif = [self exifAndGPSDataFromURL:targetURL];
                     }
                     NSData *imageData = [[NSData alloc] initWithContentsOfFile:targetURL.path];
                     UIImage *image = [[UIImage alloc] initWithData:imageData];
@@ -1109,11 +1109,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     return targetURL;
 }
 
-- (NSDictionary *)exifDataFromURL:(NSURL *)url {
+- (NSDictionary *)exifAndGPSDataFromURL:(NSURL *)url {
     CGImageSourceRef ref = CGImageSourceCreateWithURL((__bridge CFURLRef) url, nil);
     NSDictionary *properties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(ref, 0, nil));
 
-    return properties[(NSString *)kCGImagePropertyExifDictionary];
+    NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
+    [data addEntriesFromDictionary:properties[(NSString *)kCGImagePropertyExifDictionary]];
+    [data addEntriesFromDictionary:properties[(NSString *)kCGImagePropertyGPSDictionary]];
+
+    return [data copy];
 }
 
 - (NSDate *)dateForFileAtURL:(NSURL *)url key:(NSURLResourceKey)key {
