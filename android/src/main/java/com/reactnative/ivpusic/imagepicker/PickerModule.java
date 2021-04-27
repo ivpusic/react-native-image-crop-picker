@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +35,9 @@ import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -72,6 +76,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private String mediaType = "any";
     private boolean multiple = false;
+    private int maxFiles = 5;
+    private boolean useStockGallery = false;
     private boolean includeBase64 = false;
     private boolean includeExif = false;
     private boolean cropping = false;
@@ -121,6 +127,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        useStockGallery = options.hasKey("useStockGallery") && options.getBoolean("useStockGallery");
+        maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : maxFiles;
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
@@ -379,6 +387,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
+    private void openCustomMediaPicker(final Activity activity) {
+        Matisse.from(activity)
+                .choose(MimeType.ofAll(), false)
+                .countable(true)
+                .maxSelectable(maxFiles)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                .thumbnailScale(0.85f)
+                .imageEngine(new GlideEngine())
+                .forResult(IMAGE_PICKER_REQUEST);
+    }
+
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
         final Activity activity = getCurrentActivity();
@@ -394,7 +413,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
-                initiatePicker(activity);
+                if (useStockGallery) {
+                    initiatePicker(activity);
+                } else {
+                    openCustomMediaPicker(activity);
+                }
                 return null;
             }
         });
@@ -687,9 +710,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (resultCode == Activity.RESULT_CANCELED) {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
         } else if (resultCode == Activity.RESULT_OK) {
-            if (multiple) {
+            if (!useStockGallery) {
+                try {
+                    List<Uri> selectedItems = Matisse.obtainResult(data);
+                    resultCollector.setWaitCount(selectedItems.size());
+                    for (int i = 0; i < selectedItems.size(); i++) {
+                        getAsyncSelection(activity, selectedItems.get(i), false);
+                    }
+                } catch (Exception ex) {
+                    resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
+                }
+            } else if (multiple) {
                 ClipData clipData = data.getClipData();
-
                 try {
                     // only one image selected
                     if (clipData == null) {
