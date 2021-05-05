@@ -26,10 +26,14 @@ class ExifExtractor {
 
         ExifInterface exif = new ExifInterface(path);
 
-        GeoDegree geoDegree = new GeoDegree(exif);
-        if (geoDegree.getLatitude() != null && geoDegree.getLongitude() != null) {
-            exifData.putDouble("Latitude", geoDegree.getLatitude());
-            exifData.putDouble("Longitude", geoDegree.getLongitude());
+        try {
+            GeoDegree geoDegree = new GeoDegree(exif);
+            if (geoDegree.getLatitude() != null && geoDegree.getLongitude() != null) {
+                exifData.putDouble("Latitude", geoDegree.getLatitude());
+                exifData.putDouble("Longitude", geoDegree.getLongitude());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         for (String attribute : attributes) {
