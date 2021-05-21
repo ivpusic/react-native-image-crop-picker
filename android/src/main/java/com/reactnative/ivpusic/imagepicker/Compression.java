@@ -33,7 +33,7 @@ import java.util.UUID;
  * Created by ipusic on 12/27/16.
  */
 
-class Compression {
+public class Compression {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     // https://medium.com/@petrakeas/alias-free-resize-with-renderscript-5bf15a86ce3
