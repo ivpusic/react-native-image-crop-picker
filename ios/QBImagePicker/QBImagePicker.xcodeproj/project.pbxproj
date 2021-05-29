@@ -46,6 +46,7 @@
 
 /* Begin PBXFileReference section */
 		07A50A481B331A840010E048 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
+		3A21B6F126614081003AF608 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		3A684B06251887B4006605D4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		4237D94D25F8C071008C19B7 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		5A63116E200FC8C0006D76A5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
@@ -248,6 +249,7 @@
 				pt,
 				"zh-Hant",
 				tr,
+				ro,
 			);
 			mainGroup = AAA8FDF91ACDA079002A9710;
 			productRefGroup = AAA8FE041ACDA079002A9710 /* Products */;
@@ -324,6 +326,7 @@
 				D12C7DB2255B413200F13F68 /* pt */,
 				D12C7DB3255B413E00F13F68 /* zh-Hant */,
 				4237D94D25F8C071008C19B7 /* tr */,
+				3A21B6F126614081003AF608 /* ro */,
 			);
 			name = QBImagePicker.strings;
 			sourceTree = "<group>";
