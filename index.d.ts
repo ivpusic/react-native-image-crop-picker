@@ -316,6 +316,30 @@ declare module "react-native-image-crop-picker" {
          * @default Android: 1, iOS: 0.8
          */
         compressImageQuality?: number;
+
+        /**
+         * Color of Cropper Choose text
+         *
+         * @platform iOS only
+         * @default null
+         */
+        cropperChooseTextColor?: string;
+
+        /**
+         * Color of Cropper Cancel text
+         *
+         * @platform iOS only
+         * @default null
+         */
+        cropperCancelTextColor?: string;
+
+        /**
+         * Color of Cropper Toolbar controls
+         *
+         * @platform iOS only
+         * @default null
+         */
+        cropperToolbarButtonsColor?: string;
     }
 
     type CropperOptions = ImageOptions & {

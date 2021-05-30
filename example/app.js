@@ -1,5 +1,14 @@
-import React, { Component } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {Component} from 'react';
+import {
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Video from 'react-native-video';
 
@@ -105,7 +114,7 @@ export default class App extends Component {
     if (!this.state.image) {
       return Alert.alert(
         'No image',
-        'Before open cropping only, please select image'
+        'Before open cropping only, please select image',
       );
     }
 
@@ -144,10 +153,13 @@ export default class App extends Component {
       compressImageQuality: 1,
       compressVideoPreset: 'MediumQuality',
       includeExif: true,
-      cropperStatusBarColor: 'white',
-      cropperToolbarColor: 'white',
-      cropperActiveWidgetColor: 'white',
-      cropperToolbarWidgetColor: '#3498DB',
+      cropperStatusBarColor: 'rgba(220, 20, 40, 0.5)',
+      cropperToolbarColor: 'rgb(0, 100, 254)',
+      cropperActiveWidgetColor: '#3498DB',
+      cropperToolbarWidgetColor: 'black',
+      cropperChooseTextColor: 'green',
+      cropperCancelTextColor: 'rgba(220, 20, 40, 1)',
+      cropperToolbarButtonsColor: '#CF0',
     })
       .then((image) => {
         console.log('received image', image);
@@ -199,10 +211,10 @@ export default class App extends Component {
   renderVideo(video) {
     console.log('rendering video');
     return (
-      <View style={{ height: 300, width: 300 }}>
+      <View style={{height: 300, width: 300}}>
         <Video
-          source={{ uri: video.uri, type: video.mime }}
-          style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}
+          source={{uri: video.uri, type: video.mime}}
+          style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0}}
           rate={1}
           paused={false}
           volume={1}
@@ -219,7 +231,7 @@ export default class App extends Component {
   renderImage(image) {
     return (
       <Image
-        style={{ width: 300, height: 300, resizeMode: 'contain' }}
+        style={{width: 300, height: 300, resizeMode: 'contain'}}
         source={image}
       />
     );
@@ -235,7 +247,7 @@ export default class App extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <ScrollView>
           {this.state.image ? this.renderAsset(this.state.image) : null}
           {this.state.images
@@ -247,30 +259,26 @@ export default class App extends Component {
 
         <TouchableOpacity
           onPress={() => this.pickSingleWithCamera(false)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Single Image With Camera</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
             this.pickSingleWithCamera(false, (mediaType = 'video'))
           }
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Single Video With Camera</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => this.pickSingleWithCamera(true)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>
             Select Single With Camera With Cropping
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => this.pickSingle(false)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Single</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => this.cropLast()} style={styles.button}>
@@ -278,41 +286,35 @@ export default class App extends Component {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => this.pickSingleBase64(false)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Single Returning Base64</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => this.pickSingle(true)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Single With Cropping</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => this.pickSingle(true, true)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Single With Circular Cropping</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={this.pickMultiple.bind(this)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Select Multiple</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={this.cleanupImages.bind(this)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Cleanup All Images</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={this.cleanupSingleImage.bind(this)}
-          style={styles.button}
-        >
+          style={styles.button}>
           <Text style={styles.text}>Cleanup Single Image</Text>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
     );
   }
 }
