@@ -12,20 +12,18 @@
 
 - (instancetype)init {
     NSMutableDictionary *dic = [[NSMutableDictionary alloc] initWithDictionary:@{
-                                                                                 @"640x480": AVAssetExportPreset640x480,
-                                                                                 @"960x540": AVAssetExportPreset960x540,
-                                                                                 @"1280x720": AVAssetExportPreset1280x720,
-                                                                                 @"1920x1080": AVAssetExportPreset1920x1080,
-                                                                                 @"LowQuality": AVAssetExportPresetLowQuality,
-                                                                                 @"MediumQuality": AVAssetExportPresetMediumQuality,
-                                                                                 @"HighestQuality": AVAssetExportPresetHighestQuality,
-                                                                                 @"Passthrough": AVAssetExportPresetPassthrough,
-                                                                                 }];
+        @"640x480": AVAssetExportPreset640x480,
+        @"960x540": AVAssetExportPreset960x540,
+        @"1280x720": AVAssetExportPreset1280x720,
+        @"1920x1080": AVAssetExportPreset1920x1080,
+        @"LowQuality": AVAssetExportPresetLowQuality,
+        @"MediumQuality": AVAssetExportPresetMediumQuality,
+        @"HighestQuality": AVAssetExportPresetHighestQuality,
+        @"Passthrough": AVAssetExportPresetPassthrough,
+    }];
     
     if (@available(iOS 9.0, *)) {
         [dic addEntriesFromDictionary:@{@"3840x2160": AVAssetExportPreset3840x2160}];
-    } else {
-        // Fallback on earlier versions
     }
     
     self.exportPresets = dic;
@@ -41,8 +39,8 @@
     CGFloat oldWidth = image.size.width;
     CGFloat oldHeight = image.size.height;
     
-    int newWidth = 0;
-    int newHeight = 0;
+    CGFloat newWidth = 0;
+    CGFloat newHeight = 0;
     
     if (maxWidth < maxHeight) {
         newWidth = maxWidth;
@@ -58,8 +56,8 @@
     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    result.width = [NSNumber numberWithFloat:newWidth];
-    result.height = [NSNumber numberWithFloat:newHeight];
+    result.width = @(newWidth);
+    result.height = @(newHeight);
     result.image = resizedImage;
     return result;
 }
@@ -93,7 +91,7 @@
     // parse desired image quality
     NSNumber *compressQuality = [options valueForKey:@"compressImageQuality"];
     if (compressQuality == nil) {
-        compressQuality = [NSNumber numberWithFloat:0.8];
+        compressQuality = @0.8F;
     }
     
     // convert image to jpeg representation

@@ -8,7 +8,9 @@
 #ifndef RN_IMAGE_CROP_PICKER_h
 #define RN_IMAGE_CROP_PICKER_h
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@class Compression;
 
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
@@ -24,31 +26,7 @@
 #import "RCTImageLoaderProtocol.h"
 #endif
 
-#if __has_include("QBImagePicker.h")
-#import "QBImagePicker.h"
-#elif __has_include(<QBImagePickerController/QBImagePickerController.h>)
-#import <QBImagePickerController/QBImagePickerController.h>
-#elif __has_include("QBImagePickerController.h") // local QBImagePickerController subspec
-#import "QBImagePickerController.h"
-#else
-#import
-#import "QBImagePicker/QBImagePicker.h"
-#endif
-
-
-#import <TOCropViewController/TOCropViewController.h>
-
-#import "UIImage+Resize.h"
-#import "UIImage+Extension.h"
-#import "Compression.h"
-#import <math.h>
-
-@interface ImageCropPicker : NSObject<
-UIImagePickerControllerDelegate,
-UINavigationControllerDelegate,
-RCTBridgeModule,
-QBImagePickerControllerDelegate,
-TOCropViewControllerDelegate>
+@interface ImageCropPicker : NSObject<UINavigationControllerDelegate, RCTBridgeModule>
 
 typedef enum selectionMode {
     CAMERA,

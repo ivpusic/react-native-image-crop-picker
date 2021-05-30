@@ -132,7 +132,7 @@ export default class App extends Component {
       });
   }
 
-  pickSingle(cropit, circular = false, mediaType) {
+  pickSingle(cropit, circular = false, mediaType = 'any') {
     ImagePicker.openPicker({
       width: 500,
       height: 500,
@@ -148,6 +148,7 @@ export default class App extends Component {
       cropperToolbarColor: 'white',
       cropperActiveWidgetColor: 'white',
       cropperToolbarWidgetColor: '#3498DB',
+      mediaType: mediaType,
     })
       .then((image) => {
         console.log('received image', image);
@@ -272,6 +273,12 @@ export default class App extends Component {
           style={styles.button}
         >
           <Text style={styles.text}>Select Single</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.pickSingle(false, false, 'video')}
+          style={styles.button}
+        >
+          <Text style={styles.text}>Select Single Video</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => this.cropLast()} style={styles.button}>
           <Text style={styles.text}>Crop Last Selected Image</Text>
