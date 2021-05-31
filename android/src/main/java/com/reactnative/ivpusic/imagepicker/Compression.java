@@ -5,8 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Color;
-import android.graphics.Canvas;
 import android.media.ExifInterface;
 import android.os.Environment;
 import android.util.Log;
@@ -58,11 +56,6 @@ class Compression {
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
 
-        Bitmap transparencyConverted = resized.copy(Bitmap.Config.ARGB_8888,true);
-        Canvas whiteBgCanvas = new Canvas(transparencyConverted);
-        whiteBgCanvas.drawColor(Color.WHITE);
-        whiteBgCanvas.drawBitmap(resized, 0, 0, null);
-
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if(!imageDirectory.exists()) {
@@ -73,12 +66,11 @@ class Compression {
         File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        transparencyConverted.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
 
         os.close();
         original.recycle();
         resized.recycle();
-        transparencyConverted.recycle();
 
         return resizeImageFile;
     }
