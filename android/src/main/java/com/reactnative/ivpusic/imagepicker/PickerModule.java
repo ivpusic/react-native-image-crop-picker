@@ -83,6 +83,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private boolean useFrontCamera = false;
+    private boolean forceJpg = false;
     private ReadableMap options;
 
     private String cropperActiveWidgetColor = null;
@@ -139,6 +140,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         enableRotationGesture = options.hasKey("enableRotationGesture") && options.getBoolean("enableRotationGesture");
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
+        forceJpg = options.hasKey("forceJpg") && options.getBoolean("forceJpg");
         this.options = options;
     }
 
@@ -416,7 +418,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
-                startCropping(activity, uri);
+                startCropping(activity, uri, false);
                 return null;
             }
         });
@@ -645,9 +647,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
-    private void startCropping(final Activity activity, final Uri uri) {
+    private String resolveExtension(final Activity activity, final Uri uri, boolean isCamera)  throws Exception{
+        if (isCamera || forceJpg) {
+            return ".jpg";
+        }
+        String fileExt = resolveRealPath(activity, uri, false);
+        return fileExt.substring(fileExt.lastIndexOf("."));
+    }
+
+
+    private void startCropping(final Activity activity, final Uri uri, boolean isCamera) {
         UCrop.Options options = new UCrop.Options();
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setFreeStyleCropEnabled(freeStyleCropEnabled);
@@ -667,20 +677,25 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
-
         if (!disableCropperColorSetters) {
             configureCropperColors(options);
         }
+        try {
+            String extension = resolveExtension(activity, uri, isCamera);
+            options.setCompressionFormat(compression.determineCompressionFromFileExtension(extension));
 
-        UCrop uCrop = UCrop
-                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withOptions(options);
+            UCrop uCrop = UCrop
+                    .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + extension)))
+                    .withOptions(options);
 
-        if (width > 0 && height > 0) {
-            uCrop.withAspectRatio(width, height);
+            if (width > 0 && height > 0) {
+                uCrop.withAspectRatio(width, height);
+            }
+
+            uCrop.start(activity);
+        } catch (Exception ex) {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
         }
-
-        uCrop.start(activity);
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
@@ -714,7 +729,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }
 
                 if (cropping) {
-                    startCropping(activity, uri);
+                    startCropping(activity, uri, false);
                 } else {
                     try {
                         getAsyncSelection(activity, uri, false);
@@ -740,7 +755,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (cropping) {
                 UCrop.Options options = new UCrop.Options();
                 options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
-                startCropping(activity, uri);
+                startCropping(activity, uri, true);
             } else {
                 try {
                     resultCollector.setWaitCount(1);
@@ -764,7 +779,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100);
+                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100, forceJpg);
                         resultUri = Uri.fromFile(resized);
                     }
 
