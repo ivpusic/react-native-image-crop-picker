@@ -93,6 +93,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private int width = 0;
     private int height = 0;
+    private Uri sourceUrl = null;
 
     private Uri mCameraCaptureURI;
     private String mCurrentMediaPath;
@@ -413,6 +414,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.setup(promise, false);
 
         final Uri uri = Uri.parse(options.getString("path"));
+        sourceUrl = uri;
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
@@ -611,6 +613,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         image.putInt("size", (int) new File(compressedImagePath).length());
         image.putString("modificationDate", String.valueOf(modificationDate));
 
+        if (sourceUrl != null && !path.isEmpty()) {
+            image.putString("sourceURL", sourceUrl.toString());
+        }
+
         if (includeBase64) {
             image.putString("data", getBase64StringFromFile(compressedImagePath));
         }
@@ -713,6 +719,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     return;
                 }
 
+                sourceUrl = uri;
+
                 if (cropping) {
                     startCropping(activity, uri);
                 } else {
@@ -736,6 +744,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve image url");
                 return;
             }
+
+            sourceUrl = uri;
 
             if (cropping) {
                 UCrop.Options options = new UCrop.Options();
