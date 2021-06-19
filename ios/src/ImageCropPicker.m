@@ -155,7 +155,10 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             picker.delegate = self;
             picker.allowsEditing = NO;
             picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-            
+            // It's recommanded by Apple to use full screen for Camera with UIModalPresentationOverFullScreen.
+            // https://developer.apple.com/documentation/uikit/uiimagepickercontroller?language=objc
+            picker.modalPresentationStyle = UIModalPresentationOverFullScreen;
+
             NSString *mediaType = [self.options objectForKey:@"mediaType"];
             
             if ([mediaType isEqualToString:@"video"]) {
