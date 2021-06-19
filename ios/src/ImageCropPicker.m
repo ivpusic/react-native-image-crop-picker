@@ -375,7 +375,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         if (error) {
             self.reject(ERROR_CROPPER_IMAGE_NOT_FOUND_KEY, ERROR_CROPPER_IMAGE_NOT_FOUND_MSG, nil);
         } else {
-            [self cropImage:[image fixOrientation]];
+            [self cropImage:[image fixOrientation] presentWithAnimation:YES];
         }
     }];
 }
@@ -740,8 +740,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         self.croppingFile[@"creationDate"] = creationDate;
         self.croppingFile[@"modifcationDate"] = modificationDate;
         NSLog(@"CroppingFile %@", self.croppingFile);
-        
-        [self cropImage:[image fixOrientation]];
+
+        [self cropImage:[image fixOrientation] presentWithAnimation:NO];
     } else {
         ImageResult *imageResult = [self.compression compressImage:[image fixOrientation]  withOptions:self.options];
         NSString *filePath = [self persistFile:imageResult.data];
@@ -866,7 +866,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 #pragma mark - TOCCropViewController Implementation
-- (void)cropImage:(UIImage *)image {
+- (void)cropImage:(UIImage *)image presentWithAnimation: (BOOL) animate {
     dispatch_async(dispatch_get_main_queue(), ^{
         TOCropViewController *cropVC;
         if ([[[self options] objectForKey:@"cropperCircleOverlay"] boolValue]) {
@@ -891,8 +891,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
         
         cropVC.modalPresentationStyle = UIModalPresentationFullScreen;\
-        
-        [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
+
+        [[self getRootVC] presentViewController:cropVC animated:animate completion:nil];
     });
 }
 #pragma mark - TOCropViewController Delegate
