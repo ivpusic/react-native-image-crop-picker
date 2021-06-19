@@ -41,17 +41,13 @@ class Compression {
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
 
-        float ratioBitmap = (float) width / (float) height;
-        float ratioMax = (float) maxWidth / (float) maxHeight;
+        float widthRatio = (float) maxWidth / (float) width;
+        float heightRatio = (float) maxHeight / (float) height;
+        // Resize the image by whichever ratio will make the image smaller, satisfying both constraints.
+        float resizeRatio = Math.min(widthRatio, heightRatio);
 
-        int finalWidth = maxWidth;
-        int finalHeight = maxHeight;
-
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
-        } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
-        }
+        int finalWidth = (int) (width * resizeRatio);
+        int finalHeight = (int) (height * resizeRatio);
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
