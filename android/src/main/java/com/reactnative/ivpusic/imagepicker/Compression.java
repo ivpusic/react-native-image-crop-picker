@@ -89,8 +89,8 @@ class Compression {
     }
 
     File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
-        Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
-        Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
+        Integer maxWidth = ((options.hasKey("compressImageMaxWidth") && options.hasKey("compressImageMaxHeight") && bitmapOptions.outWidth >= bitmapOptions.outHeight) || (options.hasKey("compressImageMaxWidth") && !options.hasKey("compressImageMaxHeight"))) ? options.getInt("compressImageMaxWidth") : null;
+        Integer maxHeight = ((options.hasKey("compressImageMaxWidth") && options.hasKey("compressImageMaxHeight") && bitmapOptions.outWidth < bitmapOptions.outHeight) || (options.hasKey("compressImageMaxHeight") && !options.hasKey("compressImageMaxWidth"))) ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
 
         boolean isLossLess = (quality == null || quality == 1.0);
