@@ -367,6 +367,10 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             
         }];
     } else {
+        if (status != PHAuthorizationStatusAuthorized) {
+            self.reject(ERROR_NO_LIBRARY_PERMISSION_KEY, ERROR_NO_LIBRARY_PERMISSION_MSG, nil);
+            return;
+        }
         [self launchImagePicker];
     }
     
