@@ -356,7 +356,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
     
-    PHAuthorizationStatus *status = [PHPhotoLibrary authorizationStatus];
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
     if (status == PHAuthorizationStatusNotDetermined) {
         [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
             if (status != PHAuthorizationStatusAuthorized) {
