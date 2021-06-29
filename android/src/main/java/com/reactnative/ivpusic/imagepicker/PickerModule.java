@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
@@ -70,9 +71,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean includeExif = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
+    private boolean freeStyleCropEnabled = false;
     private boolean showCropGuidelines = true;
+    private boolean showCropFrame = true;
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
+    private boolean disableCropperColorSetters = false;
+    private boolean useFrontCamera = false;
     private ReadableMap options;
 
 
@@ -81,6 +86,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String cropperActiveWidgetColor = DEFAULT_TINT;
     private String cropperStatusBarColor = DEFAULT_TINT;
     private String cropperToolbarColor = DEFAULT_TINT;
+    private String cropperToolbarTitle = null;
 
     //Light Blue 500
     private final String DEFAULT_WIDGET_COLOR = "#03A9F4";
@@ -116,6 +122,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
+        cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : cropperActiveWidgetColor;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : cropperStatusBarColor;
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : cropperToolbarColor;
@@ -123,6 +130,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
+        freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
+        showCropFrame = !options.hasKey("showCropFrame") || options.getBoolean("showCropFrame");
+        disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
+        useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         this.options = options;
     }
 
@@ -291,6 +302,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+            if (this.useFrontCamera) {
+                cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+                cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+            }
 
             if (cameraIntent.resolveActivity(activity.getPackageManager()) == null) {
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
@@ -560,8 +576,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
+        options.setFreeStyleCropEnabled(freeStyleCropEnabled);
         options.setShowCropGrid(showCropGuidelines);
+        options.setShowCropFrame(showCropFrame);
         options.setHideBottomControls(hideBottomControls);
+        if (!TextUtils.isEmpty(cropperToolbarTitle)) {
+            options.setToolbarTitle(cropperToolbarTitle);
+        }
         if (enableRotationGesture) {
             // UCropActivity.ALL = enable both rotation & scaling
             options.setAllowedGestures(
@@ -570,8 +591,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     UCropActivity.ALL  // When 'aspect ratio'-tab active
             );
         }
-        configureCropperColors(options);
-
+        if (!disableCropperColorSetters) {
+            configureCropperColors(options);
+        }
         UCrop.of(uri, Uri.fromFile(createDestImageFile()))
                 .withMaxResultSize(width, height)
                 .withAspectRatio(width, height)
