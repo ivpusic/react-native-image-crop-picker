@@ -13,10 +13,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
@@ -508,11 +509,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (path.startsWith("http://") || path.startsWith("https://")) {
             throw new Exception("Cannot select remote files");
         }
-        validateImage(path);
+        BitmapFactory.Options original = validateImage(path);
+
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(activity, options, path);
+        File compressedImage = compression.compressImage(activity, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
 
@@ -539,21 +541,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void configureCropperColors(UCrop.Options options) {
-        int activeWidgetColor = Color.parseColor(cropperActiveWidgetColor);
-        int toolbarColor = Color.parseColor(cropperToolbarColor);
-        int statusBarColor = Color.parseColor(cropperStatusBarColor);
-        options.setToolbarColor(toolbarColor);
-        options.setStatusBarColor(statusBarColor);
-        if (activeWidgetColor == Color.parseColor(DEFAULT_TINT)) {
-            /*
-            Default tint is grey => use a more flashy color that stands out more as the call to action
-            Here we use 'Light Blue 500' from https://material.google.com/style/color.html#color-color-palette
-            */
-            options.setActiveWidgetColor(Color.parseColor(DEFAULT_WIDGET_COLOR));
-        } else {
-            //If they pass a custom tint color in, we use this for everything
-            options.setActiveWidgetColor(activeWidgetColor);
+        if (cropperActiveWidgetColor != null) {
+            options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
         }
+
+        if (cropperToolbarColor != null) {
+            options.setToolbarColor(Color.parseColor(cropperToolbarColor));
+        }
+
+        if (cropperStatusBarColor != null) {
+            options.setStatusBarColor(Color.parseColor(cropperStatusBarColor));
+        }
+
     }
 
     private void startCropping(Activity activity, Uri uri) {
