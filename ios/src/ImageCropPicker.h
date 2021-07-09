@@ -41,6 +41,7 @@
 #import "UIImage+Resize.h"
 #import "UIImage+Extension.h"
 #import "Compression.h"
+#import "WindowProviderProtocol.h"
 #import <math.h>
 
 @interface ImageCropPicker : NSObject<
@@ -55,6 +56,8 @@ typedef enum selectionMode {
     CROPPING,
     PICKER
 } SelectionMode;
+
+@property (class, nonatomic) id<WindowProvider> windowProvider;
 
 @property (nonatomic, strong) NSMutableDictionary *croppingFile;
 @property (nonatomic, strong) NSDictionary *defaultOptions;
