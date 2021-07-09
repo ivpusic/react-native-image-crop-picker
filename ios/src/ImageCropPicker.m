@@ -124,11 +124,22 @@ RCT_EXPORT_MODULE();
 }
 
 - (UIViewController*) getRootVC {
-    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    id<WindowProvider> windowProvider = self.class.windowProvider;
+
+    UIWindow *window;
+
+    if (windowProvider) {
+        window = windowProvider.window;
+    } else {
+        window = UIApplication.sharedApplication.delegate.window;
+    }
+
+    UIViewController *root = window.rootViewController;
+
     while (root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
-    
+
     return root;
 }
 
