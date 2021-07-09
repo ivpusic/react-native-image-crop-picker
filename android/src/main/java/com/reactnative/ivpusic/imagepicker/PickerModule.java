@@ -391,13 +391,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                initiatePicker(activity);
-                return null;
-            }
-        });
+        
+        if(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.P) {
+            permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+                @Override
+                public Void call() {
+                    initiatePicker(activity);
+                    return null;
+                }
+            });
+        } else {
+            initiatePicker(activity);
+        }
     }
 
     @ReactMethod
@@ -413,13 +418,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.setup(promise, false);
 
         final Uri uri = Uri.parse(options.getString("path"));
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
-            @Override
-            public Void call() {
-                startCropping(activity, uri);
-                return null;
-            }
-        });
+        
+        if(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.P) {
+            permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+                @Override
+                public Void call() {
+                    startCropping(activity, uri);
+                    return null;
+                }
+            });
+        } else {
+            startCropping(activity, uri);
+        }
     }
 
     private String getBase64StringFromFile(String absoluteFilePath) {
