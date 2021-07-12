@@ -73,7 +73,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
     [self updateControlState];
     [self updateSelectionInfo];
-    [self updateSelectionInfo];
 }
 
 - (void)dealloc
