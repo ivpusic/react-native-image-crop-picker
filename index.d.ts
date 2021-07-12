@@ -439,12 +439,12 @@ declare module "react-native-image-crop-picker" {
     type PickerErrorCodeCommon =
         | 'E_PICKER_CANCELLED'
         | 'E_NO_IMAGE_DATA_FOUND'
-        | 'E_PERMISSION_MISSING'
+        | 'E_NO_LIBRARY_PERMISSION'
+        | 'E_NO_CAMERA_PERMISSION'
         | 'E_ERROR_WHILE_CLEANING_FILES';
 
     type PickerErrorCodeIOS =
         | 'E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR'
-        | 'E_PICKER_NO_CAMERA_PERMISSION'
         | 'E_CROPPER_IMAGE_NOT_FOUND'
         | 'E_CANNOT_SAVE_IMAGE'
         | 'E_CANNOT_PROCESS_VIDEO';
