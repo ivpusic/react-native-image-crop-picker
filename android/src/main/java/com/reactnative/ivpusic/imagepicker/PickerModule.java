@@ -42,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -223,7 +224,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void permissionsCheck(final Activity activity, final Promise promise, final List<String> requiredPermissions, final Callable<Void> callback) {
-
+        List<String> requiredVerConditionallyPermissions = new LinkedList<>(requiredPermissions);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            requiredVerConditionallyPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
         List<String> missingPermissions = new ArrayList<>();
 
         for (String permission : requiredPermissions) {
