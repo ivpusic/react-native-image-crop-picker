@@ -230,7 +230,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
         List<String> missingPermissions = new ArrayList<>();
 
-        for (String permission : requiredPermissions) {
+        for (String permission : requiredVerConditionallyPermissions) {
             int status = ActivityCompat.checkSelfPermission(activity, permission);
             if (status != PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission);
