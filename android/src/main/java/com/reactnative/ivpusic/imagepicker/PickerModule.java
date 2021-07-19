@@ -225,8 +225,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void permissionsCheck(final Activity activity, final Promise promise, final List<String> requiredPermissions, final Callable<Void> callback) {
 
         List<String> missingPermissions = new ArrayList<>();
+        List<String> supportedPermissions = new ArrayList<>(requiredPermissions);
 
-        for (String permission : requiredPermissions) {
+        // we should not ask for WRITE_EXTERNAL_STORAGE when android on version with scoped storage
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            supportedPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        for (String permission : supportedPermissions) {
             int status = ActivityCompat.checkSelfPermission(activity, permission);
             if (status != PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission);
