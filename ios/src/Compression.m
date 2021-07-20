@@ -38,28 +38,27 @@
                   compressImageMaxHeight:(CGFloat)maxHeight
                               intoResult:(ImageResult*)result {
     
-    CGFloat oldWidth = image.size.width;
-    CGFloat oldHeight = image.size.height;
+    CGFloat originalWidth = image.size.width;
+    CGFloat originalHeight = image.size.height;
+    CGFloat originalAspectRatio = originalWidth / originalHeight;
     
-    int newWidth = 0;
-    int newHeight = 0;
+    int finalWidth = maxWidth;
+    int finalHeight = maxHeight;
     
-    if (maxWidth < maxHeight) {
-        newWidth = maxWidth;
-        newHeight = (oldHeight / oldWidth) * newWidth;
+    if (originalAspectRatio > 1) { // Indicates landscape orientation
+        finalHeight = maxWidth / originalAspectRatio;
     } else {
-        newHeight = maxHeight;
-        newWidth = (oldWidth / oldHeight) * newHeight;
+        finalWidth = maxHeight * originalAspectRatio;
     }
-    CGSize newSize = CGSizeMake(newWidth, newHeight);
+    CGSize newSize = CGSizeMake(finalWidth, finalHeight);
     
     UIGraphicsBeginImageContext(newSize);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    result.width = [NSNumber numberWithFloat:newWidth];
-    result.height = [NSNumber numberWithFloat:newHeight];
+    result.width = [NSNumber numberWithFloat:finalWidth];
+    result.height = [NSNumber numberWithFloat:finalHeight];
     result.image = resizedImage;
     return result;
 }

@@ -32,6 +32,7 @@ class Compression {
 
         int width = original.getWidth();
         int height = original.getHeight();
+        float originalAspectRatio = (float) width / (float) height;
 
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
@@ -46,11 +47,11 @@ class Compression {
 
         int finalWidth = maxWidth;
         int finalHeight = maxHeight;
-
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
+        
+        if (originalAspectRatio > 1) { // Indicates landscape orientation
+            finalHeight = (int) ((float) maxWidth / (float) originalAspectRatio);
         } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
+            finalWidth = (int) ((float) maxHeight * (float) originalAspectRatio);
         }
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
