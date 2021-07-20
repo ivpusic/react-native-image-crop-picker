@@ -29,10 +29,10 @@ import java.util.UUID;
 class Compression {
 
     File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
-        Bitmap original = BitmapFactory.decodeFile(originalImagePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(originalImagePath);
 
-        int width = original.getWidth();
-        int height = original.getHeight();
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
 
         Pair<Integer, Integer> targetDimensions = this.calculateTargetDimensions(width, height, maxWidth, maxHeight);
 
@@ -47,8 +47,8 @@ class Compression {
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
 
-        Bitmap resized = Bitmap.createScaledBitmap(original, targetWidth, targetHeight, true);
-        resized = Bitmap.createBitmap(resized, 0, 0, targetWidth, targetHeight, rotationMatrix, true);
+        bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, targetWidth, targetHeight, rotationMatrix, true);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
@@ -60,11 +60,10 @@ class Compression {
         File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
 
         os.close();
-        original.recycle();
-        resized.recycle();
+        bitmap.recycle();
 
         return resizeImageFile;
     }
