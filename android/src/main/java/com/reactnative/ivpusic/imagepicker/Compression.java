@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Environment;
 import android.util.Log;
@@ -41,14 +40,9 @@ class Compression {
 
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
-        int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-
-        Matrix rotationMatrix = new Matrix();
-        int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
-        rotationMatrix.postRotate(rotationAngleInDegrees);
+        String originalOrientation = originalExif.getAttribute(ExifInterface.TAG_ORIENTATION);
 
         bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, targetWidth, targetHeight, rotationMatrix, true);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
@@ -62,23 +56,22 @@ class Compression {
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
 
+        // Don't set unnecessary exif attribute
+        if (shouldSetOrientation(originalOrientation)) {
+            ExifInterface exif = new ExifInterface(resizeImageFile.getAbsolutePath());
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, originalOrientation);
+            exif.saveAttributes();
+        }
+
         os.close();
         bitmap.recycle();
 
         return resizeImageFile;
     }
 
-    int getRotationInDegreesForOrientationTag(int orientationTag) {
-        switch (orientationTag) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return 90;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return -90;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return 180;
-            default:
-                return 0;
-        }
+    private boolean shouldSetOrientation(String orientation) {
+        return !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_NORMAL))
+                && !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
     }
 
     File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
