@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Pair;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -33,6 +34,11 @@ class Compression {
         int width = original.getWidth();
         int height = original.getHeight();
 
+        Pair<Integer, Integer> targetDimensions = this.calculateTargetDimensions(width, height, maxWidth, maxHeight);
+
+        int targetWidth = targetDimensions.first;
+        int targetHeight = targetDimensions.second;
+
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
         int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -41,24 +47,12 @@ class Compression {
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
 
-        float ratioBitmap = (float) width / (float) height;
-        float ratioMax = (float) maxWidth / (float) maxHeight;
-
-        int finalWidth = maxWidth;
-        int finalHeight = maxHeight;
-
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
-        } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
-        }
-
-        Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
-        resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
+        Bitmap resized = Bitmap.createScaledBitmap(original, targetWidth, targetHeight, true);
+        resized = Bitmap.createBitmap(resized, 0, 0, targetWidth, targetHeight, rotationMatrix, true);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-        if(!imageDirectory.exists()) {
+        if (!imageDirectory.exists()) {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
             imageDirectory.mkdirs();
         }
@@ -76,7 +70,7 @@ class Compression {
     }
 
     int getRotationInDegreesForOrientationTag(int orientationTag) {
-        switch(orientationTag){
+        switch (orientationTag) {
             case ExifInterface.ORIENTATION_ROTATE_90:
                 return 90;
             case ExifInterface.ORIENTATION_ROTATE_270:
@@ -111,19 +105,29 @@ class Compression {
         int targetQuality = quality != null ? (int) (quality * 100) : 100;
         Log.d("image-crop-picker", "Compressing image with quality " + targetQuality);
 
-        if (maxWidth == null) {
-            maxWidth = bitmapOptions.outWidth;
-        } else {
-            maxWidth = Math.min(maxWidth, bitmapOptions.outWidth);
-        }
-
-        if (maxHeight == null) {
-            maxHeight = bitmapOptions.outHeight;
-        } else {
-            maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
-        }
+        if (maxWidth == null) maxWidth = bitmapOptions.outWidth;
+        if (maxHeight == null) maxHeight = bitmapOptions.outHeight;
 
         return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality);
+    }
+
+    private Pair<Integer, Integer> calculateTargetDimensions(int currentWidth, int currentHeight, int maxWidth, int maxHeight) {
+        int width = currentWidth;
+        int height = currentHeight;
+
+        if (width > maxWidth) {
+            float ratio = ((float) maxWidth / width);
+            height = (int) (height * ratio);
+            width = maxWidth;
+        }
+
+        if (height > maxHeight) {
+            float ratio = ((float) maxHeight / height);
+            width = (int) (width * ratio);
+            height = maxHeight;
+        }
+
+        return Pair.create(width, height);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
