@@ -27,16 +27,29 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
-        Bitmap bitmap = BitmapFactory.decodeFile(originalImagePath);
-
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        Pair<Integer, Integer> targetDimensions = this.calculateTargetDimensions(width, height, maxWidth, maxHeight);
+    File resize(
+            Context context,
+            String originalImagePath,
+            int originalWidth,
+            int originalHeight,
+            int maxWidth,
+            int maxHeight,
+            int quality
+    ) throws IOException {
+        Pair<Integer, Integer> targetDimensions =
+                this.calculateTargetDimensions(originalWidth, originalHeight, maxWidth, maxHeight);
 
         int targetWidth = targetDimensions.first;
         int targetHeight = targetDimensions.second;
+
+        Bitmap bitmap = null;
+        if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
+            bitmap = BitmapFactory.decodeFile(originalImagePath);
+        } else {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = calculateInSampleSize(originalWidth, originalHeight, targetWidth, targetHeight);
+            bitmap = BitmapFactory.decodeFile(originalImagePath, options);
+        }
 
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
@@ -67,6 +80,24 @@ class Compression {
         bitmap.recycle();
 
         return resizeImageFile;
+    }
+
+    private int calculateInSampleSize(int originalWidth, int originalHeight, int requestedWidth, int requestedHeight) {
+        int inSampleSize = 1;
+
+        if (originalWidth > requestedWidth || originalHeight > requestedHeight) {
+            final int halfWidth = originalWidth / 2;
+            final int halfHeight = originalHeight / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfWidth / inSampleSize) >= requestedWidth
+                    && (halfHeight / inSampleSize) >= requestedHeight) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
     private boolean shouldSetOrientation(String orientation) {
@@ -100,7 +131,7 @@ class Compression {
         if (maxWidth == null) maxWidth = bitmapOptions.outWidth;
         if (maxHeight == null) maxHeight = bitmapOptions.outHeight;
 
-        return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality);
+        return resize(context, originalImagePath, bitmapOptions.outWidth, bitmapOptions.outHeight, maxWidth, maxHeight, targetQuality);
     }
 
     private Pair<Integer, Integer> calculateTargetDimensions(int currentWidth, int currentHeight, int maxWidth, int maxHeight) {
