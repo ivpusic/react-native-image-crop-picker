@@ -8,7 +8,7 @@
 
 #import "QBAssetsViewController.h"
 #import <Photos/Photos.h>
-
+#import <PhotosUI/PhotosUI.h>
 // Views
 #import "QBImagePickerController.h"
 #import "QBAlbumsViewController.h"
@@ -25,7 +25,6 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @interface QBImagePickerController (Private)
 
 @property (nonatomic, strong) NSBundle *assetBundle;
-
 @end
 
 @implementation NSIndexSet (Convenience)
@@ -75,6 +74,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, readwrite) BOOL isSelected;
 @property (nonatomic, strong) QBImagePickerController *subImagePickerController;
 @property (nonatomic, weak) IBOutlet UITableView *albumTblView;
+@property (nonatomic, readwrite) BOOL isPhotolibraryAccessLimited;
+
 @end
 
 @implementation QBAssetsViewController
@@ -82,6 +83,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self setupLimitedView];
     [self setUpToolbarItems];
     [self resetCachedAssets];
     // Register observer
@@ -159,6 +161,43 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 
 #pragma mark - Accessors
+
+- (void)setupLimitedView  {
+    if (@available(iOS 14, *)) {
+        [PHPhotoLibrary requestAuthorizationForAccessLevel:PHAccessLevelReadWrite handler:^(PHAuthorizationStatus status) {
+            if(status == PHAuthorizationStatusLimited) {
+                self.isPhotolibraryAccessLimited = YES;
+            } else {
+                self.isPhotolibraryAccessLimited = NO;
+            }
+        }];
+    } else {
+        self.isPhotolibraryAccessLimited = NO;
+    }
+}
+
+- (IBAction)manage:(id)sender {
+    if (@available(iOS 14, *)) {
+        UIAlertController  *alertCtrl = [UIAlertController alertControllerWithTitle:@"Select More photos or allow access to all." message:NULL preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertAction *selectMore = [UIAlertAction actionWithTitle:@"Select More photos" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        }];
+        UIAlertAction *selectAll = [UIAlertAction actionWithTitle:@"Allow access to all photos" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [alertCtrl dismissViewControllerAnimated:YES completion:^{
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+            }];
+        }];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            [alertCtrl dismissViewControllerAnimated:YES completion:^{
+                
+            }];
+        }];
+        [alertCtrl addAction:selectMore];
+        [alertCtrl addAction:selectAll];
+        [alertCtrl addAction:cancelAction];
+        [self presentViewController:alertCtrl animated:YES completion:NULL];
+    }
+}
 
 - (void)titlesForHeader{
     self.titleHeaderLbl.text = self.assetCollection.localizedTitle;
@@ -611,6 +650,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         }
         
         return footerView;
+    } else if (kind == UICollectionElementKindSectionHeader) {
+        if(self.isPhotolibraryAccessLimited) {
+            return [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"
+                forIndexPath:indexPath];
+        }
     }
     
     return nil;
