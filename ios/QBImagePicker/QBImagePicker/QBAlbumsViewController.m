@@ -8,7 +8,7 @@
 
 #import "QBAlbumsViewController.h"
 #import <Photos/Photos.h>
-
+#import <PhotosUI/PhotosUI.h>
 // Views
 #import "QBAlbumCell.h"
 
@@ -31,9 +31,11 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, strong) IBOutlet UIBarButtonItem *doneButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 @property (nonatomic, weak) IBOutlet UIView *headerView;
+@property (nonatomic, weak) IBOutlet UIView *limitedIndicatorView;
 @property (nonatomic, weak) IBOutlet UILabel *titleHeaderLbl;
 @property (nonatomic, copy) NSArray *fetchResults;
 @property (nonatomic, copy) NSArray *assetCollections;
+@property (nonatomic, readwrite) BOOL isPhotolibraryAccessLimited;
 
 @end
 
@@ -42,7 +44,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    [self setupLimitedView];
     [self setUpToolbarItems];
     
     // Fetch user albums and smart albums
@@ -84,6 +86,46 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 
 #pragma mark - Storyboard
+
+- (IBAction)manage:(id)sender {
+    if (@available(iOS 14, *)) {
+        UIAlertController  *alertCtrl = [UIAlertController alertControllerWithTitle:@"Select More photos or allow access to all." message:NULL preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertAction *selectMore = [UIAlertAction actionWithTitle:@"Select More photos" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        }];
+        UIAlertAction *selectAll = [UIAlertAction actionWithTitle:@"Allow access to all photos" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [alertCtrl dismissViewControllerAnimated:YES completion:^{
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+            }];
+        }];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            [alertCtrl dismissViewControllerAnimated:YES completion:^{
+                
+            }];
+        }];
+        [alertCtrl addAction:selectMore];
+        [alertCtrl addAction:selectAll];
+        [alertCtrl addAction:cancelAction];
+        [self presentViewController:alertCtrl animated:YES completion:NULL];
+    }
+}
+
+- (void)setupLimitedView  {
+    if (@available(iOS 14, *)) {
+        [PHPhotoLibrary requestAuthorizationForAccessLevel:PHAccessLevelReadWrite handler:^(PHAuthorizationStatus status) {
+            if(status == PHAuthorizationStatusLimited) {
+                self.isPhotolibraryAccessLimited = YES;
+            } else {
+                self.isPhotolibraryAccessLimited = NO;
+                self.limitedIndicatorView.hidden = YES;
+                self.limitedIndicatorView.frame = CGRectMake(0, 0, 0, 0);
+            }
+        }];
+    } else {
+        self.limitedIndicatorView.hidden = YES;
+        self.limitedIndicatorView.frame = CGRectMake(0, 0, 0, 0);
+    }
+}
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
