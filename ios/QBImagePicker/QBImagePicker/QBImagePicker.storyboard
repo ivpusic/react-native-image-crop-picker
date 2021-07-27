@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -21,41 +20,19 @@
             <objects>
                 <tableViewController storyboardIdentifier="QBAlbumsViewController" id="QL5-wR-LYt" customClass="QBAlbumsViewController" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="86" sectionHeaderHeight="22" sectionFooterHeight="22" id="66K-TS-Yoc">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <view key="tableHeaderView" contentMode="scaleToFill" id="NSi-dT-Qft">
-                            <rect key="frame" x="0.0" y="0.0" width="414" height="64"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
-                            <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="You’ve allowed access to the following photos. You can add more or allow access to all photos." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OnI-rO-aBx">
-                                    <rect key="frame" x="15" y="0.0" width="286" height="64"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                    <color key="textColor" red="0.57045853140000002" green="0.57047235969999999" blue="0.57046490910000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8yH-GG-YBJ">
-                                    <rect key="frame" x="329" y="5" width="77" height="54"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                    <state key="normal" title="Manage"/>
-                                    <connections>
-                                        <action selector="manage:" destination="QL5-wR-LYt" eventType="touchUpInside" id="og4-tJ-txc"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                            <color key="backgroundColor" red="0.9647800326" green="0.96852105860000004" blue="0.9725503325" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                        </view>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="AlbumCell" rowHeight="86" id="dSc-nm-apo" customClass="QBAlbumCell">
-                                <rect key="frame" x="0.0" y="88.5" width="414" height="86"/>
+                                <rect key="frame" x="0.0" y="28" width="414" height="86"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="dSc-nm-apo" id="7lA-qJ-5l4">
-                                    <rect key="frame" x="0.0" y="0.0" width="384.5" height="86"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="382.5" height="86"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kTm-zK-fPP">
-                                            <rect key="frame" x="8" y="3" width="80" height="80"/>
+                                            <rect key="frame" x="28" y="7" width="68" height="72"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aA6-Ye-jVF">
                                                     <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
@@ -142,12 +119,10 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
-                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <connections>
                         <outlet property="cancelButton" destination="s1M-VA-CeM" id="d9h-hr-LiQ"/>
                         <outlet property="doneButton" destination="laG-jk-Ma2" id="CV6-AR-B90"/>
                         <outlet property="headerView" destination="p7M-Nw-bxn" id="6Y6-Q3-5iA"/>
-                        <outlet property="limitedIndicatorView" destination="NSi-dT-Qft" id="HEl-SU-52h"/>
                         <outlet property="titleHeaderLbl" destination="ZZu-Ol-fOR" id="cri-I8-tTB"/>
                     </connections>
                 </tableViewController>
@@ -163,7 +138,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     <constraints>
                         <constraint firstAttribute="bottom" secondItem="ZZu-Ol-fOR" secondAttribute="bottom" id="Rac-dD-EvN"/>
                         <constraint firstItem="ZZu-Ol-fOR" firstAttribute="leading" secondItem="p7M-Nw-bxn" secondAttribute="leading" id="fea-5j-e0H"/>
@@ -172,25 +147,25 @@
                     </constraints>
                 </view>
             </objects>
-            <point key="canvasLocation" x="985.50724637681162" y="850.44642857142856"/>
+            <point key="canvasLocation" x="986" y="851"/>
         </scene>
         <!--Assets View Controller-->
         <scene sceneID="ozY-oO-5JA">
             <objects>
                 <collectionViewController storyboardIdentifier="QBAssetsViewController" id="QiH-NZ-ZGN" customClass="QBAssetsViewController" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="sD2-zK-ryo">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="2" minimumInteritemSpacing="2" id="6wp-N0-PIK">
                             <size key="itemSize" width="77.5" height="77.5"/>
-                            <size key="headerReferenceSize" width="50" height="64"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="50" height="66"/>
                             <inset key="sectionInset" minX="0.0" minY="8" maxX="0.0" maxY="2"/>
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AssetCell" id="fc0-k1-HNL" customClass="QBAssetCell">
-                                <rect key="frame" x="0.0" y="72" width="77.5" height="77.5"/>
+                                <rect key="frame" x="0.0" y="8" width="77.5" height="77.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                     <rect key="frame" x="0.0" y="0.0" width="77.5" height="77.5"/>
@@ -288,47 +263,8 @@
                                 </connections>
                             </collectionViewCell>
                         </cells>
-                        <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="HeaderView" id="Xuv-SQ-KaD">
-                            <rect key="frame" x="0.0" y="0.0" width="414" height="64"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <subviews>
-                                <view contentMode="scaleToFill" id="98p-j5-WP7">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="64"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You’ve allowed access to the following photos. You can add more or allow access to all photos." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mgy-rY-QJk">
-                                            <rect key="frame" x="15" y="0.0" width="286" height="64"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                            <color key="textColor" red="0.57045853140000002" green="0.57047235969999999" blue="0.57046490910000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PqB-kN-hY3">
-                                            <rect key="frame" x="329" y="5" width="77" height="54"/>
-                                            <constraints>
-                                                <constraint firstAttribute="height" constant="54" id="FqW-d3-tAc"/>
-                                                <constraint firstAttribute="width" constant="77" id="d4W-Ed-6by"/>
-                                            </constraints>
-                                            <state key="normal" title="Manage"/>
-                                            <connections>
-                                                <action selector="manage:" destination="QiH-NZ-ZGN" eventType="touchUpInside" id="ut3-Zu-P2D"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <color key="backgroundColor" red="0.9647800326" green="0.96852105860000004" blue="0.9725503325" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                    <constraints>
-                                        <constraint firstAttribute="bottom" secondItem="mgy-rY-QJk" secondAttribute="bottom" id="0Aj-OJ-abd"/>
-                                        <constraint firstItem="mgy-rY-QJk" firstAttribute="top" secondItem="98p-j5-WP7" secondAttribute="top" id="JYd-31-wcd"/>
-                                        <constraint firstAttribute="trailing" secondItem="PqB-kN-hY3" secondAttribute="trailing" constant="8" id="Jkw-Cr-J1X"/>
-                                        <constraint firstAttribute="bottom" secondItem="PqB-kN-hY3" secondAttribute="bottom" constant="5" id="L2j-mO-hs1"/>
-                                        <constraint firstItem="PqB-kN-hY3" firstAttribute="top" secondItem="98p-j5-WP7" secondAttribute="top" constant="5" id="NJE-4O-KNm"/>
-                                        <constraint firstItem="mgy-rY-QJk" firstAttribute="leading" secondItem="98p-j5-WP7" secondAttribute="leading" constant="15" id="fxe-fv-aU5"/>
-                                        <constraint firstItem="PqB-kN-hY3" firstAttribute="leading" secondItem="mgy-rY-QJk" secondAttribute="trailing" constant="28" id="lMx-yQ-EcX"/>
-                                    </constraints>
-                                </view>
-                            </subviews>
-                        </collectionReusableView>
                         <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FooterView" id="sqR-h3-lW1">
-                            <rect key="frame" x="0.0" y="151.5" width="414" height="66"/>
+                            <rect key="frame" x="0.0" y="87.5" width="414" height="66"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Number of Photos and Videos" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m2s-7T-bnL">
@@ -378,10 +314,10 @@
                     <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <prototypes>
                         <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="AlbumCell" rowHeight="96" id="ZRD-MN-mgi" customClass="QBAlbumCell">
-                            <rect key="frame" x="0.0" y="24.5" width="414" height="96"/>
+                            <rect key="frame" x="0.0" y="28" width="414" height="96"/>
                             <autoresizingMask key="autoresizingMask"/>
                             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ZRD-MN-mgi" id="dPa-Aa-378">
-                                <rect key="frame" x="0.0" y="0.0" width="384.5" height="96"/>
+                                <rect key="frame" x="0.0" y="0.0" width="382.5" height="96"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Oh0-aQ-gIf">
@@ -422,13 +358,13 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Album Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="Wy6-g6-yNu">
-                                        <rect key="frame" x="114" y="26" width="262.5" height="17"/>
+                                        <rect key="frame" x="114" y="26" width="260.5" height="17"/>
                                         <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="14"/>
-                                        <color key="textColor" systemColor="darkTextColor"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Number of Photos" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1O3-e9-dpS">
-                                        <rect key="frame" x="114" y="45" width="262.5" height="14.5"/>
+                                        <rect key="frame" x="114" y="45" width="260.5" height="14.5"/>
                                         <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="12"/>
                                         <color key="textColor" red="0.59215686270000001" green="0.60784313729999995" blue="0.63137254899999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
@@ -459,11 +395,6 @@
                         <outlet property="delegate" destination="QiH-NZ-ZGN" id="EOr-fN-6uy"/>
                     </connections>
                 </tableView>
-                <view contentMode="scaleToFill" id="GUC-wC-foO">
-                    <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                </view>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qBb-2Q-SxP" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <view contentMode="scaleToFill" id="uin-Rt-9HY">
                     <rect key="frame" x="0.0" y="0.0" width="377" height="44"/>
@@ -501,7 +432,7 @@
                                 <constraint firstAttribute="width" constant="145" id="a5L-Up-jsX"/>
                             </constraints>
                         </view>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jpn-5s-PZQ">
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jpn-5s-PZQ">
                             <rect key="frame" x="0.0" y="0.0" width="377" height="45"/>
                             <connections>
                                 <action selector="headerButtonPressed" destination="QiH-NZ-ZGN" eventType="touchUpInside" id="3hK-gz-XHQ"/>
@@ -551,11 +482,5 @@
     <resources>
         <image name="carrat_down_3.png" width="72" height="72"/>
         <image name="carrat_up_3.png" width="72" height="72"/>
-        <systemColor name="darkTextColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>
