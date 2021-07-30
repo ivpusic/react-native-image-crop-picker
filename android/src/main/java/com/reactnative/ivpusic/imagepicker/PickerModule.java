@@ -521,10 +521,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return bmp;
     }
 
-    private static Long getVideoDuration(String path) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
-
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
         validateVideo(path);
         final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
