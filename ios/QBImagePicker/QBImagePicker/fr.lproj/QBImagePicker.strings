@@ -1,0 +1,21 @@
+/* 
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Gareth McCall on 2018/01/17.
+  MIT License - Copyright (c) 2018 Ivan Pusic, et al
+*/
+
+"albums.title" = "Photos";
+
+"assets.footer.photo" = "%ld Photo";
+"assets.footer.photos" = "%ld Photos";
+"assets.footer.video" = "%ld Vidéo";
+"assets.footer.videos" = "%ld Vidéos";
+"assets.footer.photo-and-video" = "%ld Photo, %ld Vidéo";
+"assets.footer.photos-and-video" = "%ld Photos, %ld Vidéo";
+"assets.footer.photo-and-videos" = "%ld Photo, %ld Vidéos";
+"assets.footer.photos-and-videos" = "%ld Photos, %ld Vidéos";
+
+"assets.toolbar.item-selected" = "%ld Élément Sélectionné";
+"assets.toolbar.items-selected" = "%ld Éléments Sélectionnés";
