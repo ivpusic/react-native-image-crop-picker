@@ -63,8 +63,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_NO_IMAGE_DATA_FOUND = "E_NO_IMAGE_DATA_FOUND";
     private static final String E_CAMERA_IS_NOT_AVAILABLE = "E_CAMERA_IS_NOT_AVAILABLE";
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
-    private static final String E_PERMISSIONS_MISSING = "E_PERMISSION_MISSING";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
+
+    private static final String E_NO_LIBRARY_PERMISSION_KEY = "E_NO_LIBRARY_PERMISSION";
+    private static final String E_NO_LIBRARY_PERMISSION_MSG = "User did not grant library permission.";
+    private static final String E_NO_CAMERA_PERMISSION_KEY = "E_NO_CAMERA_PERMISSION";
+    private static final String E_NO_CAMERA_PERMISSION_MSG = "User did not grant camera permission.";
 
     private String mediaType = "any";
     private boolean multiple = false;
@@ -85,6 +89,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String cropperStatusBarColor = null;
     private String cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
+    private String cropperToolbarWidgetColor = null;
 
     private int width = 0;
     private int height = 0;
@@ -125,6 +130,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : null;
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : null;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
+        cropperToolbarWidgetColor = options.hasKey("cropperToolbarWidgetColor") ? options.getString("cropperToolbarWidgetColor") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
         showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
@@ -219,8 +225,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void permissionsCheck(final Activity activity, final Promise promise, final List<String> requiredPermissions, final Callable<Void> callback) {
 
         List<String> missingPermissions = new ArrayList<>();
+        List<String> supportedPermissions = new ArrayList<>(requiredPermissions);
 
-        for (String permission : requiredPermissions) {
+        // android 11 introduced scoped storage, and WRITE_EXTERNAL_STORAGE no longer works there
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            supportedPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        for (String permission : supportedPermissions) {
             int status = ActivityCompat.checkSelfPermission(activity, permission);
             if (status != PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission);
@@ -235,9 +247,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
                     if (requestCode == 1) {
 
-                        for (int grantResult : grantResults) {
+                        for (int permissionIndex = 0; permissionIndex < permissions.length; permissionIndex++) {
+                            String permission = permissions[permissionIndex];
+                            int grantResult = grantResults[permissionIndex];
+
                             if (grantResult == PackageManager.PERMISSION_DENIED) {
-                                promise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
+                                if (permission.equals(Manifest.permission.CAMERA)) {
+                                    promise.reject(E_NO_CAMERA_PERMISSION_KEY, E_NO_CAMERA_PERMISSION_MSG);
+                                } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_MSG);
+                                } else {
+                                    // should not happen, we fallback on E_NO_LIBRARY_PERMISSION_KEY rejection for minimal consistency
+                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, "Required permission missing");
+                                }
                                 return true;
                             }
                         }
@@ -340,6 +362,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             if (cropping || mediaType.equals("photo")) {
                 galleryIntent.setType("image/*");
+                if (cropping) {
+                    String[] mimetypes = {"image/jpeg", "image/png"};
+                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                }
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
             } else {
@@ -488,6 +514,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return bmp;
     }
 
+    private static Long getVideoDuration(String path) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(path);
+
+        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+    }
+
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
         validateVideo(path);
         final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
@@ -503,12 +536,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                         try {
                             Bitmap bmp = validateVideo(videoPath);
                             long modificationDate = new File(videoPath).lastModified();
+                            long duration = getVideoDuration(videoPath);
 
                             WritableMap video = new WritableNativeMap();
                             video.putInt("width", bmp.getWidth());
                             video.putInt("height", bmp.getHeight());
                             video.putString("mime", mime);
                             video.putInt("size", (int) new File(videoPath).length());
+                            video.putInt("duration", (int) duration);
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
@@ -609,6 +644,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         if (cropperStatusBarColor != null) {
             options.setStatusBarColor(Color.parseColor(cropperStatusBarColor));
+        }
+
+        if (cropperToolbarWidgetColor != null) {
+            options.setToolbarWidgetColor(Color.parseColor(cropperToolbarWidgetColor));
         }
     }
 
