@@ -615,6 +615,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
         image.putInt("size", (int) new File(compressedImagePath).length());
+        image.putString("filename", compressedImage.getName());
         image.putString("modificationDate", String.valueOf(modificationDate));
 
         if (includeBase64) {
