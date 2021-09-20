@@ -30,9 +30,6 @@ class Compression {
     File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
-        int width = original.getWidth();
-        int height = original.getHeight();
-
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
         int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -41,20 +38,33 @@ class Compression {
         int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         rotationMatrix.postRotate(rotationAngleInDegrees);
 
-        float ratioBitmap = (float) width / (float) height;
-        float ratioMax = (float) maxWidth / (float) maxHeight;
+        float oldWidth = original.getWidth();
+        float oldHeight = original.getHeight();
 
-        int finalWidth = maxWidth;
-        int finalHeight = maxHeight;
+        float newWidth = 0;
+        float newHeight = 0;
+        float _newWidth_ = 0;
+        float _newHeight_ = 0;
 
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
+        if (maxWidth <= oldWidth && maxHeight == 0) {
+            newWidth = maxWidth;
+            newHeight = (oldHeight / oldWidth) * newWidth;
+        } else if (maxHeight <= oldHeight && maxWidth == 0) {
+            newHeight = maxHeight;
+            newWidth = (oldWidth / oldHeight) * newHeight;
         } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
+            newHeight = maxHeight;
+            newWidth = (oldWidth / oldHeight) * maxHeight;
+            if (newWidth > maxWidth) {
+                _newWidth_ = maxWidth;
+                _newHeight_ = (newHeight / newWidth) * _newWidth_;
+                newWidth = maxWidth;
+                newHeight = _newHeight_;
+            }
         }
 
-        Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
-        resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
+        Bitmap resized = Bitmap.createScaledBitmap(original, (int) newWidth, (int) newHeight, true);
+        resized = Bitmap.createBitmap(resized, 0, 0, (int) newWidth, (int) newHeight, rotationMatrix, true);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
@@ -89,8 +99,8 @@ class Compression {
     }
 
     File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
-        Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
-        Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
+        Integer maxWidth = ((options.hasKey("compressImageMaxWidth") && options.hasKey("compressImageMaxHeight") && bitmapOptions.outWidth >= bitmapOptions.outHeight) || (options.hasKey("compressImageMaxWidth") && !options.hasKey("compressImageMaxHeight"))) ? options.getInt("compressImageMaxWidth") : null;
+        Integer maxHeight = ((options.hasKey("compressImageMaxWidth") && options.hasKey("compressImageMaxHeight") && bitmapOptions.outWidth < bitmapOptions.outHeight) || (options.hasKey("compressImageMaxHeight") && !options.hasKey("compressImageMaxWidth"))) ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
 
         boolean isLossLess = (quality == null || quality == 1.0);
@@ -112,13 +122,13 @@ class Compression {
         Log.d("image-crop-picker", "Compressing image with quality " + targetQuality);
 
         if (maxWidth == null) {
-            maxWidth = bitmapOptions.outWidth;
+            maxWidth = 0;
         } else {
             maxWidth = Math.min(maxWidth, bitmapOptions.outWidth);
         }
 
         if (maxHeight == null) {
-            maxHeight = bitmapOptions.outHeight;
+            maxHeight = 0;
         } else {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
