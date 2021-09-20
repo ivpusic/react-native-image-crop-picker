@@ -891,8 +891,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
         
         cropVC.modalPresentationStyle = UIModalPresentationFullScreen;\
-        
-        [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
+        cropVC.transitioningDelegate = nil; // workaround for https://github.com/TimOliver/TOCropViewController/issues/365
+
+        [[self getRootVC] presentViewController:cropVC animated:NO completion:nil];
     });
 }
 #pragma mark - TOCropViewController Delegate
