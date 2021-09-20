@@ -515,10 +515,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private static Long getVideoDuration(String path) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(path);
 
-        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        }
+        catch(Exception e) {
+            return -1L;
+        }
     }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
