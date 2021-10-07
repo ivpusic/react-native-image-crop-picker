@@ -1,0 +1,21 @@
+/*
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Marina Skripnik on 2021/10/07.
+  Copyright (c) 2021 Marina Skripnik. All rights reserved.
+*/
+
+"albums.title" = "Bilder";
+
+"assets.footer.photo" = "%ld Bild";
+"assets.footer.photos" = "%ld Bilder";
+"assets.footer.video" = "%ld Video";
+"assets.footer.videos" = "%ld Videor";
+"assets.footer.photo-and-video" = "%ld Bild, %ld Video";
+"assets.footer.photos-and-video" = "%ld Bilder, %ld Video";
+"assets.footer.photo-and-videos" = "%ld Bild, %ld Videor";
+"assets.footer.photos-and-videos" = "%ld Bilder, %ld Videor";
+
+"assets.toolbar.item-selected" = "%ld Markerad Objekt";
+"assets.toolbar.items-selected" = "%ld Markerade Objekt";
