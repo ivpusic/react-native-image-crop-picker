@@ -149,8 +149,13 @@ ImagePicker.clean().then(() => {
 | showCropFrame (android only)       |           bool (default true)            | Whether to show crop frame during cropping |
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
-| cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| limitedAlertTitleText (ios only)       |           string (default Access to photos is limited)       | Limited alert title text
+| limitedAlertMessageText (ios only)        |         string (default To access all of your photos, allow access to your full library in device settings.)           | Limited alert message text
+| limitedAlertCancelText (ios only)       |         string (default Cancel)           | Limited alert cancel option text
+| limitedAlertSelectPhotosText (ios only)       |         string (default Select More Photos)           | Limited alert select photos option text
+| limitedAlertOpenSettingsText (ios only)       |         string (default Change Settings)           | Limited alert open settings option text
 
 #### Smart Album Types (ios)
 

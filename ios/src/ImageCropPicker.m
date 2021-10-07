@@ -5,6 +5,8 @@
 //  Copyright © 2016 Facebook. All rights reserved.
 //
 
+#import <Photos/Photos.h>
+#import <PhotosUI/PhotosUI.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "ImageCropPicker.h"
@@ -71,7 +73,12 @@ RCT_EXPORT_MODULE();
             @"forceJpg": @NO,
             @"sortOrder": @"none",
             @"cropperCancelText": @"Cancel",
-            @"cropperChooseText": @"Choose"
+            @"cropperChooseText": @"Choose",
+            @"limitedAlertTitleText": @"Access to photos is limited",
+            @"limitedAlertMessageText": @"To access all of your photos, allow access to your full library in device settings.",
+            @"limitedAlertCancelText": @"Cancel",
+            @"limitedAlertSelectPhotosText": @"Select More Photos",
+            @"limitedAlertOpenSettingsText": @"Change Settings"
         };
         self.compression = [[Compression alloc] init];
     }
@@ -358,6 +365,39 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             
             [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
             [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
+
+            #ifdef __IPHONE_14_0
+              if (@available(iOS 14, *)) {
+                // if limited show alert texts:
+                PHAuthorizationStatus accessLevel = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
+                if (accessLevel == PHAuthorizationStatusLimited) {
+                    UIAlertController* alert = [UIAlertController alertControllerWithTitle:[self.options objectForKey:@"limitedAlertTitleText"]
+                                  message:[self.options objectForKey:@"limitedAlertMessageText"]
+                                  preferredStyle:UIAlertControllerStyleAlert];
+
+                    UIAlertAction* selectPhotos = [UIAlertAction actionWithTitle:[self.options objectForKey:@"limitedAlertSelectPhotosText"]
+                                                                            style:UIAlertActionStyleDefault
+                                                                          handler:^(UIAlertAction * action) {
+                        [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:imagePickerController];
+                    }];
+                    UIAlertAction* openSetttings = [UIAlertAction actionWithTitle:[self.options objectForKey:@"limitedAlertOpenSettingsText"]
+                                                                            style:UIAlertActionStyleDefault
+                                                                          handler:^(UIAlertAction * action) {
+                        UIApplication *application = [UIApplication sharedApplication];
+                        NSURL *URL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+                        [application openURL:URL options:@{} completionHandler:nil];
+                    }];
+                    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:[self.options objectForKey:@"limitedAlertCancelText"]
+                                                                            style:UIAlertActionStyleCancel
+                                                                            handler:nil];
+                    
+                    [alert addAction:selectPhotos];
+                    [alert addAction:openSetttings];
+                    [alert addAction:defaultAction];
+                    [[self getRootVC] presentViewController:alert animated:YES completion:nil];
+                }              
+              }
+            #endif
         });
     }];
 }
