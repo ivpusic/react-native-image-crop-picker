@@ -123,6 +123,12 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
     self.disableScrollToBottom = NO;
 
+    // Scroll to bottom
+    if (self.fetchResult.count > 0 && !self.disableScrollToBottom) {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection:0];
+        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+    }
+
     [self updateCachedAssets];
 }
 

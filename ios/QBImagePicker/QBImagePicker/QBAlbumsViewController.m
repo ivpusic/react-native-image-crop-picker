@@ -68,7 +68,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     } else {
         [self.navigationItem setRightBarButtonItem:nil animated:NO];
     }
-    
+
+    [[self.navigationController navigationBar] setTintColor:self.imagePickerController.tintColor];
+
     [self updateControlState];
     [self updateSelectionInfo];
 }

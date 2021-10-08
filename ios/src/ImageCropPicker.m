@@ -36,6 +36,12 @@
 #define ERROR_CANNOT_PROCESS_VIDEO_KEY @"E_CANNOT_PROCESS_VIDEO"
 #define ERROR_CANNOT_PROCESS_VIDEO_MSG @"Cannot process video data"
 
+#define UIColorFromRGB(rgbValue) \
+[UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
+                green:((float)((rgbValue & 0x00FF00) >>  8))/255.0 \
+                 blue:((float)((rgbValue & 0x0000FF) >>  0))/255.0 \
+                alpha:1.0]
+
 @implementation ImageResult
 @end
 
@@ -71,7 +77,8 @@ RCT_EXPORT_MODULE();
             @"forceJpg": @NO,
             @"sortOrder": @"none",
             @"cropperCancelText": @"Cancel",
-            @"cropperChooseText": @"Choose"
+            @"cropperChooseText": @"Choose",
+            @"tintColor": @"#ffffff"
         };
         self.compression = [[Compression alloc] init];
     }
@@ -299,7 +306,17 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
             imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
             imagePickerController.sortOrder = [self.options objectForKey:@"sortOrder"];
-            
+            NSString *tintColor = [self.options objectForKey:@"tintColor"];
+            if (tintColor) {
+                unsigned result = 0;
+                NSScanner *scanner = [NSScanner scannerWithString:tintColor];
+                [scanner setScanLocation:1]; // bypass '#' character
+                [scanner scanHexInt:&result];
+                imagePickerController.tintColor = UIColorFromRGB(result);
+            } else {
+                imagePickerController.tintColor = UIColorFromRGB(0);
+            }
+
             NSArray *smartAlbums = [self.options objectForKey:@"smartAlbums"];
             if (smartAlbums != nil) {
                 NSDictionary *albums = @{
