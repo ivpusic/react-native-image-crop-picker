@@ -316,6 +316,14 @@ declare module "react-native-image-crop-picker" {
          * @default Android: 1, iOS: 0.8
          */
         compressImageQuality?: number;
+
+        /**
+         * When cropping image, uses the dimensions of the cropRect for the resulting image.
+         *
+         * @platform iOS only
+         * @default false
+         */
+        useCroppedDimensions?: boolean;
     }
 
     type CropperOptions = ImageOptions & {
