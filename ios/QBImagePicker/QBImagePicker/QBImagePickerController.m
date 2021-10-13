@@ -71,6 +71,20 @@
     
     [navigationController didMoveToParentViewController:self];
     
+     // fixes bug with navigation bar not showing on first launch
+    navigationController.navigationBar.translucent = NO;
+    navigationController.edgesForExtendedLayout = UIRectEdgeNone;
+
+    // fixes iOS 15 translucent navigation bar
+    if (@available(iOS 15, *)){
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance configureWithOpaqueBackground];
+        appearance.titleTextAttributes = @{NSForegroundColorAttributeName : UIColor.blackColor};
+        appearance.backgroundColor = [UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0];
+        [UINavigationBar appearance].standardAppearance = appearance;
+        [UINavigationBar appearance].scrollEdgeAppearance = appearance;
+    }
+    
     self.albumsNavigationController = navigationController;
 }
 
