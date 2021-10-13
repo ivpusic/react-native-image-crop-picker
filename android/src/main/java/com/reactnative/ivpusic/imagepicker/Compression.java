@@ -47,11 +47,21 @@ class Compression {
         int finalWidth = maxWidth;
         int finalHeight = maxHeight;
 
-        if (ratioMax > 1) {
-            finalWidth = (int) ((float) maxHeight * ratioBitmap);
+        if (ratioBitmap > 1) {    
+            // LANDSCAPE
+            finalHeight = maxWidth;
+            finalWidth = (int) ((float) width * ((float) maxWidth / (float) height));
         } else {
-            finalHeight = (int) ((float) maxWidth / ratioBitmap);
+            // PORTRAIT
+            finalWidth = maxWidth;
+            finalHeight = (int) ((float) height * ((float) maxWidth / (float) width));
         }
+
+        // if (ratioMax > 1) {
+        //     finalWidth = (int) ((float) maxHeight * ratioBitmap);
+        // } else {
+        //     finalHeight = (int) ((float) maxWidth / ratioBitmap);
+        // }
 
         Bitmap resized = Bitmap.createScaledBitmap(original, finalWidth, finalHeight, true);
         resized = Bitmap.createBitmap(resized, 0, 0, finalWidth, finalHeight, rotationMatrix, true);
