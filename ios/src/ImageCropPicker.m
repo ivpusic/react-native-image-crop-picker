@@ -527,14 +527,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     options.networkAccessAllowed = YES;
     
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
-        NSMutableArray *selections = [[NSMutableArray alloc] init];
+        NSMutableArray *selections = [[NSMutableArray alloc] initWithCapacity: [assets count]];
+        for(int i = 0; i<[assets count]; i++) {
+            [selections addObject: [NSNull null]];
+        }
         
         [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
             NSLock *lock = [[NSLock alloc] init];
             __block int processed = 0;
             
+            NSUInteger index = 0;
             for (PHAsset *phAsset in assets) {
-                
+                NSLog(@"IMAGE CROP PICJER %@", phAsset);
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -555,7 +559,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             
                             if (processed == [assets count]) {
                                 [indicatorView stopAnimating];
-                                [overlayView removeFromSuperview];
+                                 [overlayView removeFromSuperview];
                                 [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
                                     self.resolve(selections);
                                 }]];
@@ -623,7 +627,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                         exif = [[CIImage imageWithData:imageData] properties];
                                     }
                                     
-                                    [selections addObject:[self createAttachmentResponse:filePath
+                                    [selections replaceObjectAtIndex: index withObject:[self createAttachmentResponse:filePath
                                                                                 withExif: exif
                                                                            withSourceURL:[sourceURL absoluteString]
                                                                      withLocalIdentifier: phAsset.localIdentifier
@@ -637,7 +641,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                                                 withRect:CGRectNull
                                                                         withCreationDate:phAsset.creationDate
                                                                     withModificationDate:phAsset.modificationDate
-                                                           ]];
+                                                              ]];
                                 }
                                 processed++;
                                 [lock unlock];
@@ -654,6 +658,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             });
                         }];
                     }];
+                    index++;
                 }
             }
         }];
