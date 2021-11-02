@@ -538,7 +538,6 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             
             NSUInteger index = 0;
             for (PHAsset *phAsset in assets) {
-                NSLog(@"IMAGE CROP PICJER %@", phAsset);
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -552,8 +551,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 }]];
                                 return;
                             }
-                            
-                            [selections addObject:video];
+                            [selections replaceObjectAtIndex: index withObject:video];
                             processed++;
                             [lock unlock];
                             
