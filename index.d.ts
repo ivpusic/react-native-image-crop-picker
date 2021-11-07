@@ -262,6 +262,14 @@ declare module "react-native-image-crop-picker" {
          */
         cropperChooseText?: string;
 
+         /**
+         * Enable or disable cropper rotate buttons.
+         *
+         * @platform iOS only
+         * @default false
+         */
+          cropperRotateButtonsHidden?: boolean
+
         /**
          * Whether to show the 3x3 grid on top of the image during cropping.
          *

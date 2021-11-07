@@ -71,7 +71,8 @@ RCT_EXPORT_MODULE();
             @"forceJpg": @NO,
             @"sortOrder": @"none",
             @"cropperCancelText": @"Cancel",
-            @"cropperChooseText": @"Choose"
+            @"cropperChooseText": @"Choose",
+            @"cropperRotateButtonsHidden": @NO
         };
         self.compression = [[Compression alloc] init];
     }
@@ -889,6 +890,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         
         cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
         cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
+        cropVC.rotateButtonsHidden = [[self.options objectForKey:@"cropperRotateButtonsHidden"] boolValue];
         
         cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
         
