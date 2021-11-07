@@ -268,7 +268,6 @@ declare module "react-native-image-crop-picker" {
          * @platform iOS only
          * @default false
          */
-
           cropperRotateButtonsHidden?: boolean
 
         /**
