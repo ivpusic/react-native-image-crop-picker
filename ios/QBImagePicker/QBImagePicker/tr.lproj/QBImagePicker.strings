@@ -19,3 +19,10 @@
 
 "assets.toolbar.item-selected" = "%ld Adet Seçildi";
 "assets.toolbar.items-selected" = "%ld Adet Seçildi";
+
+"permission.help" = "Sınırlı sayıda seçili fotoğraf ve videoya izin verdiniz.";
+"permission.manage" = "YÖNET";
+"permission.title" = "Uygulamadaki tüm fotoğraflarınıza erişmek için cihaz ayarlarından tam kitaplığınıza erişim izni verin.";
+"permission.choose_more" = "Daha Fazla Fotoğraf Seç";
+"permission.change_settings" = "Ayarları Değiştir";
+"permission.cancel" = "İptal";
