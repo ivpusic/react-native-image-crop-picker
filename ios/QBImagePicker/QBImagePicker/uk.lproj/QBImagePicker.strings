@@ -19,3 +19,10 @@
 
 "assets.toolbar.item-selected" = "Вибрано %ld Елемент";
 "assets.toolbar.items-selected" = "Вибрано %ld Елементи";
+
+"permission.help" = "Ви дали дозвіл на обмежену кількість вибраних фотографій і відео.";
+"permission.manage" = "КЕРУВАТИ";
+"permission.title" = "Щоб отримати доступ до всіх своїх фотографій у програмі, надайте доступ до повної бібліотеки в налаштуваннях пристрою.";
+"permission.choose_more" = "Вибрати більше фотографій";
+"permission.change_settings" = "Змінити налаштування";
+"permission.cancel" = "Скасувати";

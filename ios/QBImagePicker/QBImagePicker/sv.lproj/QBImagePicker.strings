@@ -19,3 +19,10 @@
 
 "assets.toolbar.item-selected" = "%ld Markerad Objekt";
 "assets.toolbar.items-selected" = "%ld Markerade Objekt";
+
+"permission.help" = "Du har gett åtkomst till ett begränsat antal utvalda bilder och videor.";
+"permission.manage" = "HANTERA";
+"permission.title" = "För att komma åt alla dina foton i appen, ge åtkomst till ditt fulla bibliotek i enhetens inställningar.";
+"permission.choose_more" = "Välj fler foton";
+"permission.change_settings" = "Ändra inställningar";
+"permission.cancel" = "Avbryt";
