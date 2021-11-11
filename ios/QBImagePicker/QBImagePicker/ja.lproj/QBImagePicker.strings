@@ -21,7 +21,7 @@
 "assets.toolbar.items-selected" = "%ld 項目を選択中";
 
 "permission.help" = "選択した限られた数の写真とビデオに許可を与えました。";
-"permission.manage" = "MANAGE";
+"permission.manage" = "管理";
 "permission.title" = "アプリ内のすべての写真にアクセスするには、デバイス設定でライブラリ全体へのアクセスを許可します。";
 "permission.choose_more" = "写真をもっと選択";
 "permission.change_settings" = "設定の変更";

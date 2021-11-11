@@ -29,6 +29,14 @@ static bool isLimitedPermission() {
     return false;
 }
 
+static bool isDarkMode() {
+    if (@available(iOS 13.0, *)) {
+        UITraitCollection *current = UITraitCollection.currentTraitCollection;
+        return current.userInterfaceStyle == UIUserInterfaceStyleDark;
+    }
+    return false;
+}
+
 @interface QBImagePickerController (Private)
 
 @property (nonatomic, strong) NSBundle *assetBundle;
@@ -317,11 +325,16 @@ static bool isLimitedPermission() {
             UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
             cell.tag = indexPath.row;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            [cell setBackgroundColor:[UIColor colorWithRed: 0.97 green: 0.97 blue: 0.97 alpha: 1.00]];
-
             UIButton *manageButton = [UIButton buttonWithType:UIButtonTypeSystem];
-            [manageButton setBackgroundColor:[UIColor colorWithRed: 0.87 green: 0.87 blue: 0.87 alpha: 1.00]];
-            [manageButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            if (isDarkMode()) {
+                [cell setBackgroundColor:[UIColor colorWithRed: 0.03 green: 0.03 blue: 0.03 alpha: 1.00]];
+                [manageButton setBackgroundColor:[UIColor colorWithRed: 0.13 green: 0.13 blue: 0.13 alpha: 1.00]];
+                [manageButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            } else {
+                [cell setBackgroundColor:[UIColor colorWithRed: 0.95 green: 0.95 blue: 0.95 alpha: 1.00]];
+                [manageButton setBackgroundColor:[UIColor colorWithRed: 0.85 green: 0.85 blue: 0.85 alpha: 1.00]];
+                [manageButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            }
             [manageButton addTarget:self action:@selector(managePermissionAction:) forControlEvents:UIControlEventTouchUpInside];
             manageButton.layer.cornerRadius = 12;
             manageButton.contentEdgeInsets = UIEdgeInsetsMake(4, 12, 4, 12);
