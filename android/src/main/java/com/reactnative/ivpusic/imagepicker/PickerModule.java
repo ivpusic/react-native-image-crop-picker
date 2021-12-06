@@ -32,8 +32,6 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
-import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.UCropActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -638,60 +636,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return image;
     }
 
-    private void configureCropperColors(UCrop.Options options) {
-        if (cropperActiveWidgetColor != null) {
-            options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
-        }
-
-        if (cropperToolbarColor != null) {
-            options.setToolbarColor(Color.parseColor(cropperToolbarColor));
-        }
-
-        if (cropperStatusBarColor != null) {
-            options.setStatusBarColor(Color.parseColor(cropperStatusBarColor));
-        }
-
-        if (cropperToolbarWidgetColor != null) {
-            options.setToolbarWidgetColor(Color.parseColor(cropperToolbarWidgetColor));
-        }
-    }
+   
 
     private void startCropping(final Activity activity, final Uri uri) {
-        UCrop.Options options = new UCrop.Options();
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
-        options.setCompressionQuality(100);
-        options.setCircleDimmedLayer(cropperCircleOverlay);
-        options.setFreeStyleCropEnabled(freeStyleCropEnabled);
-        options.setShowCropGrid(showCropGuidelines);
-        options.setShowCropFrame(showCropFrame);
-        options.setHideBottomControls(hideBottomControls);
-
-        if (cropperToolbarTitle != null) {
-            options.setToolbarTitle(cropperToolbarTitle);
-        }
-
-        if (enableRotationGesture) {
-            // UCropActivity.ALL = enable both rotation & scaling
-            options.setAllowedGestures(
-                    UCropActivity.ALL, // When 'scale'-tab active
-                    UCropActivity.ALL, // When 'rotate'-tab active
-                    UCropActivity.ALL  // When 'aspect ratio'-tab active
-            );
-        }
-
-        if (!disableCropperColorSetters) {
-            configureCropperColors(options);
-        }
-
-        UCrop uCrop = UCrop
-                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withOptions(options);
-
-        if (width > 0 && height > 0) {
-            uCrop.withAspectRatio(width, height);
-        }
-
-        uCrop.start(activity);
+       
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
@@ -725,7 +673,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }
 
                 if (cropping) {
-                    startCropping(activity, uri);
+
                 } else {
                     try {
                         getAsyncSelection(activity, uri, false);
@@ -749,9 +697,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             if (cropping) {
-                UCrop.Options options = new UCrop.Options();
-                options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
-                startCropping(activity, uri);
+
             } else {
                 try {
                     resultCollector.setWaitCount(1);
@@ -769,35 +715,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void croppingResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
-        if (data != null) {
-            Uri resultUri = UCrop.getOutput(data);
-
-            if (resultUri != null) {
-                try {
-                    if (width > 0 && height > 0) {
-                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, width, height, 100);
-                        resultUri = Uri.fromFile(resized);
-                    }
-
-                    WritableMap result = getSelection(activity, resultUri, false);
-
-                    if (result != null) {
-                        result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
-
-                        resultCollector.setWaitCount(1);
-                        resultCollector.notifySuccess(result);
-                    } else {
-                        throw new Exception("Cannot crop video files");
-                    }
-                } catch (Exception ex) {
-                    resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
-                }
-            } else {
-                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot find image data");
-            }
-        } else {
-            resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
-        }
+       
     }
 
     @Override
@@ -806,8 +724,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {
             cameraPickerResult(activity, requestCode, resultCode, data);
-        } else if (requestCode == UCrop.REQUEST_CROP) {
-            croppingResult(activity, requestCode, resultCode, data);
+        } else if (requestCode == 5991) {
+
         }
     }
 
@@ -859,11 +777,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static WritableMap getCroppedRectMap(Intent data) {
         final int DEFAULT_VALUE = -1;
         final WritableMap map = new WritableNativeMap();
-
-        map.putInt("x", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, DEFAULT_VALUE));
-        map.putInt("y", data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, DEFAULT_VALUE));
-        map.putInt("width", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, DEFAULT_VALUE));
-        map.putInt("height", data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, DEFAULT_VALUE));
 
         return map;
     }
