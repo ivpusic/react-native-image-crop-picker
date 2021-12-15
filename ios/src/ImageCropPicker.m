@@ -1061,7 +1061,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     }
                     NSData *imageData = [[NSData alloc] initWithContentsOfFile:targetURL.path];
                     UIImage *image = [[UIImage alloc] initWithData:imageData];
-                    image = [image fixOrientation];
+
                     ImageResult *imageResult = [self makeResultFromImageData:imageData image:image];
 
                     //-save this out to disk and create the attachment with this version otherwise we lose resizing, compression and orientation fixes
