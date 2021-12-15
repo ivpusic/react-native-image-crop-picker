@@ -369,9 +369,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     NSString *mediaType = self.options[@"mediaType"];
     if ([mediaType isEqualToString:@"video"] && ![self.options[@"cropping"] boolValue]) {
         configuration.filter = [PHPickerFilter videosFilter];
-    } else {
+    } else if ([mediaType isEqualToString:@"photo"]){
         configuration.filter = [PHPickerFilter imagesFilter];
-    }
+    } else configuration.filter = nil;
 
     return configuration;
 }
