@@ -1067,7 +1067,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                     //-save this out to disk and create the attachment with this version otherwise we lose resizing, compression and orientation fixes
                     NSString *filePath = [self persistFile:imageResult.data];
 
-                    NSDictionary *attachment = [self createAttachmentResponse:targetURL.absoluteString
+                    NSDictionary *attachment = [self createAttachmentResponse:filePath
                                                                      withExif:exif
                                                                 withSourceURL:targetURL.absoluteString
                                                           withLocalIdentifier:provider.suggestedName
