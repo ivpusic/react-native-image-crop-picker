@@ -232,6 +232,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             supportedPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
+        // android 10 introduced the ACCESS_MEDIA_LOCATION permission, before then it will always fail
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            supportedPermissions.remove(Manifest.permission.ACCESS_MEDIA_LOCATION);
+        }
+
         for (String permission : supportedPermissions) {
             int status = ActivityCompat.checkSelfPermission(activity, permission);
             if (status != PackageManager.PERMISSION_GRANTED) {
@@ -255,6 +260,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                                 if (permission.equals(Manifest.permission.CAMERA)) {
                                     promise.reject(E_NO_CAMERA_PERMISSION_KEY, E_NO_CAMERA_PERMISSION_MSG);
                                 } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_MSG);
+                                } else if (permission.equals(Manifest.permission.ACCESS_MEDIA_LOCATION)) {
                                     promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_MSG);
                                 } else {
                                     // should not happen, we fallback on E_NO_LIBRARY_PERMISSION_KEY rejection for minimal consistency
@@ -397,7 +404,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.ACCESS_MEDIA_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 initiatePicker(activity);
