@@ -104,7 +104,7 @@ RCT_EXPORT_MODULE();
         };
         self.compression = [[Compression alloc] init];
     }
-    
+
     return self;
 }
 
@@ -116,11 +116,11 @@ RCT_EXPORT_MODULE();
     if ([self.options[@"waitAnimationEnd"] boolValue]) {
         return completion;
     }
-    
+
     if (completion != nil) {
         completion();
     }
-    
+
     return nil;
 }
 
@@ -157,10 +157,10 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = CAMERA;
-    
+
 #if TARGET_IPHONE_SIMULATOR
     self.reject(ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY, ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG, nil);
     return;
@@ -170,28 +170,28 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             self.reject(ERROR_NO_CAMERA_PERMISSION_KEY, ERROR_NO_CAMERA_PERMISSION_MSG, nil);
             return;
         }
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             UIImagePickerController *picker = [[UIImagePickerController alloc] init];
             picker.delegate = self;
             picker.allowsEditing = NO;
             picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-            
+
             NSString *mediaType = self.options[@"mediaType"];
-            
+
             if ([mediaType isEqualToString:@"video"]) {
                 NSArray *availableTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
-                
+
                 if ([availableTypes containsObject:(NSString *)kUTTypeMovie]) {
                     picker.mediaTypes = @[(NSString *) kUTTypeMovie];
                     picker.videoQuality = UIImagePickerControllerQualityTypeHigh;
                 }
             }
-            
+
             if ([self.options[@"useFrontCamera"] boolValue]) {
                 picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
             }
-            
+
             [[self getRootVC] presentViewController:picker animated:YES completion:nil];
         });
     }];
@@ -201,21 +201,21 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 - (NSString*) getTmpDirectory {
     NSString *TMP_DIRECTORY = @"react-native-image-crop-picker/";
     NSString *tmpFullPath = [NSTemporaryDirectory() stringByAppendingString:TMP_DIRECTORY];
-    
+
     BOOL isDir;
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:tmpFullPath isDirectory:&isDir];
     if (!exists) {
         [[NSFileManager defaultManager] createDirectoryAtPath: tmpFullPath
                                   withIntermediateDirectories:YES attributes:nil error:nil];
     }
-    
+
     return tmpFullPath;
 }
 
 - (BOOL)cleanTmpDirectory {
     NSString* tmpDirectoryPath = [self getTmpDirectory];
     NSArray* tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tmpDirectoryPath error:NULL];
-    
+
     for (NSString *file in tmpDirectory) {
         BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", tmpDirectoryPath, file]
                                                                   error:NULL];
@@ -223,16 +223,16 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             return NO;
         }
     }
-    
+
     return YES;
 }
 
 RCT_EXPORT_METHOD(cleanSingle:(NSString *) path
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
-    
+
     if (!deleted) {
         reject(ERROR_CLEANUP_ERROR_KEY, ERROR_CLEANUP_ERROR_MSG, nil);
     } else {
@@ -272,7 +272,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             self.reject(ERROR_NO_LIBRARY_PERMISSION_KEY, ERROR_NO_LIBRARY_PERMISSION_MSG, nil);
             return;
         }
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             // init picker
             QBImagePickerController *imagePickerController = [QBImagePickerController new];
@@ -282,7 +282,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.maximumNumberOfSelection = abs([self.options[@"maxFiles"] intValue]);
             imagePickerController.showsNumberOfSelectedAssets = [self.options[@"showsSelectedCount"] boolValue];
             imagePickerController.sortOrder = self.options[@"sortOrder"];
-            
+
             NSArray *smartAlbums = self.options[@"smartAlbums"];
             if (smartAlbums != nil) {
                 NSDictionary *albums = @{
@@ -292,11 +292,11 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                     @"SyncedFaces" : @(PHAssetCollectionSubtypeAlbumSyncedFaces),
                     @"SyncedAlbum" : @(PHAssetCollectionSubtypeAlbumSyncedAlbum),
                     @"Imported" : @(PHAssetCollectionSubtypeAlbumImported),
-                    
+
                     //cloud albums
                     @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
                     @"CloudShared" : @(PHAssetCollectionSubtypeAlbumCloudShared),
-                    
+
                     //smart albums
                     @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
                     @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
@@ -315,7 +315,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                     @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
                     @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
                 };
-                
+
                 NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
                 for (NSString* smartAlbum in smartAlbums) {
                     if (albums[smartAlbum] != nil) {
@@ -324,12 +324,12 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                 }
                 imagePickerController.assetCollectionSubtypes = albumsToShow;
             }
-            
+
             if ([self.options[@"cropping"] boolValue]) {
                 imagePickerController.mediaType = QBImagePickerMediaTypeImage;
             } else {
                 NSString *mediaType = self.options[@"mediaType"];
-                
+
                 if ([mediaType isEqualToString:@"photo"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeImage;
                 } else if ([mediaType isEqualToString:@"video"]) {
@@ -338,7 +338,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                     imagePickerController.mediaType = QBImagePickerMediaTypeAny;
                 }
             }
-            
+
             [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
             [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
         });
@@ -350,9 +350,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                   rejecter:(RCTPromiseRejectBlock)reject) {
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = CROPPING;
-    
+
     NSString *path = options[@"path"];
-    
+
     [[self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:[RCTConvert NSURLRequest:path]
                                                                                          callback:^(NSError *error, UIImage *image) {
         if (error) {
@@ -372,7 +372,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         configuration.filter = [PHPickerFilter videosFilter];
     } else if ([mediaType isEqualToString:@"photo"]){
         configuration.filter = [PHPickerFilter imagesFilter];
-    } else configuration.filter = nil;
+    } else {
+      configuration.filter = nil;
+    }
 
     return configuration;
 }
@@ -380,18 +382,18 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (void)showActivityIndicator:(void (^)(UIActivityIndicatorView*, UIView*))handler {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIView *mainView = [[self getRootVC] view];
-        
+
         // create overlay
         UIView *loadingView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
         loadingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
         loadingView.clipsToBounds = YES;
-        
+
         // create loading spinner
         UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         activityView.frame = CGRectMake(65, 40, activityView.bounds.size.width, activityView.bounds.size.height);
         activityView.center = loadingView.center;
         [loadingView addSubview:activityView];
-        
+
         // create message
         UILabel *loadingLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 115, 130, 22)];
         loadingLabel.backgroundColor = [UIColor clearColor];
@@ -404,11 +406,11 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         loadingLabel.text = self.options[@"loadingLabelText"];
         [loadingLabel setFont:[UIFont boldSystemFontOfSize:18]];
         [loadingView addSubview:loadingLabel];
-        
+
         // show all
         [mainView addSubview:loadingView];
         [activityView startAnimating];
-        
+
         handler(activityView, loadingView);
     });
 }
@@ -418,27 +420,27 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
  withLocalIdentifier:(NSString*)localIdentifier
           completion:(void (^)(NSDictionary* image))completion {
     NSURL *sourceURL = [(AVURLAsset *)asset URL];
-    
+
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".mp4"];
     NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-    
+
     [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
         if (exportSession.status == AVAssetExportSessionStatusCompleted) {
             AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
             AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-            
+
             NSNumber *fileSizeValue = nil;
             [outputURL getResourceValue:&fileSizeValue
                                  forKey:NSURLFileSizeKey
                                   error:nil];
-            
+
             AVURLAsset *durationFromUrl = [AVURLAsset assetWithURL:outputURL];
             CMTime time = [durationFromUrl duration];
             int milliseconds = ceil(time.value/time.timescale) * 1000;
-            
+
             completion([self createAttachmentResponse:[outputURL absoluteString]
                                              withExif:nil
                                         withSourceURL:[sourceURL absoluteString]
@@ -466,7 +468,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     options.version = PHVideoRequestOptionsVersionOriginal;
     options.networkAccessAllowed = YES;
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeHighQualityFormat;
-    
+
     [manager requestAVAssetForVideo:forAsset
                             options:options
                       resultHandler:^(AVAsset * asset, AVAudioMix * audioMix, NSDictionary *info) {
@@ -514,7 +516,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 - (NSString *)determineMimeTypeFromImageData:(NSData *)data {
     uint8_t c;
     [data getBytes:&c length:1];
-    
+
     switch (c) {
         case 0xFF:
             return @"image/jpeg";
@@ -542,16 +544,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                    withFilename:(NSString*)filename
                withCreationDate:(NSDate*)creationDate
            withModificationDate:(NSDate*)modificationDate {
-    
+
     if (image == nil) {
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
             self.reject(ERROR_PICKER_NO_DATA_KEY, ERROR_PICKER_NO_DATA_MSG, nil);
         }]];
         return;
     }
-    
+
     NSLog(@"id: %@ filename: %@", localIdentifier, filename);
-    
+
     if ([self.options[@"cropping"] boolValue]) {
         self.croppingFile = [[NSMutableDictionary alloc] init];
         self.croppingFile[@"sourceURL"] = sourceURL;
@@ -560,7 +562,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         self.croppingFile[@"creationDate"] = creationDate;
         self.croppingFile[@"modifcationDate"] = modificationDate;
         NSLog(@"CroppingFile %@", self.croppingFile);
-        
+
         [self cropImage:[image fixOrientation]];
     } else {
         ImageResult *imageResult = [self.compression compressImage:[image fixOrientation]  withOptions:self.options];
@@ -571,7 +573,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             }]];
             return;
         }
-        
+
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -601,13 +603,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".jpg"];
-    
+
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
     if (!status) {
         return nil;
     }
-    
+
     return filePath;
 }
 
@@ -633,21 +635,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             if (widthRatio > 0 && heightRatio > 0){
                 CGSize aspectRatio = CGSizeMake(widthRatio, heightRatio);
                 cropVC.customAspectRatio = aspectRatio;
-                
+
             }
             cropVC.aspectRatioLockEnabled = ![self.options[@"freeStyleCropEnabled"] boolValue];
             cropVC.resetAspectRatioEnabled = !cropVC.aspectRatioLockEnabled;
         }
-        
+
         cropVC.title = self.options[@"cropperToolbarTitle"];
         cropVC.delegate = self;
-        
+
         cropVC.doneButtonTitle = self.options[@"cropperChooseText"];
         cropVC.cancelButtonTitle = self.options[@"cropperCancelText"];
         cropVC.rotateButtonsHidden = [self.options[@"cropperRotateButtonsHidden"] boolValue];
-        
+
         cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
-        
+
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });
 }
