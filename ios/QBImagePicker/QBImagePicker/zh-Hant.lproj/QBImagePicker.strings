@@ -1,0 +1,28 @@
+/* 
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Seungyeob Song on 2020/11/10.
+  Copyright (c) 2020 Seungyeob Song. All rights reserved.
+*/
+
+"albums.title" = "照片";
+
+"assets.footer.photo" = "共%ld張照片";
+"assets.footer.photos" = "共%ld張照片";
+"assets.footer.video" = "共%ld個視頻";
+"assets.footer.videos" = "共%ld個視頻";
+"assets.footer.photo-and-video" = "共%ld 張照片, %ld 個視頻";
+"assets.footer.photos-and-video" = "共%ld 張照片, %ld 個視頻";
+"assets.footer.photo-and-videos" = "共%ld 張照片, %ld 個視頻";
+"assets.footer.photos-and-videos" = "共%ld 張照片, %ld 個視頻";
+
+"assets.toolbar.item-selected" = "選擇了%ld項";
+"assets.toolbar.items-selected" = "選擇了%ld項";
+
+"permission.help" = "您已授予有限數量的選定照片和視頻的權限。";
+"permission.manage" = "管理";
+"permission.title" = "要訪問您在應用程序中的所有照片，請在設備設置中授予訪問您的完整圖庫的權限。";
+"permission.choose_more" = "選擇更多照片";
+"permission.change_settings" = "更改設置";
+"permission.cancel" = "取消";

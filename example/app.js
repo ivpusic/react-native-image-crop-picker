@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Alert, Image, NativeModules, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ImagePicker from 'react-native-image-crop-picker';
 import Video from 'react-native-video';
-
-var ImagePicker = NativeModules.ImageCropPicker;
 
 const styles = StyleSheet.create({
   container: {
@@ -148,6 +147,7 @@ export default class App extends Component {
       cropperStatusBarColor: 'white',
       cropperToolbarColor: 'white',
       cropperActiveWidgetColor: 'white',
+      cropperToolbarWidgetColor: '#3498DB',
     })
       .then((image) => {
         console.log('received image', image);
