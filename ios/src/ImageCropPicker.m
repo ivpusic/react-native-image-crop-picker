@@ -65,6 +65,7 @@ RCT_EXPORT_MODULE();
             @"avoidEmptySpaceAroundImage": @YES,
             @"compressImageQuality": @0.8,
             @"compressVideoPreset": @"MediumQuality",
+            @"maximumVideoDuration": @-1,
             @"loadingLabelText": @"Processing assets...",
             @"mediaType": @"any",
             @"showsSelectedCount": @YES,
@@ -156,6 +157,13 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             picker.delegate = self;
             picker.allowsEditing = NO;
             picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+
+            id maxDuration = [self.options objectForKey:@"maximumVideoDuration"];
+            if (maxDuration) {
+                if ([maxDuration doubleValue] > 0) {
+                    picker.videoMaximumDuration = [maxDuration doubleValue];
+                }
+            }
             
             NSString *mediaType = [self.options objectForKey:@"mediaType"];
             
