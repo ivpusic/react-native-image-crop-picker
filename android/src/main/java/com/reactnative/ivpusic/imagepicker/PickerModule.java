@@ -728,6 +728,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     startCropping(activity, uri);
                 } else {
                     try {
+
+                        System.out.println("uri");
+                        System.out.println(uri.toString());
                         getAsyncSelection(activity, uri, false);
                     } catch (Exception ex) {
                         resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
