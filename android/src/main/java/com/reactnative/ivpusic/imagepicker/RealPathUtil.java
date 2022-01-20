@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
