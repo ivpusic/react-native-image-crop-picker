@@ -19,8 +19,8 @@ import java.io.InputStream;
 class RealPathUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
-        Log.d("image-crop-picker", "getRealPathFromURI - uri", uri.toString());
-        Log.d("image-crop-picker", "getRealPathFromURI - scheme", uri.getScheme());
+        Log.d("image-crop-picker", "getRealPathFromURI - uri: "+uri.toString());
+        Log.d("image-crop-picker", "getRealPathFromURI - scheme: "+uri.getScheme());
         final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
