@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.util.Log;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -488,12 +489,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
         String path = resolveRealPath(activity, uri, isCamera);
+        Log.d("image-crop-picker", "getAsyncSelection - path", path);
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
             return;
         }
 
         String mime = getMimeType(path);
+        Log.d("image-crop-picker", "getAsyncSelection - mime", mime);
         if (mime != null && mime.startsWith("video/")) {
             getVideo(activity, path, mime);
             return;
@@ -579,6 +582,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 path = mediaUri.getPath();
             } else {
                 path = RealPathUtil.getRealPathFromURI(activity, uri);
+                Log.d("image-crop-picker", "resolveRealPath - real path util - path", path);
             }
         }
 
@@ -586,12 +590,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private BitmapFactory.Options validateImage(String path) throws Exception {
+        Log.d("image-crop-picker", "validateImage - path", path);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         options.inDither = true;
 
+        Log.d("image-crop-picker", "validateImage - options", options.toString());
+
         BitmapFactory.decodeFile(path, options);
+
+        Log.d("image-crop-picker", "validateImage - options2", options.toString());
 
         if (options.outMimeType == null || options.outWidth == 0 || options.outHeight == 0) {
             throw new Exception("Invalid image selected");
@@ -601,6 +610,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private WritableMap getImage(final Activity activity, String path) throws Exception {
+        Log.d("image-crop-picker", "getImage - path", path);
         WritableMap image = new WritableNativeMap();
 
         if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -729,8 +739,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 } else {
                     try {
 
-                        System.out.println("uri");
-                        System.out.println(uri.toString());
+                        Log.d("image-crop-picker", "uri", uri.toString());
                         getAsyncSelection(activity, uri, false);
                     } catch (Exception ex) {
                         resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
