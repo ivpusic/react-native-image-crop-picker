@@ -5,7 +5,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -19,8 +18,7 @@ import java.io.InputStream;
 class RealPathUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
-        Log.d("image-crop-picker", "getRealPathFromURI - uri: "+uri.toString());
-        Log.d("image-crop-picker", "getRealPathFromURI - scheme: "+uri.getScheme());
+
         final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
@@ -82,7 +80,6 @@ class RealPathUtil {
         }
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
-
             // Return the remote address
             if (isGooglePhotosUri(uri))
                 return uri.getLastPathSegment();
