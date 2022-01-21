@@ -591,9 +591,20 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && path.startsWith("/storage")) {
-            File copiedFile =  this.createExternalStoragePrivateFile(activity, uri);
-            path = RealPathUtil.getRealPathFromURI(activity, Uri.fromFile(copiedFile));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            String externalCacheDirPath = Uri.fromFile(activity.getExternalCacheDir()).getPath();
+            String externalFilesDirPath = Uri.fromFile(activity.getExternalFilesDir(null)).getPath();
+            String cacheDirPath = Uri.fromFile(activity.getCacheDir()).getPath();
+            String FilesDirPath = Uri.fromFile(activity.getFilesDir()).getPath();
+
+            if (!path.startsWith(externalCacheDirPath)
+                    && !path.startsWith(externalFilesDirPath)
+                    && !path.startsWith(cacheDirPath)
+                    && !path.startsWith(FilesDirPath)) {
+                File copiedFile = this.createExternalStoragePrivateFile(activity, uri);
+                path = RealPathUtil.getRealPathFromURI(activity, Uri.fromFile(copiedFile));
+            }
         }
 
         return path;
@@ -603,7 +614,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         InputStream inputStream = context.getContentResolver().openInputStream(uri);
 
         String extension = this.getExtension(context, uri);
-        File file = new File(context.getExternalFilesDir(null), "/soomgo/temp/" + System.currentTimeMillis() + "." + extension);
+        File file = new File(context.getExternalCacheDir(), "/temp/" + System.currentTimeMillis() + "." + extension);
         File parentFile = file.getParentFile();
         if (parentFile != null) {
             parentFile.mkdirs();
