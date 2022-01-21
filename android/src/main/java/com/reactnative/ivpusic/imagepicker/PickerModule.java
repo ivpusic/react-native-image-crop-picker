@@ -586,7 +586,61 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && path.startsWith("/storage")) {
+            File copiedFile =  this.createExternalStoragePrivateFile(activity, uri);
+            path = RealPathUtil.getRealPathFromURI(activity, Uri.fromFile(copiedFile));
+        }
+
         return path;
+    }
+
+    private File createExternalStoragePrivateFile(Context context, Uri uri) throws FileNotFoundException {
+        InputStream inputStream = context.getContentResolver().openInputStream(uri);
+
+        String extension = this.getExtension(context, uri);
+        File file = new File(context.getExternalFilesDir(null), "/soomgo/temp/" + System.currentTimeMillis() + "." + extension);
+        File parentFile = file.getParentFile();
+        if (parentFile != null) {
+            parentFile.mkdirs();
+        }
+
+        try {
+            // Very simple code to copy a picture from the application's
+            // resource into the external file.  Note that this code does
+            // no error checking, and assumes the picture is small (does not
+            // try to copy it in chunks).  Note that if external storage is
+            // not currently mounted this will silently fail.
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] data = new byte[inputStream.available()];
+            inputStream.read(data);
+            outputStream.write(data);
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            // Unable to create file, likely because external storage is
+            // not currently mounted.
+            Log.w("image-crop-picker", "Error writing " + file, e);
+        }
+
+        return file;
+    }
+
+    public String getExtension(Context context, Uri uri) {
+        String extension;
+
+        //Check uri format to avoid null
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            //If scheme is a content
+            final MimeTypeMap mime = MimeTypeMap.getSingleton();
+            extension = mime.getExtensionFromMimeType(context.getContentResolver().getType(uri));
+        } else {
+            //If scheme is a File
+            //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+            extension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(new File(uri.getPath())).toString());
+
+        }
+
+        return extension;
     }
 
     private BitmapFactory.Options validateImage(String path) throws Exception {
