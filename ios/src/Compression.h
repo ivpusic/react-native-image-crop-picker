@@ -26,7 +26,10 @@
 
 @interface Compression : NSObject
 
-- (ImageResult*) compressImage:(UIImage*)image withOptions:(NSDictionary*)options;
+- (ImageResult*) compressImage:(UIImage*)image
+                   withOptions:(NSDictionary*)options
+                  withMetadata:(NSDictionary*)metadata;
+
 - (void)compressVideo:(NSURL*)inputURL
             outputURL:(NSURL*)outputURL
           withOptions:(NSDictionary*)options
