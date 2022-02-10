@@ -42,9 +42,9 @@ class ExifExtractor {
                 String compressedValue = compressedExif.getAttribute(attribute);
 
                 if (attribute == TAG_PIXEL_X_DIMENSION) {
-                    compressedExif.setAttribute(compressedWidth);
+                    compressedExif.setAttribute(attribute, compressedWidth);
                 } else if (attribute == TAG_PIXEL_Y_DIMENSION) {
-                    compressedExif.setAttribute(compressedHeight);
+                    compressedExif.setAttribute(attribute, compressedHeight);
                 } else if (attribute != TAG_ORIENTATION && compressedValue == null) {
                     compressedExif.setAttribute(attribute, value);
                 }
