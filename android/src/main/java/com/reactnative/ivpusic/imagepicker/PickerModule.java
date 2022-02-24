@@ -83,6 +83,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean enableRotationGesture = false;
     private boolean disableCropperColorSetters = false;
     private boolean useFrontCamera = false;
+    private Integer duration = 0;
     private ReadableMap options;
 
     private String cropperActiveWidgetColor = null;
@@ -120,6 +121,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
+        duration = options.hasKey("duration") ? options.getInt("duration") : 0;
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
@@ -337,6 +339,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
+
+            if (this.duration > 0) {
+                cameraIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, this.duration);
+            }
 
             if (this.useFrontCamera) {
                 cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
