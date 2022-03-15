@@ -615,7 +615,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
 
-        image.putString("path", "file://" + compressedImagePath);
+        String filePath;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                filePath = "file://" + compressedImagePath;
+        } else {
+            filePath = FileProvider.getUriForFile(activity,
+                activity.getApplicationContext().getPackageName() + ".provider",
+                new File(compressedImagePath)).toString();
+        }
+        
+
+        image.putString("path", filePath);
         image.putInt("width", options.outWidth);
         image.putInt("height", options.outHeight);
         image.putString("mime", options.outMimeType);
