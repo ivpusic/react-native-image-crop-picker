@@ -17,9 +17,12 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.anilokcun.uwmediapicker.UwMediaPicker;
+import com.anilokcun.uwmediapicker.model.UwMediaPickerMediaModel;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
@@ -65,12 +68,16 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
 
+
+    private static final String UW_MEDIA_PICKER_RESULT_KEY = "UW_MEDIA_PICKER_RESULT_KEY";
+
     private static final String E_NO_LIBRARY_PERMISSION_KEY = "E_NO_LIBRARY_PERMISSION";
     private static final String E_NO_LIBRARY_PERMISSION_MSG = "User did not grant library permission.";
     private static final String E_NO_CAMERA_PERMISSION_KEY = "E_NO_CAMERA_PERMISSION";
     private static final String E_NO_CAMERA_PERMISSION_MSG = "User did not grant camera permission.";
 
     private String mediaType = "any";
+    private String compressVideoPreset = "MediumQuality";
     private boolean multiple = false;
     private boolean includeBase64 = false;
     private boolean includeExif = false;
@@ -90,9 +97,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private String cropperToolbarColor = null;
     private String cropperToolbarTitle = null;
     private String cropperToolbarWidgetColor = null;
+    private String filePath = null;
 
     private int width = 0;
     private int height = 0;
+    private int maxFiles = 10;
 
     private Uri mCameraCaptureURI;
     private String mCurrentMediaPath;
@@ -120,7 +129,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void setConfiguration(final ReadableMap options) {
         mediaType = options.hasKey("mediaType") ? options.getString("mediaType") : "any";
+        compressVideoPreset = options.hasKey("compressVideoPreset") ? options.getString("compressVideoPreset") : "MediumQuality";
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
+        maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : 10;
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
@@ -131,6 +142,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         cropperToolbarColor = options.hasKey("cropperToolbarColor") ? options.getString("cropperToolbarColor") : null;
         cropperToolbarTitle = options.hasKey("cropperToolbarTitle") ? options.getString("cropperToolbarTitle") : null;
         cropperToolbarWidgetColor = options.hasKey("cropperToolbarWidgetColor") ? options.getString("cropperToolbarWidgetColor") : null;
+        filePath = options.hasKey("path") ? options.getString("path") : null;
         cropperCircleOverlay = options.hasKey("cropperCircleOverlay") && options.getBoolean("cropperCircleOverlay");
         freeStyleCropEnabled = options.hasKey("freeStyleCropEnabled") && options.getBoolean("freeStyleCropEnabled");
         showCropGuidelines = !options.hasKey("showCropGuidelines") || options.getBoolean("showCropGuidelines");
@@ -163,7 +175,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 try {
@@ -197,7 +209,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             return;
         }
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 try {
@@ -303,7 +315,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, false);
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 initiateCamera(activity);
@@ -359,6 +371,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiatePicker(final Activity activity) {
         try {
             final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            UwMediaPicker.GalleryMode mode = UwMediaPicker.GalleryMode.ImageGallery;
 
             if (cropping || mediaType.equals("photo")) {
                 galleryIntent.setType("image/*");
@@ -368,21 +381,41 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
+                mode = UwMediaPicker.GalleryMode.VideoGallery;
             } else {
                 galleryIntent.setType("*/*");
                 String[] mimetypes = {"image/*", "video/*"};
+                mode = UwMediaPicker.GalleryMode.ImageAndVideoGallery;
                 galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
 
-            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            if (multiple) {
+                getImagesFromGalaryUWMediaPicker(mode);
+            } else {
+                galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
+                galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+                final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
+                activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            }
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
+    }
+
+    //UW media picker
+    private void getImagesFromGalaryUWMediaPicker(UwMediaPicker.GalleryMode mode) {
+        UwMediaPicker.Companion
+                .with((AppCompatActivity) getCurrentActivity())                        // Activity or Fragment
+                .setGalleryMode(mode) // GalleryMode: ImageGallery/VideoGallery/ImageAndVideoGallery, default is ImageGallery
+                .setGridColumnCount(3)                                  // Grid column count, default is 3
+                .setMaxSelectableMediaCount(maxFiles)                         // Maximum selectable media count, default is null which means infinite
+                .setLightStatusBar(true)                                // Is llight status bar enable, default is true
+                .launch(n -> {
+                    int numberOfItemsSelected = n == null ? 0 : n.size();
+                    return null;
+                });
     }
 
     @ReactMethod
@@ -397,7 +430,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 initiatePicker(activity);
@@ -419,7 +452,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.setup(promise, false);
 
         final Uri uri = Uri.parse(options.getString("path"));
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.READ_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 startCropping(activity, uri);
@@ -486,8 +519,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return getImage(activity, path);
     }
 
-    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
-        String path = resolveRealPath(activity, uri, isCamera);
+    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera, boolean otherMediaPickerUsed) throws Exception {
+        String path = uri.getPath();
+        if (!otherMediaPickerUsed) {
+            path = resolveRealPath(activity, uri, isCamera);
+        }
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
             return;
@@ -508,7 +544,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         Bitmap bmp = retriever.getFrameAtTime();
 
         if (bmp == null) {
-            throw new Exception("Cannot retrieve video data");
+//            throw new Exception("Cannot retrieve video data");
         }
 
         return bmp;
@@ -526,17 +562,70 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
+    /**
+     * Author : Amit Kumar Sahoo (amit.mindfiresolutions.com), modified on 12.08.2020
+     *
+     * @param activity: current activity object
+     * @param path:     original video path
+     * @param mime:     file type
+     * @throws Exception : File exception
+     */
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
         validateVideo(path);
-        final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
+        //final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
+        try {
+            Bitmap bmp = validateVideo(path);
+            long modificationDate = new File(path).lastModified();
+            long duration = getVideoDuration(path);
+
+            WritableMap video = new WritableNativeMap();
+
+            if (bmp != null) {
+                video.putInt("width", bmp.getWidth());
+                video.putInt("height", bmp.getHeight());
+            }
+
+            video.putString("mime", mime);
+            video.putInt("size", (int) new File(path).length());
+            video.putInt("duration", (int) duration);
+            video.putString("path", "file://" + path);
+            video.putString("modificationDate", String.valueOf(modificationDate));
+
+            resultCollector.notifySuccess(video);
+        } catch (Exception e) {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+        }
+    }
+
+    /**
+     * Author :  Amit Kumar Sahoo (amit.mindfiresolutions.com), modified on 12.08.2020
+     * Method for compress video
+     *
+     * @param options : Properties to compress video
+     * @param promise : Promise to set success and error result
+     */
+    @ReactMethod
+    private void compressVideo(final ReadableMap options, Promise promise) {
+        final Activity activity = getCurrentActivity();
+
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        setConfiguration(options);
+        resultCollector.setup(promise, false);
+
+        final String compressedVideoPath = getTmpDir(getCurrentActivity()) + "/" + UUID.randomUUID().toString() + ".mp4";
+        resultCollector.setWaitCount(1);
+
+        compression.compressVideo(compressVideoPreset, getCurrentActivity(), options,
+                filePath.replace("file://", ""), compressedVideoPath, new PromiseImpl(new Callback() {
                     @Override
                     public void invoke(Object... args) {
                         String videoPath = (String) args[0];
+                        String mime = getMimeType(compressedVideoPath);
 
                         try {
                             Bitmap bmp = validateVideo(videoPath);
@@ -544,28 +633,30 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             long duration = getVideoDuration(videoPath);
 
                             WritableMap video = new WritableNativeMap();
-                            video.putInt("width", bmp.getWidth());
-                            video.putInt("height", bmp.getHeight());
+
+                            if (bmp != null) {
+                                video.putInt("width", bmp.getWidth());
+                                video.putInt("height", bmp.getHeight());
+                            }
+
                             video.putString("mime", mime);
                             video.putInt("size", (int) new File(videoPath).length());
                             video.putInt("duration", (int) duration);
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
-                            resultCollector.notifySuccess(video);
+                            promise.resolve(video);
                         } catch (Exception e) {
-                            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+                            promise.reject(E_NO_IMAGE_DATA_FOUND, e);
                         }
                     }
                 }, new Callback() {
                     @Override
                     public void invoke(Object... args) {
                         WritableNativeMap ex = (WritableNativeMap) args[0];
-                        resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
+                        promise.reject(ex.getString("message"), ex);
                     }
                 }));
-            }
-        }).run();
     }
 
     private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
@@ -694,6 +785,36 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         uCrop.start(activity);
     }
 
+    /**
+     * Author :Arvind kumar
+     * email: arvindk@mindfiresolutions.com
+     * process result data, obtained through UWMediaPicker
+     *
+     * @param activity:   current activity
+     * @param resultCode: String result code
+     * @param data:       result data from onActivityResult()
+     */
+    private void uwMediaPickerResult(Activity activity, final int resultCode, final Intent data) {
+        if (resultCode == Activity.RESULT_CANCELED) {
+            resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
+        } else if (resultCode == Activity.RESULT_OK && data.getExtras() != null) {
+            try {
+                ArrayList<UwMediaPickerMediaModel> uriList = data.getExtras().getParcelableArrayList(UW_MEDIA_PICKER_RESULT_KEY);
+
+                if (uriList != null) {
+                    resultCollector.setWaitCount(uriList.size());
+                    for (UwMediaPickerMediaModel media : uriList) {
+                        getAsyncSelection(activity, Uri.parse(media.getMediaPath()), false, true);
+                    }
+                }
+            } catch (Exception ex) {
+                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
+            }
+        } else {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, E_PICKER_CANCELLED_MSG);
+        }
+    }
+
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (resultCode == Activity.RESULT_CANCELED) {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
@@ -705,11 +826,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     // only one image selected
                     if (clipData == null) {
                         resultCollector.setWaitCount(1);
-                        getAsyncSelection(activity, data.getData(), false);
+                        getAsyncSelection(activity, data.getData(), false, false);
                     } else {
                         resultCollector.setWaitCount(clipData.getItemCount());
                         for (int i = 0; i < clipData.getItemCount(); i++) {
-                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
+                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false, false);
                         }
                     }
                 } catch (Exception ex) {
@@ -728,7 +849,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     startCropping(activity, uri);
                 } else {
                     try {
-                        getAsyncSelection(activity, uri, false);
+                        getAsyncSelection(activity, uri, false, false);
                     } catch (Exception ex) {
                         resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                     }
@@ -802,12 +923,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
+
         if (requestCode == IMAGE_PICKER_REQUEST) {
             imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {
             cameraPickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == UCrop.REQUEST_CROP) {
             croppingResult(activity, requestCode, resultCode, data);
+        } else {
+            uwMediaPickerResult(activity, resultCode, data);
         }
     }
 

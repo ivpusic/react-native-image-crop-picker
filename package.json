@@ -1,16 +1,38 @@
 {
-  "name": "react-native-image-crop-picker",
-  "version": "0.37.3",
+  "_from": "react-native-image-crop-picker",
+  "_id": "react-native-image-crop-picker@0.35.1",
+  "_inBundle": false,
+  "_integrity": "sha512-5HY2NnkmgL/Nw1IpU9CkTWj4qgFYPF8KxDaHoaufEWNjvOCRGziMoui55cO7k4KdwsIKmb1UbDzkCYemJqcyow==",
+  "_location": "/react-native-image-crop-picker",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "react-native-image-crop-picker",
+    "name": "react-native-image-crop-picker",
+    "escapedName": "react-native-image-crop-picker",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-native-image-crop-picker/-/react-native-image-crop-picker-0.35.1.tgz",
+  "_shasum": "590b6ed7af7b63a505132c73819c9166347bf1e3",
+  "_spec": "react-native-image-crop-picker",
+  "_where": "D:\\Office Projects\\amtp-react-native\\amtp-react-native\\AMTP",
+  "author": {
+    "name": "Ivan Pusic"
+  },
+  "bugs": {
+    "url": "https://github.com/ivpusic/react-native-image-crop-picker/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
   "description": "Select single or multiple images, with cropping option",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "rm -rf android/build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ivpusic/react-native-image-crop-picker.git"
-  },
+  "homepage": "https://github.com/ivpusic/react-native-image-crop-picker#readme",
   "keywords": [
     "react",
     "native",
@@ -22,13 +44,19 @@
     "multiple",
     "camera"
   ],
-  "author": "Ivan Pusic",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ivpusic/react-native-image-crop-picker/issues"
-  },
-  "homepage": "https://github.com/ivpusic/react-native-image-crop-picker#readme",
+  "main": "index.js",
+  "name": "react-native-image-crop-picker",
   "peerDependencies": {
     "react-native": ">=0.40.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivpusic/react-native-image-crop-picker.git"
+  },
+  "scripts": {
+    "prepublish": "rm -rf android/build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.35.1"
 }

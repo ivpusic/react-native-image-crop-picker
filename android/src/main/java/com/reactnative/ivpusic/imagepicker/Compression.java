@@ -5,12 +5,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
+import com.abedelazizshe.lightcompressorlibrary.CompressionListener;
+import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
+import com.abedelazizshe.lightcompressorlibrary.VideoQuality;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -57,7 +63,8 @@ class Compression {
 
         bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
 
-        File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        String tmpDir = context.getCacheDir() + "/react-native-image-crop-picker";
+        File imageDirectory = new File(tmpDir);
 
         if (!imageDirectory.exists()) {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
@@ -82,6 +89,17 @@ class Compression {
         return resizeImageFile;
     }
 
+    int getRotationInDegreesForOrientationTag(int orientationTag) {
+        switch (orientationTag) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return 90;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return -90;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return 180;
+            default:
+                return 0;
+        }
     private int calculateInSampleSize(int originalWidth, int originalHeight, int requestedWidth, int requestedHeight) {
         int inSampleSize = 1;
 
@@ -95,8 +113,6 @@ class Compression {
                     && (halfHeight / inSampleSize) >= requestedHeight) {
                 inSampleSize *= 2;
             }
-        }
-
         return inSampleSize;
     }
 
@@ -153,9 +169,57 @@ class Compression {
         return Pair.create(width, height);
     }
 
-    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
-        // todo: video compression
-        // failed attempt 1: ffmpeg => slow and licensing issues
-        promise.resolve(originalVideo);
+    void compressVideo(String compressVideoPreset, final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            VideoQuality videoQuality = null;
+
+            switch (compressVideoPreset) {
+                case "LowQuality":
+                    videoQuality = VideoQuality.LOW;
+                    break;
+                case "HighestQuality":
+                    videoQuality = VideoQuality.HIGH;
+                    break;
+                case "Passthrough":
+                    promise.resolve(originalVideo);
+                    return;
+                default:
+                    videoQuality = VideoQuality.MEDIUM;
+                    break;
+            }
+
+            //String output = RealPathUtil.getOutputFilePath(originalVideo, context);
+            //new VideoCompressAsyncTask(context, 0.2F, 0.2F, promise).execute(originalVideo, output);
+
+            VideoCompressor.start(originalVideo, compressedVideo, new CompressionListener() {
+                @Override
+                public void onStart() {
+
+                }
+
+                @Override
+                public void onSuccess() {
+                    promise.resolve(compressedVideo);
+                }
+
+                @Override
+                public void onFailure(@NotNull String s) {
+                    promise.reject(new Throwable("Compression failed: " + s));
+                }
+
+                @Override
+                public void onProgress(float v) {
+
+                }
+
+                @Override
+                public void onCancelled() {
+                    promise.reject(new Throwable("Compression Cancelled"));
+                }
+            }, videoQuality, false, false);
+        } else {
+            promise.resolve(originalVideo);
+        }
     }
 }
