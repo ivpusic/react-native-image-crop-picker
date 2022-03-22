@@ -8,6 +8,7 @@
 
 #import "QBAlbumsViewController.h"
 #import <Photos/Photos.h>
+#import <PhotosUI/PhotosUI.h>
 
 // Views
 #import "QBAlbumCell.h"
@@ -18,6 +19,22 @@
 
 static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return CGSizeMake(size.width * scale, size.height * scale);
+}
+
+static bool isLimitedPermission() {
+    if (@available(iOS 14, *)) {
+        PHAuthorizationStatus accessLevel = [PHPhotoLibrary authorizationStatusForAccessLevel: PHAccessLevelReadWrite];
+        return accessLevel == PHAuthorizationStatusLimited;
+    }
+    return false;
+}
+
+static bool isDarkMode() {
+    if (@available(iOS 13.0, *)) {
+        UITraitCollection *current = UITraitCollection.currentTraitCollection;
+        return current.userInterfaceStyle == UIUserInterfaceStyleDark;
+    }
+    return false;
 }
 
 @interface QBImagePickerController (Private)
@@ -259,21 +276,83 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     self.doneButton.enabled = [self isMinimumSelectionLimitFulfilled];
 }
 
+#pragma mark - Manage Limited Permission
+
+-(void)managePermissionAction:(id)sender
+{
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedStringFromTableInBundle(@"permission.title", @"QBImagePicker", self.imagePickerController.assetBundle, nil) message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+
+    [actionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"permission.cancel", @"QBImagePicker", self.imagePickerController.assetBundle, nil) style:UIAlertActionStyleCancel handler:nil]];
+
+    [actionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"permission.choose_more", @"QBImagePicker", self.imagePickerController.assetBundle, nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        // Open limited permission picker.
+        if (@available(iOS 14, *)) {
+            [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        }
+    }]];
+
+    [actionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"permission.change_settings", @"QBImagePicker", self.imagePickerController.assetBundle, nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        // Open application settings.
+        UIApplication *application = [UIApplication sharedApplication];
+        NSURL *URL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        [application openURL:URL options:@{} completionHandler:nil];
+    }]];
+
+    // Present action sheet.
+    [self presentViewController:actionSheet animated:YES completion:nil];
+}
 
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return isLimitedPermission() ? 2 : 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if (isLimitedPermission() && section == 0) {
+        return 1;
+    }
     return self.assetCollections.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (isLimitedPermission()) {
+        if (indexPath.section == 0) {
+            CGRect frame = [tableView rectForRowAtIndexPath:indexPath];
+            UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+            cell.tag = indexPath.row;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            UIButton *manageButton = [UIButton buttonWithType:UIButtonTypeSystem];
+            if (isDarkMode()) {
+                [cell setBackgroundColor:[UIColor colorWithRed: 0.03 green: 0.03 blue: 0.03 alpha: 1.00]];
+                [manageButton setBackgroundColor:[UIColor colorWithRed: 0.13 green: 0.13 blue: 0.13 alpha: 1.00]];
+                [manageButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            } else {
+                [cell setBackgroundColor:[UIColor colorWithRed: 0.95 green: 0.95 blue: 0.95 alpha: 1.00]];
+                [manageButton setBackgroundColor:[UIColor colorWithRed: 0.85 green: 0.85 blue: 0.85 alpha: 1.00]];
+                [manageButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            }
+            [manageButton addTarget:self action:@selector(managePermissionAction:) forControlEvents:UIControlEventTouchUpInside];
+            manageButton.layer.cornerRadius = 12;
+            manageButton.contentEdgeInsets = UIEdgeInsetsMake(4, 12, 4, 12);
+            [manageButton setTitle:NSLocalizedStringFromTableInBundle(@"permission.manage", @"QBImagePicker", self.imagePickerController.assetBundle, nil) forState:UIControlStateNormal];
+            [manageButton sizeToFit];
+            [cell setAccessoryView:manageButton];
+            
+            UILabel *helpText = [[UILabel alloc] initWithFrame:CGRectMake(16,0,cell.contentView.frame.size.width - manageButton.frame.size.width + 24, frame.size.height)];
+            helpText.font = [UIFont systemFontOfSize:13];
+            [helpText setNumberOfLines:2];
+            helpText.text = NSLocalizedStringFromTableInBundle(@"permission.help", @"QBImagePicker", self.imagePickerController.assetBundle, nil);
+            
+            [cell.contentView addSubview:helpText];
+
+            return cell;
+        }
+    }
+    
     QBAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AlbumCell" forIndexPath:indexPath];
     cell.tag = indexPath.row;
     cell.borderWidth = 1.0 / [[UIScreen mainScreen] scale];

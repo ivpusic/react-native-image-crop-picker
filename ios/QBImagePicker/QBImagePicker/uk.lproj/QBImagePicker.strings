@@ -1,0 +1,28 @@
+/*
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Marina Skripnik on 2021/10/07.
+  Copyright (c) 2021 Marina Skripnik. All rights reserved.
+*/
+
+"albums.title" = "Фотографії";
+
+"assets.footer.photo" = "%ld Фото";
+"assets.footer.photos" = "%ld Фото";
+"assets.footer.video" = "%ld Відео";
+"assets.footer.videos" = "%ld Відео";
+"assets.footer.photo-and-video" = "%ld Фото, %ld Відео";
+"assets.footer.photos-and-video" = "%ld Фото, %ld Відео";
+"assets.footer.photo-and-videos" = "%ld Фото, %ld Відео";
+"assets.footer.photos-and-videos" = "%ld Фото, %ld Відео";
+
+"assets.toolbar.item-selected" = "Вибрано %ld Елемент";
+"assets.toolbar.items-selected" = "Вибрано %ld Елементи";
+
+"permission.help" = "Ви дали дозвіл на обмежену кількість вибраних фотографій і відео.";
+"permission.manage" = "КЕРУВАТИ";
+"permission.title" = "Щоб отримати доступ до всіх своїх фотографій у програмі, надайте доступ до повної бібліотеки в налаштуваннях пристрою.";
+"permission.choose_more" = "Вибрати більше фотографій";
+"permission.change_settings" = "Змінити налаштування";
+"permission.cancel" = "Скасувати";
