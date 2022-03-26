@@ -337,6 +337,14 @@ declare module "react-native-image-crop-picker" {
         mediaType: 'video';
 
         /**
+         * When set to false, does not compress videos. This is useful to improve performance.
+         *
+         * @platform iOS only
+         * @default true
+         */
+        compressVideo?: boolean;
+
+        /**
          * Choose which preset will be used for video compression.
          *
          * @platform iOS only
