@@ -27,7 +27,7 @@ import java.util.UUID;
 
 class Compression {
 
-    File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality) throws IOException {
+    File resize(Context context, String originalImagePath, int maxWidth, int maxHeight, int quality, String mimeType) throws IOException {
         Bitmap original = BitmapFactory.decodeFile(originalImagePath);
 
         int width = original.getWidth();
@@ -58,15 +58,26 @@ class Compression {
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-        if(!imageDirectory.exists()) {
+        if (!imageDirectory.exists()) {
             Log.d("image-crop-picker", "Pictures Directory is not existing. Will create this directory.");
             imageDirectory.mkdirs();
         }
 
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        final Bitmap.CompressFormat compressFormat =
+                MimeTypeUtils.getBitmapCompressFormat(mimeType);
+        final String resizeImageFileExtension;
+        if (compressFormat == Bitmap.CompressFormat.PNG) {
+            resizeImageFileExtension = ".png";
+        } else {
+            resizeImageFileExtension = ".jpg";
+        }
 
+        File resizeImageFile = new File(
+                imageDirectory,
+                UUID.randomUUID() + resizeImageFileExtension
+        );
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        resized.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        resized.compress(MimeTypeUtils.getBitmapCompressFormat(mimeType), quality, os);
 
         os.close();
         original.recycle();
@@ -123,7 +134,7 @@ class Compression {
             maxHeight = Math.min(maxHeight, bitmapOptions.outHeight);
         }
 
-        return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality);
+        return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality, bitmapOptions.outMimeType);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
