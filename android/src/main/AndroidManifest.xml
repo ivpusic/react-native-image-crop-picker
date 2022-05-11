@@ -12,13 +12,13 @@
     <application>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".IvpusicImagePickerFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
+                android:resource="@xml/ivpusic_imagepicker_provider_paths" />
         </provider>
 
         <activity
