@@ -424,10 +424,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     CGAffineTransform txf = [track preferredTransform];
 
     if (size.width == txf.tx && size.height == txf.ty)
-        // labdscaoe right
+        // landscape right
         return NO;
     else if (txf.tx == 0 && txf.ty == 0)
-        // labdscaoe left
+        // landscape left
         return NO;
     else if (txf.tx == 0 && txf.ty == size.width)
         // portrait upside down
