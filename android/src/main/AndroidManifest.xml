@@ -13,7 +13,7 @@
 
         <provider
             android:name=".IvpusicImagePickerFileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.ivpusicimagepickerfileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
