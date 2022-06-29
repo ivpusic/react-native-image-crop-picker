@@ -3,6 +3,7 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.core.app.ActivityCompat;
@@ -38,15 +40,19 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+
+
 
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
@@ -582,7 +588,72 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            String externalCacheDirPath = Uri.fromFile(activity.getExternalCacheDir()).getPath();
+            String externalFilesDirPath = Uri.fromFile(activity.getExternalFilesDir(null)).getPath();
+            String cacheDirPath = Uri.fromFile(activity.getCacheDir()).getPath();
+            String FilesDirPath = Uri.fromFile(activity.getFilesDir()).getPath();
+
+            if (!path.startsWith(externalCacheDirPath)
+                    && !path.startsWith(externalFilesDirPath)
+                    && !path.startsWith(cacheDirPath)
+                    && !path.startsWith(FilesDirPath)) {
+                File copiedFile = this.createExternalStoragePrivateFile(activity, uri);
+                path = RealPathUtil.getRealPathFromURI(activity, Uri.fromFile(copiedFile));
+            }
+        }
+
         return path;
+    }
+
+    private File createExternalStoragePrivateFile(Context context, Uri uri) throws FileNotFoundException {
+        InputStream inputStream = context.getContentResolver().openInputStream(uri);
+
+        String extension = this.getExtension(context, uri);
+        File file = new File(context.getExternalCacheDir(), "/temp/" + System.currentTimeMillis() + "." + extension);
+        File parentFile = file.getParentFile();
+        if (parentFile != null) {
+            parentFile.mkdirs();
+        }
+
+        try {
+            // Very simple code to copy a picture from the application's
+            // resource into the external file.  Note that this code does
+            // no error checking, and assumes the picture is small (does not
+            // try to copy it in chunks).  Note that if external storage is
+            // not currently mounted this will silently fail.
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] data = new byte[inputStream.available()];
+            inputStream.read(data);
+            outputStream.write(data);
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            // Unable to create file, likely because external storage is
+            // not currently mounted.
+            Log.w("image-crop-picker", "Error writing " + file, e);
+        }
+
+        return file;
+    }
+
+    public String getExtension(Context context, Uri uri) {
+        String extension;
+
+        //Check uri format to avoid null
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            //If scheme is a content
+            final MimeTypeMap mime = MimeTypeMap.getSingleton();
+            extension = mime.getExtensionFromMimeType(context.getContentResolver().getType(uri));
+        } else {
+            //If scheme is a File
+            //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+            extension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(new File(uri.getPath())).toString());
+
+        }
+
+        return extension;
     }
 
     private BitmapFactory.Options validateImage(String path) throws Exception {
