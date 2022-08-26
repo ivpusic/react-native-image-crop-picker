@@ -56,6 +56,7 @@
 		790A850E1AE7D4D9008E2A80 /* QBSlomoIconView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QBSlomoIconView.m; sourceTree = "<group>"; };
 		7D92D893270E4FF700BFC37E /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		7D92D894270E500300BFC37E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
+		82C8A8C927C370E300A3B0EB /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		AA3AD06D1ACF9A3A00BF523E /* QBVideoIconView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QBVideoIconView.h; sourceTree = "<group>"; };
 		AA3AD06E1ACF9A3A00BF523E /* QBVideoIconView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QBVideoIconView.m; sourceTree = "<group>"; };
 		AA3AD0711ACFA06700BF523E /* QBVideoIndicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QBVideoIndicatorView.h; sourceTree = "<group>"; };
@@ -256,6 +257,7 @@
 				uk,
 				sv,
 				nb,
+				vi,
 			);
 			mainGroup = AAA8FDF91ACDA079002A9710;
 			productRefGroup = AAA8FE041ACDA079002A9710 /* Products */;
@@ -336,6 +338,7 @@
 				7D92D893270E4FF700BFC37E /* uk */,
 				7D92D894270E500300BFC37E /* sv */,
 				6525CF3C27CFBCA8004F9AAE /* nb */,
+				82C8A8C927C370E300A3B0EB /* vi */,
 			);
 			name = QBImagePicker.strings;
 			sourceTree = "<group>";
