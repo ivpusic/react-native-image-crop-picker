@@ -21,6 +21,6 @@ Pod::Spec.new do |s|
     qb.exclude_files    = "ios/QBImagePicker/QBImagePicker/QBImagePicker.h"
     qb.resource_bundles = { "QBImagePicker" => "ios/QBImagePicker/QBImagePicker/*.{lproj,storyboard}" }
     qb.requires_arc     = true
-    qb.frameworks       = "Photos"
+    qb.frameworks       = "Photos", "PhotosUI"
   end
 end
