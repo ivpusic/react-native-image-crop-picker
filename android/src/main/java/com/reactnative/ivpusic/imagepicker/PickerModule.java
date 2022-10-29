@@ -362,33 +362,53 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     }
 
-    private void initiatePicker(final Activity activity) {
-        try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+    private void initiatePicker() {
 
-            if (cropping || mediaType.equals("photo")) {
-                galleryIntent.setType("image/*");
-                if (cropping) {
-                    String[] mimetypes = {"image/jpeg", "image/png"};
-                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                }
-            } else if (mediaType.equals("video")) {
-                galleryIntent.setType("video/*");
-            } else {
-                galleryIntent.setType("*/*");
-                String[] mimetypes = {"image/*", "video/*"};
-                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+        final Activity currentActivity = getCurrentActivity();
+
+        if (currentActivity == null) {
+            resultCollector.notifyProblem(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return;
+        }
+
+        int requestCode;
+        Intent libraryIntent;
+        requestCode = IMAGE_PICKER_REQUEST;
+
+        boolean isPhoto = mediaType.equals("photo");
+        boolean isVideo = mediaType.equals("video");
+
+        if ((isPhoto || isVideo)) {
+            libraryIntent = new Intent(Intent.ACTION_PICK);
+        } else {
+            libraryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            libraryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+
+        if (cropping || isPhoto) {
+            libraryIntent.setType("image/*");
+            if (cropping) {
+                String[] mimetypes = { "image/jpeg", "image/png" };
+                libraryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             }
+        } else if (isVideo) {
+            libraryIntent.setType("video/*");
+        } else {
+            libraryIntent.setType("*/*");
+            String[] mimetypes = { "image/*", "video/*" };
+            libraryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+        }
 
-            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        libraryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        libraryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
 
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+        try {
+            currentActivity.startActivityForResult(libraryIntent, requestCode);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
+
+     
     }
 
     @ReactMethod
@@ -406,7 +426,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
-                initiatePicker(activity);
+                initiatePicker();
                 return null;
             }
         });
