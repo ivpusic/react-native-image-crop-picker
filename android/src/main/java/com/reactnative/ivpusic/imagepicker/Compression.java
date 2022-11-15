@@ -107,6 +107,14 @@ public class Compression {
 
         Bitmap resized = resizeBitmapWithRenderScript(RenderScript.create(context), original, finalWidth);
 
+        Bitmap rotatedBitmap = Bitmap.createBitmap(resized, 0, 0, resized.getWidth(), resized.getHeight(), rotationMatrix, true);
+
+        if (rotatedBitmap != resized) {
+            resized.recycle();
+        }
+
+        resized = rotatedBitmap;
+
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if(!imageDirectory.exists()) {
