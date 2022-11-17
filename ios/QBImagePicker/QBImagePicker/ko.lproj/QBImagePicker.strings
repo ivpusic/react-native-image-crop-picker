@@ -21,8 +21,8 @@
 "assets.toolbar.items-selected" = "%ld 선택된 아이템";
 
 "permission.help" = "지금 모든 사진 접근 권한을 허용하면 더 쉽고 편하게 사진을 올릴 수 있어요.";
-"permission.manage" = "허용하기";
+"permission.manage" = "설정";
 "permission.title" = "앱에 있는 모든 사진에 접근하려면 기기 설정에서 전체 보관함에 접근 권한을 부여하십시오.";
-"permission.choose_more" = "추가 사진 선택";
-"permission.change_settings" = "설정 변경";
+"permission.change_settings" = "지금 설정하기";
+"permission.choose_more" = "사진 선택...";
 "permission.cancel" = "취소";
