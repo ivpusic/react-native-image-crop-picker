@@ -1,0 +1,25 @@
+/*
+  QBImagePicker.strings
+  QBImagePicker
+*/
+
+"albums.title" = "Kuvia";
+
+"assets.footer.photo" = "%ld Kuva";
+"assets.footer.photos" = "%ld Kuvia";
+"assets.footer.video" = "%ld Video";
+"assets.footer.videos" = "%ld Videoita";
+"assets.footer.photo-and-video" = "%ld Kuva, %ld Video";
+"assets.footer.photos-and-video" = "%ld Kuvia, %ld Video";
+"assets.footer.photo-and-videos" = "%ld Kuva, %ld Videoita";
+"assets.footer.photos-and-videos" = "%ld Kuvia, %ld Videoita";
+
+"assets.toolbar.item-selected" = "%ld Valittu objekti";
+"assets.toolbar.items-selected" = "%ld Valitut kohteet";
+
+"permission.help" = "Olet myöntänyt pääsyn rajoitettuun määrään valittuja kuvia ja videoita.";
+"permission.manage" = "KÄSITTELE";
+"permission.title" = "Jos haluat käyttää kaikkia sovelluksessa olevia kuviasi, anna käyttöoikeus koko kirjastoosi laitteesi asetuksista.";
+"permission.choose_more" = "Valitse lisää kuvia";
+"permission.change_settings" = "Vaihda asetuksia";
+"permission.cancel" = "Peruuttaa";
