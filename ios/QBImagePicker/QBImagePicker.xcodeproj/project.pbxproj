@@ -57,6 +57,7 @@
 		7D92D893270E4FF700BFC37E /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		7D92D894270E500300BFC37E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		82C8A8C927C370E300A3B0EB /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
+		1F83428028819165002788FE /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		1F83427F28819162002788FE /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		AA3AD06D1ACF9A3A00BF523E /* QBVideoIconView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QBVideoIconView.h; sourceTree = "<group>"; };
 		AA3AD06E1ACF9A3A00BF523E /* QBVideoIconView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QBVideoIconView.m; sourceTree = "<group>"; };
@@ -259,6 +260,7 @@
 				sv,
 				nb,
 				vi,
+				da,
 				fi,
 			);
 			mainGroup = AAA8FDF91ACDA079002A9710;
@@ -341,6 +343,7 @@
 				7D92D894270E500300BFC37E /* sv */,
 				6525CF3C27CFBCA8004F9AAE /* nb */,
 				82C8A8C927C370E300A3B0EB /* vi */,
+				1F83428028819165002788FE /* da */,
 				1F83427F28819162002788FE /* fi */,
 			);
 			name = QBImagePicker.strings;

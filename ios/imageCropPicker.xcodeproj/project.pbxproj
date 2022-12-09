@@ -150,6 +150,7 @@
 				"zh-Hans",
 				nb,
 				vi,
+				da,
 				fi,
 			);
 			mainGroup = 3400A7FF1CEB54A6008A0BC7;
