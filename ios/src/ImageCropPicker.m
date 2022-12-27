@@ -790,7 +790,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             }
             break;
         case CAMERA:
-            [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            if(selectionDone) {
+                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            } else {
+                // If a user opens the image picker, attempts to crop the image,
+                // but then cancels the cropping process, it would return app with reject
+                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+                }]];
+                
+            }
             break;
     }
 }
