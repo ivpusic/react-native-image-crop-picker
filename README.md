@@ -63,7 +63,7 @@ ImagePicker.openPicker({
 **Android: The prop 'cropping' has been known to cause videos not to be displayed in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
-### Select from camera 
+### Select from camera
 
 #### Image
 
@@ -204,20 +204,30 @@ pod install
 #### Step 1
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
-  
+
 #### (Optional) Step 2 - To localizate the camera / gallery / cropper text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
-- Select your project in the project list 
+- Select your project in the project list
 - Should be into the Info tab and add in Localizations the language your app was missing throughout the +
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
 ### Android
 
-- **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
+- **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section and change Android SDK version to 33. (android/build.gradle)
 
 ```gradle
+buildscript {
+    ext {
+        buildToolsVersion = "31.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        ...
+    }
+}
+
 allprojects {
     repositories {
       mavenLocal()
@@ -243,23 +253,6 @@ android {
         ...
         vectorDrawables.useSupportLibrary = true
         ...
-    }
-    ...
-}
-```
-
-- Use Android SDK >= 26 (android/app/build.gradle)
-
-```gradle
-android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
-    ...
-    
-    defaultConfig {
-      ...
-      targetSdkVersion 27
-      ...
     }
     ...
 }
