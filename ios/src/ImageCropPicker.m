@@ -417,6 +417,26 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     });
 }
 
+
+- (BOOL) isPortrait:(AVAssetTrack *)track
+{
+    CGSize size = [track naturalSize];
+    CGAffineTransform txf = [track preferredTransform];
+
+    if (size.width == txf.tx && size.height == txf.ty)
+        // landscape right
+        return NO;
+    else if (txf.tx == 0 && txf.ty == 0)
+        // landscape left
+        return NO;
+    else if (txf.tx == 0 && txf.ty == size.width)
+        // portrait upside down
+        return YES;
+    else
+        // portrait
+        return YES;
+}
+
 - (void) handleVideo:(AVAsset*)asset withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
     NSURL *sourceURL = [(AVURLAsset *)asset URL];
     
@@ -431,6 +451,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
             AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
             
+            BOOL isPortrait = [self isPortrait:track];
+
             NSNumber *fileSizeValue = nil;
             [outputURL getResourceValue:&fileSizeValue
                                  forKey:NSURLFileSizeKey
@@ -445,8 +467,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                         withSourceURL:[sourceURL absoluteString]
                                   withLocalIdentifier:localIdentifier
                                          withFilename:fileName
-                                            withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                           withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                            withWidth:isPortrait ? [NSNumber numberWithFloat:track.naturalSize.width] : [NSNumber numberWithFloat:track.naturalSize.height]
+                                           withHeight:isPortrait ? [NSNumber numberWithFloat:track.naturalSize.height] : [NSNumber numberWithFloat:track.naturalSize.width]
                                              withMime:@"video/mp4"
                                              withSize:fileSizeValue
                                          withDuration:[NSNumber numberWithFloat:milliseconds]
