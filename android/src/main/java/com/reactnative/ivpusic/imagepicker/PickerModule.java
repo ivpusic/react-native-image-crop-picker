@@ -338,7 +338,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 mCameraCaptureURI = Uri.fromFile(dataFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
-                        activity.getApplicationContext().getPackageName() + ".provider",
+                        activity.getApplicationContext().getPackageName() + ".ivpusicimagepickerfileprovider",
                         dataFile);
             }
 
