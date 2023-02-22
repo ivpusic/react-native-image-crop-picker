@@ -597,7 +597,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     
                                     ImageResult *imageResult = [[ImageResult alloc] init];
                                     
-                                    Boolean isAnimate = imgT.images.count > 0;
+                                    Boolean isGif = [mimeType isEqualToString:@"image/gif"];
+                                    Boolean isAnimate = imgT.images.count > 0 || isGif;
                                     
                                     if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && (!forceJpg || isAnimate)) {
                                         // Use original, unmodified image
