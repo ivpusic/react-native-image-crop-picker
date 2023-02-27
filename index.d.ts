@@ -176,6 +176,14 @@ declare module "react-native-image-crop-picker" {
         forceJpg?: boolean;
 
         /**
+         * Whether to use origin GIF. This will override forceJpg option.
+         *
+         * @platform iOS only
+         * @default false
+         */
+        allowGif?: boolean;
+
+        /**
          * Enable or disable cropping.
          *
          * @default false
