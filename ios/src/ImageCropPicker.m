@@ -582,6 +582,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     UIImage *imgT = [UIImage imageWithData:imageData];
                                     
                                     Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
+                                    Boolean allowGif = [[self.options valueForKey:@"allowGif"] boolValue];
                                     
                                     NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
                                     Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
@@ -595,12 +596,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     NSString *mimeType = [self determineMimeTypeFromImageData:imageData];
                                     Boolean isKnownMimeType = [mimeType length] > 0;
                                     
+                                    Boolean useOriginGif = (allowGif && [mimeType isEqualToString:@"image/gif"]);
                                     ImageResult *imageResult = [[ImageResult alloc] init];
                                     
-                                    Boolean isGif = [mimeType isEqualToString:@"image/gif"];
-                                    Boolean isAnimate = imgT.images.count > 0 || isGif;
-                                    
-                                    if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && (!forceJpg || isAnimate)) {
+                                    if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && (!forceJpg || useOriginGif)) {
                                         // Use original, unmodified image
                                         imageResult.data = imageData;
                                         imageResult.width = @(imgT.size.width);
@@ -612,8 +611,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     }
                                     
                                     NSString *filePath = @"";
-                                    if([[self.options objectForKey:@"writeTempFile"] boolValue]) {
-                                        
+                                    if(useOriginGif) {
+                                        filePath = [sourceURL absoluteString];
+                                    } else if([[self.options objectForKey:@"writeTempFile"] boolValue]) {
                                         filePath = [self persistFile:imageResult.data];
                                         
                                         if (filePath == nil) {
