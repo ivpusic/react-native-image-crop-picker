@@ -207,7 +207,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
                 }]];
             });
         }
-         ];
+        ];
     } else {
         UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
         
@@ -454,7 +454,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                              withRect:CGRectNull
                                      withCreationDate:nil
                                  withModificationDate:nil
-                        ]);
+                       ]);
         } else {
             completion(nil);
         }
@@ -477,7 +477,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
              withFileName:[forAsset valueForKey:@"filename"]
       withLocalIdentifier:forAsset.localIdentifier
                completion:completion
-         ];
+        ];
     }];
 }
 
@@ -645,7 +645,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                                                 withRect:CGRectNull
                                                                         withCreationDate:phAsset.creationDate
                                                                     withModificationDate:phAsset.modificationDate
-                                                           ]];
+                                                          ]];
                                 }
                                 processed++;
                                 [lock unlock];
@@ -691,24 +691,81 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                      resultHandler:^(NSData *imageData, NSString *dataUTI,
                                      UIImageOrientation orientation,
                                      NSDictionary *info) {
+                        UIImage *imgT = [UIImage imageWithData:imageData];
+                        
+                        Boolean forceJpg = [[self.options valueForKey:@"forceJpg"] boolValue];
+                        Boolean allowGif = [[self.options valueForKey:@"allowGif"] boolValue];
+                        
+                        NSNumber *compressQuality = [self.options valueForKey:@"compressImageQuality"];
+                        Boolean isLossless = (compressQuality == nil || [compressQuality floatValue] >= 0.8);
+                        
+                        NSNumber *maxWidth = [self.options valueForKey:@"compressImageMaxWidth"];
+                        Boolean useOriginalWidth = (maxWidth == nil || [maxWidth integerValue] >= imgT.size.width);
+                        
+                        NSNumber *maxHeight = [self.options valueForKey:@"compressImageMaxHeight"];
+                        Boolean useOriginalHeight = (maxHeight == nil || [maxHeight integerValue] >= imgT.size.height);
+                        
+                        NSString *mimeType = [self determineMimeTypeFromImageData:imageData];
+                        Boolean isKnownMimeType = [mimeType length] > 0;
+                        
+                        Boolean useOriginGif = (allowGif && [mimeType isEqualToString:@"image/gif"]);
+                        ImageResult *imageResult = [[ImageResult alloc] init];
+                        
+                        if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && (!forceJpg || useOriginGif)) {
+                            // Use original, unmodified image
+                            imageResult.data = imageData;
+                            imageResult.width = @(imgT.size.width);
+                            imageResult.height = @(imgT.size.height);
+                            imageResult.mime = mimeType;
+                            imageResult.image = imgT;
+                        } else {
+                            imageResult = [self.compression compressImage:[imgT fixOrientation] withOptions:self.options];
+                        }
+                        
                         NSURL *sourceURL = contentEditingInput.fullSizeImageURL;
-                        NSDictionary* exif;
+                        
+                        NSString *filePath = @"";
+                        if(useOriginGif) {
+                            filePath = [sourceURL absoluteString];
+                        } else if([[self.options objectForKey:@"writeTempFile"] boolValue]) {
+                            filePath = [self persistFile:imageResult.data];
+                            
+                            if (filePath == nil) {
+                                [indicatorView stopAnimating];
+                                [overlayView removeFromSuperview];
+                                [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                    self.reject(ERROR_CANNOT_SAVE_IMAGE_KEY, ERROR_CANNOT_SAVE_IMAGE_MSG, nil);
+                                }]];
+                                return;
+                            }
+                        }
+                        
+                        NSDictionary* exif = nil;
                         if([[self.options objectForKey:@"includeExif"] boolValue]) {
                             exif = [[CIImage imageWithData:imageData] properties];
                         }
-                        
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [indicatorView stopAnimating];
                             [overlayView removeFromSuperview];
                             
-                            [self processSingleImagePick:[UIImage imageWithData:imageData]
-                                                withExif: exif
-                                      withViewController:imagePickerController
-                                           withSourceURL:[sourceURL absoluteString]
-                                     withLocalIdentifier:phAsset.localIdentifier
-                                            withFilename:[phAsset valueForKey:@"filename"]
-                                        withCreationDate:phAsset.creationDate
-                                    withModificationDate:phAsset.modificationDate];
+                            
+                            [imagePickerController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                                self.resolve([self createAttachmentResponse:filePath
+                                                                   withExif: exif
+                                                              withSourceURL:[sourceURL absoluteString]
+                                                        withLocalIdentifier: phAsset.localIdentifier
+                                                               withFilename: [phAsset valueForKey:@"filename"]
+                                                                  withWidth:imageResult.width
+                                                                 withHeight:imageResult.height
+                                                                   withMime:imageResult.mime
+                                                                   withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                               withDuration: nil
+                                                                   withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0]: nil
+                                                                   withRect:CGRectNull
+                                                           withCreationDate:phAsset.creationDate
+                                                       withModificationDate:phAsset.modificationDate
+                                             ]);
+                            }]];
                         });
                     }];
                 }];
@@ -774,7 +831,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                withRect:CGRectNull
                                        withCreationDate:creationDate
                                    withModificationDate:modificationDate
-                          ]);
+                         ]);
         }]];
     }
 }
@@ -840,7 +897,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                            withRect:cropRect
                                    withCreationDate:self.croppingFile[@"creationDate"]
                                withModificationDate:self.croppingFile[@"modificationDate"]
-                      ]);
+                     ]);
     }]];
 }
 
