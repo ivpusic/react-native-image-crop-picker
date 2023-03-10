@@ -893,6 +893,9 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         cropVC.rotateButtonsHidden = [[self.options objectForKey:@"cropperRotateButtonsHidden"] boolValue];
         
         cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        if (@available(iOS 15.0, *)) {
+            cropVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        }
         
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });
