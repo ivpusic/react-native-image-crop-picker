@@ -891,7 +891,10 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
         cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
 
-        cropVC.modalPresentationStyle = UIModalPresentationFullScreen;\
+        cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
+		if (@available(iOS 15.0, *)) {
+            cropVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        }
 
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });
