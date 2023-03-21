@@ -160,7 +160,7 @@ class Compression {
         }
 
 
-        return resize(context, originalImagePath, maxWidth, maxHeight, targetQuality, options);
+        return resize(context, originalImagePath, maxWidth, maxHeight, maxWidth, maxHeight, targetQuality, options);
         //return Pair.create(width, height);
     }
 
