@@ -143,7 +143,10 @@ class Compression {
         return resize(context, originalImagePath, bitmapOptions.outWidth, bitmapOptions.outHeight, maxWidth, maxHeight, targetQuality, options);
     }
 
-    private Pair<Integer, Integer> calculateTargetDimensions(int currentWidth, int currentHeight, int maxWidth, int maxHeight, int targetQuality, final ReadableMap options) {
+    private Pair<Integer, Integer> calculateTargetDimensions(Context context,
+            String originalImagePath,
+            int currentWidth, int currentHeight, int maxWidth, 
+            int maxHeight, int targetQuality, final ReadableMap options) {
         int width = currentWidth;
         int height = currentHeight;
 
