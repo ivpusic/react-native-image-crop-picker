@@ -19,3 +19,10 @@
 
 "assets.toolbar.item-selected" = "%ld Item Selecionado";
 "assets.toolbar.items-selected" = "%ld Itens Selecionados";
+
+"permission.help" = "Você deu permissão a um número limitado de fotos e vídeos selecionados.";
+"permission.manage" = "GERENCIAR";
+"permission.title" = "Para acessar todas as suas fotos no aplicativo, dê acesso à sua biblioteca completa nas configurações do dispositivo.";
+"permission.choose_more" = "Selecionar mais fotos";
+"permission.change_settings" = "Alterar configurações";
+"permission.cancel" = "Cancelar";

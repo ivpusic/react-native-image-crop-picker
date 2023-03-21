@@ -1,0 +1,28 @@
+/*
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Katsuma Tanaka on 2015/04/03.
+  Copyright (c) 2015 Katsuma Tanaka. All rights reserved.
+*/
+
+"albums.title" = "Fotoğraflar";
+
+"assets.footer.photo" = "%ld Fotoğraf";
+"assets.footer.photos" = "%ld Fotoğraf";
+"assets.footer.video" = "%ld Video";
+"assets.footer.videos" = "%ld Video";
+"assets.footer.photo-and-video" = "%ld Fotoğraf, %ld Video";
+"assets.footer.photos-and-video" = "%ld Fotoğraf, %ld Video";
+"assets.footer.photo-and-videos" = "%ld Fotoğraf, %ld Video";
+"assets.footer.photos-and-videos" = "%ld Fotoğraf, %ld Video";
+
+"assets.toolbar.item-selected" = "%ld Adet Seçildi";
+"assets.toolbar.items-selected" = "%ld Adet Seçildi";
+
+"permission.help" = "Sınırlı sayıda seçili fotoğraf ve videoya izin verdiniz.";
+"permission.manage" = "YÖNET";
+"permission.title" = "Uygulamadaki tüm fotoğraflarınıza erişmek için cihaz ayarlarından tam kitaplığınıza erişim izni verin.";
+"permission.choose_more" = "Daha Fazla Fotoğraf Seç";
+"permission.change_settings" = "Ayarları Değiştir";
+"permission.cancel" = "İptal";

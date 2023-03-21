@@ -15,9 +15,10 @@ iOS/Android image picker with support for camera, video, configurable compressio
   <img width=200 title="iOS Crop Circular" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_circular_crop.png">
 </p>
 
-## Important note
+## Important notes
 
-If you are using react-native >= 0.60 use react-native-image-crop-picker version >= 0.25.0. Otherwise use version < 0.25.0.
+1. If you are using react-native >= 0.60 use react-native-image-crop-picker version >= 0.25.0. Otherwise use version < 0.25.0.
+2. If you want to use react-native-image-crop-picker version >= 0.39.0 you have to set your android compileSdkVersion to 33 or greather. Otherwise use react-native-image-crop-picker version < 0.39.0
 
 ## Usage
 
@@ -127,7 +128,7 @@ ImagePicker.clean().then(() => {
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
 | cropperToolbarWidgetColor (android only)      |        string (default `darker orange`)        | When cropping image, determines the color of Toolbar text and buttons. |
-| freeStyleCropEnabled (android only)      |        bool (default false)        | Enables user to apply custom rectangle area for cropping |
+| freeStyleCropEnabled      |        bool (default false)        | Enables user to apply custom rectangle area for cropping |
 | cropperToolbarTitle                     |        string (default `Edit Photo`)     | When cropping image, determines the title of Toolbar. |
 | cropperCircleOverlay                    |           bool (default false)           | Enable or disable circular cropping mask. |
 | disableCropperColorSetters (android only)|           bool (default false)           | When cropping image, disables the color setters for cropping library. |
@@ -151,6 +152,8 @@ ImagePicker.clean().then(() => {
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| cropperRotateButtonsHidden (ios only)   |           bool (default false)           | Enable or disable cropper rotate buttons |
+
 
 #### Smart Album Types (ios)
 
