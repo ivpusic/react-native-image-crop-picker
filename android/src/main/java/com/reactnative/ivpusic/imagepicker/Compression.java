@@ -38,7 +38,7 @@ class Compression {
             int quality, final ReadableMap options
     ) throws IOException {
         Pair<Integer, Integer> targetDimensions =
-                this.calculateTargetDimensions(originalWidth, originalHeight, maxWidth, maxHeight);
+                this.calculateTargetDimensions(context, originalImagePath, originalWidth, originalHeight, maxWidth, maxHeight, quality, options);
         String picturesPath = options.hasKey("directory") ? options.getString("directory") : "" ;
         if (!"".equals(picturesPath) && !picturesPath.startsWith("/")){
             picturesPath += "/";
@@ -50,9 +50,9 @@ class Compression {
         if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
             bitmap = BitmapFactory.decodeFile(originalImagePath);
         } else {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = calculateInSampleSize(originalWidth, originalHeight, targetWidth, targetHeight);
-            bitmap = BitmapFactory.decodeFile(originalImagePath, options);
+            BitmapFactory.Options options2 = new BitmapFactory.Options();
+            options2.inSampleSize = calculateInSampleSize(originalWidth, originalHeight, targetWidth, targetHeight);
+            bitmap = BitmapFactory.decodeFile(originalImagePath, options2);
         }
 
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
@@ -143,7 +143,7 @@ class Compression {
         return resize(context, originalImagePath, bitmapOptions.outWidth, bitmapOptions.outHeight, maxWidth, maxHeight, targetQuality, options);
     }
 
-    private Pair<Integer, Integer> calculateTargetDimensions(int currentWidth, int currentHeight, int maxWidth, int maxHeight) {
+    private Pair<Integer, Integer> calculateTargetDimensions(int currentWidth, int currentHeight, int maxWidth, int maxHeight, int targetQuality, final ReadableMap options) {
         int width = currentWidth;
         int height = currentHeight;
 
@@ -159,8 +159,7 @@ class Compression {
             height = maxHeight;
         }
 
-
-        return resize(context, originalImagePath, maxWidth, maxHeight, maxWidth, maxHeight, targetQuality, options);
+        return resize(context, originalImagePath, currentWidth, currentHeight, maxWidth, maxHeight, targetQuality, options);
         //return Pair.create(width, height);
     }
 

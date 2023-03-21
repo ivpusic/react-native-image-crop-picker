@@ -445,6 +445,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
+
+    public static final int TIRAMISU = 33;
+
     @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
         setConfiguration(options);
@@ -462,7 +465,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ? Manifest.permission.WRITE_EXTERNAL_STORAGE : Manifest.permission.READ_MEDIA_IMAGES), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Build.VERSION.SDK_INT < TIRAMISU ? Manifest.permission.WRITE_EXTERNAL_STORAGE : Manifest.permission.READ_MEDIA_IMAGES), new Callable<Void>() {
             @Override
             public Void call() {
                 initiatePicker(activity);
