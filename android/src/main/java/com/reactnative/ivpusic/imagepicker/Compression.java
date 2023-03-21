@@ -162,8 +162,8 @@ class Compression {
             height = maxHeight;
         }
 
-        return resize(context, originalImagePath, currentWidth, currentHeight, maxWidth, maxHeight, targetQuality, options);
-        //return Pair.create(width, height);
+       //return resize(context, originalImagePath, currentWidth, currentHeight, maxWidth, maxHeight, targetQuality, options);
+       return Pair.create(width, height);
     }
 
     synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
