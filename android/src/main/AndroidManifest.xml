@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.reactnative.ivpusic.imagepicker">
 
     <queries>
@@ -15,9 +16,11 @@
             android:name=".IvpusicImagePickerFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
+            tools:replace="android:authorities"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
+                tools:replace="android:resource"
                 android:resource="@xml/ivpusic_imagepicker_provider_paths" />
         </provider>
 
