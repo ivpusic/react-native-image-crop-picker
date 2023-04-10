@@ -3,7 +3,6 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,7 +15,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.core.app.ActivityCompat;
@@ -40,19 +38,15 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-
-
 
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
@@ -69,12 +63,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_NO_IMAGE_DATA_FOUND = "E_NO_IMAGE_DATA_FOUND";
     private static final String E_CAMERA_IS_NOT_AVAILABLE = "E_CAMERA_IS_NOT_AVAILABLE";
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
+    private static final String E_PERMISSIONS_MISSING = "E_PERMISSION_MISSING";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
-
-    private static final String E_NO_LIBRARY_PERMISSION_KEY = "E_NO_LIBRARY_PERMISSION";
-    private static final String E_NO_LIBRARY_PERMISSION_MSG = "User did not grant library permission.";
-    private static final String E_NO_CAMERA_PERMISSION_KEY = "E_NO_CAMERA_PERMISSION";
-    private static final String E_NO_CAMERA_PERMISSION_MSG = "User did not grant camera permission.";
 
     private String mediaType = "any";
     private boolean multiple = false;
@@ -231,14 +221,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void permissionsCheck(final Activity activity, final Promise promise, final List<String> requiredPermissions, final Callable<Void> callback) {
 
         List<String> missingPermissions = new ArrayList<>();
-        List<String> supportedPermissions = new ArrayList<>(requiredPermissions);
 
-        // android 11 introduced scoped storage, and WRITE_EXTERNAL_STORAGE no longer works there
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            supportedPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-
-        for (String permission : supportedPermissions) {
+        for (String permission : requiredPermissions) {
             int status = ActivityCompat.checkSelfPermission(activity, permission);
             if (status != PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission);
@@ -253,19 +237,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
                     if (requestCode == 1) {
 
-                        for (int permissionIndex = 0; permissionIndex < permissions.length; permissionIndex++) {
-                            String permission = permissions[permissionIndex];
-                            int grantResult = grantResults[permissionIndex];
-
+                        for (int grantResult : grantResults) {
                             if (grantResult == PackageManager.PERMISSION_DENIED) {
-                                if (permission.equals(Manifest.permission.CAMERA)) {
-                                    promise.reject(E_NO_CAMERA_PERMISSION_KEY, E_NO_CAMERA_PERMISSION_MSG);
-                                } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, E_NO_LIBRARY_PERMISSION_MSG);
-                                } else {
-                                    // should not happen, we fallback on E_NO_LIBRARY_PERMISSION_KEY rejection for minimal consistency
-                                    promise.reject(E_NO_LIBRARY_PERMISSION_KEY, "Required permission missing");
-                                }
+                                promise.reject(E_PERMISSIONS_MISSING, "Required permission missing");
                                 return true;
                             }
                         }
@@ -368,10 +342,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             if (cropping || mediaType.equals("photo")) {
                 galleryIntent.setType("image/*");
-                if (cropping) {
-                    String[] mimetypes = {"image/jpeg", "image/png"};
-                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                }
             } else if (mediaType.equals("video")) {
                 galleryIntent.setType("video/*");
             } else {
@@ -403,7 +373,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ? Manifest.permission.WRITE_EXTERNAL_STORAGE : Manifest.permission.READ_MEDIA_IMAGES), new Callable<Void>() {
+        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
             public Void call() {
                 initiatePicker(activity);
@@ -508,6 +478,22 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.notifySuccess(getImage(activity, path));
     }
 
+  private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera , int priority) throws Exception {
+    String path = resolveRealPath(activity, uri, isCamera);
+    if (path == null || path.isEmpty()) {
+      resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
+      return;
+    }
+
+    String mime = getMimeType(path);
+    if (mime != null && mime.startsWith("video/")) {
+      getVideo(activity, path, mime ,priority);
+      return;
+    }
+
+    resultCollector.notifySuccessBySortingPriority(getImage(activity, path , priority));
+  }
+
     private Bitmap validateVideo(String path) throws Exception {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(path);
@@ -521,16 +507,54 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private static Long getVideoDuration(String path) {
-        try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(path);
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(path);
 
-            return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-        }
-        catch(Exception e) {
-            return -1L;
-        }
+        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
     }
+
+  private void getVideo(final Activity activity, final String path, final String mime, int priority) throws Exception {
+    validateVideo(path);
+    final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
+
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
+          @Override
+          public void invoke(Object... args) {
+            String videoPath = (String) args[0];
+
+            try {
+              Bitmap bmp = validateVideo(videoPath);
+              long modificationDate = new File(videoPath).lastModified();
+              long duration = getVideoDuration(videoPath);
+
+              WritableMap video = new WritableNativeMap();
+              video.putInt("width", bmp.getWidth());
+              video.putInt("height", bmp.getHeight());
+              video.putString("mime", mime);
+              video.putInt("size", (int) new File(videoPath).length());
+              video.putInt("duration", (int) duration);
+              video.putString("path", "file://" + videoPath);
+              video.putString("modificationDate", String.valueOf(modificationDate));
+              video.putInt("PRIORITY", priority);
+
+              resultCollector.notifySuccessBySortingPriority(video);
+            } catch (Exception e) {
+              resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
+            }
+          }
+        }, new Callback() {
+          @Override
+          public void invoke(Object... args) {
+            WritableNativeMap ex = (WritableNativeMap) args[0];
+            resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
+          }
+        }));
+      }
+    }).run();
+  }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
         validateVideo(path);
@@ -557,6 +581,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putInt("duration", (int) duration);
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
+                            video.putInt("PRIORITY", 0);
 
                             resultCollector.notifySuccess(video);
                         } catch (Exception e) {
@@ -671,6 +696,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return options;
     }
 
+    private WritableMap getImage(final Activity activity, String path , int priority) throws Exception {
+      WritableMap result  =  getImage(activity, path);
+      result.putInt("PRIORITY" , priority );
+      return  result;
+    }
+
     private WritableMap getImage(final Activity activity, String path) throws Exception {
         WritableMap image = new WritableNativeMap();
 
@@ -780,7 +811,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     } else {
                         resultCollector.setWaitCount(clipData.getItemCount());
                         for (int i = 0; i < clipData.getItemCount(); i++) {
-                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
+                          getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false, i);
                         }
                     }
                 } catch (Exception ex) {
@@ -846,7 +877,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, width, height, 100);
+                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, 100);
                         resultUri = Uri.fromFile(resized);
                     }
 
