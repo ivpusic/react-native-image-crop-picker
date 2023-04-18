@@ -1,0 +1,27 @@
+/* 
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Marijn Hosten on 2023/04/18.
+*/
+
+"albums.title" = "Fotos";
+
+"assets.footer.photo" = "%ld Foto";
+"assets.footer.photos" = "%ld Fotos";
+"assets.footer.video" = "%ld Video";
+"assets.footer.videos" = "%ld Videos";
+"assets.footer.photo-and-video" = "%ld Foto, %ld Video";
+"assets.footer.photos-and-video" = "%ld Fotos, %ld Video";
+"assets.footer.photo-and-videos" = "%ld Foto, %ld Videos";
+"assets.footer.photos-and-videos" = "%ld Fotos, %ld Videos";
+
+"assets.toolbar.item-selected" = "%ld Item Geselecteerd";
+"assets.toolbar.items-selected" = "%ld Items Geselecteerd";
+
+"permission.help" = "U heeft toestemming gegeven om een gelimiteerd aantal fotos en videos te gebruiken.";
+"permission.manage" = "BEHEER";
+"permission.title" = "Om toegang te hebben tot alle fotos moet u toestemming geven in de instellingen van uw toestel.";
+"permission.choose_more" = "Kies Meer Fotos";
+"permission.change_settings" = "Wijzig Instellingen";
+"permission.cancel" = "Annuleer";
