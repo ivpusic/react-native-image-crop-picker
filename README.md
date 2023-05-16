@@ -151,7 +151,9 @@ ImagePicker.clean().then(() => {
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperChooseColor (ios only)           |           string (default `#FFCC00`)        | HEX format color for the Choose button. [Default color is controlled by TOCropViewController](https://github.com/TimOliver/TOCropViewController/blob/a942414508012b13102f776eb65dac655f31cabb/Objective-C/TOCropViewController/Views/TOCropToolbar.m#L444). |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| cropperCancelColor (ios only)           |           string (default tint `iOS` color )        | HEX format color for the Cancel button. Default value is the default tint iOS color [controlled by TOCropViewController](https://github.com/TimOliver/TOCropViewController/blob/a942414508012b13102f776eb65dac655f31cabb/Objective-C/TOCropViewController/Views/TOCropToolbar.m#L433) |
 | cropperRotateButtonsHidden (ios only)   |           bool (default false)           | Enable or disable cropper rotate buttons |
 
 
