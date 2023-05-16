@@ -1,6 +1,6 @@
 {
   "name": "react-native-image-crop-picker",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "description": "Select single or multiple images, with cropping option",
   "main": "index.js",
   "scripts": {
