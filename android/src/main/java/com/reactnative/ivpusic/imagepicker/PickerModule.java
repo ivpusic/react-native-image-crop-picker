@@ -729,7 +729,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void startCropping(final Activity activity, final Uri uri) {
         UCrop.Options options = new UCrop.Options();
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setFreeStyleCropEnabled(freeStyleCropEnabled);
@@ -754,15 +753,28 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             configureCropperColors(options);
         }
 
-        UCrop uCrop = UCrop
-                .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withOptions(options);
+        try {
+            String originalImagePath = resolveRealPath(activity, uri, false);
+            String extension = originalImagePath.substring(originalImagePath.lastIndexOf("."));
 
-        if (width > 0 && height > 0) {
-            uCrop.withAspectRatio(width, height);
+            if (extension.equals(".png")) {
+                options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+            } else {
+                options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+            }
+
+            UCrop uCrop = UCrop
+                    .of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + extension)))
+                    .withOptions(options);
+
+            if (width > 0 && height > 0) {
+                uCrop.withAspectRatio(width, height);
+            }
+
+            uCrop.start(activity);
+        } catch (Exception e) {
+            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e.getMessage());
         }
-
-        uCrop.start(activity);
     }
 
     private void imagePickerResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
