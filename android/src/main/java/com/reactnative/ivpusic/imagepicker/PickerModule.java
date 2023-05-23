@@ -53,7 +53,6 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 
-
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
     private static final int IMAGE_PICKER_REQUEST = 61110;
@@ -526,8 +525,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             retriever.setDataSource(path);
 
             return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             return -1L;
         }
     }
