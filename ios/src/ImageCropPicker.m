@@ -57,7 +57,7 @@ RCT_EXPORT_MODULE();
             @"includeExif": @NO,
             @"compressVideo": @YES,
             @"minFiles": @1,
-            @"maxFiles": @5,
+            @"maxFiles": @6,
             @"width": @200,
             @"waitAnimationEnd": @YES,
             @"height": @200,
