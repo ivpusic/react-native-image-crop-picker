@@ -55,7 +55,12 @@ class Compression {
         ExifInterface originalExif = new ExifInterface(originalImagePath);
         String originalOrientation = originalExif.getAttribute(ExifInterface.TAG_ORIENTATION);
 
-        bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+        if (originalOrientation.equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_90))
+            || originalOrientation.equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_270))) {
+          bitmap = Bitmap.createScaledBitmap(bitmap, targetHeight, targetWidth, true);
+        } else {
+          bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+        }
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
