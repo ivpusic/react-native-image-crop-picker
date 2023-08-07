@@ -1,0 +1,28 @@
+/* 
+  QBImagePicker.strings
+  QBImagePicker
+
+  Created by Anton Cojocaru on 2021/05/28.
+  Copyright (c) 2021 Anton Cojocaru. All rights reserved.
+*/
+
+"albums.title" = "Poze";
+
+"assets.footer.photo" = "%ld Poză";
+"assets.footer.photos" = "%ld Poze";
+"assets.footer.video" = "%ld Clip";
+"assets.footer.videos" = "%ld Clipuri";
+"assets.footer.photo-and-video" = "%ld Poză, %ld Clip";
+"assets.footer.photos-and-video" = "%ld Poze, %ld Clip";
+"assets.footer.photo-and-videos" = "%ld Poză, %ld Clipuri";
+"assets.footer.photos-and-videos" = "%ld Poze, %ld Clipuri";
+
+"assets.toolbar.item-selected" = "%ld Element Selectat";
+"assets.toolbar.items-selected" = "%ld Elemente Selectate";
+
+"permission.help" = "Ați acordat permisiunea unui număr limitat de fotografii și videoclipuri selectate.";
+"permission.manage" = "GESTIONARE";
+"permission.title" = "Pentru a vă accesa toate fotografiile din aplicație, acordați acces la biblioteca completă în setările dispozitivului.";
+"permission.choose_more" = "Selectați mai multe fotografii";
+"permission.change_settings" = "Schimbați setările";
+"permission.cancel" = "Anulați";

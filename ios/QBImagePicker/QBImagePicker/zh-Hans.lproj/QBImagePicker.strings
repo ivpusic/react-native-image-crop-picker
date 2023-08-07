@@ -19,3 +19,10 @@
 
 "assets.toolbar.item-selected" = "选择了%ld项";
 "assets.toolbar.items-selected" = "选择了%ld项";
+
+"permission.help" = "您已授予有限数量的选定照片和视频的权限。";
+"permission.manage" = "管理";
+"permission.title" = "要访问您在应用程序中的所有照片，请在设备设置中授予访问您的完整图库的权限。";
+"permission.choose_more" = "选择更多照片";
+"permission.change_settings" = "更改设置";
+"permission.cancel" = "取消";
