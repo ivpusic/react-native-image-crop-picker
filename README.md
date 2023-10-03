@@ -208,7 +208,7 @@ pod install
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
   
-#### (Optional) Step 2 - To localizate the camera / gallery / cropper text buttons
+#### (Optional) Step 2 - To localize the camera / gallery / cropper text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
