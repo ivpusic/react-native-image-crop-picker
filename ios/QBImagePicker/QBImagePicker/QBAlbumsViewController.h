@@ -13,5 +13,5 @@
 @interface QBAlbumsViewController : UITableViewController
 
 @property (nonatomic, weak) QBImagePickerController *imagePickerController;
-
+@property (nonatomic, assign) BOOL directOpenAlbum;
 @end

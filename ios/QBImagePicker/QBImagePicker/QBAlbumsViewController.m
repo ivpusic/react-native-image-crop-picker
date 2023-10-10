@@ -69,6 +69,10 @@ static bool isDarkMode() {
     
     // Register observer
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    // Support Direct openAlbum
+    if(self.directOpenAlbum){
+        [self directPushViewAlbumController];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -96,6 +100,19 @@ static bool isDarkMode() {
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
+#pragma mark - Navigation
+-(void)directPushViewAlbumController {
+    NSBundle *assetBundle = [NSBundle bundleForClass:[QBImagePickerController class]];
+    NSString *bundlePath = [assetBundle pathForResource:@"QBImagePicker" ofType:@"bundle"];
+    if (bundlePath) {
+        assetBundle = [NSBundle bundleWithPath:bundlePath];
+    }
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"QBImagePicker" bundle: assetBundle];
+    QBAssetsViewController *assetsViewController = [storyboard instantiateViewControllerWithIdentifier:@"QBAssetsViewController"];
+    assetsViewController.imagePickerController = self.imagePickerController;
+    assetsViewController.assetCollection = self.assetCollections[0];
+    [self.navigationController pushViewController:assetsViewController animated:NO];
+}
 
 #pragma mark - Storyboard
 
