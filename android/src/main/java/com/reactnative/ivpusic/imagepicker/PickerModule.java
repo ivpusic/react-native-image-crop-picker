@@ -620,15 +620,18 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         try {
             // Very simple code to copy a picture from the application's
             // resource into the external file.  Note that this code does
-            // no error checking, and assumes the picture is small (does not
-            // try to copy it in chunks).  Note that if external storage is
+            // no error checking.  Note that if external storage is
             // not currently mounted this will silently fail.
-            OutputStream outputStream = new FileOutputStream(file);
-            byte[] data = new byte[inputStream.available()];
-            inputStream.read(data);
-            outputStream.write(data);
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len;
+            while ((len = inputStream.read(buffer, 0 , bufferSize)) != -1) {
+                fileOutputStream.write(buffer, 0, len);
+                fileOutputStream.flush();
+            }
             inputStream.close();
-            outputStream.close();
+            fileOutputStream.close();
         } catch (IOException e) {
             // Unable to create file, likely because external storage is
             // not currently mounted.
@@ -873,13 +876,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == IMAGE_PICKER_REQUEST) {
-            imagePickerResult(activity, requestCode, resultCode, data);
-        } else if (requestCode == CAMERA_PICKER_REQUEST) {
-            cameraPickerResult(activity, requestCode, resultCode, data);
-        } else if (requestCode == UCrop.REQUEST_CROP) {
-            croppingResult(activity, requestCode, resultCode, data);
-        }
+        Runnable backgroundRunnable = () -> {
+            if (requestCode == IMAGE_PICKER_REQUEST) {
+                imagePickerResult(activity, requestCode, resultCode, data);
+            } else if (requestCode == CAMERA_PICKER_REQUEST) {
+                cameraPickerResult(activity, requestCode, resultCode, data);
+            } else if (requestCode == UCrop.REQUEST_CROP) {
+                croppingResult(activity, requestCode, resultCode, data);
+            }
+        };
+
+        new Thread(backgroundRunnable).start();
     }
 
     @Override
