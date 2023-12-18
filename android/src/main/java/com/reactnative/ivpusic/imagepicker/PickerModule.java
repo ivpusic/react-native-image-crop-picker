@@ -618,15 +618,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         try {
-            // Very simple code to copy a picture from the application's
-            // resource into the external file.  Note that this code does
-            // no error checking, and assumes the picture is small (does not
-            // try to copy it in chunks).  Note that if external storage is
-            // not currently mounted this will silently fail.
-            OutputStream outputStream = new FileOutputStream(file);
-            byte[] data = new byte[inputStream.available()];
-            inputStream.read(data);
-            outputStream.write(data);
+            FileOutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
             inputStream.close();
             outputStream.close();
         } catch (IOException e) {
