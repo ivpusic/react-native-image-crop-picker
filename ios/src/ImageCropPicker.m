@@ -846,7 +846,14 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-    filePath = [filePath stringByAppendingString:@".jpg"];
+    NSString *mimeType = [self determineMimeTypeFromImageData:data];
+    if ([mimeType isEqualToString:@"image/jpeg"]) {
+        filePath = [filePath stringByAppendingString:@".jpg"];
+    } else if ([mimeType isEqualToString:@"image/gif"]) {
+        filePath = [filePath stringByAppendingString:@".gif"];
+    } else {
+        filePath = [filePath stringByAppendingString:@".jpg"];
+    }
 
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
