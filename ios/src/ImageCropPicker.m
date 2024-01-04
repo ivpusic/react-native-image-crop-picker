@@ -516,7 +516,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         case 0x4D:
             return @"image/tiff";
         case 0x00:
-            return @"image/heic";
+			// force Heic mime type to be jpeg too
+            return @"image/jpeg";
     }
     return @"";
 }
