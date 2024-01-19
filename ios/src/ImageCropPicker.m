@@ -596,7 +596,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     Boolean isKnownMimeType = [mimeType length] > 0;
 
                                     ImageResult *imageResult = [[ImageResult alloc] init];
-                                    if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg) {
+                                    // force the Heic's mime type to be jpeg too
+                                    if (isLossless && useOriginalWidth && useOriginalHeight && isKnownMimeType && !forceJpg && ![mimeType  isEqualToString:@"image/heic"]) {
                                         // Use original, unmodified image
                                         imageResult.data = imageData;
                                         imageResult.width = @(imgT.size.width);
@@ -846,7 +847,12 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-    filePath = [filePath stringByAppendingString:@".jpg"];
+    NSString *mimeType = [self determineMimeTypeFromImageData:data];
+    if ([mimeType isEqualToString:@"image/gif"]) {
+        filePath = [filePath stringByAppendingString:@".gif"];
+    } else {
+        filePath = [filePath stringByAppendingString:@".jpg"];
+    }
 
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];
