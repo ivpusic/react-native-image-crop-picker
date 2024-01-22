@@ -169,9 +169,9 @@ NOTE: Some of these types may not be available on all iOS versions. Be sure to c
 | Property                  |  Type  | Description                              |
 | ------------------------- | :----: | :--------------------------------------- |
 | path                      | string | Selected image location. This is null when the `writeTempFile` option is set to false. |
-| localIdentifier(ios only) | string | Selected images' localidentifier, used for PHAsset searching |
-| sourceURL(ios only)       | string | Selected images' source path, do not have write access |
-| filename(ios only)        | string | Selected images' filename                |
+| sourceURL(ios and android single selection mode) | string | Selected image's source path, do not have write access |
+| localIdentifier(ios only) | string | Selected image's localidentifier, used for PHAsset searching |
+| filename(ios only)        | string | Selected image's filename                |
 | width                     | number | Selected image width                     |
 | height                    | number | Selected image height                    |
 | mime                      | string | Selected image MIME type (image/jpeg, image/png) |
