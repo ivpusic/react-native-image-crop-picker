@@ -472,6 +472,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     QBAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"AssetCell" forIndexPath:indexPath];
     cell.tag = indexPath.item;
     cell.showsOverlayViewWhenSelected = self.imagePickerController.allowsMultipleSelection;
+    cell.isAccessibilityElement = true;
 
     // Image
     PHAsset *asset = self.fetchResult[indexPath.item];
