@@ -65,7 +65,8 @@
 }
 
 - (ImageResult*) compressImage:(UIImage*)image
-                   withOptions:(NSDictionary*)options {
+                   withOptions:(NSDictionary*)options
+                  withMetadata:(NSDictionary*)metadata {
     
     ImageResult *result = [[ImageResult alloc] init];
     result.width = @(image.size.width);
@@ -97,7 +98,23 @@
     }
     
     // convert image to jpeg representation
-    result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
+    result.data = [NSMutableData data];
+    NSMutableDictionary *mutableMetadata = [metadata mutableCopy];
+    // compress image
+    [mutableMetadata setObject:@([compressQuality floatValue]) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+    // reset orientation
+    [mutableMetadata setObject:@((long)1) forKey:@"Orientation"];
+    // reset dimensions
+    NSMutableDictionary *mutableExif = [[mutableMetadata objectForKey:@"{Exif}"] mutableCopy];
+    [mutableExif setObject:@([result.width longValue]) forKey:@"PixelXDimension"];
+    [mutableExif setObject:@([result.height longValue]) forKey:@"PixelYDimension"];
+    [mutableMetadata setObject:mutableExif forKey:@"{Exif}"];
+
+    CFStringRef uniformTypeIdentifier = (__bridge CFStringRef)@"public.jpeg";
+
+    CGImageDestinationRef dataDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)result.data, uniformTypeIdentifier, 1, NULL);
+    CGImageDestinationAddImage(dataDestination, result.image.CGImage, (__bridge CFDictionaryRef)mutableMetadata);
+    CGImageDestinationFinalize(dataDestination);
     
     return result;
 }
