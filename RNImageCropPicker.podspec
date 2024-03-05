@@ -23,4 +23,6 @@ Pod::Spec.new do |s|
     qb.requires_arc     = true
     qb.frameworks       = "Photos", "PhotosUI"
   end
+
+  install_modules_dependencies(s)
 end
