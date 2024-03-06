@@ -339,7 +339,6 @@ class ImageCropPicker implements ActivityEventListener {
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
                 return;
             }
-            Log.d("RESULT", "startActivityForResult");
             activity.startActivityForResult(cameraIntent, CAMERA_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);

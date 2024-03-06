@@ -2,8 +2,11 @@ package com.reactnative.ivpusic.imagepicker;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.module.annotations.ReactModule;
 
+@ReactModule(name = ImageCropPicker.NAME)
 public class PickerModule extends NativeImageCropPickerSpec {
     private final ImageCropPicker picker;
 
