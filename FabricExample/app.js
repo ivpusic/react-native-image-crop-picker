@@ -38,7 +38,6 @@ export default class App extends Component {
   }
 
   pickSingleWithCamera(cropping, mediaType = 'photo') {
-    console.log('pickSingleWithCamera');
     ImagePicker.openCamera({
       cropping: cropping,
       width: 500,

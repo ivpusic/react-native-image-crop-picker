@@ -20,7 +20,7 @@
 }
 
 - (BOOL)bridgelessEnabled {
-  return false;
+  return true;
 }
 
 - (NSURL *)bundleURL
