@@ -33,6 +33,7 @@
 		347ACA051E4B2B2F0068D500 /* libRCTImage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCTImage.a; path = "../../../../Library/Developer/Xcode/DerivedData/example-grvsvunjwoajzcfynrlckgmefufr/Build/Products/Debug-iphonesimulator/libRCTImage.a"; sourceTree = "<group>"; };
 		34963A931D6B919800F9CA2F /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
 		34963A941D6B919800F9CA2F /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
+		FD9732E02698930B004EBD13 /* WindowProviderProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WindowProviderProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +99,7 @@
 				3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */,
 				34963A931D6B919800F9CA2F /* UIImage+Resize.h */,
 				34963A941D6B919800F9CA2F /* UIImage+Resize.m */,
+				FD9732E02698930B004EBD13 /* WindowProviderProtocol.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
