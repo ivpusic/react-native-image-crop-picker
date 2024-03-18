@@ -180,7 +180,7 @@ NOTE: Some of these types may not be available on all iOS versions. Be sure to c
 | data                      | base64 | Optional base64 selected file representation |
 | exif                      | object | Extracted exif data from image. Response format is platform specific |
 | cropRect                  | object | Cropped image rectangle (width, height, x, y)    |
-| creationDate (ios only)   | string | UNIX timestamp when image was created    |
+| creationDate              | string | UNIX timestamp when image was created    |
 | modificationDate          | string | UNIX timestamp when image was last modified |
 
 # Install

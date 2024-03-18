@@ -684,7 +684,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         File compressedImage = compression.compressImage(this.reactContext, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
-        long modificationDate = new File(path).lastModified();
+        File file = new File(path);
+        long modificationDate = file.lastModified();
+        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        long createdAt = attr.creationTime().toMillis();
 
         image.putString("path", "file://" + compressedImagePath);
         image.putInt("width", options.outWidth);
@@ -692,6 +695,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         image.putString("mime", options.outMimeType);
         image.putInt("size", (int) new File(compressedImagePath).length());
         image.putString("modificationDate", String.valueOf(modificationDate));
+        image.putString("creationDate", String.valueOf(createdAt));
 
         if (includeBase64) {
             image.putString("data", getBase64StringFromFile(compressedImagePath));
