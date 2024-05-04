@@ -33,6 +33,7 @@
 		347ACA051E4B2B2F0068D500 /* libRCTImage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCTImage.a; path = "../../../../Library/Developer/Xcode/DerivedData/example-grvsvunjwoajzcfynrlckgmefufr/Build/Products/Debug-iphonesimulator/libRCTImage.a"; sourceTree = "<group>"; };
 		34963A931D6B919800F9CA2F /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
 		34963A941D6B919800F9CA2F /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
+		F2E728362BCE586000953E6E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +51,7 @@
 		3400A7FF1CEB54A6008A0BC7 = {
 			isa = PBXGroup;
 			children = (
+				F2E728362BCE586000953E6E /* PrivacyInfo.xcprivacy */,
 				34ECC8E3204DEEA90053BBC0 /* src */,
 				34434E251D6F5E5600BF5063 /* Libraries */,
 				3400A8091CEB54A6008A0BC7 /* Products */,
