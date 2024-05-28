@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "image_crop_picker",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+    ],
+  }
+}
