@@ -31,7 +31,6 @@
 #elif __has_include("QBImagePickerController.h") // local QBImagePickerController subspec
 #import "QBImagePickerController.h"
 #else
-#import
 #import "QBImagePicker/QBImagePicker.h"
 #endif
 
