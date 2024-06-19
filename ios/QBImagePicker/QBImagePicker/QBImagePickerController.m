@@ -74,4 +74,10 @@
     self.albumsNavigationController = navigationController;
 }
 
+-(void)setDirectOpenAlbum:(BOOL)directOpenAlbum{
+    QBAlbumsViewController *albumsViewController = (QBAlbumsViewController *)self.albumsNavigationController.topViewController;
+    albumsViewController.directOpenAlbum = directOpenAlbum;
+   
+}
+
 @end
