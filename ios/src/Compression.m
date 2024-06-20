@@ -41,16 +41,11 @@
     CGFloat oldWidth = image.size.width;
     CGFloat oldHeight = image.size.height;
     
-    int newWidth = 0;
-    int newHeight = 0;
-    
-    if (maxWidth < maxHeight) {
-        newWidth = maxWidth;
-        newHeight = (oldHeight / oldWidth) * newWidth;
-    } else {
-        newHeight = maxHeight;
-        newWidth = (oldWidth / oldHeight) * newHeight;
-    }
+    CGFloat scaleFactor = ((maxWidth / oldWidth) < (maxHeight / oldHeight)) ? (maxWidth / oldWidth) : (maxHeight / oldHeight);
+
+    int newWidth = oldWidth * scaleFactor;
+    int newHeight = oldHeight * scaleFactor;
+                                  
     CGSize newSize = CGSizeMake(newWidth, newHeight);
     
     UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:newSize];
