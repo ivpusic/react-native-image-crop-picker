@@ -125,7 +125,35 @@ RCT_EXPORT_MODULE();
 }
 
 - (UIViewController*) getRootVC {
-    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    UIViewController *root = nil;
+    if (@available(iOS 13.0, *)) {
+        for (id scene in [UIApplication sharedApplication].connectedScenes) {
+            if (![scene isKindOfClass:[UIWindowScene class]]) {
+                continue;
+            }
+            UIWindowScene *windowScene = (UIWindowScene *)scene;
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                if (@available(iOS 15.0, *)) {
+                    root = windowScene.keyWindow.rootViewController;
+                } else {
+                    for (UIWindow *window in windowScene.windows) {
+                        if ([window isKeyWindow]) {
+                            root = [window rootViewController];
+                            break;
+                        }
+                    }
+                }
+                if (root != nil) {
+                    break;
+                }
+            }
+        }
+    }
+
+    if (root == nil) {
+        root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    }
+
     while (root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
