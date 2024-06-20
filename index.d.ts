@@ -169,6 +169,13 @@ declare module "react-native-image-crop-picker" {
         includeExif?: boolean;
 
         /**
+         * Copy image exif data to the output image.
+         *
+         * @default false
+         */
+        copyExif?: boolean;
+
+        /**
          * Whether to convert photos to JPG. This will also convert any Live Photo into its JPG representation.
          *
          * @default false
