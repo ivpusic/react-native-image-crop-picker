@@ -473,6 +473,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     cell.tag = indexPath.item;
     cell.showsOverlayViewWhenSelected = self.imagePickerController.allowsMultipleSelection;
     cell.isAccessibilityElement = true;
+    cell.accessibilityTraits = UIAccessibilityTraitImage | UIAccessibilityTraitButton;
 
     // Image
     PHAsset *asset = self.fetchResult[indexPath.item];
