@@ -417,15 +417,31 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                     if ([insertedIndexes count]) {
                         [self.collectionView insertItemsAtIndexPaths:[insertedIndexes qb_indexPathsFromIndexesWithSection:0]];
                     }
-
-                    NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
-                    if ([changedIndexes count]) {
-                        [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
-                    }
                 } completion:NULL];
+
+                NSIndexSet *changedIndexes = [collectionChanges changedIndexes];
+                if ([changedIndexes count]) {
+                    [self.collectionView reloadItemsAtIndexPaths:[changedIndexes qb_indexPathsFromIndexesWithSection:0]];
+                }
             }
 
             [self resetCachedAssets];
+
+            // Update the selection to remove any assets that have been removed from the collection
+            NSMutableSet *removedAssets = [NSMutableSet new];
+            for (PHAsset *asset in self.imagePickerController.selectedAssets) {
+                if(![self.fetchResult containsObject:asset]) {
+                    [removedAssets addObject:asset];
+                }
+            }
+            [self removeAssetsFromSelection:removedAssets];
+
+            // Update the footer to show the current photo/video counts
+            NSArray<UICollectionReusableView *> *footers =
+                [self.collectionView visibleSupplementaryViewsOfKind:UICollectionElementKindSectionFooter];
+            if (footers.count) {
+                [self updateFooterView:footers[0]];
+            }
         }
     });
 }
@@ -456,6 +472,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     QBAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"AssetCell" forIndexPath:indexPath];
     cell.tag = indexPath.item;
     cell.showsOverlayViewWhenSelected = self.imagePickerController.allowsMultipleSelection;
+    cell.isAccessibilityElement = true;
 
     // Image
     PHAsset *asset = self.fetchResult[indexPath.item];
@@ -507,57 +524,60 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         UICollectionReusableView *footerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter
                                                                                   withReuseIdentifier:@"FooterView"
                                                                                          forIndexPath:indexPath];
-
-        // Number of assets
-        UILabel *label = (UILabel *)[footerView viewWithTag:1];
-
-        NSBundle *bundle = self.imagePickerController.assetBundle;
-        NSUInteger numberOfPhotos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeImage];
-        NSUInteger numberOfVideos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeVideo];
-
-        switch (self.imagePickerController.mediaType) {
-            case QBImagePickerMediaTypeAny:
-            {
-                NSString *format;
-                if (numberOfPhotos == 1) {
-                    if (numberOfVideos == 1) {
-                        format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-video", @"QBImagePicker", bundle, nil);
-                    } else {
-                        format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-videos", @"QBImagePicker", bundle, nil);
-                    }
-                } else if (numberOfVideos == 1) {
-                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-video", @"QBImagePicker", bundle, nil);
-                } else {
-                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-videos", @"QBImagePicker", bundle, nil);
-                }
-
-                label.text = [NSString stringWithFormat:format, numberOfPhotos, numberOfVideos];
-            }
-                break;
-
-            case QBImagePickerMediaTypeImage:
-            {
-                NSString *key = (numberOfPhotos == 1) ? @"assets.footer.photo" : @"assets.footer.photos";
-                NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
-
-                label.text = [NSString stringWithFormat:format, numberOfPhotos];
-            }
-                break;
-
-            case QBImagePickerMediaTypeVideo:
-            {
-                NSString *key = (numberOfVideos == 1) ? @"assets.footer.video" : @"assets.footer.videos";
-                NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
-
-                label.text = [NSString stringWithFormat:format, numberOfVideos];
-            }
-                break;
-        }
+        [self updateFooterView:footerView];
 
         return footerView;
     }
 
     return nil;
+}
+
+- (void)updateFooterView:(UICollectionReusableView *)footerView {
+    // Number of assets
+    UILabel *label = (UILabel *)[footerView viewWithTag:1];
+
+    NSBundle *bundle = self.imagePickerController.assetBundle;
+    NSUInteger numberOfPhotos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeImage];
+    NSUInteger numberOfVideos = [self.fetchResult countOfAssetsWithMediaType:PHAssetMediaTypeVideo];
+
+    switch (self.imagePickerController.mediaType) {
+        case QBImagePickerMediaTypeAny:
+        {
+            NSString *format;
+            if (numberOfPhotos == 1) {
+                if (numberOfVideos == 1) {
+                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-video", @"QBImagePicker", bundle, nil);
+                } else {
+                    format = NSLocalizedStringFromTableInBundle(@"assets.footer.photo-and-videos", @"QBImagePicker", bundle, nil);
+                }
+            } else if (numberOfVideos == 1) {
+                format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-video", @"QBImagePicker", bundle, nil);
+            } else {
+                format = NSLocalizedStringFromTableInBundle(@"assets.footer.photos-and-videos", @"QBImagePicker", bundle, nil);
+            }
+
+            label.text = [NSString stringWithFormat:format, numberOfPhotos, numberOfVideos];
+        }
+            break;
+
+        case QBImagePickerMediaTypeImage:
+        {
+            NSString *key = (numberOfPhotos == 1) ? @"assets.footer.photo" : @"assets.footer.photos";
+            NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
+
+            label.text = [NSString stringWithFormat:format, numberOfPhotos];
+        }
+            break;
+
+        case QBImagePickerMediaTypeVideo:
+        {
+            NSString *key = (numberOfVideos == 1) ? @"assets.footer.video" : @"assets.footer.videos";
+            NSString *format = NSLocalizedStringFromTableInBundle(key, @"QBImagePicker", bundle, nil);
+
+            label.text = [NSString stringWithFormat:format, numberOfVideos];
+        }
+            break;
+    }
 }
 
 
@@ -650,6 +670,32 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
     if ([imagePickerController.delegate respondsToSelector:@selector(qb_imagePickerController:didDeselectAsset:)]) {
         [imagePickerController.delegate qb_imagePickerController:imagePickerController didDeselectAsset:asset];
+    }
+}
+
+- (void)removeAssetsFromSelection:(NSSet *)assets
+{
+    if (assets.count == 0) {
+        return;
+    }
+
+    QBImagePickerController *imagePickerController = self.imagePickerController;
+    NSMutableOrderedSet *selectedAssets = imagePickerController.selectedAssets;
+
+    // Remove assets from set
+    [selectedAssets minusSet:assets];
+
+    self.lastSelectedItemIndexPath = nil;
+
+    [self updateDoneButtonState];
+
+    if (self.imagePickerController.showsNumberOfSelectedAssets) {
+        [self updateSelectionInfo];
+
+        if (selectedAssets.count == 0) {
+            // Hide toolbar
+            [self.navigationController setToolbarHidden:YES animated:YES];
+        }
     }
 }
 
