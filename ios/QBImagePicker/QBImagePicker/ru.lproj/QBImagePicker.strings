@@ -19,3 +19,10 @@
 
 "assets.toolbar.item-selected" = "%ld Элемент выбран";
 "assets.toolbar.items-selected" = "%ld Элементы выбраны";
+
+"permission.help" = "Вы дали разрешение на ограниченное количество выбранных фотографий и видео.";
+"permission.manage" = "УПРАВЛЕНИЕ";
+"permission.title" = "Чтобы получить доступ ко всем своим фотографиям в приложении, предоставьте доступ к полной библиотеке в настройках устройства.";
+"permission.choose_more" = "Выбрать больше фотографий";
+"permission.change_settings" = "Изменить настройки";
+"permission.cancel" = "Отменить";
