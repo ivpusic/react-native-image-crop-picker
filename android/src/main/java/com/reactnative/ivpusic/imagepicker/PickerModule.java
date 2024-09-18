@@ -13,8 +13,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 import android.content.ContentResolver;
@@ -282,7 +282,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        final List<String> requiredPermission = new ArrayList<>();
+        requiredPermission.add(Manifest.permission.CAMERA);
+        if (Build.VERSION.SDK_INT <= 29) {
+            requiredPermission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        permissionsCheck(activity, promise, requiredPermission, new Callable<Void>() {
             @Override
             public Void call() {
                 initiateCamera(activity);
@@ -364,7 +370,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         setConfiguration(options);
         resultCollector.setup(promise, multiple);
 
-        permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
+        final List<String> requiredPermission = new ArrayList<>();
+        if (Build.VERSION.SDK_INT <= 29) {
+            requiredPermission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        permissionsCheck(activity, promise, requiredPermission, new Callable<Void>() {
             @Override
             public Void call() {
                 initiatePicker(activity);
