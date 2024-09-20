@@ -18,9 +18,10 @@ android {
         abortOnError false
     }
 }
-
 dependencies {
     implementation 'com.facebook.react:react-native:+'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.github.yalantis:ucrop:2.2.6-native'
+    implementation 'androidx.activity:activity:1.9.2'
+    implementation "androidx.core:core:1.13.1"
 }
