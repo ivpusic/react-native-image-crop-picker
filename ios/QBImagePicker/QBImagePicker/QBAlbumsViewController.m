@@ -281,6 +281,7 @@ static bool isDarkMode() {
 -(void)managePermissionAction:(id)sender
 {
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:NSLocalizedStringFromTableInBundle(@"permission.title", @"QBImagePicker", self.imagePickerController.assetBundle, nil) message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    actionSheet.popoverPresentationController.sourceView = sender;
 
     [actionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTableInBundle(@"permission.cancel", @"QBImagePicker", self.imagePickerController.assetBundle, nil) style:UIAlertActionStyleCancel handler:nil]];
 

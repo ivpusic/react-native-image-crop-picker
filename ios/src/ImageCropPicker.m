@@ -927,6 +927,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     };
 }
 
+// Assumes input like "#00FF00" (#RRGGBB).
++ (UIColor *)colorFromHexString:(NSString *)hexString {
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:1]; // bypass '#' character
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
+}
+
 #pragma mark - TOCCropViewController Implementation
 - (void)cropImage:(UIImage *)image {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -948,12 +957,25 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         
         cropVC.title = [[self options] objectForKey:@"cropperToolbarTitle"];
         cropVC.delegate = self;
+
+        NSString* rawDoneButtonColor = [self.options objectForKey:@"cropperChooseColor"];
+        NSString* rawCancelButtonColor = [self.options objectForKey:@"cropperCancelColor"];
+
+        if (rawDoneButtonColor) {
+            cropVC.doneButtonColor = [ImageCropPicker colorFromHexString: rawDoneButtonColor];
+        }
+        if (rawCancelButtonColor) {
+            cropVC.cancelButtonColor = [ImageCropPicker colorFromHexString: rawCancelButtonColor];
+        }
         
         cropVC.doneButtonTitle = [self.options objectForKey:@"cropperChooseText"];
         cropVC.cancelButtonTitle = [self.options objectForKey:@"cropperCancelText"];
         cropVC.rotateButtonsHidden = [[self.options objectForKey:@"cropperRotateButtonsHidden"] boolValue];
         
         cropVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        if (@available(iOS 15.0, *)) {
+            cropVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        }
         
         [[self getRootVC] presentViewController:cropVC animated:FALSE completion:nil];
     });

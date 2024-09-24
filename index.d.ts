@@ -264,11 +264,27 @@ declare module "react-native-image-crop-picker" {
         cropperCancelText?: string;
 
         /**
+         * Cancel button color. HEX-like string color.
+         *
+         * @example '#ff00ee'
+         * @platform iOS only
+         */
+        cropperCancelColor?: string;
+
+        /**
          * Choose button text.
          *
          * @default 'Choose'
          */
         cropperChooseText?: string;
+
+        /**
+         * Choose button color. HEX-like string color.
+         *
+         * @example '#EE00DD'
+         * @platform iOS only
+         */
+        cropperChooseColor?: string;
 
          /**
          * Enable or disable cropper rotate buttons.
@@ -388,7 +404,7 @@ declare module "react-native-image-crop-picker" {
         /**
          * Extracted exif data from image. Response format is platform specific.
          */
-        exif?: null | object;
+        exif?: any;
 
         /**
          * Selected image's localidentifier, used for PHAsset searching.

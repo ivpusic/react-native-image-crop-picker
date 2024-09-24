@@ -15,9 +15,10 @@ iOS/Android image picker with support for camera, video, configurable compressio
   <img width=200 title="iOS Crop Circular" src="https://github.com/ivpusic/react-native-image-crop-picker/blob/master/images/ios_circular_crop.png">
 </p>
 
-## Important note
+## Important notes
 
-If you are using react-native >= 0.60 use react-native-image-crop-picker version >= 0.25.0. Otherwise use version < 0.25.0.
+1. If you are using react-native >= 0.60 use react-native-image-crop-picker version >= 0.25.0. Otherwise use version < 0.25.0.
+2. If you want to use react-native-image-crop-picker version >= 0.39.0 you have to set your android compileSdkVersion to 33 or greater. Otherwise use react-native-image-crop-picker version < 0.39.0
 
 ## Usage
 
@@ -63,7 +64,7 @@ ImagePicker.openPicker({
 **Android: The prop 'cropping' has been known to cause videos not to be displayed in the gallery on Android. Please do not set cropping to true when selecting videos.**
 
 
-### Select from camera 
+### Select from camera
 
 #### Image
 
@@ -150,7 +151,9 @@ ImagePicker.clean().then(() => {
 | hideBottomControls (android only)       |           bool (default false)           | Whether to display bottom controls       |
 | enableRotationGesture (android only)    |           bool (default false)           | Whether to enable rotating the image by hand gesture |
 | cropperChooseText (ios only)            |           string (default choose)        | Choose button text |
+| cropperChooseColor (ios only)           |           string (default `#FFCC00`)        | HEX format color for the Choose button. [Default color is controlled by TOCropViewController](https://github.com/TimOliver/TOCropViewController/blob/a942414508012b13102f776eb65dac655f31cabb/Objective-C/TOCropViewController/Views/TOCropToolbar.m#L444). |
 | cropperCancelText (ios only)            |           string (default Cancel)        | Cancel button text |
+| cropperCancelColor (ios only)           |           string (default tint `iOS` color )        | HEX format color for the Cancel button. Default value is the default tint iOS color [controlled by TOCropViewController](https://github.com/TimOliver/TOCropViewController/blob/a942414508012b13102f776eb65dac655f31cabb/Objective-C/TOCropViewController/Views/TOCropToolbar.m#L433) |
 | cropperRotateButtonsHidden (ios only)   |           bool (default false)           | Enable or disable cropper rotate buttons |
 
 
@@ -205,19 +208,29 @@ pod install
 
 In Xcode open Info.plist and add string key `NSPhotoLibraryUsageDescription` with value that describes why you need access to user photos. More info here https://forums.developer.apple.com/thread/62229. Depending on what features you use, you also may need `NSCameraUsageDescription` and `NSMicrophoneUsageDescription` keys.
   
-#### (Optional) Step 2 - To localizate the camera / gallery / cropper text buttons
+#### (Optional) Step 2 - To localize the camera / gallery / cropper text buttons
 
 - Open your Xcode project
 - Go to your project settings by opening the project name on the Navigation (left side)
-- Select your project in the project list 
+- Select your project in the project list
 - Should be into the Info tab and add in Localizations the language your app was missing throughout the +
 - Rebuild and you should now have your app camera and gallery with the classic ios text in the language you added.
 
 ### Android
 
-- **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section. (android/build.gradle)
+- **VERY IMPORTANT** Add the following to your `build.gradle`'s repositories section and change Android SDK version to 33. (android/build.gradle)
 
 ```gradle
+buildscript {
+    ext {
+        buildToolsVersion = "31.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        ...
+    }
+}
+
 allprojects {
     repositories {
       mavenLocal()
@@ -248,23 +261,6 @@ android {
 }
 ```
 
-- Use Android SDK >= 26 (android/app/build.gradle)
-
-```gradle
-android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
-    ...
-    
-    defaultConfig {
-      ...
-      targetSdkVersion 27
-      ...
-    }
-    ...
-}
-```
-
 - Minimum Gradle version if you are using react-native-image-crop-picker >= 0.35.0
 
 ```
@@ -276,6 +272,9 @@ android {
 ```
 
 Reference for more details https://github.com/ivpusic/react-native-image-crop-picker/issues/1406
+
+- If you use SDK version >= 33, add following to `app/src/main/AndroidManifest.xml`
+  - `<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>`
 
 - [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
