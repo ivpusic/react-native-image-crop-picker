@@ -238,6 +238,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             supportedPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+            supportedPermissions.add(Manifest.permission.READ_MEDIA_IMAGES);
+        }
+
         for (String permission : supportedPermissions) {
             int status = ActivityCompat.checkSelfPermission(activity, permission);
             if (status != PackageManager.PERMISSION_GRANTED) {
