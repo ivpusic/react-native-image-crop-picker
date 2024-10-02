@@ -796,7 +796,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else {
                 Uri uri = data.getData();
 
+                // if the result comes in clipData format (which apparently it does in some cases)
                 if (uri == null) {
+                    ClipData clipData = data.getClipData();
+                    if (clipData != null && clipData.getItemCount() > 0) {
+                        ClipData.Item item = clipData.getItemAt(0);
+                        uri = item.getUri();
+                    }
+                }
+
+                // error out if uri is still null
+                if(uri == null) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve image url");
                     return;
                 }
