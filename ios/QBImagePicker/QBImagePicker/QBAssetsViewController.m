@@ -229,6 +229,28 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 #pragma mark - Fetching Assets
 
+- (NSPredicate *)predicateForVideo {
+    NSNumber *minimumDuration = self.imagePickerController.minimumVideoDuration;
+    NSNumber *maximumDuration = self.imagePickerController.maximumVideoDuration;
+
+    NSMutableArray<NSString *> *predicateParts = [NSMutableArray arrayWithObject:@"mediaType == %ld"];
+    NSMutableArray *arguments = [NSMutableArray arrayWithObject:@(PHAssetMediaTypeVideo)];
+
+    if (minimumDuration != nil) {
+        [predicateParts addObject:@"duration >= %f"];
+        [arguments addObject:minimumDuration];
+    }
+
+    if (maximumDuration != nil) {
+        [predicateParts addObject:@"duration <= %f"];
+        [arguments addObject:maximumDuration];
+    }
+
+    // Combine the predicate parts with AND
+    NSString *predicateFormat = [predicateParts componentsJoinedByString:@" AND "];
+    return [NSPredicate predicateWithFormat:predicateFormat argumentArray:arguments];
+}
+
 - (void)updateFetchRequest
 {
     if (self.assetCollection) {
@@ -240,7 +262,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                 break;
 
             case QBImagePickerMediaTypeVideo:
-                options.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
+                options.predicate = [self predicateForVideo];
                 break;
 
             default:

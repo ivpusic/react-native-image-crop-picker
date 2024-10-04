@@ -14,6 +14,8 @@ Pod::Spec.new do |s|
   s.dependency 'React-Core'
   s.dependency 'React-RCTImage'
   s.dependency 'TOCropViewController', '~> 2.7.4'
+  s.dependency 'react-native-flip-video-tools'
+  
   s.resource_bundles = {
     'RNImageCropPickerPrivacyInfo' => ['ios/PrivacyInfo.xcprivacy'],
   }
