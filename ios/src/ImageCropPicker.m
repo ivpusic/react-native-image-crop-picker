@@ -191,11 +191,9 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 - (void)cameraChanged:(NSNotification *)notification
 {
     if (_picker == nil || _picker.sourceType != UIImagePickerControllerSourceTypeCamera) { return; }
-    if(_picker.cameraDevice == UIImagePickerControllerCameraDeviceFront) {
-        _picker.cameraViewTransform = CGAffineTransformIdentity;
+    _picker.cameraViewTransform = CGAffineTransformIdentity;
+    if (_picker.cameraDevice == UIImagePickerControllerCameraDeviceFront) {
         _picker.cameraViewTransform = CGAffineTransformScale(_picker.cameraViewTransform, -1, 1);
-    } else {
-        _picker.cameraViewTransform = CGAffineTransformIdentity;
     }
 }
 
