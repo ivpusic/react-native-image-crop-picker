@@ -36,6 +36,8 @@
 #define ERROR_CANNOT_PROCESS_VIDEO_KEY @"E_CANNOT_PROCESS_VIDEO"
 #define ERROR_CANNOT_PROCESS_VIDEO_MSG @"Cannot process video data"
 
+@import react_native_flip_video_tools;
+
 @implementation ImageResult
 @end
 
@@ -72,11 +74,17 @@ RCT_EXPORT_MODULE();
             @"sortOrder": @"none",
             @"cropperCancelText": @"Cancel",
             @"cropperChooseText": @"Choose",
-            @"cropperRotateButtonsHidden": @NO
+            @"cropperRotateButtonsHidden": @NO,
+            @"minimumDuration": @5
         };
         self.compression = [[Compression alloc] init];
     }
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(cameraChanged:)
+                                                 name:@"AVCaptureDeviceDidStartRunningNotification"
+                                               object:nil];
+
     return self;
 }
 
@@ -153,6 +161,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         dispatch_async(dispatch_get_main_queue(), ^{
             
             UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+            _picker = picker;
             picker.delegate = self;
             picker.allowsEditing = NO;
             picker.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -170,12 +179,22 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             
             if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
                 picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, -1, 1);
             }
             
             [[self getRootVC] presentViewController:picker animated:YES completion:nil];
         });
     }];
 #endif
+}
+
+- (void)cameraChanged:(NSNotification *)notification
+{
+    if (_picker == nil || _picker.sourceType != UIImagePickerControllerSourceTypeCamera) { return; }
+    _picker.cameraViewTransform = CGAffineTransformIdentity;
+    if (_picker.cameraDevice == UIImagePickerControllerCameraDeviceFront) {
+        _picker.cameraViewTransform = CGAffineTransformScale(_picker.cameraViewTransform, -1, 1);
+    }
 }
 
 - (void)viewDidLoad {
@@ -300,6 +319,8 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
             imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
             imagePickerController.sortOrder = [self.options objectForKey:@"sortOrder"];
+            imagePickerController.minimumVideoDuration = [self.options objectForKey:@"minimumDuration"];
+            imagePickerController.maximumVideoDuration = [self.options objectForKey:@"maximumDuration"];
             
             NSArray *smartAlbums = [self.options objectForKey:@"smartAlbums"];
             if (smartAlbums != nil) {
@@ -418,16 +439,21 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 }
 
 - (void) handleVideo:(AVAsset*)asset withFileName:(NSString*)fileName withLocalIdentifier:(NSString*)localIdentifier completion:(void (^)(NSDictionary* image))completion {
-    NSURL *sourceURL = [(AVURLAsset *)asset URL];
-    
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
     filePath = [filePath stringByAppendingString:@".mp4"];
     NSURL *outputURL = [NSURL fileURLWithPath:filePath];
-    
-    [self.compression compressVideo:sourceURL outputURL:outputURL withOptions:self.options handler:^(AVAssetExportSession *exportSession) {
-        if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+    NSURL *sourceURL = [self sourceURLFromAsset:asset];
+    AVComposition *composition = [self compositionFromAsset:asset];
+    if (sourceURL == nil && composition == nil) {
+        completion(nil);
+        return;
+    }
+
+    VideoTools *videoTools = [VideoTools new];
+    [videoTools encodeVideoWithAsset:asset outputURL:outputURL handler:^(BOOL success) {
+        if (success) {
             AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
             AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
             
@@ -461,10 +487,24 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     }];
 }
 
+- (NSURL *)sourceURLFromAsset:(AVAsset *)asset {
+    if ([asset isKindOfClass:[AVURLAsset class]]) {
+        return [(AVURLAsset *)asset URL];
+    }
+    return nil;
+}
+
+- (AVComposition *)compositionFromAsset:(AVAsset *)asset {
+    if ([asset isKindOfClass:[AVComposition class]]) {
+        return (AVComposition *)asset;
+    }
+    return nil;
+}
+
 - (void) getVideoAsset:(PHAsset*)forAsset completion:(void (^)(NSDictionary* image))completion {
     PHImageManager *manager = [PHImageManager defaultManager];
     PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-    options.version = PHVideoRequestOptionsVersionOriginal;
+    options.version = PHVideoRequestOptionsVersionCurrent;
     options.networkAccessAllowed = YES;
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeHighQualityFormat;
     
