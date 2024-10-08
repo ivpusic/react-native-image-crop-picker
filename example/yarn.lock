@@ -5853,7 +5853,7 @@ react-is@^17.0.1:
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
 react-native-image-crop-picker@../:
-  version "0.41.2"
+  version "0.41.3"
 
 react-native-svg-transformer@1.2.0:
   version "1.2.0"
