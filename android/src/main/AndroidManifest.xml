@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.reactnative.ivpusic.imagepicker">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
         <intent>
@@ -7,7 +6,8 @@
         </intent>
     </queries>
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application>
 
