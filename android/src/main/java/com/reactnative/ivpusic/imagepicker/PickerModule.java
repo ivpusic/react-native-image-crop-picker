@@ -3,8 +3,8 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -40,8 +40,8 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-
 
 
 class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
@@ -234,7 +233,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         List<String> supportedPermissions = new ArrayList<>(requiredPermissions);
 
         // android 11 introduced scoped storage, and WRITE_EXTERNAL_STORAGE no longer works there
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             supportedPermissions.remove(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
@@ -492,7 +491,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return getImage(activity, path);
     }
 
-    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
+    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera, int index) throws Exception {
         String path = resolveRealPath(activity, uri, isCamera);
         if (path == null || path.isEmpty()) {
             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve asset path.");
@@ -501,11 +500,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         String mime = getMimeType(path);
         if (mime != null && mime.startsWith("video/")) {
-            getVideo(activity, path, mime);
+            getVideo(activity, path, mime, index);
             return;
         }
 
-        resultCollector.notifySuccess(getImage(activity, path));
+        resultCollector.notifySuccess(getImage(activity, path), index);
+    }
+
+    private void getAsyncSelection(final Activity activity, Uri uri, boolean isCamera) throws Exception {
+        this.getAsyncSelection(activity, uri, isCamera, 0);
     }
 
     private Bitmap validateVideo(String path) throws Exception {
@@ -532,7 +535,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
-    private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
+    private void getVideo(final Activity activity, final String path, final String mime, int index) throws Exception {
         validateVideo(path);
         final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
 
@@ -558,7 +561,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putString("path", "file://" + videoPath);
                             video.putString("modificationDate", String.valueOf(modificationDate));
 
-                            resultCollector.notifySuccess(video);
+                            resultCollector.notifySuccess(video, index);
                         } catch (Exception e) {
                             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
                         }
@@ -572,6 +575,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 }));
             }
         }).run();
+    }
+
+    private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
+        this.getVideo(activity, path, mime, 0);
     }
 
     private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
@@ -780,7 +787,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     } else {
                         resultCollector.setWaitCount(clipData.getItemCount());
                         for (int i = 0; i < clipData.getItemCount(); i++) {
-                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false);
+                            getAsyncSelection(activity, clipData.getItemAt(i).getUri(), false, i);
                         }
                     }
                 } catch (Exception ex) {

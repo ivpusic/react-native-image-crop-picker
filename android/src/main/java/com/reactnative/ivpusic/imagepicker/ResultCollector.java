@@ -7,6 +7,9 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,6 +24,8 @@ class ResultCollector {
     private WritableArray arrayResult;
     private boolean resultSent;
 
+    private List<WritableMap> tempList;
+
     synchronized void setup(Promise promise, boolean multiple) {
         this.promise = promise;
         this.multiple = multiple;
@@ -31,6 +36,7 @@ class ResultCollector {
 
         if (multiple) {
             this.arrayResult = new WritableNativeArray();
+            this.tempList = new ArrayList<>();
         }
     }
 
@@ -55,16 +61,19 @@ class ResultCollector {
         return true;
     }
 
-    synchronized void notifySuccess(WritableMap result) {
+    synchronized void notifySuccess(WritableMap result, int index) {
         if (!isRequestValid()) {
             return;
         }
 
         if (multiple) {
-            arrayResult.pushMap(result);
+            tempList.add(index, result);
             int currentCount = waitCounter.addAndGet(1);
 
             if (currentCount == waitCount) {
+                for(WritableMap item : tempList) {
+                    arrayResult.pushMap(item);
+                }
                 promise.resolve(arrayResult);
                 resultSent = true;
             }
@@ -72,6 +81,10 @@ class ResultCollector {
             promise.resolve(result);
             resultSent = true;
         }
+    }
+
+    synchronized void notifySuccess(WritableMap result) {
+        notifySuccess(result,0);
     }
 
     synchronized void notifyProblem(String code, String message) {
