@@ -3,8 +3,8 @@ package com.reactnative.ivpusic.imagepicker;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,6 +18,8 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -40,8 +42,8 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -364,28 +366,32 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
-            final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            PickVisualMediaRequest.Builder builder = new PickVisualMediaRequest.Builder();
+            PickVisualMediaRequest request = new PickVisualMediaRequest();
 
             if (cropping || mediaType.equals("photo")) {
-                galleryIntent.setType("image/*");
+                request = builder.setMediaType(new ActivityResultContracts.PickVisualMedia.SingleMimeType("image/*")).build();
+            }
+            else{
                 if (cropping) {
-                    String[] mimetypes = {"image/jpeg", "image/png"};
-                    galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                    request = builder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build();
                 }
-            } else if (mediaType.equals("video")) {
-                galleryIntent.setType("video/*");
+             else if (mediaType.equals("video")) {
+                request = builder.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE).build();
             } else {
-                galleryIntent.setType("*/*");
-                String[] mimetypes = {"image/*", "video/*"};
-                galleryIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                    request = builder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE).build();
+                }
             }
 
-            galleryIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            Intent intent;
 
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Pick an image");
-            activity.startActivityForResult(chooserIntent, IMAGE_PICKER_REQUEST);
+            if (multiple) {
+                intent = new ActivityResultContracts.PickMultipleVisualMedia().createIntent(activity, request);
+            } else {
+                intent = new ActivityResultContracts.PickVisualMedia().createIntent(activity, request);
+            }
+
+            activity.startActivityForResult(intent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
         }
@@ -790,7 +796,17 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             } else {
                 Uri uri = data.getData();
 
+                // if the result comes in clipData format (which apparently it does in some cases)
                 if (uri == null) {
+                    ClipData clipData = data.getClipData();
+                    if (clipData != null && clipData.getItemCount() > 0) {
+                        ClipData.Item item = clipData.getItemAt(0);
+                        uri = item.getUri();
+                    }
+                }
+
+                // error out if uri is still null
+                if(uri == null) {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot resolve image url");
                     return;
                 }
