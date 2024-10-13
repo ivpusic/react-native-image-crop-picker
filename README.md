@@ -276,9 +276,6 @@ Reference for more details https://github.com/ivpusic/react-native-image-crop-pi
 - If you use SDK version >= 33, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>`
 
-- [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
-  - `<uses-permission android:name="android.permission.CAMERA"/>`
-
 - [Optional] If you want to use front camera, also add following to `app/src/main/
 AndroidManifest.xml`
   - `<uses-feature android:name="android.hardware.camera" android:required="false" />`
