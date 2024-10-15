@@ -9,6 +9,16 @@ import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.OptIn;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.ExportException;
+import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.Transformer;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 
@@ -153,9 +163,36 @@ class Compression {
         return Pair.create(width, height);
     }
 
-    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
-        // todo: video compression
+    @OptIn(markerClass = UnstableApi.class)
+    synchronized void compressVideo(
+            final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
         // failed attempt 1: ffmpeg => slow and licensing issues
-        promise.resolve(originalVideo);
+        // promise.resolve(originalVideo);
+
+        Transformer.Listener transformerListener =
+                new Transformer.Listener() {
+                    @Override
+                    public void onCompleted(Composition composition, ExportResult result) {
+                        promise.resolve(compressedVideo);
+                    }
+
+                    @Override
+                    public void onError(Composition composition, ExportResult result,
+                                        ExportException exception) {
+                        promise.reject("unable to convert input to h264");
+                    }
+                };
+
+        MediaItem inputMediaItem = MediaItem.fromUri(originalVideo);
+        EditedMediaItem editedMediaItem =
+                new EditedMediaItem.Builder(inputMediaItem).setFrameRate(15).build();
+        Transformer transformer =
+                new Transformer.Builder(activity)
+                        .setVideoMimeType(MimeTypes.VIDEO_H264)
+                        .setAudioMimeType(MimeTypes.AUDIO_AAC)
+                        .addListener(transformerListener)
+                        .build();
+        transformer.start(editedMediaItem, compressedVideo);
+
     }
 }
