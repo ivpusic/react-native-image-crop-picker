@@ -54,8 +54,12 @@ class Compression {
         // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
         String originalOrientation = originalExif.getAttribute(ExifInterface.TAG_ORIENTATION);
-
-        bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+        if (originalOrientation.equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_90))
+            || originalOrientation.equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_270))) {
+          bitmap = Bitmap.createScaledBitmap(bitmap, targetHeight, targetWidth, true);
+        } else {
+          bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+        }
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
