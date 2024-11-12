@@ -8,7 +8,7 @@
     </queries>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
+        android:maxSdkVersion="29" />
 
     <application>
 
