@@ -50,6 +50,7 @@ RCT_EXPORT_MODULE();
     if (self = [super init]) {
         self.defaultOptions = @{
             @"multiple": @NO,
+            @"directAlbum": @NO,
             @"cropping": @NO,
             @"cropperCircleOverlay": @NO,
             @"writeTempFile": @YES,
@@ -296,6 +297,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
             [QBImagePickerController new];
             imagePickerController.delegate = self;
             imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
+            imagePickerController.directOpenAlbum = [[self.options objectForKey:@"directAlbum"] boolValue];
             imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
             imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
             imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
