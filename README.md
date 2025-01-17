@@ -273,9 +273,6 @@ android {
 
 Reference for more details https://github.com/ivpusic/react-native-image-crop-picker/issues/1406
 
-- If you use SDK version >= 33, add following to `app/src/main/AndroidManifest.xml`
-  - `<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>`
-
 - [Optional] If you want to use camera picker in your project, add following to `app/src/main/AndroidManifest.xml`
   - `<uses-permission android:name="android.permission.CAMERA"/>`
 
