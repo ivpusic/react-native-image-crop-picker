@@ -64,6 +64,7 @@ RCT_EXPORT_MODULE();
             @"waitAnimationEnd": @YES,
             @"height": @200,
             @"useFrontCamera": @NO,
+            @"isFrontMirrored": @NO,
             @"avoidEmptySpaceAroundImage": @YES,
             @"compressImageQuality": @0.8,
             @"compressVideoPreset": @"MediumQuality",
@@ -83,6 +84,11 @@ RCT_EXPORT_MODULE();
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(cameraChanged:)
                                                  name:@"AVCaptureDeviceDidStartRunningNotification"
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(changePhotoOrientation:)
+                                                 name:@"_UIImagePickerControllerUserDidCaptureItem"
                                                object:nil];
 
     return self;
@@ -179,7 +185,9 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
             
             if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
                 picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
-                picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, -1, 1);
+                if (![[self.options objectForKey:@"isFrontMirrored"] boolValue]) {
+                    picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, -1, 1);
+                }
             }
             
             [[self getRootVC] presentViewController:picker animated:YES completion:nil];
@@ -193,7 +201,24 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
     if (_picker == nil || _picker.sourceType != UIImagePickerControllerSourceTypeCamera) { return; }
     _picker.cameraViewTransform = CGAffineTransformIdentity;
     if (_picker.cameraDevice == UIImagePickerControllerCameraDeviceFront) {
-        _picker.cameraViewTransform = CGAffineTransformScale(_picker.cameraViewTransform, -1, 1);
+        if (![[self.options objectForKey:@"isFrontMirrored"] boolValue]) {
+            _picker.cameraViewTransform = CGAffineTransformScale(_picker.cameraViewTransform, -1, 1);
+        }
+    }
+}
+
+- (void)changePhotoOrientation:(NSNotification *)notification
+{
+    if (_picker.cameraDevice == UIImagePickerControllerCameraDeviceFront) {
+        NSMutableArray *subviews = [NSMutableArray arrayWithObject:_picker.view];
+        while (subviews.count != 0) {
+            UIView *subview = subviews.firstObject;
+            [subviews removeObjectAtIndex:0];
+            [subviews addObjectsFromArray:subview.subviews];
+            if ([subview isKindOfClass:UIImageView.class]) {
+                subview.transform = CGAffineTransformScale(_picker.cameraViewTransform, -1, 1);
+            }
+        }
     }
 }
 
@@ -229,6 +254,16 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
          ];
     } else {
         UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+        if (_picker.cameraDevice == UIImagePickerControllerCameraDeviceFront) {
+            if ([[self.options objectForKey:@"isFrontMirrored"] boolValue]) {
+                if (chosenImage.imageOrientation == UIImageOrientationRight) {
+                    chosenImage = [UIImage imageWithCGImage:chosenImage.CGImage scale:chosenImage.scale orientation:UIImageOrientationLeftMirrored];
+                }
+                if (chosenImage.imageOrientation == UIImageOrientationLeft) {
+                    chosenImage = [UIImage imageWithCGImage:chosenImage.CGImage scale:chosenImage.scale orientation:UIImageOrientationRightMirrored];
+                }
+            }
+        }
         
         NSDictionary *exif;
         if([[self.options objectForKey:@"includeExif"] boolValue]) {
