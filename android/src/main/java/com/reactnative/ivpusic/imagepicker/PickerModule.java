@@ -83,6 +83,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean multiple = false;
     private boolean includeBase64 = false;
     private boolean includeExif = false;
+    private boolean copyExif = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
     private boolean freeStyleCropEnabled = false;
@@ -132,6 +133,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
+        copyExif = options.hasKey("copyExif") && options.getBoolean("copyExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
         cropping = options.hasKey("cropping") && options.getBoolean("cropping");
@@ -710,17 +712,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         image.putString("modificationDate", String.valueOf(modificationDate));
         image.putString("filename", new File(path).getName());
 
-        if (includeBase64) {
-            image.putString("data", getBase64StringFromFile(compressedImagePath));
-        }
-
-        if (includeExif) {
+        if (includeExif || copyExif) {
             try {
-                WritableMap exif = ExifExtractor.extract(path);
-                image.putMap("exif", exif);
+                WritableMap exif = ExifExtractor.extract(path, compressedImagePath, copyExif);
+                if (includeExif) {
+                    image.putMap("exif", exif);
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+
+        if (includeBase64) {
+            image.putString("data", getBase64StringFromFile(compressedImagePath));
         }
 
         return image;
