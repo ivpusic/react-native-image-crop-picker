@@ -753,6 +753,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             return;
         }
         
+        unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil] fileSize];
+        
         // Wait for viewController to dismiss before resolving, or we lose the ability to display
         // Alert.alert in the .then() handler.
         [viewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
@@ -764,7 +766,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                               withWidth:imageResult.width
                                              withHeight:imageResult.height
                                                withMime:imageResult.mime
-                                               withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                               withSize:[NSNumber numberWithUnsignedInteger:fileSize]
                                            withDuration: nil
                                                withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil
                                                withRect:CGRectNull
