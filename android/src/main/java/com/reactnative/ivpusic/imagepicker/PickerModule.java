@@ -368,28 +368,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private void initiatePicker(final Activity activity) {
         try {
             PickVisualMediaRequest.Builder builder = new PickVisualMediaRequest.Builder();
-            PickVisualMediaRequest request = new PickVisualMediaRequest();
-
-            if (cropping || mediaType.equals("photo")) {
-                request = builder.setMediaType(new ActivityResultContracts.PickVisualMedia.SingleMimeType("image/*")).build();
-            }
-            else{
-                if (cropping) {
-                    request = builder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build();
-                }
-             else if (mediaType.equals("video")) {
-                request = builder.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE).build();
+            // Simplified media type handling
+            if (mediaType.equals("video")) {
+                builder.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE);
+            } else if (mediaType.equals("photo") || cropping) {
+                // Force image-only for cropping
+                builder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE);
             } else {
-                    request = builder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE).build();
-                }
+                builder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE);
             }
 
             Intent intent;
-
             if (multiple) {
-                intent = new ActivityResultContracts.PickMultipleVisualMedia().createIntent(activity, request);
+                intent = new ActivityResultContracts.PickMultipleVisualMedia().createIntent(activity, builder.build());
             } else {
-                intent = new ActivityResultContracts.PickVisualMedia().createIntent(activity, request);
+                intent = new ActivityResultContracts.PickVisualMedia().createIntent(activity, builder.build());
             }
 
             activity.startActivityForResult(intent, IMAGE_PICKER_REQUEST);
@@ -515,15 +508,16 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         resultCollector.notifySuccess(getImage(activity, path));
     }
 
-    private Bitmap validateVideo(String path) throws Exception {
+    private Bitmap validateVideo(Uri uri) throws Exception {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
+        retriever.setDataSource(getCurrentActivity(), uri);
         Bitmap bmp = retriever.getFrameAtTime();
 
         if (bmp == null) {
             throw new Exception("Cannot retrieve video data");
         }
 
+        retriever.release();
         return bmp;
     }
 
@@ -540,7 +534,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     }
 
     private void getVideo(final Activity activity, final String path, final String mime) throws Exception {
-        validateVideo(path);
+        validateVideo(Uri.parse(path));
         final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
 
         new Thread(new Runnable() {
@@ -550,10 +544,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     @Override
                     public void invoke(Object... args) {
                         String videoPath = (String) args[0];
-
                         try {
-                            Bitmap bmp = validateVideo(videoPath);
-                            long modificationDate = new File(videoPath).lastModified();
+                            Uri videoUri = Uri.fromFile(new File(videoPath));
+                            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                            retriever.setDataSource(activity, videoUri);
+                            Bitmap bmp = retriever.getFrameAtTime();
                             long duration = getVideoDuration(videoPath);
 
                             WritableMap video = new WritableNativeMap();
@@ -563,8 +558,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putInt("size", (int) new File(videoPath).length());
                             video.putInt("duration", (int) duration);
                             video.putString("path", "file://" + videoPath);
-                            video.putString("modificationDate", String.valueOf(modificationDate));
 
+                            retriever.release();
                             resultCollector.notifySuccess(video);
                         } catch (Exception e) {
                             resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
@@ -596,6 +591,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // For videos, get the real path but don't copy the file
+            String mimeType = activity.getContentResolver().getType(uri);
+            if (mimeType != null && mimeType.startsWith("video/")) {
+                return RealPathUtil.getRealPathFromURI(activity, uri);
+            }
 
             String externalCacheDirPath = Uri.fromFile(activity.getExternalCacheDir()).getPath();
             String externalFilesDirPath = Uri.fromFile(activity.getExternalFilesDir(null)).getPath();
