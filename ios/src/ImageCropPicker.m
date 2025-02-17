@@ -442,7 +442,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             
             completion([self createAttachmentResponse:[outputURL absoluteString]
                                              withExif:nil
-                                        withSourceURL:[sourceURL absoluteString]
+                                        withSourceURL:[sourceURL relativePath]
                                   withLocalIdentifier:localIdentifier
                                          withFilename:fileName
                                             withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
@@ -629,7 +629,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     
                                     [selections addObject:[self createAttachmentResponse:filePath
                                                                                 withExif: exif
-                                                                           withSourceURL:[sourceURL absoluteString]
+                                                                           withSourceURL:[sourceURL relativePath]
                                                                      withLocalIdentifier: phAsset.localIdentifier
                                                                             withFilename: [phAsset valueForKey:@"filename"]
                                                                                withWidth:imageResult.width
@@ -700,7 +700,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                             [self processSingleImagePick:[UIImage imageWithData:imageData]
                                                 withExif: exif
                                       withViewController:imagePickerController
-                                           withSourceURL:[sourceURL absoluteString]
+                                           withSourceURL:[sourceURL relativePath]
                                      withLocalIdentifier:phAsset.localIdentifier
                                             withFilename:[phAsset valueForKey:@"filename"]
                                         withCreationDate:phAsset.creationDate
