@@ -73,6 +73,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private static final String E_CAMERA_IS_NOT_AVAILABLE = "E_CAMERA_IS_NOT_AVAILABLE";
     private static final String E_CANNOT_LAUNCH_CAMERA = "E_CANNOT_LAUNCH_CAMERA";
     private static final String E_ERROR_WHILE_CLEANING_FILES = "E_ERROR_WHILE_CLEANING_FILES";
+    private static final String E_LOW_MEMORY_ERROR = "E_LOW_MEMORY_ERROR";
 
     private static final String E_NO_LIBRARY_PERMISSION_KEY = "E_NO_LIBRARY_PERMISSION";
     private static final String E_NO_LIBRARY_PERMISSION_MSG = "User did not grant library permission.";
@@ -873,7 +874,12 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             if (resultUri != null) {
                 try {
                     if (width > 0 && height > 0) {
-                        File resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, width, height, 100);
+                        File resized = null;
+                        try{
+                            resized = compression.resize(this.reactContext, resultUri.getPath(), width, height, width, height, 100);
+                        } catch (OutOfMemoryError ex) {
+                                 resultCollector.notifyProblem(E_LOW_MEMORY_ERROR, ex.getMessage());
+                        }
                         resultUri = Uri.fromFile(resized);
                     }
 
