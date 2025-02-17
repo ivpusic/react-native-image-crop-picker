@@ -521,8 +521,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     return @"";
 }
 
-- (void)qb_imagePickerController:
-(QBImagePickerController *)imagePickerController
+- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController
           didFinishPickingAssets:(NSArray *)assets {
     
     PHImageManager *manager = [PHImageManager defaultManager];
@@ -531,14 +530,19 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     options.networkAccessAllowed = YES;
     
     if ([[[self options] objectForKey:@"multiple"] boolValue]) {
-        NSMutableArray *selections = [[NSMutableArray alloc] init];
+        NSMutableArray *selections = [NSMutableArray arrayWithCapacity:assets.count];
         
+        for (int i = 0; i < assets.count; i++) {
+            [selections addObject:[NSNull null]];
+        }
+
         [self showActivityIndicator:^(UIActivityIndicatorView *indicatorView, UIView *overlayView) {
             NSLock *lock = [[NSLock alloc] init];
             __block int processed = 0;
-            
-            for (PHAsset *phAsset in assets) {
-                
+
+            for (int index = 0; index < assets.count; index++) {
+                PHAsset *phAsset = assets[index];
+
                 if (phAsset.mediaType == PHAssetMediaTypeVideo) {
                     [self getVideoAsset:phAsset completion:^(NSDictionary* video) {
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -553,7 +557,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                 return;
                             }
                             
-                            [selections addObject:video];
+                            [selections replaceObjectAtIndex:index withObject:video];
                             processed++;
                             [lock unlock];
                             
@@ -626,22 +630,22 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                     if([[self.options objectForKey:@"includeExif"] boolValue]) {
                                         exif = [[CIImage imageWithData:imageData] properties];
                                     }
-                                    
-                                    [selections addObject:[self createAttachmentResponse:filePath
-                                                                                withExif: exif
-                                                                           withSourceURL:[sourceURL absoluteString]
-                                                                     withLocalIdentifier: phAsset.localIdentifier
-                                                                            withFilename: [phAsset valueForKey:@"filename"]
-                                                                               withWidth:imageResult.width
-                                                                              withHeight:imageResult.height
-                                                                                withMime:imageResult.mime
-                                                                                withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
-                                                                            withDuration: nil
-                                                                                withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0]: nil
-                                                                                withRect:CGRectNull
-                                                                        withCreationDate:phAsset.creationDate
-                                                                    withModificationDate:phAsset.modificationDate
-                                                           ]];
+
+                                    [selections replaceObjectAtIndex:index withObject:[self createAttachmentResponse:filePath
+                                                                                                            withExif: exif
+                                                                                                       withSourceURL:[sourceURL absoluteString]
+                                                                                                 withLocalIdentifier: phAsset.localIdentifier
+                                                                                                        withFilename: [phAsset valueForKey:@"filename"]
+                                                                                                           withWidth:imageResult.width
+                                                                                                          withHeight:imageResult.height
+                                                                                                            withMime:imageResult.mime
+                                                                                                            withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
+                                                                                                        withDuration: nil
+                                                                                                            withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0]: nil
+                                                                                                            withRect:CGRectNull
+                                                                                                    withCreationDate:phAsset.creationDate
+                                                                                                withModificationDate:phAsset.modificationDate
+                                                                                      ]];
                                 }
                                 processed++;
                                 [lock unlock];
