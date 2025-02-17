@@ -546,7 +546,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     public void invoke(Object... args) {
                         String videoPath = (String) args[0];
                         try {
-                            Uri videoUri = Uri.fromFile(new File(videoPath));
+                            File file = new File(videoPath);
+                            Uri videoUri = Uri.fromFile(file);
                             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                             retriever.setDataSource(activity, videoUri);
                             Bitmap bmp = retriever.getFrameAtTime();
@@ -556,9 +557,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                             video.putInt("width", bmp.getWidth());
                             video.putInt("height", bmp.getHeight());
                             video.putString("mime", mime);
-                            video.putInt("size", (int) new File(videoPath).length());
+                            video.putInt("size", (int) file.length());
                             video.putInt("duration", (int) duration);
                             video.putString("path", "file://" + videoPath);
+                            video.putString("modificationDate", String.valueOf(file.lastModified()));
 
                             retriever.release();
                             resultCollector.notifySuccess(video);
