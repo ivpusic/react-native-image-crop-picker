@@ -55,7 +55,6 @@ RCT_EXPORT_MODULE();
             @"writeTempFile": @YES,
             @"includeBase64": @NO,
             @"includeExif": @NO,
-            @"compressVideo": @YES,
             @"minFiles": @1,
             @"maxFiles": @5,
             @"width": @200,
@@ -64,6 +63,7 @@ RCT_EXPORT_MODULE();
             @"useFrontCamera": @NO,
             @"avoidEmptySpaceAroundImage": @YES,
             @"compressImageQuality": @0.8,
+            @"compressVideo": @YES,
             @"compressVideoPreset": @"MediumQuality",
             @"loadingLabelText": @"Processing assets...",
             @"mediaType": @"any",
@@ -423,6 +423,39 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
+
+    if (![[self.options objectForKey:@"compressVideo"] boolValue]) {
+        NSString *extensionName = [sourceURL.pathExtension lowercaseString];
+        filePath = [filePath stringByAppendingPathExtension:extensionName];
+        NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+        [NSFileManager.defaultManager copyItemAtURL:sourceURL toURL:outputURL error:nil];
+        
+        AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+        NSNumber *fileSizeValue = nil;
+        [outputURL getResourceValue:&fileSizeValue
+                             forKey:NSURLFileSizeKey
+                              error:nil];
+        CMTime time = asset.duration;
+        int milliseconds = ceil(time.value/time.timescale) * 1000;
+        
+        completion([self createAttachmentResponse:[outputURL absoluteString]
+                                         withExif:nil
+                                    withSourceURL:[sourceURL absoluteString]
+                              withLocalIdentifier:localIdentifier
+                                     withFilename:fileName
+                                        withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
+                                       withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                         withMime:[@"video/" stringByAppendingString: extensionName]
+                                         withSize:fileSizeValue
+                                     withDuration:[NSNumber numberWithFloat:milliseconds]
+                                         withData:nil
+                                         withRect:CGRectNull
+                                 withCreationDate:nil
+                             withModificationDate:nil
+                    ]);
+        return;
+    }
+    
     filePath = [filePath stringByAppendingString:@".mp4"];
     NSURL *outputURL = [NSURL fileURLWithPath:filePath];
     
