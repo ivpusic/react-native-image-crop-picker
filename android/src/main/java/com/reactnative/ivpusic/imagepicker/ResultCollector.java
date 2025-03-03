@@ -55,9 +55,9 @@ class ResultCollector {
         return true;
     }
 
-    synchronized void notifySuccess(WritableMap result) {
+    synchronized boolean notifySuccess(WritableMap result) {
         if (!isRequestValid()) {
-            return;
+            return false;
         }
 
         if (multiple) {
@@ -67,11 +67,15 @@ class ResultCollector {
             if (currentCount == waitCount) {
                 promise.resolve(arrayResult);
                 resultSent = true;
+                return true;
             }
         } else {
             promise.resolve(result);
             resultSent = true;
+            return true;
         }
+
+        return false;
     }
 
     synchronized void notifyProblem(String code, String message) {
