@@ -104,6 +104,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private int width = 0;
     private int height = 0;
 
+    private int maxFiles = 5;
+
     private Uri mCameraCaptureURI;
     private String mCurrentMediaPath;
     private ResultCollector resultCollector = new ResultCollector();
@@ -135,6 +137,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
+        maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : 0;
         cropping = options.hasKey("cropping") && options.getBoolean("cropping");
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : null;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : null;
@@ -381,7 +384,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             Intent intent;
             if (multiple) {
-                intent = new ActivityResultContracts.PickMultipleVisualMedia().createIntent(activity, builder.build());
+                intent = new ActivityResultContracts.PickMultipleVisualMedia(maxFiles).createIntent(activity, builder.build());
             } else {
                 intent = new ActivityResultContracts.PickVisualMedia().createIntent(activity, builder.build());
             }
