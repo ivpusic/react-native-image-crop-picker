@@ -64,10 +64,25 @@ class Compression {
             imageDirectory.mkdirs();
         }
 
-        File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
+        String extension = originalImagePath.substring(originalImagePath.lastIndexOf(".") + 1);
+
+        final String resizeImageFileExtension;
+        final Bitmap.CompressFormat compressFormat;
+        if (extension.equals("png")) {
+            resizeImageFileExtension = ".png";
+            compressFormat = Bitmap.CompressFormat.PNG;
+        } else {
+            resizeImageFileExtension = ".jpg";
+            compressFormat = Bitmap.CompressFormat.JPEG;
+        }
+
+        File resizeImageFile = new File(
+                imageDirectory,
+                UUID.randomUUID() + resizeImageFileExtension
+        );
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        bitmap.compress(compressFormat, quality, os);
 
         // Don't set unnecessary exif attribute
         if (shouldSetOrientation(originalOrientation)) {
