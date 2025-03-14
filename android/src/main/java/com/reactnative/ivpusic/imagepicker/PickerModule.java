@@ -10,7 +10,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+
 import android.media.MediaMetadataRetriever;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -43,6 +46,8 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -84,6 +89,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean multiple = false;
     private boolean includeBase64 = false;
     private boolean includeExif = false;
+    private boolean respectExifRotation = false;
     private boolean cropping = false;
     private boolean cropperCircleOverlay = false;
     private boolean freeStyleCropEnabled = false;
@@ -135,6 +141,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         multiple = options.hasKey("multiple") && options.getBoolean("multiple");
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
+        respectExifRotation = options.hasKey("respectExifRotation") && options.getBoolean("respectExifRotation");
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
         maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : maxFiles;
@@ -690,6 +697,13 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         if (path.startsWith("http://") || path.startsWith("https://")) {
             throw new Exception("Cannot select remote files");
         }
+
+        // get rotation before compression happens and we lose it
+        int rotation = 0;
+        if(respectExifRotation) {
+            rotation = getRotation(path);
+        }
+
         BitmapFactory.Options original = validateImage(path);
         ExifInterface originalExif = new ExifInterface(path);
         int orientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
@@ -705,6 +719,15 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         // then original image will be returned
         File compressedImage = compression.compressImage(this.reactContext, options, path, original);
         String compressedImagePath = compressedImage.getPath();
+
+        if(respectExifRotation) {
+            Bitmap bitmap = rotateImage(compressedImagePath, rotation);
+            OutputStream os = new FileOutputStream(compressedImagePath);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        }
+
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
 
@@ -976,4 +999,38 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return map;
     }
+
+    private static int getRotation(String path) throws IOException {
+        int rotate = 0;
+        ExifInterface exif = new ExifInterface(path);
+        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotate = 270;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotate = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotate = 90;
+                break;
+        }
+        return rotate;
+    }
+
+    private static Bitmap rotateImage(String path, int rotate) throws IOException {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotate);
+        return Bitmap.createBitmap(
+            bitmap,
+            0,
+            0,
+            bitmap.getWidth(),
+            bitmap.getHeight(),
+            matrix,
+            true
+        );
+    }
+
 }
