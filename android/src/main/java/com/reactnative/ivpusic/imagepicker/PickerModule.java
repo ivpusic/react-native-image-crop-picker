@@ -137,7 +137,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         includeExif = options.hasKey("includeExif") && options.getBoolean("includeExif");
         width = options.hasKey("width") ? options.getInt("width") : 0;
         height = options.hasKey("height") ? options.getInt("height") : 0;
-        maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : 0;
+        maxFiles = options.hasKey("maxFiles") ? options.getInt("maxFiles") : maxFiles;
         cropping = options.hasKey("cropping") && options.getBoolean("cropping");
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : null;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : null;
