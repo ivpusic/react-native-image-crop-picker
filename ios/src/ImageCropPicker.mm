@@ -8,6 +8,9 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "ImageCropPicker.h"
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <RNCImageCropPickerSpec/RNCImageCropPickerSpec.h>
+#endif
 
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_KEY @"E_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR"
 #define ERROR_PICKER_CANNOT_RUN_CAMERA_ON_SIMULATOR_MSG @"Cannot run camera on simulator"
@@ -41,7 +44,7 @@
 
 @implementation ImageCropPicker
 
-RCT_EXPORT_MODULE();
+RCT_EXPORT_MODULE(RNCImageCropPicker);
 
 @synthesize bridge = _bridge;
 
@@ -935,5 +938,13 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         }
     }]];
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+  return std::make_shared<facebook::react::NativeImageCropPickerSpecJSI>(params);
+}
+#endif
 
 @end

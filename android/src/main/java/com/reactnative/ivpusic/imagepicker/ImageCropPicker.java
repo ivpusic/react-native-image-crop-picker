@@ -26,11 +26,9 @@ import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.facebook.react.bridge.ActivityEventListener;
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.PromiseImpl;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
@@ -56,8 +54,8 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 
-
-class PickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
+class ImageCropPicker implements ActivityEventListener {
+    static final String NAME = "RNCImageCropPicker";
 
     private static final int IMAGE_PICKER_REQUEST = 61110;
     private static final int CAMERA_PICKER_REQUEST = 61111;
@@ -112,10 +110,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private Compression compression = new Compression();
     private ReactApplicationContext reactContext;
 
-    PickerModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-        reactContext.addActivityEventListener(this);
+    ImageCropPicker(ReactApplicationContext reactContext) {
         this.reactContext = reactContext;
+        reactContext.addActivityEventListener(this);
     }
 
     private String getTmpDir(Activity activity) {
@@ -123,11 +120,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         new File(tmpDir).mkdir();
 
         return tmpDir;
-    }
-
-    @Override
-    public String getName() {
-        return "ImageCropPicker";
     }
 
     private void setConfiguration(final ReadableMap options) {
@@ -165,11 +157,10 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         fileOrDirectory.delete();
     }
 
-    @ReactMethod
     public void clean(final Promise promise) {
 
-        final Activity activity = getCurrentActivity();
-        final PickerModule module = this;
+        final Activity activity = reactContext.getCurrentActivity();
+        final ImageCropPicker module = this;
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -195,15 +186,14 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         });
     }
 
-    @ReactMethod
     public void cleanSingle(final String pathToDelete, final Promise promise) {
         if (pathToDelete == null) {
             promise.reject(E_ERROR_WHILE_CLEANING_FILES, "Cannot cleanup empty path");
             return;
         }
 
-        final Activity activity = getCurrentActivity();
-        final PickerModule module = this;
+        final Activity activity = reactContext.getCurrentActivity();
+        final ImageCropPicker module = this;
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -212,7 +202,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         permissionsCheck(activity, promise, Collections.singletonList(Manifest.permission.WRITE_EXTERNAL_STORAGE), new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call()  {
                 try {
                     String path = pathToDelete;
                     final String filePrefix = "file://";
@@ -299,9 +289,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
-    @ReactMethod
     public void openCamera(final ReadableMap options, final Promise promise) {
-        final Activity activity = getCurrentActivity();
+        final Activity activity = reactContext.getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -341,13 +330,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
             Intent cameraIntent = new Intent(intent);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                mCameraCaptureURI = Uri.fromFile(dataFile);
-            } else {
-                mCameraCaptureURI = FileProvider.getUriForFile(activity,
-                        activity.getApplicationContext().getPackageName() + ".provider",
-                        dataFile);
-            }
+            mCameraCaptureURI = FileProvider.getUriForFile(activity,
+                    activity.getApplicationContext().getPackageName() + ".provider",
+                    dataFile);
 
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraCaptureURI);
 
@@ -361,7 +346,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 resultCollector.notifyProblem(E_CANNOT_LAUNCH_CAMERA, "Cannot launch camera");
                 return;
             }
-
             activity.startActivityForResult(cameraIntent, CAMERA_PICKER_REQUEST);
         } catch (Exception e) {
             resultCollector.notifyProblem(E_FAILED_TO_OPEN_CAMERA, e);
@@ -395,9 +379,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
     }
 
-    @ReactMethod
     public void openPicker(final ReadableMap options, final Promise promise) {
-        final Activity activity = getCurrentActivity();
+        final Activity activity = reactContext.getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -416,9 +399,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         });
     }
 
-    @ReactMethod
     public void openCropper(final ReadableMap options, final Promise promise) {
-        final Activity activity = getCurrentActivity();
+        final Activity activity = reactContext.getCurrentActivity();
 
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
@@ -442,7 +424,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         InputStream inputStream;
 
         try {
-            inputStream = new FileInputStream(new File(absoluteFilePath));
+            inputStream = new FileInputStream(absoluteFilePath);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -531,8 +513,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             retriever.setDataSource(path);
 
             return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             return -1L;
         }
     }
@@ -541,59 +522,41 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         validateVideo(Uri.parse(path));
         final String compressedVideoPath = getTmpDir(activity) + "/" + UUID.randomUUID().toString() + ".mp4";
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
-                    @Override
-                    public void invoke(Object... args) {
-                        String videoPath = (String) args[0];
-                        try {
-                            File file = new File(videoPath);
-                            Uri videoUri = Uri.fromFile(file);
-                            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                            retriever.setDataSource(activity, videoUri);
-                            Bitmap bmp = retriever.getFrameAtTime();
-                            long duration = getVideoDuration(videoPath);
+        new Thread(() -> compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(args -> {
+            String videoPath = (String) args[0];
 
-                            WritableMap video = new WritableNativeMap();
-                            video.putInt("width", bmp.getWidth());
-                            video.putInt("height", bmp.getHeight());
-                            video.putString("mime", mime);
-                            video.putInt("size", (int) file.length());
-                            video.putInt("duration", (int) duration);
-                            video.putString("path", "file://" + videoPath);
-                            video.putString("modificationDate", String.valueOf(file.lastModified()));
+            try {
+                Bitmap bmp = validateVideo(videoPath);
+                long modificationDate = new File(videoPath).lastModified();
+                long duration = getVideoDuration(videoPath);
 
-                            retriever.release();
-                            resultCollector.notifySuccess(video);
-                        } catch (Exception e) {
-                            resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
-                        }
-                    }
-                }, new Callback() {
-                    @Override
-                    public void invoke(Object... args) {
-                        WritableNativeMap ex = (WritableNativeMap) args[0];
-                        resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
-                    }
-                }));
+                WritableMap video = new WritableNativeMap();
+                video.putInt("width", bmp.getWidth());
+                video.putInt("height", bmp.getHeight());
+                video.putString("mime", mime);
+                video.putInt("size", (int) new File(videoPath).length());
+                video.putInt("duration", (int) duration);
+                video.putString("path", "file://" + videoPath);
+                video.putString("modificationDate", String.valueOf(modificationDate));
+
+                resultCollector.notifySuccess(video);
+            } catch (Exception e) {
+                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, e);
             }
-        }).run();
+        }, args -> {
+            WritableNativeMap ex = (WritableNativeMap) args[0];
+            resultCollector.notifyProblem(ex.getString("code"), ex.getString("message"));
+        }))).start();
     }
 
     private String resolveRealPath(Activity activity, Uri uri, boolean isCamera) throws IOException {
         String path;
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            path = RealPathUtil.getRealPathFromURI(activity, uri);
+        if (isCamera) {
+            Uri mediaUri = Uri.parse(mCurrentMediaPath);
+            path = mediaUri.getPath();
         } else {
-            if (isCamera) {
-                Uri mediaUri = Uri.parse(mCurrentMediaPath);
-                path = mediaUri.getPath();
-            } else {
-                path = RealPathUtil.getRealPathFromURI(activity, uri);
-            }
+            path = RealPathUtil.getRealPathFromURI(activity, uri);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -891,7 +854,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                     WritableMap result = getSelection(activity, resultUri, false);
 
                     if (result != null) {
-                        result.putMap("cropRect", PickerModule.getCroppedRectMap(data));
+                        result.putMap("cropRect", ImageCropPicker.getCroppedRectMap(data));
 
                         resultCollector.setWaitCount(1);
                         resultCollector.notifySuccess(result);
@@ -911,6 +874,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     @Override
     public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
+        Log.d("RESULT", "onActivityResult");
         if (requestCode == IMAGE_PICKER_REQUEST) {
             imagePickerResult(activity, requestCode, resultCode, data);
         } else if (requestCode == CAMERA_PICKER_REQUEST) {
