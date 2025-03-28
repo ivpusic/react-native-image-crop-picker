@@ -125,7 +125,20 @@ RCT_EXPORT_MODULE();
 }
 
 - (UIViewController*) getRootVC {
-    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    UIWindow *window;
+    if (@available(iOS 13.0, *)) {
+        if ([UIApplication sharedApplication].connectedScenes.count > 0) {
+            NSArray *windows = [[[UIApplication sharedApplication].connectedScenes filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"activationState == %d", UISceneActivationStateForegroundActive]] allObjects];
+            windows = [windows filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+                return [evaluatedObject isKindOfClass:[UIWindowScene class]];
+            }]];
+            window = [((UIWindowScene *)[windows firstObject]).windows firstObject];
+        }
+    }
+    if (!window) {
+        window = [[[UIApplication sharedApplication] delegate] window];
+    }
+    UIViewController *root = [window rootViewController];
     while (root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
