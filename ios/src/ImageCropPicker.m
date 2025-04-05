@@ -72,6 +72,7 @@ RCT_EXPORT_MODULE();
             @"sortOrder": @"none",
             @"cropperCancelText": @"Cancel",
             @"cropperChooseText": @"Choose",
+            @"cropperInitialZoom": @1,
             @"cropperRotateButtonsHidden": @NO
         };
         self.compression = [[Compression alloc] init];
@@ -903,6 +904,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 
         NSString* rawDoneButtonColor = [self.options objectForKey:@"cropperChooseColor"];
         NSString* rawCancelButtonColor = [self.options objectForKey:@"cropperCancelColor"];
+
+        CGFloat zoomRatio = [[self.options objectForKey:@"cropperInitialZoom"] floatValue];
+        if (zoomRatio > 1) {
+            CGFloat cropWidth = image.size.width - image.size.width / zoomRatio;
+            CGFloat cropHeight = image.size.width - image.size.height / zoomRatio;
+            CGFloat cropX = (image.size.width - cropWidth) / 2;
+            CGFloat cropY = (image.size.height - cropHeight) / 2;
+            cropVC.imageCropFrame = CGRectMake(cropX, cropY, cropWidth, cropHeight);
+        }
 
         if (rawDoneButtonColor) {
             cropVC.doneButtonColor = [ImageCropPicker colorFromHexString: rawDoneButtonColor];
