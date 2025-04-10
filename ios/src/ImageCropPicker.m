@@ -277,6 +277,79 @@ RCT_REMAP_METHOD(clean, resolver:(RCTPromiseResolveBlock)resolve
     }
 }
 
+- (void) launchImagePicker {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // init picker
+        QBImagePickerController *imagePickerController =
+        [QBImagePickerController new];
+        imagePickerController.delegate = self;
+        imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
+        imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
+        imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
+        imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
+        imagePickerController.sortOrder = [self.options objectForKey:@"sortOrder"];
+        
+        NSArray *smartAlbums = [self.options objectForKey:@"smartAlbums"];
+        if (smartAlbums != nil) {
+            NSDictionary *albums = @{
+                //user albums
+                @"Regular" : @(PHAssetCollectionSubtypeAlbumRegular),
+                @"SyncedEvent" : @(PHAssetCollectionSubtypeAlbumSyncedEvent),
+                @"SyncedFaces" : @(PHAssetCollectionSubtypeAlbumSyncedFaces),
+                @"SyncedAlbum" : @(PHAssetCollectionSubtypeAlbumSyncedAlbum),
+                @"Imported" : @(PHAssetCollectionSubtypeAlbumImported),
+                
+                //cloud albums
+                @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                @"CloudShared" : @(PHAssetCollectionSubtypeAlbumCloudShared),
+                
+                //smart albums
+                @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
+                @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                @"Timelapses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
+                @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
+                @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
+                @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
+                @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
+                @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
+                @"DepthEffect" : @(PHAssetCollectionSubtypeSmartAlbumDepthEffect),
+                @"LivePhotos" : @(PHAssetCollectionSubtypeSmartAlbumLivePhotos),
+                @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
+                @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
+            };
+            
+            NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
+            for (NSString* smartAlbum in smartAlbums) {
+                if ([albums objectForKey:smartAlbum] != nil) {
+                    [albumsToShow addObject:[albums objectForKey:smartAlbum]];
+                }
+            }
+            imagePickerController.assetCollectionSubtypes = albumsToShow;
+        }
+        
+        if ([[self.options objectForKey:@"cropping"] boolValue]) {
+            imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+        } else {
+            NSString *mediaType = [self.options objectForKey:@"mediaType"];
+            
+            if ([mediaType isEqualToString:@"photo"]) {
+                imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+            } else if ([mediaType isEqualToString:@"video"]) {
+                imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
+            } else {
+                imagePickerController.mediaType = QBImagePickerMediaTypeAny;
+            }
+        }
+        
+        [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
+        [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
+    });
+}
+
 RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
@@ -284,83 +357,24 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
     [self setConfiguration:options resolver:resolve rejecter:reject];
     self.currentSelectionMode = PICKER;
     
-    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    if (status == PHAuthorizationStatusNotDetermined) {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status != PHAuthorizationStatusAuthorized) {
+                self.reject(ERROR_NO_LIBRARY_PERMISSION_KEY, ERROR_NO_LIBRARY_PERMISSION_MSG, nil);
+                return;
+            }
+            [self launchImagePicker];
+            
+        }];
+    } else {
         if (status != PHAuthorizationStatusAuthorized) {
             self.reject(ERROR_NO_LIBRARY_PERMISSION_KEY, ERROR_NO_LIBRARY_PERMISSION_MSG, nil);
             return;
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // init picker
-            QBImagePickerController *imagePickerController =
-            [QBImagePickerController new];
-            imagePickerController.delegate = self;
-            imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
-            imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
-            imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
-            imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
-            imagePickerController.sortOrder = [self.options objectForKey:@"sortOrder"];
-            
-            NSArray *smartAlbums = [self.options objectForKey:@"smartAlbums"];
-            if (smartAlbums != nil) {
-                NSDictionary *albums = @{
-                    //user albums
-                    @"Regular" : @(PHAssetCollectionSubtypeAlbumRegular),
-                    @"SyncedEvent" : @(PHAssetCollectionSubtypeAlbumSyncedEvent),
-                    @"SyncedFaces" : @(PHAssetCollectionSubtypeAlbumSyncedFaces),
-                    @"SyncedAlbum" : @(PHAssetCollectionSubtypeAlbumSyncedAlbum),
-                    @"Imported" : @(PHAssetCollectionSubtypeAlbumImported),
-                    
-                    //cloud albums
-                    @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
-                    @"CloudShared" : @(PHAssetCollectionSubtypeAlbumCloudShared),
-                    
-                    //smart albums
-                    @"Generic" : @(PHAssetCollectionSubtypeSmartAlbumGeneric),
-                    @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
-                    @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
-                    @"Favorites" : @(PHAssetCollectionSubtypeSmartAlbumFavorites),
-                    @"Timelapses" : @(PHAssetCollectionSubtypeSmartAlbumTimelapses),
-                    @"AllHidden" : @(PHAssetCollectionSubtypeSmartAlbumAllHidden),
-                    @"RecentlyAdded" : @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
-                    @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
-                    @"SlomoVideos" : @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos),
-                    @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
-                    @"SelfPortraits" : @(PHAssetCollectionSubtypeSmartAlbumSelfPortraits),
-                    @"Screenshots" : @(PHAssetCollectionSubtypeSmartAlbumScreenshots),
-                    @"DepthEffect" : @(PHAssetCollectionSubtypeSmartAlbumDepthEffect),
-                    @"LivePhotos" : @(PHAssetCollectionSubtypeSmartAlbumLivePhotos),
-                    @"Animated" : @(PHAssetCollectionSubtypeSmartAlbumAnimated),
-                    @"LongExposure" : @(PHAssetCollectionSubtypeSmartAlbumLongExposures),
-                };
-                
-                NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:smartAlbums.count];
-                for (NSString* smartAlbum in smartAlbums) {
-                    if ([albums objectForKey:smartAlbum] != nil) {
-                        [albumsToShow addObject:[albums objectForKey:smartAlbum]];
-                    }
-                }
-                imagePickerController.assetCollectionSubtypes = albumsToShow;
-            }
-            
-            if ([[self.options objectForKey:@"cropping"] boolValue]) {
-                imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-            } else {
-                NSString *mediaType = [self.options objectForKey:@"mediaType"];
-                
-                if ([mediaType isEqualToString:@"photo"]) {
-                    imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-                } else if ([mediaType isEqualToString:@"video"]) {
-                    imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
-                } else {
-                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
-                }
-            }
-            
-            [imagePickerController setModalPresentationStyle: UIModalPresentationFullScreen];
-            [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
-        });
-    }];
+        [self launchImagePicker];
+    }
+    
 }
 
 RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
