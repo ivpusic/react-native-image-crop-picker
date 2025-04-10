@@ -50,6 +50,12 @@ declare module "react-native-image-crop-picker" {
 
     export interface CommonOptions {
         /**
+         * Enable direct open Album on iOS only.
+         *
+         * @default false
+         */
+        directAlbum?: boolean;
+        /**
          * Enable or disable multiple image selection.
          *
          * @default false
@@ -278,13 +284,13 @@ declare module "react-native-image-crop-picker" {
          */
         cropperChooseColor?: string;
 
-         /**
-         * Enable or disable cropper rotate buttons.
-         *
-         * @platform iOS only
-         * @default false
-         */
-          cropperRotateButtonsHidden?: boolean
+        /**
+        * Enable or disable cropper rotate buttons.
+        *
+        * @platform iOS only
+        * @default false
+        */
+        cropperRotateButtonsHidden?: boolean
 
         /**
          * Whether to show the 3x3 grid on top of the image during cropping.
