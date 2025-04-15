@@ -371,6 +371,34 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void initiatePicker(final Activity activity) {
         try {
+            if (multiple) {
+                initiateModernPicker(activity);
+            } else {
+                initiateClassicPicker(activity);
+            }
+        } catch (Exception e) {
+            resultCollector.notifyProblem(E_FAILED_TO_SHOW_PICKER, e);
+        }
+    }
+
+    private void initiateModernPicker(final Activity activity) {
+        try {
+            String photoPickerAction = "android.provider.action.PICK_IMAGES";
+            
+            Intent intent = new Intent(photoPickerAction);
+            
+            if (maxFiles != Integer.MAX_VALUE) {
+                intent.putExtra("android.provider.extra.PICK_IMAGES_MAX", maxFiles);
+            }
+            
+            activity.startActivityForResult(intent, IMAGE_PICKER_REQUEST);
+        } catch (Exception e) {
+            initiateClassicPicker(activity);
+        }
+    }
+
+    private void initiateClassicPicker(final Activity activity) {
+        try {
             PickVisualMediaRequest.Builder builder = new PickVisualMediaRequest.Builder();
             // Simplified media type handling
             if (mediaType.equals("video")) {
