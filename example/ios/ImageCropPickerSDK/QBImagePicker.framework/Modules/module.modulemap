@@ -1,6 +1,0 @@
-framework module QBImagePicker {
-  umbrella header "QBImagePicker.h"
-
-  export *
-  module * { export * }
-}

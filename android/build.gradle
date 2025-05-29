@@ -1,27 +1,106 @@
+import com.android.Version
+
 apply plugin: 'com.android.library'
 
-def DEFAULT_COMPILE_SDK_VERSION   = 30
-def DEFAULT_BUILD_TOOLS_VERSION   = "29.0.3"
-def DEFAULT_TARGET_SDK_VERSION    = 30
-def DEFAULT_MIN_SDK_VERSION       = 16
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+def isNewArchitectureEnabled() {
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
+def resolveReactNativeDirectory() {
+    def reactNativeLocation = safeExtGet("REACT_NATIVE_NODE_MODULES_DIR", null)
+    if (reactNativeLocation != null) {
+        return file(reactNativeLocation)
+    }
+
+    def reactNativeFromProjectNodeModules = file("${rootProject.projectDir}/../node_modules/react-native")
+    if (reactNativeFromProjectNodeModules.exists()) {
+        return reactNativeFromProjectNodeModules
+    }
+
+    def reactNativeFromNodeModulesWithPicker = file("${projectDir}/../../react-native")
+    if (reactNativeFromNodeModulesWithPicker.exists()) {
+        return reactNativeFromNodeModulesWithPicker
+    }
+
+    throw new Exception(
+            "[react-native-picker] Unable to resolve react-native location in " +
+                    "node_modules. You should add project extension property (in app/build.gradle) " +
+                    "`REACT_NATIVE_NODE_MODULES_DIR` with path to react-native."
+    )
+}
+
+def getReactNativeMinorVersion() {
+    def REACT_NATIVE_DIR = resolveReactNativeDirectory()
+
+    def reactProperties = new Properties()
+    file("$REACT_NATIVE_DIR/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+
+    def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME")
+    def REACT_NATIVE_MINOR_VERSION = REACT_NATIVE_VERSION.startsWith("0.0.0-") ? 1000 : REACT_NATIVE_VERSION.split("\\.")[1].toInteger()
+
+    return REACT_NATIVE_MINOR_VERSION
+}
+
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: "com.facebook.react"
+}
 
 android {
-        compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
-        buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+    compileSdk safeExtGet('compileSdkVersion', 34)
 
-  defaultConfig {
-        minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : DEFAULT_MIN_SDK_VERSION
-        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
+    def agpVersion = Version.ANDROID_GRADLE_PLUGIN_VERSION
+    // Check AGP version for backward compatibility reasons
+    if (agpVersion.tokenize('.')[0].toInteger() >= 7) {
+        namespace = "com.reactnative.ivpusic.imagepicker"
+    }
+
+    defaultConfig {
+        minSdkVersion safeExtGet('minSdkVersion', 23)
+        targetSdkVersion safeExtGet('targetSdkVersion', 34)
         versionCode 1
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
     }
     lintOptions {
         abortOnError false
     }
+
+    sourceSets.main {
+        java {
+            if (isNewArchitectureEnabled()) {
+                srcDirs += [
+                        "src/newArch/java",
+                ]
+            } else {
+                srcDirs += [
+                        "src/oldArch/java",
+                ]
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        url "$projectDir/../node_modules/react-native/android"
+    }
+    google()
+    mavenCentral()
 }
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
+    if (isNewArchitectureEnabled() && getReactNativeMinorVersion() < 71) {
+        implementation project(":ReactAndroid")
+    } else {
+        implementation 'com.facebook.react:react-native:+'
+    }
+    implementation "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'com.github.yalantis:ucrop:2.2.6-native'
-    implementation 'androidx.activity:activity:1.9.2'
-    implementation "androidx.core:core:1.13.1"
+    implementation 'com.github.yalantis:ucrop:2.2.10'
+    implementation 'androidx.activity:activity:1.10.1'
+    implementation "androidx.core:core:1.16.0"
+    implementation 'androidx.exifinterface:exifinterface:1.4.1'
 }
