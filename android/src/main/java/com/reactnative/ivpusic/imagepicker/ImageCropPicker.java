@@ -496,7 +496,7 @@ class ImageCropPicker implements ActivityEventListener {
 
     private Bitmap validateVideo(Uri uri) throws Exception {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(getCurrentActivity(), uri);
+        retriever.setDataSource(reactContext.getCurrentActivity(), uri);
         Bitmap bmp = retriever.getFrameAtTime();
 
         if (bmp == null) {
