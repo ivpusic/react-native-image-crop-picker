@@ -1,13 +1,37 @@
 package com.reactnative.ivpusic.imagepicker;
 
+import static android.os.Looper.getMainLooper;
+
+import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
+import androidx.media3.common.Effect;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.AudioProcessor;
+import androidx.media3.common.audio.ChannelMixingAudioProcessor;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.effect.Presentation;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportException;
+import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.ProgressHolder;
+import androidx.media3.transformer.TransformationRequest;
+import androidx.media3.transformer.Transformer;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -17,6 +41,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -153,9 +178,89 @@ class Compression {
         return Pair.create(width, height);
     }
 
-    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
-        // todo: video compression
-        // failed attempt 1: ffmpeg => slow and licensing issues
-        promise.resolve(originalVideo);
+    @OptIn(markerClass = UnstableApi.class)
+    synchronized void compressVideo(
+            final Activity activity,
+            final VideoCompressionOptions options,
+            final String originalVideo,
+            final String compressedVideo,
+            final Promise promise
+    ) {
+        Log.d("lolTag","compressVideo !!!!");
+        // setup transformer
+        Transformer videoCompressionTransformer =
+                new Transformer.Builder(activity.getApplicationContext())
+                        .addListener(new Transformer.Listener() {
+                            @Override
+                            public void onCompleted(
+                                    @NonNull Composition composition,
+                                    @NonNull ExportResult exportResult
+                            ) {
+                                Transformer.Listener.super.onCompleted(composition, exportResult);
+                                promise.resolve(compressedVideo);
+                            }
+
+                            @Override
+                            public void onError(
+                                    @NonNull Composition composition,
+                                    @NonNull ExportResult exportResult,
+                                    @NonNull ExportException exportException
+                            ) {
+                                Transformer.Listener.super.onError(composition, exportResult, exportException);
+                                promise.reject(exportException);
+                            }
+
+                            @Override
+                            public void onFallbackApplied(
+                                    @NonNull Composition composition,
+                                    @NonNull TransformationRequest originalTransformationRequest,
+                                    @NonNull TransformationRequest fallbackTransformationRequest
+                            ) {
+                                Transformer.Listener.super.onFallbackApplied(composition, originalTransformationRequest, fallbackTransformationRequest);
+                            }
+                        })
+                        .setVideoMimeType(MimeTypes.VIDEO_H265)
+                        .setAudioMimeType(MimeTypes.AUDIO_AAC)
+                        .build();
+
+        // setup progress holder
+        ProgressHolder compressionProgressHolder = new ProgressHolder();
+        Handler mainHandler = new Handler(getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(videoCompressionTransformer.getProgress(compressionProgressHolder) != PROGRESS_STATE_NOT_STARTED) {
+                    Log.d("lolTag","compression progress: " + compressionProgressHolder.progress);
+                    mainHandler.postDelayed(this, 100);
+                }
+            }
+        });
+
+        //
+        MediaItem inputMediaItem = MediaItem.fromUri(originalVideo);
+        Presentation sizePresentation = Presentation.createForWidthAndHeight(
+                options.getSize().getWidth(),
+                options.getSize().getHeight(),
+                Presentation.LAYOUT_SCALE_TO_FIT
+        );
+
+        //
+        ArrayList<AudioProcessor> audioProcessors = new ArrayList<>();
+        audioProcessors.add(new ChannelMixingAudioProcessor());
+
+        //
+        ArrayList<Effect> effectList = new ArrayList<>();
+        effectList.add(sizePresentation);
+
+        //
+        Effects effects = new Effects(audioProcessors, effectList);
+
+        //
+        EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(inputMediaItem)
+                .setEffects(effects)
+                .build();
+
+        //
+        videoCompressionTransformer.start(editedMediaItem, compressedVideo);
     }
 }
