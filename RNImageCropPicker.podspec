@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.homepage     = 'n/a'
   s.authors      = { "ivpusic" => "" }
   s.source       = { :git => "https://github.com/ivpusic/react-native-image-crop-picker", :tag => "v#{s.version}"}
-  s.source_files = 'ios/src/*.{h,m}'
+  s.source_files = 'ios/src/*.{h,m,mm}'
   s.platform     = :ios, "8.0"
   s.dependency 'React-Core'
   s.dependency 'React-RCTImage'

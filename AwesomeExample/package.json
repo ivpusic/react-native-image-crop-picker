@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "19.0.0",
     "react-native": "0.79.2",
-    "react-native-image-crop-picker": "../"
+    "react-native-image-crop-picker": "../",
+    "react-native-video": "^6.14.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

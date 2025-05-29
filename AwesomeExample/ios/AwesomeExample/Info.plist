@@ -16,6 +16,12 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>Photo Library Access Warning</string>
+  <key>NSCameraUsageDescription</key>
+  <string>Camera usage description</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>This app requires to access your microphone to record video with your voice send via chat</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>

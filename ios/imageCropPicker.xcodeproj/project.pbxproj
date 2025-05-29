@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */; };
+		2DB070982DE8F61D000F328B /* UIImage+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DB070972DE8F61D000F328B /* UIImage+Extension.m */; };
+		2DED7FA12DE8FBD8004E7149 /* ImageCropPicker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2DED7FA02DE8FBD8004E7149 /* ImageCropPicker.mm */; };
 		3408F5F11E0DE76F00E97159 /* Compression.m in Sources */ = {isa = PBXBuildFile; fileRef = 3408F5F01E0DE76F00E97159 /* Compression.m */; };
 		34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 34963A941D6B919800F9CA2F /* UIImage+Resize.m */; };
 		34EC4AB51D78FEC6001E9E86 /* QBImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34434E2E1D6F5EA300BF5063 /* QBImagePicker.framework */; };
@@ -24,9 +25,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2DB070962DE8F61D000F328B /* UIImage+Extension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Extension.h"; sourceTree = "<group>"; };
+		2DB070972DE8F61D000F328B /* UIImage+Extension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Extension.m"; sourceTree = "<group>"; };
+		2DED7FA02DE8FBD8004E7149 /* ImageCropPicker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageCropPicker.mm; sourceTree = "<group>"; };
 		3400A8081CEB54A6008A0BC7 /* libimageCropPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libimageCropPicker.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCropPicker.h; sourceTree = "<group>"; };
-		3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCropPicker.m; sourceTree = "<group>"; };
 		3408F5EF1E0DE76F00E97159 /* Compression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compression.h; sourceTree = "<group>"; };
 		3408F5F01E0DE76F00E97159 /* Compression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Compression.m; sourceTree = "<group>"; };
 		34434E261D6F5EA300BF5063 /* QBImagePicker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QBImagePicker.xcodeproj; path = QBImagePicker/QBImagePicker.xcodeproj; sourceTree = "<group>"; };
@@ -94,10 +97,12 @@
 		34ECC8E3204DEEA90053BBC0 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2DED7FA02DE8FBD8004E7149 /* ImageCropPicker.mm */,
+				2DB070962DE8F61D000F328B /* UIImage+Extension.h */,
+				2DB070972DE8F61D000F328B /* UIImage+Extension.m */,
 				3408F5EF1E0DE76F00E97159 /* Compression.h */,
 				3408F5F01E0DE76F00E97159 /* Compression.m */,
 				3400A8141CEB54F3008A0BC7 /* ImageCropPicker.h */,
-				3400A8151CEB54F3008A0BC7 /* ImageCropPicker.m */,
 				34963A931D6B919800F9CA2F /* UIImage+Resize.h */,
 				34963A941D6B919800F9CA2F /* UIImage+Resize.m */,
 			);
@@ -188,7 +193,8 @@
 			files = (
 				3408F5F11E0DE76F00E97159 /* Compression.m in Sources */,
 				34963AB11D6B96A800F9CA2F /* UIImage+Resize.m in Sources */,
-				3400A8161CEB54F3008A0BC7 /* ImageCropPicker.m in Sources */,
+				2DB070982DE8F61D000F328B /* UIImage+Extension.m in Sources */,
+				2DED7FA12DE8FBD8004E7149 /* ImageCropPicker.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
