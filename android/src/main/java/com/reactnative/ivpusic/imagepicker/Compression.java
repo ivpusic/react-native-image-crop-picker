@@ -9,11 +9,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -21,14 +26,16 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.AudioProcessor;
-import androidx.media3.common.audio.ChannelMixingAudioProcessor;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.effect.FrameDropEffect;
 import androidx.media3.effect.Presentation;
 import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.InAppMp4Muxer;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
@@ -186,7 +193,22 @@ class Compression {
             final String compressedVideo,
             final Promise promise
     ) {
-        Log.d("lolTag","compressVideo !!!!");
+        Log.d("lolTag","compressVideo !!!! compressVideoPath? "+compressedVideo);
+        File file = new File(originalVideo);
+        Log.d("lolTag","compressVideo originalVideo file size = "+file.length());
+
+        Log.d("lolTag","compression options size = "+options.getSize());
+        Log.d("lolTag","originalVideo size = "+options.getSize());
+
+        boolean shouldSkipResizing = getVideoSize(originalVideo).getWidth() < options.getSize().getWidth();
+        Log.d("lolTag","shouldSkipResizing = "+shouldSkipResizing);
+
+        // setup progress holder
+        ProgressHolder compressionProgressHolder = new ProgressHolder();
+
+        // progress updater
+        Handler mainHandler = new Handler(getMainLooper());
+
         // setup transformer
         Transformer videoCompressionTransformer =
                 new Transformer.Builder(activity.getApplicationContext())
@@ -197,7 +219,9 @@ class Compression {
                                     @NonNull ExportResult exportResult
                             ) {
                                 Transformer.Listener.super.onCompleted(composition, exportResult);
+                                Log.d("lolTag","onCompleted file size = "+exportResult.fileSizeBytes);
                                 promise.resolve(compressedVideo);
+                                mainHandler.removeCallbacksAndMessages(null);
                             }
 
                             @Override
@@ -206,8 +230,10 @@ class Compression {
                                     @NonNull ExportResult exportResult,
                                     @NonNull ExportException exportException
                             ) {
+                                Log.d("lolTag","onError!!!!!! exportResult = "+exportException.getMessage());
                                 Transformer.Listener.super.onError(composition, exportResult, exportException);
                                 promise.reject(exportException);
+                                mainHandler.removeCallbacksAndMessages(null);
                             }
 
                             @Override
@@ -216,51 +242,130 @@ class Compression {
                                     @NonNull TransformationRequest originalTransformationRequest,
                                     @NonNull TransformationRequest fallbackTransformationRequest
                             ) {
-                                Transformer.Listener.super.onFallbackApplied(composition, originalTransformationRequest, fallbackTransformationRequest);
+                                Transformer.Listener.super.onFallbackApplied(
+                                        composition,
+                                        originalTransformationRequest,
+                                        fallbackTransformationRequest
+                                );
                             }
                         })
-                        .setVideoMimeType(MimeTypes.VIDEO_H265)
-                        .setAudioMimeType(MimeTypes.AUDIO_AAC)
+                        .setVideoMimeType(hasHevcHwEncoder() ? MimeTypes.VIDEO_H265 : MimeTypes.VIDEO_H264)
+                        .setEnsureFileStartsOnVideoFrameEnabled(true)
                         .build();
 
-        // setup progress holder
-        ProgressHolder compressionProgressHolder = new ProgressHolder();
-        Handler mainHandler = new Handler(getMainLooper());
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 if(videoCompressionTransformer.getProgress(compressionProgressHolder) != PROGRESS_STATE_NOT_STARTED) {
                     Log.d("lolTag","compression progress: " + compressionProgressHolder.progress);
-                    mainHandler.postDelayed(this, 100);
                 }
+                mainHandler.postDelayed(this, 100);
             }
         });
 
         //
         MediaItem inputMediaItem = MediaItem.fromUri(originalVideo);
-        Presentation sizePresentation = Presentation.createForWidthAndHeight(
-                options.getSize().getWidth(),
-                options.getSize().getHeight(),
-                Presentation.LAYOUT_SCALE_TO_FIT
-        );
 
         //
         ArrayList<AudioProcessor> audioProcessors = new ArrayList<>();
-        audioProcessors.add(new ChannelMixingAudioProcessor());
 
         //
         ArrayList<Effect> effectList = new ArrayList<>();
-        effectList.add(sizePresentation);
 
-        //
-        Effects effects = new Effects(audioProcessors, effectList);
 
-        //
-        EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(inputMediaItem)
-                .setEffects(effects)
-                .build();
+        if(!shouldSkipResizing) {
+            //
+            Presentation sizePresentation = Presentation.createForWidthAndHeight(
+                    options.getSize().getWidth(),
+                    options.getSize().getHeight(),
+                    Presentation.LAYOUT_SCALE_TO_FIT
+            );
 
-        //
-        videoCompressionTransformer.start(editedMediaItem, compressedVideo);
+            //
+            effectList.add(sizePresentation);
+
+            //
+            Effects effects = new Effects(audioProcessors, effectList);
+
+            //
+            EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(inputMediaItem)
+                    .setEffects(effects)
+                    .build();
+
+            activity.runOnUiThread(() -> {
+                videoCompressionTransformer.start(editedMediaItem, compressedVideo);
+            });
+        }else {
+            activity.runOnUiThread(() -> {
+                videoCompressionTransformer.start(inputMediaItem, compressedVideo);
+            });
+        }
+    }
+
+    boolean hasHevcHwEncoder() {
+        MediaCodecList list = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        for (MediaCodecInfo info : list.getCodecInfos()) {
+            if (info.isEncoder()
+                    && info.isHardwareAccelerated() // API 29+
+                    && Arrays.asList(info.getSupportedTypes())
+                    .contains(MediaFormat.MIMETYPE_VIDEO_HEVC)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Size getVideoSize(String uri) {
+        int width;
+        int height;
+        int rotation;
+
+        try (MediaMetadataRetriever mmr = new MediaMetadataRetriever()) {
+            mmr.setDataSource(uri);
+
+            String extractedWidthMetadata =
+                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            String extractedHeightMetadata =
+                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+
+            if(extractedWidthMetadata == null || extractedHeightMetadata == null) {
+                return new Size(0, 0);
+            }
+
+            width = Integer.parseInt(extractedWidthMetadata);
+            height = Integer.parseInt(extractedHeightMetadata);
+
+            // Some devices saved videos rotated - check rotation and return proper size
+            String rotationStr = mmr.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+            rotation = rotationStr == null ? 0 : Integer.parseInt(rotationStr);
+            try {
+                mmr.release();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // If rotation is 90° or 270°, swap width/height
+        return (rotation == 90 || rotation == 270)
+                ? new Size(height, width)
+                : new Size(width,  height);
+    }
+
+    private boolean isHevcVideo(@NonNull String path) throws IOException {
+        MediaExtractor extractor = new MediaExtractor();
+        extractor.setDataSource(path);
+        for (int i = 0; i < extractor.getTrackCount(); i++) {
+            MediaFormat fmt = extractor.getTrackFormat(i);
+            String mime = fmt.getString(MediaFormat.KEY_MIME);
+            if (mime != null && mime.startsWith("video/")) {
+                extractor.release();
+                return mime.equalsIgnoreCase(MimeTypes.VIDEO_H265);
+            }
+        }
+        extractor.release();
+        return false;
     }
 }
