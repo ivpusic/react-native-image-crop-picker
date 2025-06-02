@@ -24,6 +24,10 @@
 #import "RCTImageLoaderProtocol.h"
 #endif
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <RNCImageCropPickerSpec/RNCImageCropPickerSpec.h>
+#endif
+
 #if __has_include("QBImagePicker.h")
 #import "QBImagePicker.h"
 #elif __has_include(<QBImagePickerController/QBImagePickerController.h>)
@@ -31,7 +35,6 @@
 #elif __has_include("QBImagePickerController.h") // local QBImagePickerController subspec
 #import "QBImagePickerController.h"
 #else
-#import
 #import "QBImagePicker/QBImagePicker.h"
 #endif
 
