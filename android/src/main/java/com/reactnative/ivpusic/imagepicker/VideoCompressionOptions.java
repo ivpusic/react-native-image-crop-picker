@@ -7,8 +7,10 @@ import java.util.regex.Pattern;
 
 public class VideoCompressionOptions {
 
+    public static float DEFAULT_FPS = 30.0f;
+    public static int DEFAULT_AUDIO_BITRATE = 42_000;
+
     private String codec;
-    private String audioCodec;
     private Size size;
 
     VideoCompressionOptions(String compressVideoPreset) {
@@ -31,10 +33,8 @@ public class VideoCompressionOptions {
      * @throws IllegalArgumentException if the string does not match the expected pattern
      */
     private void parse(String compressVideoPreset) {
-        // Pattern: 1) codec = one or more alphanumerics (non-greedy)
-        //          2) width  = 3–5 digits
-        //          3) height = 3–5 digits
-        Pattern p = Pattern.compile("^([A-Za-z0-9]+?)(\\d{3,5}x\\d{3,5})$");
+        // 1) codec  2) first number  3) second number
+        Pattern p = Pattern.compile("^([A-Za-z0-9]+?)(\\d{3,5})x(\\d{3,5})$");
         Matcher m = p.matcher(compressVideoPreset);
 
         if (!m.matches()) {
@@ -42,6 +42,16 @@ public class VideoCompressionOptions {
         }
 
         this.codec = m.group(1);
-        this.size = Size.parseSize(m.group(2));
+
+        int n1 = Integer.parseInt(m.group(2));   // first numeric token
+        int n2 = Integer.parseInt(m.group(3));   // second numeric token
+
+        /* Handling portrait logic */
+        int width, height;
+        width  = n2;
+        height = n1;
+
+
+        this.size = new Size(width, height);     // android.util.Size
     }
 }

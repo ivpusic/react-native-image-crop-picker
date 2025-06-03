@@ -1,7 +1,9 @@
 package com.reactnative.ivpusic.imagepicker;
 
+import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
 import static android.os.Looper.getMainLooper;
 
+import static androidx.media3.effect.FrameDropEffect.createSimpleFrameDropEffect;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 
 import android.app.Activity;
@@ -29,16 +31,17 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.effect.FrameDropEffect;
 import androidx.media3.effect.Presentation;
+import androidx.media3.transformer.AudioEncoderSettings;
 import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
-import androidx.media3.transformer.InAppMp4Muxer;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
+import androidx.media3.transformer.VideoEncoderSettings;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -193,15 +196,44 @@ class Compression {
             final String compressedVideo,
             final Promise promise
     ) {
-        Log.d("lolTag","compressVideo !!!! compressVideoPath? "+compressedVideo);
-        File file = new File(originalVideo);
-        Log.d("lolTag","compressVideo originalVideo file size = "+file.length());
 
-        Log.d("lolTag","compression options size = "+options.getSize());
-        Log.d("lolTag","originalVideo size = "+options.getSize());
+        if(options == null) {
+            promise.resolve(originalVideo);
+            return;
+        }
 
-        boolean shouldSkipResizing = getVideoSize(originalVideo).getWidth() < options.getSize().getWidth();
-        Log.d("lolTag","shouldSkipResizing = "+shouldSkipResizing);
+        Size src = getVideoSize(originalVideo);
+        Size dst = options.getSize();
+        int srcBitrate = getBitrate(originalVideo);
+        float fpsValue = getFpsValue(originalVideo);
+
+        boolean needResize = src.getWidth()  > dst.getWidth() || src.getHeight() > dst.getHeight();
+        boolean needRecode = !isHevcVideo(originalVideo);
+        boolean needDownFrameRate = fpsValue > VideoCompressionOptions.DEFAULT_FPS;
+
+        //
+        if(!needResize && !needRecode && !needDownFrameRate) {
+            promise.resolve(originalVideo);
+            return;
+        }
+
+        //
+        VideoEncoderSettings videoEncoderSettings = new VideoEncoderSettings.Builder()
+                .setBitrateMode(BITRATE_MODE_VBR)
+                .build();
+
+        //
+        AudioEncoderSettings audioEncoderSettings = new AudioEncoderSettings.Builder()
+                .setBitrate(VideoCompressionOptions.DEFAULT_AUDIO_BITRATE)
+                .build();
+
+        //
+        DefaultEncoderFactory encoderFactory = new DefaultEncoderFactory.Builder(
+                activity.getApplicationContext())
+                .setRequestedVideoEncoderSettings(videoEncoderSettings)
+                .setRequestedAudioEncoderSettings(audioEncoderSettings)
+                .build();
+
 
         // setup progress holder
         ProgressHolder compressionProgressHolder = new ProgressHolder();
@@ -219,9 +251,8 @@ class Compression {
                                     @NonNull ExportResult exportResult
                             ) {
                                 Transformer.Listener.super.onCompleted(composition, exportResult);
-                                Log.d("lolTag","onCompleted file size = "+exportResult.fileSizeBytes);
                                 promise.resolve(compressedVideo);
-                                mainHandler.removeCallbacksAndMessages(null);
+                                mainHandler.removeCallbacksAndMessages(null); // clear progress handler
                             }
 
                             @Override
@@ -230,10 +261,9 @@ class Compression {
                                     @NonNull ExportResult exportResult,
                                     @NonNull ExportException exportException
                             ) {
-                                Log.d("lolTag","onError!!!!!! exportResult = "+exportException.getMessage());
                                 Transformer.Listener.super.onError(composition, exportResult, exportException);
                                 promise.reject(exportException);
-                                mainHandler.removeCallbacksAndMessages(null);
+                                mainHandler.removeCallbacksAndMessages(null); // clear progress handler
                             }
 
                             @Override
@@ -249,6 +279,8 @@ class Compression {
                                 );
                             }
                         })
+                        .setEncoderFactory(encoderFactory)
+                        .setPortraitEncodingEnabled(true)
                         .setVideoMimeType(hasHevcHwEncoder() ? MimeTypes.VIDEO_H265 : MimeTypes.VIDEO_H264)
                         .setEnsureFileStartsOnVideoFrameEnabled(true)
                         .build();
@@ -257,7 +289,7 @@ class Compression {
             @Override
             public void run() {
                 if(videoCompressionTransformer.getProgress(compressionProgressHolder) != PROGRESS_STATE_NOT_STARTED) {
-                    Log.d("lolTag","compression progress: " + compressionProgressHolder.progress);
+                    //todo update progress?
                 }
                 mainHandler.postDelayed(this, 100);
             }
@@ -268,22 +300,24 @@ class Compression {
 
         //
         ArrayList<AudioProcessor> audioProcessors = new ArrayList<>();
-
-        //
         ArrayList<Effect> effectList = new ArrayList<>();
 
-
-        if(!shouldSkipResizing) {
-            //
-            Presentation sizePresentation = Presentation.createForWidthAndHeight(
-                    options.getSize().getWidth(),
-                    options.getSize().getHeight(),
-                    Presentation.LAYOUT_SCALE_TO_FIT
+        //
+        if(needDownFrameRate) {
+            FrameDropEffect fpsEffect = createSimpleFrameDropEffect(
+                fpsValue,
+                VideoCompressionOptions.DEFAULT_FPS
             );
+            effectList.add(fpsEffect);
+        }
 
-            //
+        //
+        if(needResize) {
+            Presentation sizePresentation = Presentation.createForHeight(options.getSize().getHeight());
             effectList.add(sizePresentation);
+        }
 
+        if(needResize || needDownFrameRate) {
             //
             Effects effects = new Effects(audioProcessors, effectList);
 
@@ -349,23 +383,82 @@ class Compression {
         }
 
         // If rotation is 90° or 270°, swap width/height
+        Log.d("lolTag","getVideoSize rotation value = "+rotation);
         return (rotation == 90 || rotation == 270)
                 ? new Size(height, width)
                 : new Size(width,  height);
     }
 
-    private boolean isHevcVideo(@NonNull String path) throws IOException {
+    private boolean isHevcVideo(@NonNull String path) {
         MediaExtractor extractor = new MediaExtractor();
-        extractor.setDataSource(path);
-        for (int i = 0; i < extractor.getTrackCount(); i++) {
-            MediaFormat fmt = extractor.getTrackFormat(i);
-            String mime = fmt.getString(MediaFormat.KEY_MIME);
-            if (mime != null && mime.startsWith("video/")) {
-                extractor.release();
-                return mime.equalsIgnoreCase(MimeTypes.VIDEO_H265);
+        try {
+            extractor.setDataSource(path);
+            for (int i = 0; i < extractor.getTrackCount(); i++) {
+                MediaFormat fmt = extractor.getTrackFormat(i);
+                String mime = fmt.getString(MediaFormat.KEY_MIME);
+                if (mime != null && mime.startsWith("video/")) {
+                    extractor.release();
+                    return mime.equalsIgnoreCase(MimeTypes.VIDEO_H265);
+                }
             }
+            extractor.release();
+        } catch (IOException e) {
+            return false;
         }
-        extractor.release();
+
         return false;
     }
+
+    private float getFpsValue(@NonNull String path) {
+
+        try (MediaMetadataRetriever mmr = new MediaMetadataRetriever()) {
+            mmr.setDataSource(path);
+            String mmrFps = mmr.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE);
+            if (mmrFps != null) {
+                mmr.release();
+                return Float.parseFloat(mmrFps);
+            }
+        } catch (IOException ignore) {}
+
+        try {
+            // fallback when first approach will fail
+            MediaExtractor ex = new MediaExtractor();
+            ex.setDataSource(path);
+            for (int i = 0; i < ex.getTrackCount(); i++) {
+                MediaFormat fmt = ex.getTrackFormat(i);
+                String mime = fmt.getString(MediaFormat.KEY_MIME);
+                if (mime != null && mime.startsWith("video/")
+                        && fmt.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                    int fps = fmt.getInteger(MediaFormat.KEY_FRAME_RATE);
+                    ex.release();
+                    return fps;
+                }
+            }
+            ex.release();
+        } catch (Exception ignore) {}
+
+        return 0;
+    }
+
+    /**
+     * Calculates the compression gain as a percentage.
+     *
+     *  • positive value  -> the output file is smaller (e.g., 32.5 %)
+     *  • negative value  -> the output file is larger  (e.g., –12.1 %)
+     *  • zero            -> no change in size
+     *
+     * @param originalBytes  size of the source file in bytes
+     * @param resultBytes    size of the resulting file in bytes
+     * @return compression gain rounded to one decimal place,
+     *         or Float.NaN if originalBytes <= 0
+     */
+    static float compressionGainPercent(long originalBytes, long resultBytes) {
+        if (originalBytes <= 0) return Float.NaN; // undefined when the original size is non-positive
+
+        double gain = (originalBytes - resultBytes)
+                / (double) originalBytes * 100.0; // percentage gain
+        return (float) Math.round(gain * 10) / 10f;   // round to one decimal place
+    }
+
 }
