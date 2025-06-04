@@ -98,6 +98,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private int width = 0;
     private int height = 0;
     private int maximumDuration = MAXIMUM_DURATION_NOT_DEFINED;
+    private VideoCompressionOptions videoCompressionOptions = null;
 
     private Uri mCameraCaptureURI;
     private String mCurrentMediaPath;
@@ -145,6 +146,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         disableCropperColorSetters = options.hasKey("disableCropperColorSetters") && options.getBoolean("disableCropperColorSetters");
         useFrontCamera = options.hasKey("useFrontCamera") && options.getBoolean("useFrontCamera");
         maximumDuration = options.hasKey("maximumDuration") ? options.getInt("maximumDuration") : MAXIMUM_DURATION_NOT_DEFINED;
+        videoCompressionOptions = options.hasKey("compressVideoPreset") ? new VideoCompressionOptions(options.getString("compressVideoPreset")) : null;
         this.options = options;
     }
 
@@ -548,7 +550,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         new Thread(new Runnable() {
             @Override
             public void run() {
-                compression.compressVideo(activity, options, path, compressedVideoPath, new PromiseImpl(new Callback() {
+                compression.compressVideo(activity, videoCompressionOptions, path, compressedVideoPath, new PromiseImpl(new Callback() {
                     @Override
                     public void invoke(Object... args) {
                         String videoPath = (String) args[0];
