@@ -383,7 +383,6 @@ class Compression {
         }
 
         // If rotation is 90° or 270°, swap width/height
-        Log.d("lolTag","getVideoSize rotation value = "+rotation);
         return (rotation == 90 || rotation == 270)
                 ? new Size(height, width)
                 : new Size(width,  height);
