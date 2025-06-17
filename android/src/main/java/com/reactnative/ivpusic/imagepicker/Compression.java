@@ -204,7 +204,6 @@ class Compression {
 
         Size src = getVideoSize(originalVideo);
         Size dst = options.getSize();
-        int srcBitrate = getBitrate(originalVideo);
         float fpsValue = getFpsValue(originalVideo);
 
         boolean needResize = src.getWidth()  > dst.getWidth() || src.getHeight() > dst.getHeight();
