@@ -1,13 +1,47 @@
 package com.reactnative.ivpusic.imagepicker;
 
+import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
+import static android.os.Looper.getMainLooper;
+
+import static androidx.media3.effect.FrameDropEffect.createSimpleFrameDropEffect;
+import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Size;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
+import androidx.media3.common.Effect;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.AudioProcessor;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.effect.FrameDropEffect;
+import androidx.media3.effect.Presentation;
+import androidx.media3.transformer.AudioEncoderSettings;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportException;
+import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.ProgressHolder;
+import androidx.media3.transformer.TransformationRequest;
+import androidx.media3.transformer.Transformer;
+import androidx.media3.transformer.VideoEncoderSettings;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -17,6 +51,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -153,9 +188,275 @@ class Compression {
         return Pair.create(width, height);
     }
 
-    synchronized void compressVideo(final Activity activity, final ReadableMap options, final String originalVideo, final String compressedVideo, final Promise promise) {
-        // todo: video compression
-        // failed attempt 1: ffmpeg => slow and licensing issues
-        promise.resolve(originalVideo);
+    @OptIn(markerClass = UnstableApi.class)
+    synchronized void compressVideo(
+            final Activity activity,
+            final VideoCompressionOptions options,
+            final String originalVideo,
+            final String compressedVideo,
+            final Promise promise
+    ) {
+
+        if(options == null) {
+            promise.resolve(originalVideo);
+            return;
+        }
+
+        Size src = getVideoSize(originalVideo);
+        Size dst = options.getSize();
+        float fpsValue = getFpsValue(originalVideo);
+
+        boolean needResize = src.getWidth()  > dst.getWidth() || src.getHeight() > dst.getHeight();
+        boolean needRecode = !isHevcVideo(originalVideo);
+        boolean needDownFrameRate = fpsValue > VideoCompressionOptions.DEFAULT_FPS;
+
+        //
+        if(!needResize && !needRecode && !needDownFrameRate) {
+            promise.resolve(originalVideo);
+            return;
+        }
+
+        //
+        VideoEncoderSettings videoEncoderSettings = new VideoEncoderSettings.Builder()
+                .setBitrateMode(BITRATE_MODE_VBR)
+                .build();
+
+        //
+        AudioEncoderSettings audioEncoderSettings = new AudioEncoderSettings.Builder()
+                .setBitrate(VideoCompressionOptions.DEFAULT_AUDIO_BITRATE)
+                .build();
+
+        //
+        DefaultEncoderFactory encoderFactory = new DefaultEncoderFactory.Builder(
+                activity.getApplicationContext())
+                .setRequestedVideoEncoderSettings(videoEncoderSettings)
+                .setRequestedAudioEncoderSettings(audioEncoderSettings)
+                .build();
+
+
+        // setup progress holder
+        ProgressHolder compressionProgressHolder = new ProgressHolder();
+
+        // progress updater
+        Handler mainHandler = new Handler(getMainLooper());
+
+        // setup transformer
+        Transformer videoCompressionTransformer =
+                new Transformer.Builder(activity.getApplicationContext())
+                        .addListener(new Transformer.Listener() {
+                            @Override
+                            public void onCompleted(
+                                    @NonNull Composition composition,
+                                    @NonNull ExportResult exportResult
+                            ) {
+                                Transformer.Listener.super.onCompleted(composition, exportResult);
+                                promise.resolve(compressedVideo);
+                                mainHandler.removeCallbacksAndMessages(null); // clear progress handler
+                            }
+
+                            @Override
+                            public void onError(
+                                    @NonNull Composition composition,
+                                    @NonNull ExportResult exportResult,
+                                    @NonNull ExportException exportException
+                            ) {
+                                Transformer.Listener.super.onError(composition, exportResult, exportException);
+                                promise.reject(exportException);
+                                mainHandler.removeCallbacksAndMessages(null); // clear progress handler
+                            }
+
+                            @Override
+                            public void onFallbackApplied(
+                                    @NonNull Composition composition,
+                                    @NonNull TransformationRequest originalTransformationRequest,
+                                    @NonNull TransformationRequest fallbackTransformationRequest
+                            ) {
+                                Transformer.Listener.super.onFallbackApplied(
+                                        composition,
+                                        originalTransformationRequest,
+                                        fallbackTransformationRequest
+                                );
+                            }
+                        })
+                        .setEncoderFactory(encoderFactory)
+                        .setPortraitEncodingEnabled(true)
+                        .setVideoMimeType(hasHevcHwEncoder() ? MimeTypes.VIDEO_H265 : MimeTypes.VIDEO_H264)
+                        .setEnsureFileStartsOnVideoFrameEnabled(true)
+                        .build();
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(videoCompressionTransformer.getProgress(compressionProgressHolder) != PROGRESS_STATE_NOT_STARTED) {
+                    //todo update progress?
+                }
+                mainHandler.postDelayed(this, 100);
+            }
+        });
+
+        //
+        MediaItem inputMediaItem = MediaItem.fromUri(originalVideo);
+
+        //
+        ArrayList<AudioProcessor> audioProcessors = new ArrayList<>();
+        ArrayList<Effect> effectList = new ArrayList<>();
+
+        //
+        if(needDownFrameRate) {
+            FrameDropEffect fpsEffect = createSimpleFrameDropEffect(
+                fpsValue,
+                VideoCompressionOptions.DEFAULT_FPS
+            );
+            effectList.add(fpsEffect);
+        }
+
+        //
+        if(needResize) {
+            Presentation sizePresentation = Presentation.createForHeight(options.getSize().getHeight());
+            effectList.add(sizePresentation);
+        }
+
+        if(needResize || needDownFrameRate) {
+            //
+            Effects effects = new Effects(audioProcessors, effectList);
+
+            //
+            EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(inputMediaItem)
+                    .setEffects(effects)
+                    .build();
+
+            activity.runOnUiThread(() -> {
+                videoCompressionTransformer.start(editedMediaItem, compressedVideo);
+            });
+        }else {
+            activity.runOnUiThread(() -> {
+                videoCompressionTransformer.start(inputMediaItem, compressedVideo);
+            });
+        }
     }
+
+    boolean hasHevcHwEncoder() {
+        MediaCodecList list = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        for (MediaCodecInfo info : list.getCodecInfos()) {
+            if (info.isEncoder()
+                    && info.isHardwareAccelerated() // API 29+
+                    && Arrays.asList(info.getSupportedTypes())
+                    .contains(MediaFormat.MIMETYPE_VIDEO_HEVC)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Size getVideoSize(String uri) {
+        int width;
+        int height;
+        int rotation;
+
+        try (MediaMetadataRetriever mmr = new MediaMetadataRetriever()) {
+            mmr.setDataSource(uri);
+
+            String extractedWidthMetadata =
+                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            String extractedHeightMetadata =
+                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+
+            if(extractedWidthMetadata == null || extractedHeightMetadata == null) {
+                return new Size(0, 0);
+            }
+
+            width = Integer.parseInt(extractedWidthMetadata);
+            height = Integer.parseInt(extractedHeightMetadata);
+
+            // Some devices saved videos rotated - check rotation and return proper size
+            String rotationStr = mmr.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+            rotation = rotationStr == null ? 0 : Integer.parseInt(rotationStr);
+            try {
+                mmr.release();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // If rotation is 90° or 270°, swap width/height
+        return (rotation == 90 || rotation == 270)
+                ? new Size(height, width)
+                : new Size(width,  height);
+    }
+
+    private boolean isHevcVideo(@NonNull String path) {
+        MediaExtractor extractor = new MediaExtractor();
+        try {
+            extractor.setDataSource(path);
+            for (int i = 0; i < extractor.getTrackCount(); i++) {
+                MediaFormat fmt = extractor.getTrackFormat(i);
+                String mime = fmt.getString(MediaFormat.KEY_MIME);
+                if (mime != null && mime.startsWith("video/")) {
+                    extractor.release();
+                    return mime.equalsIgnoreCase(MimeTypes.VIDEO_H265);
+                }
+            }
+            extractor.release();
+        } catch (IOException e) {
+            return false;
+        }
+
+        return false;
+    }
+
+    private float getFpsValue(@NonNull String path) {
+
+        try (MediaMetadataRetriever mmr = new MediaMetadataRetriever()) {
+            mmr.setDataSource(path);
+            String mmrFps = mmr.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE);
+            if (mmrFps != null) {
+                mmr.release();
+                return Float.parseFloat(mmrFps);
+            }
+        } catch (IOException ignore) {}
+
+        try {
+            // fallback when first approach will fail
+            MediaExtractor ex = new MediaExtractor();
+            ex.setDataSource(path);
+            for (int i = 0; i < ex.getTrackCount(); i++) {
+                MediaFormat fmt = ex.getTrackFormat(i);
+                String mime = fmt.getString(MediaFormat.KEY_MIME);
+                if (mime != null && mime.startsWith("video/")
+                        && fmt.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                    int fps = fmt.getInteger(MediaFormat.KEY_FRAME_RATE);
+                    ex.release();
+                    return fps;
+                }
+            }
+            ex.release();
+        } catch (Exception ignore) {}
+
+        return 0;
+    }
+
+    /**
+     * Calculates the compression gain as a percentage.
+     *
+     *  • positive value  -> the output file is smaller (e.g., 32.5 %)
+     *  • negative value  -> the output file is larger  (e.g., –12.1 %)
+     *  • zero            -> no change in size
+     *
+     * @param originalBytes  size of the source file in bytes
+     * @param resultBytes    size of the resulting file in bytes
+     * @return compression gain rounded to one decimal place,
+     *         or Float.NaN if originalBytes <= 0
+     */
+    static float compressionGainPercent(long originalBytes, long resultBytes) {
+        if (originalBytes <= 0) return Float.NaN; // undefined when the original size is non-positive
+
+        double gain = (originalBytes - resultBytes)
+                / (double) originalBytes * 100.0; // percentage gain
+        return (float) Math.round(gain * 10) / 10f;   // round to one decimal place
+    }
+
 }
