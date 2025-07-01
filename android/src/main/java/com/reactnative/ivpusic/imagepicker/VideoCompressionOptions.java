@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 public class VideoCompressionOptions {
 
+    public static float SLOW_MOTION_VIDEO_FPS_THRESHOLD = 120.0f;
     public static float DEFAULT_FPS = 30.0f;
-    public static int DEFAULT_AUDIO_BITRATE = 42_000;
 
     private String codec;
     private Size size;

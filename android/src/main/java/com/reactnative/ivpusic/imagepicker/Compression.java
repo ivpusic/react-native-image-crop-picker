@@ -1,6 +1,5 @@
 package com.reactnative.ivpusic.imagepicker;
 
-import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR;
 import static android.os.Looper.getMainLooper;
 
 import static androidx.media3.effect.FrameDropEffect.createSimpleFrameDropEffect;
@@ -31,7 +30,6 @@ import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.effect.FrameDropEffect;
 import androidx.media3.effect.Presentation;
-import androidx.media3.transformer.AudioEncoderSettings;
 import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
@@ -41,7 +39,6 @@ import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
-import androidx.media3.transformer.VideoEncoderSettings;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
@@ -60,7 +57,10 @@ import java.util.UUID;
  * Created by ipusic on 12/27/16.
  */
 
+@UnstableApi
 class Compression {
+
+    private Transformer videoCompressionTransformer = null;
 
     File resize(
             Context context,
@@ -208,7 +208,9 @@ class Compression {
 
         boolean needResize = src.getWidth()  > dst.getWidth() || src.getHeight() > dst.getHeight();
         boolean needRecode = !isHevcVideo(originalVideo);
-        boolean needDownFrameRate = fpsValue > VideoCompressionOptions.DEFAULT_FPS;
+
+        boolean isSlowMotionVideo = fpsValue >= VideoCompressionOptions.SLOW_MOTION_VIDEO_FPS_THRESHOLD;
+        boolean needDownFrameRate = !isSlowMotionVideo && fpsValue > VideoCompressionOptions.DEFAULT_FPS;
 
         //
         if(!needResize && !needRecode && !needDownFrameRate) {
@@ -217,20 +219,8 @@ class Compression {
         }
 
         //
-        VideoEncoderSettings videoEncoderSettings = new VideoEncoderSettings.Builder()
-                .setBitrateMode(BITRATE_MODE_VBR)
-                .build();
-
-        //
-        AudioEncoderSettings audioEncoderSettings = new AudioEncoderSettings.Builder()
-                .setBitrate(VideoCompressionOptions.DEFAULT_AUDIO_BITRATE)
-                .build();
-
-        //
         DefaultEncoderFactory encoderFactory = new DefaultEncoderFactory.Builder(
                 activity.getApplicationContext())
-                .setRequestedVideoEncoderSettings(videoEncoderSettings)
-                .setRequestedAudioEncoderSettings(audioEncoderSettings)
                 .build();
 
 
@@ -240,8 +230,15 @@ class Compression {
         // progress updater
         Handler mainHandler = new Handler(getMainLooper());
 
+        // handle the case when video compression is already in progress
+        // this should not happen but I was able to reproduce it
+        if(this.videoCompressionTransformer != null) {
+            this.videoCompressionTransformer.cancel();
+            this.videoCompressionTransformer = null;
+        }
+
         // setup transformer
-        Transformer videoCompressionTransformer =
+        this.videoCompressionTransformer =
                 new Transformer.Builder(activity.getApplicationContext())
                         .addListener(new Transformer.Listener() {
                             @Override
@@ -275,6 +272,7 @@ class Compression {
                                         composition,
                                         originalTransformationRequest,
                                         fallbackTransformationRequest
+
                                 );
                             }
                         })
@@ -304,8 +302,8 @@ class Compression {
         //
         if(needDownFrameRate) {
             FrameDropEffect fpsEffect = createSimpleFrameDropEffect(
-                fpsValue,
-                VideoCompressionOptions.DEFAULT_FPS
+                    fpsValue,
+                    VideoCompressionOptions.DEFAULT_FPS
             );
             effectList.add(fpsEffect);
         }
@@ -316,6 +314,8 @@ class Compression {
             effectList.add(sizePresentation);
         }
 
+        videoCompressionTransformer.cancel();
+
         if(needResize || needDownFrameRate) {
             //
             Effects effects = new Effects(audioProcessors, effectList);
@@ -325,13 +325,9 @@ class Compression {
                     .setEffects(effects)
                     .build();
 
-            activity.runOnUiThread(() -> {
-                videoCompressionTransformer.start(editedMediaItem, compressedVideo);
-            });
+            activity.runOnUiThread(() -> videoCompressionTransformer.start(editedMediaItem, compressedVideo));
         }else {
-            activity.runOnUiThread(() -> {
-                videoCompressionTransformer.start(inputMediaItem, compressedVideo);
-            });
+            activity.runOnUiThread(() -> videoCompressionTransformer.start(inputMediaItem, compressedVideo));
         }
     }
 
