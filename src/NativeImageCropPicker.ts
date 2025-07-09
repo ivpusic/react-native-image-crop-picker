@@ -53,6 +53,7 @@ export interface Spec extends TurboModule {
   openCropper(options: PickerOptions): Promise<PickerResponse>;
   clean(): Promise<void>;
   cleanSingle(path: string): Promise<void>;
+  openAndroidPicker(): Promise<any>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>(

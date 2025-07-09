@@ -53,6 +53,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import android.content.ContentUris;
+import android.database.Cursor;
+import androidx.core.content.ContextCompat;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 class ImageCropPicker implements ActivityEventListener {
     static final String NAME = "RNCImageCropPicker";
@@ -397,6 +404,118 @@ class ImageCropPicker implements ActivityEventListener {
                 return null;
             }
         });
+    }
+
+    // Android partial picker support
+    static class Media {
+        private final Uri uri;
+        private final String name;
+        private final long size;
+        private final String mimeType;
+        public Media(Uri uri, String name, long size, String mimeType) {
+            this.uri = uri;
+            this.name = name;
+            this.size = size;
+            this.mimeType = mimeType;
+        }
+        // Getters
+        public Uri getUri() {
+            return uri;
+        }
+        public String getName() {
+            return name;
+        }
+        public long getSize() {
+            return size;
+        }
+        public String getMimeType() {
+            return mimeType;
+        }
+    }
+
+    // Run the querying logic in a coroutine outside of the main thread to keep the app responsive.
+    // Keep in mind that this code snippet is querying only images of the shared storage.
+    public List<Media> getImages(ContentResolver contentResolver) {
+        // Partial access on Android 14 (API level 34) or higher
+        String[] projection = new String[]{
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.SIZE,
+                MediaStore.Images.Media.MIME_TYPE,
+        };
+        Uri collectionUri;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            // Query all the device storage volumes instead of the primary only
+            collectionUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        } else {
+            collectionUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        }
+        List<Media> images = new ArrayList<>();
+        try (Cursor cursor = contentResolver.query(
+                collectionUri,
+                projection,
+                null,
+                null,
+                MediaStore.Images.Media.DATE_ADDED + " DESC")) {
+            if (cursor != null) {
+                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                int displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+                int sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE);
+                int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
+                while (cursor.moveToNext()) {
+                    Uri uri = ContentUris.withAppendedId(collectionUri, cursor.getLong(idColumn));
+                    String name = cursor.getString(displayNameColumn);
+                    long size = cursor.getLong(sizeColumn);
+                    String mimeType = cursor.getString(mimeTypeColumn);
+                    Media image = new Media(uri, name, size, mimeType);
+                    images.add(image);
+                }
+            }
+        }
+        return images;
+    }
+
+    public void openAndroidPicker(final Promise promise) throws JSONException {
+        final Activity activity = reactContext.getCurrentActivity();
+        String permission = "";
+        if (activity == null) {
+            promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
+            return ;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permission = Manifest.permission.READ_MEDIA_IMAGES;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        }
+   
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(this.reactContext, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+            // Full access on Android 13 (API level 33) or higher
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && ContextCompat.checkSelfPermission(this.reactContext, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) == PackageManager.PERMISSION_GRANTED) {
+            permission = "";
+            // Partial access on Android 14 (API level 34) or higher
+             final var images = getImages(this.reactContext.getContentResolver());
+            JSONArray jsonArray = new JSONArray();
+            for (Media obj : images) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("uri", obj.uri);
+                jsonArray.put(jsonObject);
+            }
+            promise.resolve(jsonArray.toString());
+            return ;
+        }  else if (ContextCompat.checkSelfPermission(this.reactContext, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            // Full access up to Android 12 (API level 32)
+        } else {
+            // Access denied
+            Log.e("CUSTOM_MESSAGE","Access denied");
+        }
+        if(!permission.isEmpty())
+            permissionsCheck(activity, promise, Collections.singletonList(permission), new Callable<Void>() {
+                @Override
+                public Void call() {
+                    initiatePicker(activity);
+                    return null;
+                }
+            });
     }
 
     public void openCropper(final ReadableMap options, final Promise promise) {

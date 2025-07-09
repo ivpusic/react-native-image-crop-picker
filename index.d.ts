@@ -495,6 +495,7 @@ declare module "react-native-image-crop-picker" {
     export function openCropper(options: CropperOptions): Promise<Image>;
     export function clean(): Promise<void>;
     export function cleanSingle(path: string): Promise<void>;
+    export function openAndroidPicker(): Promise<any>;
 
     export interface ImageCropPicker {
         openPicker<O extends Options>(options: O): Promise<PossibleArray<O, MediaType<O>>>;
@@ -502,6 +503,7 @@ declare module "react-native-image-crop-picker" {
         openCropper(options: CropperOptions): Promise<Image>;
         clean(): Promise<void>;
         cleanSingle(path: string): Promise<void>;
+        openAndroidPicker(): Promise<any>;
     }
 
     const ImageCropPicker: ImageCropPicker;
