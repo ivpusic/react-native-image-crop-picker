@@ -28,6 +28,11 @@ public class PickerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void openAndroidPicker(ReadableMap options, Promise promise) {
+        picker.openAndroidPicker(options, promise);
+    }
+
+    @ReactMethod
     public void openCamera(ReadableMap options, Promise promise) {
         picker.openCamera(options, promise);
     }

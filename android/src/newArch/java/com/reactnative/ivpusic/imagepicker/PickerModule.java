@@ -21,6 +21,11 @@ public class PickerModule extends NativeImageCropPickerSpec {
     }
 
     @Override
+    public void openAndroidPicker(ReadableMap options, Promise promise) {
+        picker.openAndroidPicker(options, promise);
+    }
+
+    @Override
     public void openCamera(ReadableMap options, Promise promise) {
         picker.openCamera(options, promise);
     }

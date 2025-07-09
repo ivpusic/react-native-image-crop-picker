@@ -475,13 +475,17 @@ class ImageCropPicker implements ActivityEventListener {
         return images;
     }
 
-    public void openAndroidPicker(final Promise promise) throws JSONException {
+    public void openAndroidPicker(final ReadableMap options, final Promise promise) {
         final Activity activity = reactContext.getCurrentActivity();
         String permission = "";
         if (activity == null) {
             promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist");
             return ;
         }
+
+        setConfiguration(options);
+        resultCollector.setup(promise, multiple);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             permission = Manifest.permission.READ_MEDIA_IMAGES;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -495,10 +499,14 @@ class ImageCropPicker implements ActivityEventListener {
             // Partial access on Android 14 (API level 34) or higher
              final var images = getImages(this.reactContext.getContentResolver());
             JSONArray jsonArray = new JSONArray();
-            for (Media obj : images) {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("uri", obj.uri);
-                jsonArray.put(jsonObject);
+            try {
+                for (Media obj : images) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("uri", obj.uri);
+                    jsonArray.put(jsonObject);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace(); // or handle it in another way
             }
             promise.resolve(jsonArray.toString());
             return ;
