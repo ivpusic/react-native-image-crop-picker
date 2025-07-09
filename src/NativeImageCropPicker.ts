@@ -49,11 +49,11 @@ export type PickerOptions = {
 
 export interface Spec extends TurboModule {
   openPicker(options: PickerOptions): Promise<PickerResponse>;
+  openAndroidPicker(options: PickerOptions): Promise<any>;
   openCamera(options: PickerOptions): Promise<PickerResponse>;
   openCropper(options: PickerOptions): Promise<PickerResponse>;
   clean(): Promise<void>;
   cleanSingle(path: string): Promise<void>;
-  openAndroidPicker(): Promise<any>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>(
