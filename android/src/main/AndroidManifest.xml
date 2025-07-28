@@ -24,7 +24,8 @@
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/UCropTheme"
+            android:exported="false" />
 
 
         <!-- Prompt Google Play services to install the backported photo picker module -->
