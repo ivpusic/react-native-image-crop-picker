@@ -35,7 +35,7 @@ class Compression {
             int maxWidth,
             int maxHeight,
             int quality
-    ) throws IOException {
+    ) throws IOException,OutOfMemoryError {
         Pair<Integer, Integer> targetDimensions =
                 this.calculateTargetDimensions(originalWidth, originalHeight, maxWidth, maxHeight);
 
@@ -105,7 +105,7 @@ class Compression {
                 && !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
     }
 
-    File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException {
+    File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException,OutOfMemoryError {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;

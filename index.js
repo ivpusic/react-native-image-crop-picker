@@ -1,8 +1,4 @@
-import React from 'react';
-
-import {NativeModules} from 'react-native';
-
-const ImageCropPicker = NativeModules.ImageCropPicker;
+import ImageCropPicker from "./src/NativeImageCropPicker";
 
 export default ImageCropPicker;
 export const openPicker = ImageCropPicker.openPicker;
