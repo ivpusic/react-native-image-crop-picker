@@ -348,6 +348,14 @@ declare module "react-native-image-crop-picker" {
          * @default Android: 1, iOS: 0.8
          */
         compressImageQuality?: number;
+
+        /**
+         * Enable or disable cropper aspect ratio button.
+         *
+         * @platform iOS only
+         * @default false
+         */
+        aspectRatioPickerButtonHidden?: boolean;
     }
 
     type CropperOptions = ImageOptions & {
