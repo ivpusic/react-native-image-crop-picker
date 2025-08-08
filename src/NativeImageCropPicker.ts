@@ -45,6 +45,7 @@ export type PickerOptions = {
   enableRotationGesture?: boolean;
   disableCropperColorSetters?: boolean;
   useFrontCamera?: boolean;
+  aspectRatioPickerButtonHidden?: boolean;
 };
 
 export interface Spec extends TurboModule {
