@@ -198,12 +198,20 @@ declare module "react-native-image-crop-picker" {
         cropperActiveWidgetColor?: string;
 
         /**
-         * When cropping image, determines the color of StatusBar.
+         * When cropping image, true for light status bar (dark icons), false for dark status bar (light icons).
          *
          * @platform Android only
-         * @default '#424242'
+         * @default true
          */
-        cropperStatusBarColor?: string;
+        cropperStatusBarLight?: boolean;
+
+        /**
+         * When cropping image, true for light navigation bar (dark icons), false for dark navigation bar (light icons).
+         *
+         * @platform Android only
+         * @default false
+         */
+        cropperNavigationBarLight?: boolean;
 
         /**
          * When cropping image, determines the color of Toolbar.
