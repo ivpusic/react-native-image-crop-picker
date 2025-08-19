@@ -14,6 +14,12 @@
 #import "QBAssetCell.h"
 #import "QBVideoIndicatorView.h"
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 130000
+@interface UIColor (Xcode10)
++ (instancetype) labelColor;
+@end
+#endif
+
 static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return CGSizeMake(size.width * scale, size.height * scale);
 }
