@@ -356,24 +356,20 @@ class ImageCropPicker implements ActivityEventListener {
 
     private void initiatePicker(final Activity activity) {
         try {
-            String mimeType;
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-            // Simplified media type handling
             if (mediaType.equals("video")) {
-                mimeType = "video/*";
+                intent.setType("video/*");
             } else if (mediaType.equals("photo") || cropping) {
                 // Force image-only for cropping
-                mimeType = "image/*";
+                intent.setType("image/*");
             } else {
-                mimeType = "image/*,video/*";
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
             }
 
-            Intent intent;
-            if (multiple) {
-                intent = new ActivityResultContracts.GetMultipleContents().createIntent(activity, mimeType);
-            } else {
-                intent = new ActivityResultContracts.GetContent().createIntent(activity, mimeType);
-            }
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
 
             activity.startActivityForResult(intent, IMAGE_PICKER_REQUEST);
         } catch (Exception e) {
