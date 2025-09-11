@@ -368,7 +368,7 @@ class ImageCropPicker implements ActivityEventListener {
             }
 
             Intent intent;
-            if (multiple) {
+            if (multiple && maxFiles > 1) {
                 intent = new ActivityResultContracts.PickMultipleVisualMedia(maxFiles).createIntent(activity, builder.build());
             } else {
                 intent = new ActivityResultContracts.PickVisualMedia().createIntent(activity, builder.build());
