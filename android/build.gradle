@@ -99,7 +99,7 @@ dependencies {
     }
     implementation "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'com.github.yalantis:ucrop:2.2.11'
+    implementation 'com.github.yalantis:ucrop:2.2.11-native'
     implementation 'androidx.activity:activity:1.10.1'
     implementation "androidx.core:core:1.16.0"
     implementation 'androidx.exifinterface:exifinterface:1.4.1'
