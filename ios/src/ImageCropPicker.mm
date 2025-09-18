@@ -433,6 +433,16 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
         if (exportSession.status == AVAssetExportSessionStatusCompleted) {
             AVAsset *compressedAsset = [AVAsset assetWithURL:outputURL];
             AVAssetTrack *track = [[compressedAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+
+            CGFloat width = track.naturalSize.width;
+            CGFloat height = track.naturalSize.height;
+            CGAffineTransform preferredTransform = track.preferredTransform;
+            
+            // Adjust width and height if video is in portrait mode
+            if (preferredTransform.a == 0 && preferredTransform.b == 1.0 && preferredTransform.c == -1.0 && preferredTransform.d == 0) {
+                width = track.naturalSize.height;
+                height = track.naturalSize.width;
+            }
             
             NSNumber *fileSizeValue = nil;
             [outputURL getResourceValue:&fileSizeValue
@@ -448,8 +458,8 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                         withSourceURL:[sourceURL absoluteString]
                                   withLocalIdentifier:localIdentifier
                                          withFilename:fileName
-                                            withWidth:[NSNumber numberWithFloat:track.naturalSize.width]
-                                           withHeight:[NSNumber numberWithFloat:track.naturalSize.height]
+                                            withWidth:[NSNumber numberWithFloat:width]
+                                           withHeight:[NSNumber numberWithFloat:height]
                                              withMime:@"video/mp4"
                                              withSize:fileSizeValue
                                          withDuration:[NSNumber numberWithFloat:milliseconds]
