@@ -1,11 +1,12 @@
 .git
-example
+.github
+AwesomeExample
 node_modules
 build
 images
+svg.svg
 
 # android studio
 *.iml
 .idea
 .gradle
-build/
