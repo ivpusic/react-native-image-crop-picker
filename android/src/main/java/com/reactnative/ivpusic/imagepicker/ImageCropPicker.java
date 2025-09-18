@@ -865,7 +865,10 @@ class ImageCropPicker implements ActivityEventListener {
                     resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, ex.getMessage());
                 }
             } else {
-                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot find image data");
+                Throwable cropError = UCrop.getError(data);
+                String errorDetails = (cropError == null) ? "Output URI is null" : "UCrop error: " + cropError.getMessage();
+
+                resultCollector.notifyProblem(E_NO_IMAGE_DATA_FOUND, "Cannot find image data. " + errorDetails);
             }
         } else {
             resultCollector.notifyProblem(E_PICKER_CANCELLED_KEY, E_PICKER_CANCELLED_MSG);
