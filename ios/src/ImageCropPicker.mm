@@ -798,6 +798,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
             break;
         case CAMERA:
             [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            if(selectionDone) {
+                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:completion];
+            } else {
+                // if user opened camera picker, tried to crop the image,
+                // and cancelled cropping, he would return app with promise reject
+                [controller.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:[self waitAnimationEnd:^{
+                    self.reject(ERROR_PICKER_CANCEL_KEY, ERROR_PICKER_CANCEL_MSG, nil);
+                }]];
+            }
             break;
     }
 }
