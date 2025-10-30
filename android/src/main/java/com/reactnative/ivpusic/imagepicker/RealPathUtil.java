@@ -1,14 +1,19 @@
 package com.reactnative.ivpusic.imagepicker;
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,50 +22,26 @@ import java.io.InputStream;
 
 class RealPathUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
-
-        final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
-
-        // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
+    static String getRealPathFromURI(final Context context, final Uri uri) {
+        if (context == null || uri == null) {
+            return null;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && DocumentsContract.isDocumentUri(context, uri)) {
             if (isExternalStorageDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
+                String docId = DocumentsContract.getDocumentId(uri);
+                String[] split = docId.split(":");
+                String type = split[0];
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
-                } else {
-                    final int splitIndex = docId.indexOf(':', 1);
-                    final String tag = docId.substring(0, splitIndex);
-                    final String path = docId.substring(splitIndex + 1);
-
-                    String nonPrimaryVolume = getPathToNonPrimaryVolume(context, tag);
-                    if (nonPrimaryVolume != null) {
-                        String result = nonPrimaryVolume + "/" + path;
-                        File file = new File(result);
-                        if (file.exists() && file.canRead()) {
-                            return result;
-                        }
-                        return null;
-                    }
                 }
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
+            } else if (isDownloadsDocument(uri)) {
+                String id = DocumentsContract.getDocumentId(uri);
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
                 return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
+            } else if (isMediaDocument(uri)) {
+                String docId = DocumentsContract.getDocumentId(uri);
+                String[] split = docId.split(":");
+                String type = split[0];
                 Uri contentUri = null;
                 if ("image".equals(type)) {
                     contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -69,27 +50,24 @@ class RealPathUtil {
                 } else if ("audio".equals(type)) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
-                        split[1]
-                };
-
+                String selection = MediaStore.Images.Media._ID + "=?";
+                String[] selectionArgs = new String[]{split[1]};
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+        } // MediaStore (and general)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return getRealPathFromURIApiQ(context, uri);
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             // Return the remote address
-            if (isGooglePhotosUri(uri))
+            if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
+            }
             return getDataColumn(context, uri, null, null);
         }
         // File
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
-
         return null;
     }
 
@@ -97,9 +75,9 @@ class RealPathUtil {
      * If an image/video has been selected from a cloud storage, this method
      * should be call to download the file in the cache folder.
      *
-     * @param context The context
+     * @param context  The context
      * @param fileName donwloaded file's name
-     * @param uri file's URI
+     * @param uri      file's URI
      * @return file that has been written
      */
     private static File writeToFile(Context context, String fileName, Uri uri) {
@@ -129,9 +107,9 @@ class RealPathUtil {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
@@ -219,4 +197,38 @@ class RealPathUtil {
         return null;
     }
 
+    /**
+     * Android Q  adapter
+     *
+     * @param context The context.
+     * @param uri     The uri.
+     * @return path
+     */
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private static String getRealPathFromURIApiQ(Context context, Uri uri) {
+        File file = null;
+        //android10以上转换
+        if (uri.getScheme().equals(ContentResolver.SCHEME_FILE)) {
+            file = new File(uri.getPath());
+        } else if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            //把文件复制到沙盒目录
+            ContentResolver contentResolver = context.getContentResolver();
+            Cursor cursor = contentResolver.query(uri, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                try {
+                    InputStream is = contentResolver.openInputStream(uri);
+                    File cache = new File(context.getExternalCacheDir().getAbsolutePath(), Math.round((Math.random() + 1) * 1000) + displayName);
+                    FileOutputStream fos = new FileOutputStream(cache);
+                    FileUtils.copy(is, fos);
+                    file = cache;
+                    fos.close();
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return file.getAbsolutePath();
+    }
 }
