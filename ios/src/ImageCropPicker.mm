@@ -129,7 +129,8 @@ RCT_EXPORT_MODULE(RNCImageCropPicker);
 
 - (UIViewController*) getRootVC {
     UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-    while (root.presentedViewController != nil) {
+    while (root.presentedViewController != nil &&
+           !root.presentedViewController.isBeingDismissed) {
         root = root.presentedViewController;
     }
     
