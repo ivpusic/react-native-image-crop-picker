@@ -702,6 +702,7 @@ class ImageCropPicker implements ActivityEventListener {
         File compressedImage = compression.compressImage(this.reactContext, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
+        invertDimensions = invertDimensions && compressedImagePath.equals(path);
         long modificationDate = new File(path).lastModified();
 
         image.putString("path", "file://" + compressedImagePath);

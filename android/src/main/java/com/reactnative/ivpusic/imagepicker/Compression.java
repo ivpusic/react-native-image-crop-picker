@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Environment;
 import android.util.Log;
@@ -51,11 +52,11 @@ class Compression {
             bitmap = BitmapFactory.decodeFile(originalImagePath, options);
         }
 
-        // Use original image exif orientation data to preserve image orientation for the resized bitmap
         ExifInterface originalExif = new ExifInterface(originalImagePath);
-        String originalOrientation = originalExif.getAttribute(ExifInterface.TAG_ORIENTATION);
+        int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 
         bitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+        bitmap = applyOrientation(bitmap, originalOrientation);
 
         File imageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
@@ -67,16 +68,11 @@ class Compression {
         File resizeImageFile = new File(imageDirectory, UUID.randomUUID() + ".jpg");
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(resizeImageFile));
-        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
-
-        // Don't set unnecessary exif attribute
-        if (shouldSetOrientation(originalOrientation)) {
-            ExifInterface exif = new ExifInterface(resizeImageFile.getAbsolutePath());
-            exif.setAttribute(ExifInterface.TAG_ORIENTATION, originalOrientation);
-            exif.saveAttributes();
+        try {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, os);
+        } finally {
+            os.close();
         }
-
-        os.close();
         bitmap.recycle();
 
         return resizeImageFile;
@@ -100,9 +96,41 @@ class Compression {
         return inSampleSize;
     }
 
-    private boolean shouldSetOrientation(String orientation) {
-        return !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_NORMAL))
-                && !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
+    private Bitmap applyOrientation(Bitmap bitmap, int orientation) {
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setScale(1, -1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+
+        Bitmap oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        if (oriented != bitmap) {
+            bitmap.recycle();
+        }
+        return oriented;
     }
 
     File compressImage(final Context context, final ReadableMap options, final String originalImagePath, final BitmapFactory.Options bitmapOptions) throws IOException,OutOfMemoryError {
