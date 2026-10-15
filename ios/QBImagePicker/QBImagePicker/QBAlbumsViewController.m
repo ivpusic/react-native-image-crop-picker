@@ -449,6 +449,11 @@ static bool isDarkMode() {
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        // Nothing to update once the picker has been dismissed and released
+        if (self.imagePickerController == nil) {
+            return;
+        }
+
         // Update fetch results
         NSMutableArray *fetchResults = [self.fetchResults mutableCopy];
         

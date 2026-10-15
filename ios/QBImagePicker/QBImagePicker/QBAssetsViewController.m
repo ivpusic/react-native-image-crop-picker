@@ -396,6 +396,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        // The picker may have been dismissed and released since the change was posted
+        // (imagePickerController is weak). Updating the collection view then would lay it
+        // out with 0 columns and crash with a negative item size (#1702).
+        if (self.imagePickerController == nil) {
+            return;
+        }
+
         PHFetchResultChangeDetails *collectionChanges = [changeInstance changeDetailsForFetchResult:self.fetchResult];
 
         if (collectionChanges) {
@@ -711,7 +718,18 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         numberOfColumns = self.imagePickerController.numberOfColumnsInLandscape;
     }
 
+    // numberOfColumns is 0 when imagePickerController has been released; it is unsigned,
+    // so (numberOfColumns - 1) would underflow and the division would yield -inf.
+    if (numberOfColumns == 0) {
+        return CGSizeZero;
+    }
+
     CGFloat width = (CGRectGetWidth(self.view.frame) - 2.0 * (numberOfColumns - 1)) / numberOfColumns;
+
+    // Flow layout rejects negative sizes (e.g. when the view has not been laid out yet).
+    if (width < 0 || !isfinite(width)) {
+        width = 0;
+    }
 
     return CGSizeMake(width, width);
 }
