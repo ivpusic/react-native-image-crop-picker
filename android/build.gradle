@@ -82,6 +82,10 @@ android {
             }
         }
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 repositories {
