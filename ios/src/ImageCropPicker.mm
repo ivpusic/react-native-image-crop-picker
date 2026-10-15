@@ -8,6 +8,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "ImageCropPicker.h"
+#import <React/RCTUtils.h>
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <RNCImageCropPickerSpec/RNCImageCropPickerSpec.h>
 #endif
@@ -128,7 +129,7 @@ RCT_EXPORT_MODULE(RNCImageCropPicker);
 }
 
 - (UIViewController*) getRootVC {
-    UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    UIViewController *root = RCTKeyWindow().rootViewController;
     while (root.presentedViewController != nil &&
            !root.presentedViewController.isBeingDismissed) {
         root = root.presentedViewController;
