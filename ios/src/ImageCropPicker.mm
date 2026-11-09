@@ -129,9 +129,29 @@ RCT_EXPORT_MODULE(RNCImageCropPicker);
 }
 
 - (UIViewController*) getRootVC {
-    UIViewController *root = RCTKeyWindow().rootViewController;
-    while (root.presentedViewController != nil &&
-           !root.presentedViewController.isBeingDismissed) {
+    UIViewController *root = nil;
+    
+    // Modern iOS 13+ SceneDelegate window resolution
+    if (@available(iOS 13.0, *)) {
+        for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                for (UIWindow *window in windowScene.windows) {
+                    if (window.isKeyWindow) {
+                        root = window.rootViewController;
+                        break;
+                    }
+                }
+            }
+            if (root != nil) break;
+        }
+    }
+    
+    // Fallback for legacy architecture
+    if (root == nil) {
+        root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    }
+    
+    while (root != nil && root.presentedViewController != nil) {
         root = root.presentedViewController;
     }
     
