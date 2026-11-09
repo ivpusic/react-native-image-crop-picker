@@ -130,6 +130,23 @@ RCT_EXPORT_MODULE(RNCImageCropPicker);
 
 - (UIViewController*) getRootVC {
     UIViewController *root = RCTKeyWindow().rootViewController;
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+            if ([scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+                for (UIWindow *window in windowScene.windows) {
+                    if (window.isKeyWindow) {
+                        root = window.rootViewController;
+                        break;
+                    }
+                }
+            }
+            if (root) break;
+        }
+    }
+    if (!root) {
+        root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    }
     while (root.presentedViewController != nil &&
            !root.presentedViewController.isBeingDismissed) {
         root = root.presentedViewController;
